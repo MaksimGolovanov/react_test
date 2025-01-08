@@ -1,0 +1,70 @@
+/* styles.css */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.vertical-menu {
+  background-color: #2F3436;
+  height: 100vh;
+  width: 250px;
+  font-size: 13px;
+  font-weight: bold;
+  padding: auto;
+  
+}
+.vertical-menu .nav-link  {
+  height: 48px;
+  color: #f3f5f5;
+  display: inline-flex;
+  align-items: center;
+  
+}
+
+.vertical-menu .nav-link:hover {
+  background-color: #25292A;
+  color: #f3f5f5;
+  width: 250px; 
+}
+.vertical-menu .nav-link.active {
+  border-left: 4px solid #fa922f;
+  padding-left: 13px;
+  background-color: #f3f5f5; /* Зеленый цвет для активной кнопки */
+  color: #707070; 
+  width: 250px;             /* Белый текст для контраста */
+}
+
+.vertical-menu .nav-link.active .icon{
+
+  color: #fa922f;              /* Белый текст для контраста */
+}
+.navbar-fixed {
+  position: sticky;
+  top: 0;
+  z-index: 1020; /* Установите подходящий z-index, чтобы NavBar находился над другими элементами */
+}
+.admin-dropdown {
+  list-style-type: none;
+  
+  margin-top: 0;
+  background-color: #444;
+}
+
+.admin-dropdown li a {
+  color: white;
+  text-decoration: none;
+  padding: 6px 0;
+  display: block;
+}
+
+.admin-dropdown li a:hover{
+  background-color: rgba(255, 165, 47, 0.7);
+}
+
+.admin-dropdown-active{
+  background-color: rgba(255, 165, 47, 0.7);
+}
+
+ul {
+  padding-inline-start: 0;
+}

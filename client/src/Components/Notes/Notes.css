@@ -1,0 +1,103 @@
+.rich-text-editor .public-DraftEditor-content {
+    background-color: white !important;
+  }
+
+
+
+p {
+  margin-bottom: 4px;
+}
+
+pre {
+  margin: 0px;
+}
+span {
+  margin: 0px;
+}
+
+
+
+
+.pre-wrapper {
+  position: relative;
+  margin: 0;
+}
+
+.pre-wrapper pre {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 15px;
+  padding-right: 40px;
+  margin: 0;
+  white-space: pre-wrap;
+}
+.copy-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.copy-icon:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.copy-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.card-container {
+  max-height: calc(100vh - 150px); /* Высота контейнера карточек */
+  overflow-y: auto; /* Включает вертикальную прокрутку */
+  padding-right: 15px; /* Убираем скроллбар за пределы контейнера */
+}
+
+.card-body .code-block {
+  position: relative;
+  display: block;
+}
+
+.copy-button {
+  position: absolute;
+ 
+  right: 15px; /* Отступ от правого края */
+  cursor: pointer;
+}
+
+.copy-button svg {
+  width: 14px; /* Размер иконки */
+  height: 14px;
+  color: #555; /* Цвет иконки */
+  vertical-align: middle; /* Центрирование иконки по вертикали */
+  margin-right: 5px; /* Отступ справа для улучшения внешнего вида */
+}
+.copy-button svg:hover {
+  color: #fa922f;
+}
+
+.edit-icon:hover {
+  color: #fa922f;
+}
+.delete-icon:hover{
+  color: #fa922f;
+}
+.edit-icon {
+  cursor: pointer;
+ 
+  margin-left: 8px; /* Отступ слева */
+}
+
+.delete-icon {
+  cursor: pointer;
+ 
+  margin-left: 8px; /* Отступ слева */
+}
+
