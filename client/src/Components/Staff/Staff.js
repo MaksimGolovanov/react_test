@@ -182,15 +182,17 @@ function Staff() {
 
         <div>
             <div className='d-flex mb-2'>
-                <Form.Control
+                <Form.Control //строка поиска
                     type="text"
                     placeholder="Поиск..."
                     value={searchQuery}
                     onChange={handleSearchChange}
                     style={{ width: '500px' }}
                 />
+                {}
                 <Button className='button-next ml-2' onClick={() => setModalShow(true)}><BiDownload className={'icon-staff'} size={20} style={{ marginRight: '8px' }} />ИМПОРТ</Button>
             </div>
+
             <div style={{ maxHeight: '780px', overflowY: 'auto' }}>
                 <Table striped bordered hover variant="white" className='table-staff'>
                     <thead className="fixed-header">

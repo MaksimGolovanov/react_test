@@ -16,7 +16,12 @@ import AdminEditUser from './Components/Admin/AdminEditUser';
 import PrivateRoute from '../src/Components/Admin/PrivateRoute';
 import Car from './Components/Car/Car';
 import CarCreate from './Components/Car/CarCreate';
+import CarSprav from './Components/Car/CarSprav';
+
+
+
 import './App.css';
+
 
 
 
@@ -81,6 +86,7 @@ function App() {
             <Route path="/admin/edit/:id" element={<PrivateRoute requiredRole={['ADMIN']}><AdminEditUser /></PrivateRoute>} />
             <Route path="/car" element={<PrivateRoute requiredRole={['ADMIN']}><Car /></PrivateRoute>} />
             <Route path="/car/create" element={<PrivateRoute requiredRole={['ADMIN', 'CAR']}><CarCreate /></PrivateRoute>} />
+            <Route path="/car/sprav" element={<PrivateRoute requiredRole={['ADMIN', 'CAR']}><CarSprav /></PrivateRoute>} />
           </Routes>
         </div>
       </div>

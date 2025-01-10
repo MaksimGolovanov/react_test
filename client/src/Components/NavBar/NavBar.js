@@ -108,11 +108,11 @@ const NavBar = observer(() =>  {
             <ul className="admin-dropdown">
               <li>
                 <Link
-                  to="/car/overview"
+                  to="/car/sprav"
                   style={{ paddingLeft: '30px' }}
-                  className={location.pathname.includes('/car/overview') ? 'admin-dropdown-active' : ''}
+                  className={location.pathname.includes('/car/sprav') ? 'admin-dropdown-active' : ''}
                 >
-                  Обзор автомобилей
+                  Справочники
                 </Link>
               </li>
               <li>
