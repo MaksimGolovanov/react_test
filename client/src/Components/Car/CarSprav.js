@@ -2,13 +2,15 @@ import React from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import carStore from '../Store/CarStore'
+import CarCreate from './CarCreate';
+
 
 const CarSprav = () => {
     return (
         <>
            <Tabs defaultActiveKey="Car" id="uncontrolled-tab-example" className="mb-3">
                 <Tab eventKey="Car" title="Автомобили">
-                    Car
+                    <CarCreate/>
                 </Tab>
                 <Tab eventKey="Car_driver" title="Водители">
                     Car driver
