@@ -17,10 +17,11 @@ import PrivateRoute from '../src/Components/Admin/PrivateRoute';
 import Car from './Components/Car/Car';
 import CarCreate from './Components/Car/CarCreate';
 import CarSprav from './Components/Car/CarSprav';
-
+import IusPt from './Components/IusPT';
 
 
 import './App.css';
+
 
 
 
@@ -51,6 +52,9 @@ function App() {
       break;
     case location.pathname.startsWith('/car'):
       pageTitle = 'ЗАКАЗ АВТОТРАНСПОРТА';
+      break;
+      case location.pathname.startsWith('/iuspt'):
+      pageTitle = 'ИУС П Т';
       break;
     default:
       pageTitle = '';
@@ -87,6 +91,7 @@ function App() {
             <Route path="/car" element={<PrivateRoute requiredRole={['ADMIN']}><Car /></PrivateRoute>} />
             <Route path="/car/create" element={<PrivateRoute requiredRole={['ADMIN', 'CAR']}><CarCreate /></PrivateRoute>} />
             <Route path="/car/sprav" element={<PrivateRoute requiredRole={['ADMIN', 'CAR']}><CarSprav /></PrivateRoute>} />
+            <Route path="/iuspt" element={<PrivateRoute requiredRole={['ADMIN']}><IusPt /></PrivateRoute>} />
           </Routes>
         </div>
       </div>

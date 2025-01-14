@@ -7,6 +7,7 @@ import { BsUsbDrive } from "react-icons/bs";
 import { MdOutlineBadge } from "react-icons/md";
 import { RiAdminLine } from "react-icons/ri";
 import { GrNotes } from "react-icons/gr";
+import { TbComponents } from "react-icons/tb";
 import { FaCaretDown, FaCaretRight } from "react-icons/fa";
 import { PiCarProfileFill } from "react-icons/pi";
 import christmasPlains from '../../Image/christmas-plains.png';
@@ -89,6 +90,12 @@ const NavBar = observer(() =>  {
         <Link to="/notes" className={`nav-link ${location.pathname === '/notes' || location.pathname === '/create-post' || location.pathname.match(/^\/edit-post\/\d+$/) ? 'active' : ''}`}>
           <GrNotes className={'icon'} size={20} style={{ marginRight: '8px' }} />
           ЗАМЕТКИ
+        </Link>
+      )}
+      {(userStore.userRolesAuth.includes('IUSPT') || userStore.userRolesAuth.includes('ADMIN')) && (
+        <Link to="/iuspt" className={`nav-link ${location.pathname === '/iuspt' || location.pathname.match(/^\/iuspt\/\d+$/) ? 'active' : ''}`}>
+          <TbComponents className={'icon'} size={20} style={{ marginRight: '8px' }} />
+          ИУС П Т
         </Link>
       )}
 

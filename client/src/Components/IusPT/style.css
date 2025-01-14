@@ -1,0 +1,21 @@
+.page-header {
+    margin: 8px 0;
+    font-size: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4em;
+    color: #364760;
+}
+
+.table-container {
+    max-height: 730px; /* Фиксированная высота контейнера */
+    overflow-y: auto;  /* Включаем вертикальную прокрутку */
+}
+
+.table-fixed thead th {
+    position: sticky;  /* Фиксация шапки */
+    top: 0;            /* Шапка всегда вверху */
+    background-color: white; /* Цвет фона шапки */
+    z-index: 10;       /* Чтобы шапка была над телом таблицы */
+}
