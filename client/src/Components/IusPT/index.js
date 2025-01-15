@@ -1,6 +1,5 @@
-// IusPt.js
 import React, { useState, useEffect } from 'react';
-import { useObserver } from 'mobx-react-lite';
+import { observer } from 'mobx-react-lite';
 import './style.css'
 import SearchBar from './SearchBar/SearchBar'; // Импорт компонента SearchBar
 import UserTable from './UserTable/TableUser';  // Импорт компонента UserTable
@@ -8,9 +7,20 @@ import iusPtStore from '../Store/IusPtStore';
 
 const IusPt = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(true); // Добавили состояние для отслеживания статуса загрузки
 
     useEffect(() => {
-        iusPtStore.fetchUsers();
+        async function fetchData() {
+            try {
+                setLoading(true); // Начинаем загрузку
+                await iusPtStore.fetchUsers(); // Ожидаем завершения загрузки данных
+                setLoading(false); // Загрузка завершена
+            } catch (error) {
+                console.error("Ошибка при загрузке пользователей:", error);
+                setLoading(false); // Завершаем загрузку даже в случае ошибки
+            }
+        }
+        fetchData();
     }, []);
 
     const handleSearch = (term) => {
@@ -19,16 +29,20 @@ const IusPt = () => {
 
     const filteredUsers = iusPtStore.users.filter(user => {
         return user.fio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-               user.email.toLowerCase().includes(searchTerm.toLowerCase());
+            user.email.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
-    return useObserver(() => (
+    if (loading) {
+        return <div>Загрузка...</div>; // Показываем индикатор загрузки
+    }
+
+    return (
         <>
             <h1 className="page-header">Пользователи</h1>
             <SearchBar onSearch={handleSearch} />
             <UserTable users={filteredUsers} />
         </>
-    ));
+    );
 }
 
-export default IusPt;
+export default observer(IusPt);

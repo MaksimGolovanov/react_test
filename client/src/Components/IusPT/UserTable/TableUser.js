@@ -1,8 +1,13 @@
 // UserTable.js
 import React from 'react';
 import { Table } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+
+
 
 const UserTable = ({ users }) => {
+
+ 
     return (
         <div className="table-container">
             <Table striped bordered hover className="table-fixed" style={{ fontSize: '12px', width: '100%', tableLayout: 'fixed'  }}>
@@ -20,7 +25,9 @@ const UserTable = ({ users }) => {
                 <tbody>
                     {users.map(user => (
                         <tr key={user.id}>
-                            <td>{user.fio}</td>
+                            <td>
+                                <Link to={`/iuspt/edit/${user.id}`}>{user.fio}</Link>
+                            </td>
                             <td></td>
                             <td>{user.email}</td>
                             <td>{user.post}</td>

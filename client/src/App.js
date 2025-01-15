@@ -18,9 +18,10 @@ import Car from './Components/Car/Car';
 import CarCreate from './Components/Car/CarCreate';
 import CarSprav from './Components/Car/CarSprav';
 import IusPt from './Components/IusPT';
-
+import IusPtEdit from './Components/IusPT/IusPtEdit';
 
 import './App.css';
+
 
 
 
@@ -53,7 +54,7 @@ function App() {
     case location.pathname.startsWith('/car'):
       pageTitle = 'ЗАКАЗ АВТОТРАНСПОРТА';
       break;
-      case location.pathname.startsWith('/iuspt'):
+    case location.pathname.startsWith('/iuspt'):
       pageTitle = 'ИУС П Т';
       break;
     default:
@@ -79,6 +80,7 @@ function App() {
 
         <div className='content p-4'>
           <Routes>
+            <Route path="/" element={<PrivateRoute requiredRole={['ADMIN', 'USER']}><Staff /></PrivateRoute>} />
             <Route path="/staff" element={<PrivateRoute requiredRole={['ADMIN', 'USER']}><Staff /></PrivateRoute>} />
             <Route path="/prints" element={<PrivateRoute requiredRole={['ADMIN', 'PRINT']}><Prints /></PrivateRoute>} />
             <Route path="/notes" element={<PrivateRoute requiredRole={['ADMIN', 'NOTES']}><Notes /></PrivateRoute>} />
@@ -91,7 +93,9 @@ function App() {
             <Route path="/car" element={<PrivateRoute requiredRole={['ADMIN']}><Car /></PrivateRoute>} />
             <Route path="/car/create" element={<PrivateRoute requiredRole={['ADMIN', 'CAR']}><CarCreate /></PrivateRoute>} />
             <Route path="/car/sprav" element={<PrivateRoute requiredRole={['ADMIN', 'CAR']}><CarSprav /></PrivateRoute>} />
+            <Route path="/iuspt/edit/:id" element={<PrivateRoute requiredRole={['ADMIN']}><IusPtEdit /></PrivateRoute>} />
             <Route path="/iuspt" element={<PrivateRoute requiredRole={['ADMIN']}><IusPt /></PrivateRoute>} />
+
           </Routes>
         </div>
       </div>
