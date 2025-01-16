@@ -1,43 +1,42 @@
 .full-height-container {
-  height: 100vh; /* Устанавливает высоту контейнера на 100% высоты экрана */
+  height: 100vh;
 }
 
-
-
-.h-100 {
-  height: 100vh; /* Обеспечивает, что элементы занимают всю высоту родителя */
-}
 body {
+  margin: 0;
+  padding: 0;
   background-image: url("./Image/UI.jpg");
-  background-position: center; /* Центрируем изображение */
-  background-repeat: no-repeat; /* Отключаем повторение */
-  background-size: cover; /* Масштабируем изображение, чтобы заполнить весь фон */
-  min-height: 100vh; /* Высота body равна высоте видимой области экрана */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.bg-fon{
-  background-color: #F3F5F5;
 
+.bg-fon {
+  background-color: #F3F5F5;
 }
+
 .logo {
   width: 250px;
   height: 90px;
   background-color: #25292A;
   text-align: right;
 }
-.head{
+
+.head {
   height: 90px;
   background-color: white;
 }
 
-.content{
+.content {
   background-color: #F3F5F5;
   height: 90.6%;
 }
 
 .sticky-header {
   position: sticky;
-  top: 0; /* Зафиксируйте блок сверху */
-  z-index: 99; /* Установите высокий индекс, чтобы он был над другими элементами */
-  background-color: #fff; /* Можно задать фон, чтобы содержимое было видно при прокрутке */
+  top: 0;
+  z-index: 99;
+  background-color: #fff;
 }

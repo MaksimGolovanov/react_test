@@ -1,36 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import './style.css'
 import SearchBar from './SearchBar/SearchBar'; // Импорт компонента SearchBar
 import UserTable from './UserTable/TableUser';  // Импорт компонента UserTable
 import iusPtStore from '../Store/IusPtStore';
 
+
 const IusPt = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true); // Добавили состояние для отслеживания статуса загрузки
+    const [error, setError] = useState(null);
+
+    const filteredUsers = useMemo(() => {
+        return iusPtStore.users.filter(user => {
+            return user.fio.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                   user.email.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+    }, [iusPtStore.users, searchTerm]);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                setLoading(true); // Начинаем загрузку
-                await iusPtStore.fetchUsers(); // Ожидаем завершения загрузки данных
-                setLoading(false); // Загрузка завершена
+                setLoading(true);
+                setError(null);
+                await iusPtStore.fetchUsers();
             } catch (error) {
                 console.error("Ошибка при загрузке пользователей:", error);
-                setLoading(false); // Завершаем загрузку даже в случае ошибки
+                setError("Не удалось загрузить данные. Пожалуйста, попробуйте позже.");
+            } finally {
+                setLoading(false);
             }
         }
         fetchData();
     }, []);
+    
+    if (error) {
+        return <div className="error-message">{error}</div>;
+    }
 
     const handleSearch = (term) => {
         setSearchTerm(term);
     };
 
-    const filteredUsers = iusPtStore.users.filter(user => {
-        return user.fio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    
 
     if (loading) {
         return <div>Загрузка...</div>; // Показываем индикатор загрузки
