@@ -1,0 +1,6 @@
+/* Circle.module.css */
+.circle {
+    display: inline-block;
+    border-radius: 50%;
+    text-align: center;
+  }

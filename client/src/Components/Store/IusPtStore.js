@@ -19,6 +19,7 @@ class IusPtStore {
             console.error('Ошибка при получении данных:', error);
         } 
     });
+    
 
 
 }

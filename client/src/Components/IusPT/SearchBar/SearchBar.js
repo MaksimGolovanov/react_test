@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import styles from './SearchBar.module.css'; // Импорт CSS модуля
 
 const SearchBar = ({ onSearch }) => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
-        onSearch(event.target.value); // Передача значения поиска родительскому компоненту
+        onSearch(event.target.value);
     };
 
     return (
@@ -14,7 +15,7 @@ const SearchBar = ({ onSearch }) => {
             placeholder="Поиск..."
             value={searchTerm}
             onChange={handleSearchChange}
-            style={{ marginBottom: '10px', width: '100%' }}
+            className={styles.searchInput}
         />
     );
 };

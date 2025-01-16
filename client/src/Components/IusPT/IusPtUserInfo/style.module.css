@@ -1,0 +1,32 @@
+.blockInfo {
+    display: flex;
+
+}
+
+
+.blockInfoStatic {
+    width: 340px;
+    background-color: #e2e2e2;
+    text-align: right;
+    padding: 7px 12px;
+}
+
+.blockInfoDinamic {
+    text-align: left;
+    padding: 7px 12px;
+}
+
+button {
+    margin: 16px 0px;
+    padding: 4px 8px;
+    height: 30px;
+    font-size: 11px;
+    color: #0973A1;
+    border: 1px solid #acd5e6 ;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #bfdbe7;
+}

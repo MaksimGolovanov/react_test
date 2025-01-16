@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
-import './style.css'
+import styles from './style.module.css'; // Импорт CSS модуля
 import SearchBar from './SearchBar/SearchBar'; // Импорт компонента SearchBar
 import UserTable from './UserTable/TableUser';  // Импорт компонента UserTable
 import iusPtStore from '../Store/IusPtStore';
 
-
 const IusPt = () => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [loading, setLoading] = useState(true); // Добавили состояние для отслеживания статуса загрузки
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const filteredUsers = useMemo(() => {
@@ -35,22 +34,20 @@ const IusPt = () => {
     }, []);
     
     if (error) {
-        return <div className="error-message">{error}</div>;
+        return <div className={styles.errorMessage}>{error}</div>;
     }
 
     const handleSearch = (term) => {
         setSearchTerm(term);
     };
 
-    
-
     if (loading) {
-        return <div>Загрузка...</div>; // Показываем индикатор загрузки
+        return <div>Загрузка...</div>;
     }
 
     return (
         <>
-            <h1 className="page-header">Пользователи</h1>
+            <h1 className={styles.pageHeader}>Пользователи</h1>
             <SearchBar onSearch={handleSearch} />
             <UserTable users={filteredUsers} />
         </>
