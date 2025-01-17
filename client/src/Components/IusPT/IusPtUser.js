@@ -6,8 +6,9 @@ import Circle from '../Staff/Circle'
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import IusPtUserInfo from './IusPtUserInfo/IusPtUserInfo';
+import { IoArrowBack } from "react-icons/io5";
 
-
+import ButtonAll from './ButtonAll/ButtonAll'
 const IusPtUser = () => {
     const { id } = useParams(); // Получаем id из URL
     const [loading, setLoading] = useState(true);
@@ -52,6 +53,7 @@ const IusPtUser = () => {
 
     return (
         <>
+            <ButtonAll icon={IoArrowBack} text="Назад" path="/iuspt" />
             <div className={styles.userContainer}>
                 <div>
                     <Circle
@@ -68,7 +70,7 @@ const IusPtUser = () => {
             <div>
                 <Tabs className={styles.customTabs}>
                     <Tab eventKey="Prints" title="Карточка пользователя" className={styles.customTab}>
-                        <IusPtUserInfo info={user}/>
+                        <IusPtUserInfo info={user} />
                     </Tab>
                     <Tab eventKey="print_model" title="Роли" className={styles.customTab}>
                         sdfff

@@ -4,16 +4,21 @@ import styles from './style.module.css'; // Импорт CSS модуля
 import SearchBar from './SearchBar/SearchBar'; // Импорт компонента SearchBar
 import UserTable from './UserTable/TableUser';  // Импорт компонента UserTable
 import iusPtStore from '../Store/IusPtStore';
+import { IoIosSettings } from "react-icons/io";
+import ButtonAll from './ButtonAll/ButtonAll';
+
+
 
 const IusPt = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+   
 
     const filteredUsers = useMemo(() => {
         return iusPtStore.users.filter(user => {
             return user.fio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                   user.email.toLowerCase().includes(searchTerm.toLowerCase());
+                user.email.toLowerCase().includes(searchTerm.toLowerCase());
         });
     }, [iusPtStore.users, searchTerm]);
 
@@ -32,7 +37,7 @@ const IusPt = () => {
         }
         fetchData();
     }, []);
-    
+
     if (error) {
         return <div className={styles.errorMessage}>{error}</div>;
     }
@@ -44,10 +49,13 @@ const IusPt = () => {
     if (loading) {
         return <div>Загрузка...</div>;
     }
-
+   
     return (
         <>
-            <h1 className={styles.pageHeader}>Пользователи</h1>
+            <div className={styles.header}>
+                <h1 className={styles.pageHeader}>Пользователи</h1>
+                <ButtonAll icon={IoIosSettings} text="Настройки" path="/iuspt/settings" />
+            </div>
             <SearchBar onSearch={handleSearch} />
             <UserTable users={filteredUsers} />
         </>

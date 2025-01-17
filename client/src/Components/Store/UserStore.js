@@ -11,7 +11,24 @@ class UserStore {
 
     constructor() {
         makeAutoObservable(this);
+        this.loadAuthState(); // Загружаем состояние аутентификации при инициализации
     }
+
+    // Метод для сохранения состояния аутентификации
+    saveAuthState = () => {
+        localStorage.setItem('isAuthenticated', JSON.stringify(this.isAuthenticated));
+        localStorage.setItem('userRolesAuth', JSON.stringify(this.userRolesAuth));
+    };
+
+    // Метод для загрузки состояния аутентификации
+    loadAuthState = () => {
+        const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));
+        const userRolesAuth = JSON.parse(localStorage.getItem('userRolesAuth'));
+        if (isAuthenticated) {
+            this.isAuthenticated = isAuthenticated;
+            this.userRolesAuth = userRolesAuth || [];
+        }
+    };
 
     // Метод для получения пользователей обернут в action
     fetchUsers = action(async () => {
@@ -37,11 +54,12 @@ class UserStore {
             const result = await AdminService.login({ login, password });
             this.isAuthenticated = true; // Обновляем статус аутентификации
             this.userRolesAuth = result.user.roleNames; // Сохраняем роли пользователя
-            
+            this.saveAuthState(); // Сохраняем состояние аутентификации
             return true;
         } catch (error) {
             console.error('Ошибка при входе:', error);
             this.isAuthenticated = false; // Сбрасываем статус аутентификации
+            this.saveAuthState(); // Сохраняем состояние аутентификации
             return false;
         }
     });
@@ -50,6 +68,7 @@ class UserStore {
     logout = action(() => {
         this.isAuthenticated = false; // Сбрасываем статус аутентификации
         this.userRolesAuth = []; // Очищаем роли
+        this.saveAuthState(); // Сохраняем состояние аутентификации
     });
 
     // Метод для создания пользователя обернут в action

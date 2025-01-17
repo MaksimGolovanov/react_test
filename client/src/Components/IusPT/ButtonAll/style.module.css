@@ -1,0 +1,15 @@
+
+
+.headerbtn {
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-right: 8px;
+}
+
+.configbtn {
+    color: #0973a1;
+    fill: #0973a1 ;
+    border: 1px solid #acd5e6;
+    border-radius: 3px;
+    font-size: 14px;
+}

@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import styles from './style.module.css'; // Импорт CSS модуля
 import { FaRegEdit } from "react-icons/fa";
+import ButtonAll from '../ButtonAll/ButtonAll';
+
+
 
 const IusPtUserInfo = ({ info }) => {
 
 
     return (
         <>
-            <button>
-                <FaRegEdit size={20} style={{paddingRight:'4px'}}/>
-                Редактировать
-            </button>
+            <div style={{margin: '16px 0px'}}>
+                <ButtonAll icon={FaRegEdit} text="Редактировать" path="/iuspt" />
+            </div>
             <div className={styles.blockInfo} >
                 <div className={styles.blockInfoStatic}>
                     <p>Имя пользователя</p>

@@ -11,8 +11,8 @@ const PrivateRoute = ({ children, requiredRole }) => {
     }
 
     if (requiredRole && !requiredRole.some(role => userRoles.includes(role))) {
-        console.log('Нет доступа');
-        return <Navigate to="/" />; // Перенаправление, если у пользователя нет необходимых ролей
+        console.log('Нет доступа. Требуемые роли:', requiredRole, 'Роли пользователя:', userRoles);
+        return <Navigate to="/" />;
     }
 
     console.log('Доступ разрешен');

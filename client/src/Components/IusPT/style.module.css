@@ -111,14 +111,16 @@
     /* Светло-серый цвет текста */
     margin: 0px;
 }
+
 /* Стили для вкладок */
 .customTabs {
     background-color: #f2f2f2;
-    
+
 }
+
 .customTab {
     background-color: #f2f2f2;
-    
+
 }
 
 .customTabs .nav-link {
@@ -147,4 +149,11 @@
 
 .customTabs .nav-item.active {
     border-top: 3px solid #007bff !important;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
 }

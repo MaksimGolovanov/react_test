@@ -93,7 +93,7 @@ const NavBar = observer(() =>  {
         </Link>
       )}
       {(userStore.userRolesAuth.includes('IUSPT') || userStore.userRolesAuth.includes('ADMIN')) && (
-        <Link to="/iuspt" className={`nav-link ${location.pathname === '/iuspt' || location.pathname.match(/^\/iuspt\/\d+$/) ? 'active' : ''}`}>
+        <Link to="/iuspt" className={`nav-link ${location.pathname === '/iuspt' || location.pathname.match(/^\/iuspt\/.+$/) ? 'active' : ''}`}>
           <TbComponents className={'icon'} size={20} style={{ marginRight: '8px' }} />
           ИУС П Т
         </Link>

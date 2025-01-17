@@ -21,6 +21,7 @@ import IusPt from './Components/IusPT/IusPt';
 import IusPtUser from './Components/IusPT/IusPtUser';
 
 import './App.css';
+import IusPtSettings from './Components/IusPT/IusPtSettings';
 
 
 
@@ -95,7 +96,7 @@ function App() {
             <Route path="/car/sprav" element={<PrivateRoute requiredRole={['ADMIN', 'CAR']}><CarSprav /></PrivateRoute>} />
             <Route path="/iuspt/edit/:id" element={<PrivateRoute requiredRole={['ADMIN']}><IusPtUser /></PrivateRoute>} />
             <Route path="/iuspt" element={<PrivateRoute requiredRole={['ADMIN']}><IusPt /></PrivateRoute>} />
-
+            <Route path="/iuspt/settings" element={<PrivateRoute requiredRole={['ADMIN']}><IusPtSettings /></PrivateRoute>} />
           </Routes>
         </div>
       </div>
