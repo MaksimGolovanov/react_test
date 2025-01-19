@@ -1,0 +1,100 @@
+.button-next {
+    background-color: #25292A;
+    height: 38px;
+    margin-left: auto;
+}
+.button-next:hover {
+    background-color: #25292A;
+    height: 38px;
+}
+.button-next:hover .icon-staff {
+    color:#FA922F; 
+}
+
+.table-staff{
+    font-size: 11px;
+    text-align: center;
+    max-height: 500px; /* Задайте нужную высоту */
+    overflow-y: auto;
+
+}
+.circle{
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #4CAF50; /* Зеленый цвет фона */
+  color: white;
+  text-align: center;
+  line-height: 40px; /* Выравниваем текст по вертикали */
+  font-size: 18px;
+}
+td {
+    vertical-align: middle; /* Выравниваем контент по центру вертикально */
+    padding: 10px;          /* Добавляем отступы для удобства чтения */
+}
+thead {
+    background-color: #25292A;
+    color: white;
+}
+.copy-button{
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+}
+.copy-button:hover{
+    color:#FA922F;
+}
+.edit-button{
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+}
+.edit-button:hover{
+    color:#FA922F;
+}
+.delete-button{
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+}
+.delete-button:hover{
+    color:#FA922F;
+}
+
+
+.textModal {
+    font-size: 11px;
+}
+.close-icon:hover{
+    color:#FA922F;
+}
+
+.modal-custom{
+    max-width: 800px; /* Максимальная ширина окна */
+    min-height: 330px; /* Минимальная высота окна */
+    position: absolute;
+    top: 30%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-left: 4px solid #fa922f;
+    border-top: 6px solid #2F3436;
+    border-right: 6px solid #2F3436;
+    border-bottom: 6px solid #2F3436;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.fixed-header th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+   
+}

@@ -1,4 +1,4 @@
-const { IusUser, IusSpravAdm } = require('../models/IusPtModels')
+const { IusSpravType, IusSpravAdm, IusSpravRoles } = require('../models/IusPtModels')
 const ApiError = require('../error/ApiError')
 
 class IusController {
@@ -43,6 +43,90 @@ class IusController {
             next(ApiError.internal(err.message));
         }
     }
-}
+
+    //Type
+    async getAllType(req, res, next) {
+        try {
+            const userAdm = await IusSpravType.findAll()
+            return res.json(userAdm)
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+
+    async createType(req, res, next) {
+        try {
+            const { type, name, description } = req.body;
+           
+            const iustype = await IusSpravType.create({ type, name, description });
+            return res.status(201).json(iustype);
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+
+    async updateType(req, res, next) {
+        try {
+            const { id, type,  name, description } = req.body;
+            if (!id ) {
+                return next(ApiError.badRequest('Не указаны обязательные поля'));
+            }
+            const iustype = await IusSpravType.findByPk(id);
+            if (!iustype) {
+                return next(ApiError.notFound('Администратор не найден'));
+            }
+            iustype.type = type;
+            iustype.name = name;
+            iustype.description = description;
+            await iustype.save();
+            return res.json(iustype);
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+    //Roles
+    async getAllRoles(req, res, next) {
+        try {
+            const iusRoles = await IusSpravRoles.findAll()
+            return res.json(iusRoles)
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+
+    async createRole(req, res, next) {
+        try {
+            const { typename, type,  name, code, mandat } = req.body;
+           
+            const iusrole = await IusSpravRoles.create({ typename, type,  name, code, mandat });
+            return res.status(201).json(iusrole);
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+
+    async updateRole(req, res, next) {
+        try {
+            const { id, typename, type,  name, code, mandat } = req.body;
+            if (!id ) {
+                return next(ApiError.badRequest('Не указаны обязательные поля'));
+            }
+            const iusrole = await IusSpravRoles.findByPk(id);
+            if (!iusrole) {
+                return next(ApiError.notFound('Роль не найдена'));
+            }
+            iusrole.typename = typename;
+            iusrole.type = type;
+            iusrole.name = name;
+            iusrole.code = code;
+            iusrole.mandat = mandat;
+            await iusrole.save();
+            return res.json(iusrole);
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+
+} 
 
 module.exports = new IusController();

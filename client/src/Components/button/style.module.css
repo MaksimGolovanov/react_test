@@ -1,0 +1,32 @@
+/* Контейнер для кнопки и часов */
+
+
+/* Стили для кнопки выхода */
+.logoutButton {
+    
+    
+    padding: 4px 8px; /* Отступы внутри кнопки */
+    margin-left: 30px;
+    cursor: pointer; /* Курсор в виде указателя */
+    display: flex;
+    align-items: center; /* Выравниваем иконку по центру */
+    justify-content: center; /* Выравниваем содержимое по центру */
+    background-color: #d6d6d6;
+    color: #0973a1;
+    fill: #0973a1 ;
+    border: 1px solid #acd5e6;
+    border-radius: 3px;
+    
+}
+
+/* Стили для иконки внутри кнопки */
+.logoutButton svg {
+    color: white; /* Белый цвет иконки */
+    font-size: 14px; /* Размер иконки */
+}
+
+/* Стили при наведении на кнопку */
+.logoutButton:hover {
+    border: 1px solid #acd5e6;
+    background-color: #acd5e6; /* Темнее красный при наведении */
+}

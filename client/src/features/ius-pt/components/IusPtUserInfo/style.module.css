@@ -1,0 +1,21 @@
+.blockInfo {
+    display: flex;
+
+}
+
+
+.blockInfoStatic {
+    width: 340px;
+    background-color: #e2e2e2;
+    text-align: right;
+    padding: 7px 12px;
+}
+
+.blockInfoDinamic {
+    text-align: left;
+    padding: 7px 12px;
+}
+
+.backdrop {
+    background-color: rgba(0, 0, 0, 0.6); /* Полупрозрачный черный фон */
+}

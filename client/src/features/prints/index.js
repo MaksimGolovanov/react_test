@@ -1,0 +1,1 @@
+export { default as Prints } from './pages/Prints';

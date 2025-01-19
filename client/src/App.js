@@ -4,28 +4,17 @@ import { Container } from 'react-bootstrap';
 import { useLocation, Routes, Route } from 'react-router-dom';
 import Clock from './Components/Clock';
 import NavBar from './Components/NavBar/NavBar';
-import Staff from './Components/Staff/Staff';
-import Prints from './Components/Prints/Prints';
-import Notes from './Components/Notes/Notes';
-import Admin from './Components/Admin/Admin';
-import CreatePost from './Components/Notes/CreatePost';
-import EditPost from './Components/Notes/EditPost';
-import RoleSprav from './Components/Admin/RoleSprav';
-import AdminCreate from './Components/Admin/AdminCreate';
-import AdminEditUser from './Components/Admin/AdminEditUser';
-import PrivateRoute from '../src/Components/Admin/PrivateRoute';
-import Car from './Components/Car/Car';
-import CarCreate from './Components/Car/CarCreate';
-import CarSprav from './Components/Car/CarSprav';
-import IusPt from './Components/IusPT/IusPt';
-import IusPtUser from './Components/IusPT/IusPtUser';
-
+import PrivateRoute from './shared/PrivateRoute';
 import './App.css';
-import IusPtSettings from './Components/IusPT/IusPtSettings';
-
-
-
-
+import {Prints} from './features/prints'
+import {NotesRoutes} from './features/notes'
+import { IusPtRoutes } from './features/ius-pt'
+import {StaffRoutes } from './features/staff'
+import {AdminRoutes } from './features/admin'
+import {CarRoutes } from './features/cars'
+import {Staff} from './features/staff'
+import LoginPage from './features/admin/pages/LoginPage'
+import ButtonLogout from './Components/button/buttonLogout'
 
 
 
@@ -74,29 +63,22 @@ function App() {
               {pageTitle}
             </p>
           </div>
-          <div className="m-2">
+          <div className="m-2 d-flex align-items-center">
             <Clock />
+            <ButtonLogout className="ml-3" />
           </div>
         </div>
-
+        
         <div className='content p-4'>
           <Routes>
             <Route path="/" element={<PrivateRoute requiredRole={['ADMIN', 'USER']}><Staff /></PrivateRoute>} />
-            <Route path="/staff" element={<PrivateRoute requiredRole={['ADMIN', 'USER']}><Staff /></PrivateRoute>} />
+            <Route path="/staff/*" element={<StaffRoutes />} />
             <Route path="/prints" element={<PrivateRoute requiredRole={['ADMIN', 'PRINT']}><Prints /></PrivateRoute>} />
-            <Route path="/notes" element={<PrivateRoute requiredRole={['ADMIN', 'NOTES']}><Notes /></PrivateRoute>} />
-            <Route path="/create-post" element={<PrivateRoute requiredRole={['ADMIN']}><CreatePost /></PrivateRoute>} />
-            <Route path="/edit-post/:id" element={<PrivateRoute requiredRole={['ADMIN']}><EditPost /></PrivateRoute>} />
-            <Route path="/admin" element={<PrivateRoute requiredRole={['ADMIN']}><Admin /></PrivateRoute>} />
-            <Route path="/admin/roles" element={<PrivateRoute requiredRole={['ADMIN']}><RoleSprav /></PrivateRoute>} />
-            <Route path="/admin/create" element={<PrivateRoute requiredRole={['ADMIN']}><AdminCreate /></PrivateRoute>} />
-            <Route path="/admin/edit/:id" element={<PrivateRoute requiredRole={['ADMIN']}><AdminEditUser /></PrivateRoute>} />
-            <Route path="/car" element={<PrivateRoute requiredRole={['ADMIN']}><Car /></PrivateRoute>} />
-            <Route path="/car/create" element={<PrivateRoute requiredRole={['ADMIN', 'CAR']}><CarCreate /></PrivateRoute>} />
-            <Route path="/car/sprav" element={<PrivateRoute requiredRole={['ADMIN', 'CAR']}><CarSprav /></PrivateRoute>} />
-            <Route path="/iuspt/edit/:id" element={<PrivateRoute requiredRole={['ADMIN']}><IusPtUser /></PrivateRoute>} />
-            <Route path="/iuspt" element={<PrivateRoute requiredRole={['ADMIN']}><IusPt /></PrivateRoute>} />
-            <Route path="/iuspt/settings" element={<PrivateRoute requiredRole={['ADMIN']}><IusPtSettings /></PrivateRoute>} />
+            <Route path="/*" element={<NotesRoutes />} />
+            <Route path="/admin/*" element={<AdminRoutes />} />
+            <Route path="/car/*" element={<CarRoutes />} />
+            <Route path="/iuspt/*" element={<IusPtRoutes />} />
+            <Route path="/login" element={<LoginPage />} />
           </Routes>
         </div>
       </div>

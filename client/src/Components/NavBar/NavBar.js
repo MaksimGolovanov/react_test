@@ -11,7 +11,7 @@ import { TbComponents } from "react-icons/tb";
 import { FaCaretDown, FaCaretRight } from "react-icons/fa";
 import { PiCarProfileFill } from "react-icons/pi";
 import christmasPlains from '../../Image/christmas-plains.png';
-import userStore from '../Store/UserStore'; // Убедитесь, что путь правильный
+import userStore from '../../features/admin/store/UserStore'; // Убедитесь, что путь правильный
 import { observer } from 'mobx-react'; // Импортируем observer
 import './NavBar.css';
 
