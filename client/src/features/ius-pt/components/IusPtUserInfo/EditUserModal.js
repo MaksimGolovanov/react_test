@@ -7,14 +7,14 @@ const EditUserModal = ({ show, handleClose, user, onSave }) => {
         name: user.name || '',
         fio: user.fio || '',
         email: user.email || '',
-        department: user.department || '',
+        department: user.department.slice(13) || '',
         post: user.post || '',
-        employeeNumber: user.employeeNumber || '',
+        tab_num: user.tab_num || '',
         contractDetails: user.contractDetails || '',
         location: user.location || '',
         computerName: user.computerName || '',
-        phone: user.phone || '',
-        ipAddress: user.ipAddress || '',
+        telephone: user.telephone || '',
+        ip: user.ip || '',
     });
 
     const handleChange = (e) => {
@@ -39,8 +39,9 @@ const EditUserModal = ({ show, handleClose, user, onSave }) => {
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group controlId="formName">
-                        <Form.Label>Имя пользователя</Form.Label>
+                        <Form.Label className={styles.formlabel}>Имя пользователя</Form.Label>
                         <Form.Control
+                            className={styles.formcontrol}
                             type="text"
                             name="name"
                             value={formData.name}
@@ -49,58 +50,69 @@ const EditUserModal = ({ show, handleClose, user, onSave }) => {
                     </Form.Group>
 
                     <Form.Group controlId="formFio">
-                        <Form.Label>Фамилия Имя Отчество</Form.Label>
+                        <Form.Label className={styles.formlabel}>Фамилия Имя Отчество</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="text"
                             name="fio"
                             value={formData.fio}
                             onChange={handleChange}
+                            readOnly
                         />
                     </Form.Group>
 
                     <Form.Group controlId="formEmail">
-                        <Form.Label>Электронная почта</Form.Label>
+                        <Form.Label className={styles.formlabel}>Электронная почта</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
+                            readOnly
                         />
                     </Form.Group>
 
                     <Form.Group controlId="formDepartment">
-                        <Form.Label>Подразделение</Form.Label>
+                        <Form.Label className={styles.formlabel}>Подразделение</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="text"
                             name="department"
                             value={formData.department}
                             onChange={handleChange}
+                            readOnly
                         />
                     </Form.Group>
 
                     <Form.Group controlId="formPost">
-                        <Form.Label>Должность</Form.Label>
+                        <Form.Label className={styles.formlabel}>Должность</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="text"
                             name="post"
                             value={formData.post}
                             onChange={handleChange}
+                            readOnly
                         />
                     </Form.Group>
 
                     <Form.Group controlId="formEmployeeNumber">
-                        <Form.Label>Табельный номер</Form.Label>
+                        <Form.Label className={styles.formlabel}>Табельный номер</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="text"
-                            name="employeeNumber"
-                            value={formData.employeeNumber}
+                            name="tab_num"
+                            value={formData.tab_num}
                             onChange={handleChange}
+                            readOnly
                         />
                     </Form.Group>
 
                     <Form.Group controlId="formContractDetails">
-                        <Form.Label>Реквизиты договора о конфиденциальности</Form.Label>
+                        <Form.Label className={styles.formlabel}>Реквизиты договора о конфиденциальности</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="text"
                             name="contractDetails"
                             value={formData.contractDetails}
@@ -109,18 +121,21 @@ const EditUserModal = ({ show, handleClose, user, onSave }) => {
                     </Form.Group>
 
                     <Form.Group controlId="formLocation">
-                        <Form.Label>Расположение (город, адрес)</Form.Label>
+                        <Form.Label className={styles.formlabel}>Расположение (город, адрес)</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="text"
                             name="location"
                             value={formData.location}
                             onChange={handleChange}
+                            readOnly
                         />
                     </Form.Group>
 
                     <Form.Group controlId="formComputerName">
-                        <Form.Label>Имя компьютера</Form.Label>
+                        <Form.Label className={styles.formlabel}>Имя компьютера</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="text"
                             name="computerName"
                             value={formData.computerName}
@@ -129,22 +144,26 @@ const EditUserModal = ({ show, handleClose, user, onSave }) => {
                     </Form.Group>
 
                     <Form.Group controlId="formPhone">
-                        <Form.Label>Контактный телефон</Form.Label>
+                        <Form.Label className={styles.formlabel}>Контактный телефон</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="text"
-                            name="phone"
-                            value={formData.phone}
+                            name="telephone"
+                            value={formData.telephone}
                             onChange={handleChange}
+                            readOnly
                         />
                     </Form.Group>
 
                     <Form.Group controlId="formIpAddress">
-                        <Form.Label>IP адрес</Form.Label>
+                        <Form.Label className={styles.formlabel}>IP адрес</Form.Label>
                         <Form.Control
+                        className={styles.formcontrol}
                             type="text"
-                            name="ipAddress"
-                            value={formData.ipAddress}
+                            name="ip"
+                            value={formData.ip}
                             onChange={handleChange}
+                            readOnly
                         />
                     </Form.Group>
 

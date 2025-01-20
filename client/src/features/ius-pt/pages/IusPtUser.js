@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import styles from './style.module.css'; // Импорт CSS модуля
-import iusPtStore from '../store/IusPtStore'
-import Circle from '../../../Components/circle/Circle'
+import iusPtStore from '../store/IusPtStore';
+import Circle from '../../../Components/circle/Circle';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import IusPtUserInfo from '../components/IusPtUserInfo/IusPtUserInfo';
 import { IoArrowBack } from "react-icons/io5";
+import ButtonAll from '../components/ButtonAll/ButtonAll';
 
-import ButtonAll from '../components/ButtonAll/ButtonAll'
 const IusPtUser = () => {
     const { id } = useParams(); // Получаем id из URL
     const [loading, setLoading] = useState(true);
@@ -20,15 +20,29 @@ const IusPtUser = () => {
             try {
                 setLoading(true);
                 setError(null);
-                await iusPtStore.fetchUsers(); // Загружаем данные пользователей
+
+                // Загружаем данные пользователей и пользователей ИУС
+                await iusPtStore.fetchUsers();
+                await iusPtStore.fetchIusUsers();
 
                 // Находим пользователя по id
                 const foundUser = iusPtStore.users.find(user => user.id === parseInt(id));
-                if (foundUser) {
-                    setUser(foundUser); // Устанавливаем данные пользователя
-                } else {
+                if (!foundUser) {
                     setError("Пользователь не найден.");
+                    return;
                 }
+
+                // Находим соответствующего пользователя из iususers по табельному номеру
+                const foundIusUser = iusPtStore.iususers.find(iusUser => iusUser.tabNumber === foundUser.tab_num);
+
+                // Объединяем данные
+                const mergedUser = {
+                    ...foundUser, // Данные из users
+                    ...foundIusUser, // Данные из iususers
+                    location: "169570, Российская Федерация, Республика Коми, г. Вуктыл",
+                };
+
+                setUser(mergedUser); // Устанавливаем объединенные данные
             } catch (error) {
                 console.error("Ошибка при загрузке пользователей:", error);
                 setError("Не удалось загрузить данные. Пожалуйста, попробуйте позже.");
@@ -64,7 +78,7 @@ const IusPtUser = () => {
                 <div className={styles.userDetails}>
                     <p className={styles.fio}>{user.fio}</p>
                     <p className={styles.name}>{user.name || '-'}</p>
-                    <p className={styles.department}>{user.department.slice(13)}</p>
+                    <p className={styles.department}>{user.department && user.department.length > 13 ? user.department.slice(13) : user.department || '-'}</p>
                 </div>
             </div>
             <div>
@@ -77,10 +91,7 @@ const IusPtUser = () => {
                     </Tab>
                 </Tabs>
             </div>
-
         </>
-
-
     );
 };
 

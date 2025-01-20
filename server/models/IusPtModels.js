@@ -35,6 +35,23 @@ const IusSpravRoles = sequelize.define('iusspravroles',{
     
 });
 
+const IusUser = sequelize.define('iususer',{
+
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    tabNumber: { type: DataTypes.STRING },
+    name: { type: DataTypes.STRING },
+    contractDetails: { type: DataTypes.STRING },
+    computerName: { type: DataTypes.STRING },
+});
+
+const IusUserRole = sequelize.define('iususerrole',{
+
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    tabNumber: { type: DataTypes.STRING },
+    cod: { type: DataTypes.STRING },
+    date: { type: DataTypes.STRING },
+});
+
 module.exports = {
-    IusSpravAdm, IusSpravType, IusSpravRoles
+    IusSpravAdm, IusSpravType, IusSpravRoles, IusUser, IusUserRole
 } 

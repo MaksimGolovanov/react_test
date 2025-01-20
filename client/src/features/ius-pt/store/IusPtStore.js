@@ -7,6 +7,7 @@ class IusPtStore {
     admin = [];
     types = [];
     roles = [];
+    iususers = [];
 
     constructor() {
         makeAutoObservable(this);
@@ -122,6 +123,43 @@ class IusPtStore {
             } catch (error) {
                 console.error('Ошибка при создании ролей из Excel:', error);
             }
+        }
+    });
+    // Метод для загрузки пользователей ИУС
+    fetchIusUsers = action(async () => {
+        try {
+            const responseUsers = await IusPtService.fetchIusUsers();
+            this.iususers = responseUsers;
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        }
+    });
+
+    createUser = action(async (newUser) => {
+        try {
+            await IusPtService.createUser(newUser);
+            await this.fetchIusUsers();
+        } catch (error) {
+            console.error('Ошибка при создании роли:', error);
+        }
+    });
+
+    updateUser = action(async (updatedUser) => {
+        try {
+            await IusPtService.updateUser(updatedUser);
+            await this.fetchIusUsers();
+        } catch (error) {
+            console.error('Ошибка при обновлении роли:', error);
+            throw error;
+        }
+    });
+    createOrUpdateUser = action(async (user) => {
+        try {
+            await IusPtService.createOrUpdateUser(user);
+            await this.fetchIusUsers(); // Обновляем список пользователей
+        } catch (error) {
+            console.error('Ошибка при создании/обновлении пользователя:', error);
+            throw error;
         }
     });
 }

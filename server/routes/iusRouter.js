@@ -11,6 +11,8 @@ router.put('/type/update', iusController.updateType);
 router.get('/roles', iusController.getAllRoles);
 router.post('/role/create', iusController.createRole);
 router.put('/role/update', iusController.updateRole); 
+router.get('/user', iusController.getAllUsers);
+router.post('/user/create-or-update', iusController.createOrUpdateUser);
 
 
 module.exports = router;

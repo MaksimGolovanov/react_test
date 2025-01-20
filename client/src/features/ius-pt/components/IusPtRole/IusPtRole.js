@@ -69,7 +69,7 @@ const IusPtRole = () => {
     return useObserver(() => (
         <>
             <div style={{ display: 'flex', gap: '20px', marginTop: '16px' }}>
-                <Card style={{ width: '700px', padding: '10px' }}>
+                <Card style={{ width: '950px', padding: '10px' }}>
                     <CardHeader className='p-0 pb-2'>
                         <h4>Список ролей ИУС</h4>
                         <Form>
@@ -102,7 +102,7 @@ const IusPtRole = () => {
                         <Table striped bordered hover variant="white" className={styles.tabletype}>
                             <thead>
                                 <tr>
-                                    <th style={{ width: '40px' }}>ID</th>
+                                    {/* <th style={{ width: '40px' }}>ID</th> */}
                                     <th style={{ width: '80px' }}>Название типа роли</th>
                                     <th style={{ width: '80px' }}>тип роли</th>
                                     <th style={{ width: '200px' }}>Описание</th>
@@ -114,7 +114,7 @@ const IusPtRole = () => {
                             <tbody>
                                 {filteredRoles.map(role => (
                                     <tr key={role.id}>
-                                        <td>{role.id}</td>
+                                        {/* <td>{role.id}</td> */}
                                         <td>{role.typename}</td>
                                         <td>{role.type}</td>
                                         <td>{role.name}</td>

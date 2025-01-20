@@ -110,6 +110,46 @@ class IusPtService {
       throw error;
     }
   }
+   //Users
+   static async fetchIusUsers() {
+    try {
+      const response = await instance.get('/iuspt/user');
+      return response.data;
+    } catch (error) {
+      console.error('Ошибка при получении данных IusUser:', error);
+      throw error;
+    }
+  }
+
+  static async createUser(user) {
+    try {
+      const response = await instance.post('/iuspt/user/create', user);
+      return response.data;
+    } catch (error) {
+      console.error('Ошибка при создании пользователя ИУС:', error);
+      throw error;
+    }
+  }
+
+  static async updateUser(user) {
+    try {
+      // Используем PUT или PATCH для обновления данных
+      const response = await instance.put('/iuspt/user/update', user); // или PATCH
+      return response.data;
+    } catch (error) {
+      console.error('Ошибка при обновлении пользователя ИУС:', error);
+      throw error;
+    }
+  }
+  static async createOrUpdateUser(user) {
+    try {
+        const response = await instance.post('/iuspt/user/create-or-update', user);
+        return response.data;
+    } catch (error) {
+        console.error('Ошибка при создании/обновлении пользователя ИУС:', error);
+        throw error;
+    }
+}
 }
 
 export default IusPtService;

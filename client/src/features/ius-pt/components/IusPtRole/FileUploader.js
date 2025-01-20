@@ -23,6 +23,7 @@ const FileUploader = ({ onUploadComplete }) => {
             const ws = wb.Sheets[wsname];
             const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
+            // Преобразуем данные из Excel в массив объектов
             const roles = data.slice(1).map((row) => ({
                 typename: row[0] || '',
                 type: row[1] || '',
@@ -31,8 +32,11 @@ const FileUploader = ({ onUploadComplete }) => {
                 mandat: row[4] || ''
             }));
 
+            // Фильтруем записи: исключаем дубликаты и записи с пустым полем code
             const uniqueRoles = roles.filter((role) => {
-                return !IusPtStore.roles.some(existingRole => existingRole.code === role.code);
+                const isCodeEmpty = !role.code || role.code.trim() === '';
+                const isDuplicate = IusPtStore.roles.some(existingRole => existingRole.code === role.code);
+                return !isCodeEmpty && !isDuplicate; // Исключаем записи с пустым code и дубликаты
             });
 
             const batchSize = 10;

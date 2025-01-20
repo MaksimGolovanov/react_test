@@ -1,4 +1,4 @@
-const { IusSpravType, IusSpravAdm, IusSpravRoles } = require('../models/IusPtModels')
+const { IusSpravType, IusSpravAdm, IusSpravRoles, IusUser } = require('../models/IusPtModels')
 const ApiError = require('../error/ApiError')
 
 class IusController {
@@ -122,6 +122,44 @@ class IusController {
             iusrole.mandat = mandat;
             await iusrole.save();
             return res.json(iusrole);
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+
+     //Users
+     async getAllUsers(req, res, next) {
+        try {
+            const iusUsers = await IusUser.findAll()
+            return res.json(iusUsers)
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+
+    async createOrUpdateUser(req, res, next) {
+        try {
+            const { tabNumber, name, contractDetails, computerName } = req.body;
+
+            // Ищем запись с таким табельным номером или создаем новую
+            const [iususer, created] = await IusUser.findOrCreate({
+                where: { tabNumber }, // Условие поиска
+                defaults: { // Данные для создания, если запись не найдена
+                    name,
+                    contractDetails,
+                    computerName,
+                },
+            });
+
+            // Если запись уже существует, обновляем её
+            if (!created) {
+                iususer.name = name;
+                iususer.contractDetails = contractDetails;
+                iususer.computerName = computerName;
+                await iususer.save();
+            }
+
+            return res.status(201).json(iususer);
         } catch (err) {
             next(ApiError.internal(err.message));
         }
