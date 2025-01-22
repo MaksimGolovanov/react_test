@@ -7,7 +7,7 @@ import { useObserver } from 'mobx-react-lite';
 import FileUploader from './FileUploader'; // Импортируем новый компонент
 
 const IusPtRole = () => {
-    const [newRole, setNewRole] = useState({ typename: '', type: '', name: '', code: '', mandat: '' });
+    const [newRole, setNewRole] = useState({ typename: '', type: '', name: '', code: '', mandat: '', business_process: '' });
     const [editRole, setEditRole] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('');
@@ -39,7 +39,7 @@ const IusPtRole = () => {
             setEditRole(null);
         } else {
             await IusPtStore.createRole(newRole);
-            setNewRole({ typename: '', type: '', name: '', code: '', mandat: '' });
+            setNewRole({ typename: '', type: '', name: '', code: '', mandat: '' , business_process: ''});
         }
     };
 
@@ -108,6 +108,7 @@ const IusPtRole = () => {
                                     <th style={{ width: '200px' }}>Описание</th>
                                     <th style={{ width: '200px' }}>Код Роли</th>
                                     <th style={{ width: '50px' }}>Мандант</th>
+                                    <th style={{ width: '50px' }}>Бизнес процесс</th>
                                     <th style={{ width: '50px' }}>Действие</th>
                                 </tr>
                             </thead>
@@ -120,6 +121,7 @@ const IusPtRole = () => {
                                         <td>{role.name}</td>
                                         <td>{role.code}</td>
                                         <td>{role.mandat}</td>
+                                        <td>{role.business_process}</td>
                                         <td>
                                             <Button variant="link" onClick={() => handleEdit(role)}>
                                                 <VscEdit size={20} />
@@ -193,6 +195,16 @@ const IusPtRole = () => {
                                 type="text"
                                 name="mandat"
                                 value={editRole ? editRole.mandat : newRole.mandat}
+                                onChange={handleInputChange}
+                                placeholder="Введите мандат"
+                            />
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label className='textModal'>Бизнес процесс*</Form.Label>
+                            <Form.Control 
+                                type="text"
+                                name="business_process"
+                                value={editRole ? editRole.business_process : newRole.business_process}
                                 onChange={handleInputChange}
                                 placeholder="Введите мандат"
                             />

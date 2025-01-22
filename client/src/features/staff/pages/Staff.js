@@ -229,7 +229,7 @@ function Staff() {
                             <tr key={staffMember.id} className={staffMember.del == 1 ? 'table-danger' : undefined}>
                                 <td>
                                     <div>
-                                        <Circle initials={`${staffMember.fio.split(' ').map(name => name.charAt(0)).slice(0, 2).join('')}`} />
+                                        <Circle fullName={staffMember.fio} size={30} />
                                     </div>
                                 </td>
                                 <td>{staffMember.fio}</td>

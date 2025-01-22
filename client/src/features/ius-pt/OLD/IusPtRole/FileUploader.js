@@ -29,7 +29,8 @@ const FileUploader = ({ onUploadComplete }) => {
                 type: row[1] || '',
                 name: row[2] || '',
                 code: row[3] || '',
-                mandat: row[4] || ''
+                mandat: row[4] || '',
+                business_process: row[5] || ''
             }));
 
             // Фильтруем записи: исключаем дубликаты и записи с пустым полем code

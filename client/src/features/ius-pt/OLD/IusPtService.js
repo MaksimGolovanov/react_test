@@ -7,7 +7,6 @@ const instance = axios.create({
 });
 
 class IusPtService {
-  // Метод для получения пользователей
   static async fetchUsers() {
     try {
       const response = await instance.get('/staff/');
@@ -18,10 +17,9 @@ class IusPtService {
     }
   }
 
-  // Метод для получения администраторов
   static async fetchIusAdm() {
     try {
-      const response = await instance.get('/iuspt/adm');
+      const response = await instance.get('/iuspt/');
       return response.data;
     } catch (error) {
       console.error('Ошибка при получении данных IusAdm:', error);
@@ -29,10 +27,9 @@ class IusPtService {
     }
   }
 
-  // Метод для создания администратора
   static async createAdm(adm) {
     try {
-      const response = await instance.post('/iuspt/adm/create', adm);
+      const response = await instance.post('/iuspt/create/adm', adm);
       return response.data;
     } catch (error) {
       console.error('Ошибка при создании администратора:', error);
@@ -40,10 +37,10 @@ class IusPtService {
     }
   }
 
-  // Метод для обновления администратора
   static async updateAdm(adm) {
     try {
-      const response = await instance.put(`/iuspt/adm/update/${adm.id}`, adm);
+      // Используем PUT или PATCH для обновления данных
+      const response = await instance.put('/iuspt/update/adm', adm); // или PATCH
       return response.data;
     } catch (error) {
       console.error('Ошибка при обновлении администратора:', error);
@@ -51,7 +48,7 @@ class IusPtService {
     }
   }
 
-  // Метод для получения ролей
+  //Roles
   static async fetchIusRoles() {
     try {
       const response = await instance.get('/iuspt/roles');
@@ -62,29 +59,27 @@ class IusPtService {
     }
   }
 
-  // Метод для создания роли
   static async createRole(role) {
     try {
       const response = await instance.post('/iuspt/role/create', role);
       return response.data;
     } catch (error) {
-      console.error('Ошибка при создании роли:', error);
+      console.error('Ошибка при создании типа ИУС:', error);
       throw error;
     }
   }
 
-  // Метод для обновления роли
   static async updateRole(role) {
     try {
-      const response = await instance.put(`/iuspt/role/update/${role.id}`, role);
+      // Используем PUT или PATCH для обновления данных
+      const response = await instance.put('/iuspt/role/update', role); // или PATCH
       return response.data;
     } catch (error) {
-      console.error('Ошибка при обновлении роли:', error);
+      console.error('Ошибка при обновлении типа ИУС:', error);
       throw error;
     }
   }
-
-  // Метод для получения пользователей ИУС
+  //Users
   static async fetchIusUsers() {
     try {
       const response = await instance.get('/iuspt/user');
@@ -95,7 +90,6 @@ class IusPtService {
     }
   }
 
-  // Метод для создания пользователя ИУС
   static async createUser(user) {
     try {
       const response = await instance.post('/iuspt/user/create', user);
@@ -106,18 +100,16 @@ class IusPtService {
     }
   }
 
-  // Метод для обновления пользователя ИУС
   static async updateUser(user) {
     try {
-      const response = await instance.put(`/iuspt/user/update/${user.id}`, user);
+      // Используем PUT или PATCH для обновления данных
+      const response = await instance.put('/iuspt/user/update', user); // или PATCH
       return response.data;
     } catch (error) {
       console.error('Ошибка при обновлении пользователя ИУС:', error);
       throw error;
     }
   }
-
-  // Метод для создания или обновления пользователя ИУС
   static async createOrUpdateUser(user) {
     try {
       const response = await instance.post('/iuspt/user/create-or-update', user);
@@ -127,26 +119,16 @@ class IusPtService {
       throw error;
     }
   }
-
-  // Метод для получения ролей пользователей
   static async fetchUsersRoles() {
     try {
       const response = await instance.get('/iuspt/user/usersroles');
       return response.data;
     } catch (error) {
-      console.error('Ошибка при получении ролей пользователей:', error);
+      console.error('Ошибка при получении пользователей:', error);
       throw error;
     }
   }
-  static async fetchStaffUsers() {
-    try {
-      const response = await instance.get('/iuspt/userall');
-      return response.data;
-    } catch (error) {
-      console.error('Ошибка при получении ролей пользователей:', error);
-      throw error;
-    }
-  }
+
 }
 
 export default IusPtService;

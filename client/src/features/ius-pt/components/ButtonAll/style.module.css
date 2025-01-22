@@ -2,8 +2,10 @@
 
 .headerbtn {
     cursor: pointer;
-    padding: 4px 8px;
+    margin: 16px 0;
+    
     margin-right: 8px;
+    
 }
 
 .configbtn {
@@ -11,5 +13,11 @@
     fill: #0973a1 ;
     border: 1px solid #acd5e6;
     border-radius: 3px;
+    padding: 4px 8px;
     font-size: 14px;
+    background-color: white;
+    
+}
+.iconbtn {
+    margin-right: 4px;
 }

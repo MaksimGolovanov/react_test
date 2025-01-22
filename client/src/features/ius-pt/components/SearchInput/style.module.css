@@ -1,0 +1,47 @@
+.searchContainer {
+    width: 100%; /* Занимает всю ширину родительского контейнера */
+    display: flex;
+    align-items: center; /* Выравнивание по вертикали */
+    border: 1px solid #acd5e6;
+    border-radius: 2px;
+    padding: 2px 8px;
+    background-color: #fff;
+    box-sizing: border-box; /* Учитываем padding и border в ширине */
+    margin-bottom: 16px;
+}
+
+.searchIcon {
+    margin-right: 8px; /* Отступ между иконкой и полем ввода */
+    color: gray; /* Цвет иконки */
+    display: flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+}
+
+.searchInput {
+    flex: 1; /* Растягиваем поле ввода на всю доступную ширину */
+    border: none;
+    outline: none;
+    font-size: 12px;
+    height: 26px;
+    color: #212121;
+    background-color: transparent; /* Прозрачный фон */
+    padding: 8px; /* Внутренний отступ для текста */
+}
+
+.searchInput:focus {
+    border-color: #007bff;
+    box-shadow: none; /* Убираем тень при фокусе */
+}
+.clearIcon {
+    margin-left: 8px; /* Отступ между полем ввода и иконкой крестика */
+    color: #888; /* Цвет иконки */
+    cursor: pointer; /* Курсор в виде указателя */
+    display: flex;
+    align-items: center;
+}
+
+.clearIcon:hover {
+    color: #333; /* Изменение цвета при наведении */
+}

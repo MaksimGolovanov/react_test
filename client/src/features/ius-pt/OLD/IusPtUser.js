@@ -8,12 +8,16 @@ import Tabs from 'react-bootstrap/Tabs';
 import IusPtUserInfo from '../components/IusPtUserInfo/IusPtUserInfo';
 import { IoArrowBack } from "react-icons/io5";
 import ButtonAll from '../components/ButtonAll/ButtonAll';
+import IusPtUserRoles from '../components/IusPtUserRoles/IusPtUserRoles'
 
 const IusPtUser = () => {
     const { id } = useParams(); // Получаем id из URL
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [user, setUser] = useState(null); // Состояние для хранения данных пользователя
+
+   
+
 
     useEffect(() => {
         async function fetchData() {
@@ -87,7 +91,7 @@ const IusPtUser = () => {
                         <IusPtUserInfo info={user} />
                     </Tab>
                     <Tab eventKey="print_model" title="Роли" className={styles.customTab}>
-                        sdfff
+                        <IusPtUserRoles info={user}/>
                     </Tab>
                 </Tabs>
             </div>

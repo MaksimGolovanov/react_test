@@ -13,10 +13,10 @@ const ButtonAll = ({ icon: Icon, text, path, onClick }) => {
         }
     };
 
-    return (
+    return ( 
         <div className={styles.headerbtn}>
             <button className={styles.configbtn} onClick={handleClick}>
-                {Icon && <Icon size={20} />}
+                {Icon && <Icon size={20} className={styles.iconbtn} />}
                 {text}
             </button>
         </div>
