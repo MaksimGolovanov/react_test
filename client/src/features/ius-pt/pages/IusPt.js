@@ -6,8 +6,13 @@ import SearchInput from '../components/SearchInput/SearchInput';
 import Circle from '../../../../src/Components/circle/Circle'
 import ButtonAll from '../components/ButtonAll/ButtonAll'
 import { IoMdSettings } from "react-icons/io";
+import { useNavigate } from 'react-router-dom'; // Импорт useHistory
+
+
+
 const IusPt = observer(() => {
     const [searchQuery, setSearchQuery] = useState('');
+    const navigate  = useNavigate(); // Использование useHistory
 
     useEffect(() => {
         iusPtStore.fetchStaffUsers();
@@ -30,12 +35,16 @@ const IusPt = observer(() => {
         );
     });
 
+    const handleUserClick = (id) => {
+        navigate(`/iuspt/user/${id}`); // Переход на страницу пользователя
+    };
+
     return (
         <>
             <div className={styles.header}>
                 <h1 className={styles.pageHeader}>Пользователи</h1>
             </div>
-            <ButtonAll icon={IoMdSettings} text="Справочники"/>
+            <ButtonAll icon={IoMdSettings} text="Справочники" />
             <SearchInput
                 value={searchQuery}
                 onChange={setSearchQuery}
@@ -46,7 +55,7 @@ const IusPt = observer(() => {
                 <table className={styles.table}>
                     <thead className={styles.headTable}>
                         <tr>
-                            <th style={{width: '45px'}}></th>
+                            <th style={{ width: '45px' }}></th>
                             <th>ФИО</th>
                             <th>Имя для входа</th>
                             <th>Электронная почта</th>
@@ -59,9 +68,9 @@ const IusPt = observer(() => {
                         {filteredUsers.map((staffUser, index) => (
                             <tr key={index}>
                                 <td>
-                                    <Circle fullName={staffUser.fio} size={30}/>
+                                    <Circle fullName={staffUser.fio} size={30} />
                                 </td>
-                                <td style={{color:'#117aa8'}}>{staffUser.fio}</td>
+                                <td style={{ color: '#117aa8' }} onClick={() => handleUserClick(staffUser.id)}>{staffUser.fio}</td>
                                 <td>{staffUser.IusUser ? staffUser.IusUser.name : ''}</td>
                                 <td>{staffUser.email}</td>
                                 <td>{staffUser.tab_num}</td>

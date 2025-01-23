@@ -12,9 +12,9 @@
 
 .searchIcon {
     margin-right: 8px; /* Отступ между иконкой и полем ввода */
-    color: gray; /* Цвет иконки */
+    color: #0973a1; /* Цвет иконки */
     display: flex;
-    width: 20px;
+    width: 20px; 
     height: 20px;
     align-items: center;
 }
@@ -36,7 +36,7 @@
 }
 .clearIcon {
     margin-left: 8px; /* Отступ между полем ввода и иконкой крестика */
-    color: #888; /* Цвет иконки */
+    color: #0973a1; /* Цвет иконки */
     cursor: pointer; /* Курсор в виде указателя */
     display: flex;
     align-items: center;

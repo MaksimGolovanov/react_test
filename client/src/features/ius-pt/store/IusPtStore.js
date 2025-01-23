@@ -9,6 +9,8 @@ class IusPtStore {
   usersroles = []; // Роли пользователей
   iusstaffusers=[]
 
+
+
   constructor() {
     makeAutoObservable(this);
   }
@@ -139,12 +141,17 @@ class IusPtStore {
   fetchStaffUsers = action(async () => {
     try {
       const responseStaffUsers = await IusPtService.fetchStaffUsers();
-      console.log(responseStaffUsers)
+      
       this.iusstaffusers = responseStaffUsers;
     } catch (error) {
       console.error('Ошибка при получении данных:', error);
     }
   });
+
+
+
+
+
 }
 
 const iusPtStore = new IusPtStore();

@@ -75,7 +75,7 @@ const IusPtUser = () => {
             <div className={styles.userContainer}>
                 <div>
                     <Circle
-                        initials={`${user.fio.split(' ').map(name => name.charAt(0)).slice(0, 2).join('')}`}
+                        fullName={`${user.fio.split(' ').map(name => name.charAt(0)).slice(0, 2).join('')}`}
                         size={80}
                     />
                 </div>

@@ -5,7 +5,7 @@ import { useLocation, Routes, Route } from 'react-router-dom';
 import Clock from './Components/Clock';
 import NavBar from './Components/NavBar/NavBar';
 import PrivateRoute from './shared/PrivateRoute';
-import './App.css';
+
 import {Prints} from './features/prints'
 import {NotesRoutes} from './features/notes'
 import { IusPtRoutes } from './features/ius-pt'

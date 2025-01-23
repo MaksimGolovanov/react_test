@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { observer } from 'mobx-react'; // Импортируем observer
 import userStore from './features/admin/store/UserStore';
-
+import './App.css';
 import App from './App';
 import LoginPage from './features/admin/pages/LoginPage';
 

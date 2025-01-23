@@ -1,13 +1,18 @@
 .tableContainer {
-    max-height: 670px; /* Задайте нужную высоту */
-    overflow-y: auto; /* Включаем вертикальную прокрутку */
-    position: relative; /* Для корректного позиционирования sticky */
+    max-height: 670px;
+    /* Задайте нужную высоту */
+    overflow-y: auto;
+    /* Включаем вертикальную прокрутку */
+    position: relative;
+    /* Для корректного позиционирования sticky */
 }
 
 .table {
     width: 100%;
-    table-layout: fixed; /* Равномерное распределение ширины столбцов */
-    border-collapse: collapse; /* Убираем двойные границы */
+    table-layout: fixed;
+    /* Равномерное распределение ширины столбцов */
+    border-collapse: collapse;
+    /* Убираем двойные границы */
 }
 
 .headTable {
@@ -32,26 +37,82 @@
 /* Убедитесь, что ячейки таблицы также имеют одинаковую ширину */
 .table th,
 .table td {
-    padding: 8px; /* Добавляем отступы для текста */
-    text-align: left; /* Выравнивание текста по левому краю */
-    word-wrap: break-word; /* Перенос текста, если он не помещается */
+    padding: 8px;
+    /* Добавляем отступы для текста */
+    text-align: left;
+    /* Выравнивание текста по левому краю */
+    word-wrap: break-word;
+    /* Перенос текста, если он не помещается */
 }
+
 .headTable th {
-    border-right: 1px solid #ccc; /* Черточка между колонками */
-    padding: 8px; /* Отступы для текста */
-    text-align: left; /* Выравнивание текста по левому краю */
+    border-right: 1px solid #ccc;
+    /* Черточка между колонками */
+    padding: 8px;
+    /* Отступы для текста */
+    text-align: left;
+    /* Выравнивание текста по левому краю */
 }
 
 /* Убираем правую границу у последней ячейки */
 .headTable th:last-child {
     border-right: none;
 }
+
 .bodyTable tr:hover {
-    background-color: #f0f0f0; /* Цвет фона при наведении */
-    cursor: pointer; /* Курсор в виде указателя */
+    background-color: #f0f0f0;
+    /* Цвет фона при наведении */
+    cursor: pointer;
+    /* Курсор в виде указателя */
 }
 
 .pageHeader {
     color: #364760;
     font-size: 24px;
+}
+
+.userContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.fio {
+    font-size: 24px;
+    margin: 0;
+}
+
+.name {
+    color: gray;
+    font-size: 16px;
+    margin: 4px 0 0 0;
+}
+
+.department {
+    font-size: 16px;
+    color: #212121;
+    margin: 4px 0 0 0;
+}
+
+
+
+.customtabs :global(.nav-link) {
+    height: 32px;
+    padding: 0 24px;
+    border-radius: 1px;
+    background-color: #ebebeb;
+    border-bottom: none;
+    color: #4f4f4f;
+}
+
+
+
+.customtabs :global(.nav-link.active) {
+    background-color: #fff;
+    border-top: 2px solid #60a8d8;
+    border-bottom: none;
+    height: 32px;
+    padding: 0 24px;
+
 }

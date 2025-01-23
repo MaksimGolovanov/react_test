@@ -4,15 +4,15 @@ import styles from './style.module.css';
 
 const EditUserModal = ({ show, handleClose, user, onSave }) => {
     const [formData, setFormData] = useState({
-        name: user.name || '',
+        name: user.IusUser ? user.IusUser.name : '',
         fio: user.fio || '',
         email: user.email || '',
         department: user.department.slice(13) || '',
         post: user.post || '',
         tab_num: user.tab_num || '',
-        contractDetails: user.contractDetails || '',
+        contractDetails: user.IusUser ? user.IusUser.contractDetails : '',
         location: user.location || '',
-        computerName: user.computerName || '',
+        computerName: user.IusUser ? user.IusUser.computerName : '',
         telephone: user.telephone || '',
         ip: user.ip || '',
     });
