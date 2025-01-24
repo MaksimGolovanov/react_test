@@ -1,17 +1,38 @@
 const Router = require('express');
 const router = new Router();
-const iusController=require('../controllers/IusController')
 
-router.get('/', iusController.getAllUserAdm);
-router.post('/create/adm', iusController.createUserAdm);
-router.put('/update/adm', iusController.updateUserAdm); // Обновить администратора
-router.get('/roles', iusController.getAllRoles);
-router.post('/role/create', iusController.createRole);
-router.put('/role/update', iusController.updateRole); 
-router.get('/user', iusController.getAllUsers);
-router.get('/user/usersroles', iusController.getAllUserRoles);
-router.post('/user/create-or-update', iusController.createOrUpdateUser);
-router.get('/userall',iusController.getStaffWithIusUser)
+const IusSpravAdmController = require('../controllers/IusControllers/IusSpravAdmController');
+const IusSpravRolesController = require('../controllers/IusControllers/IusSpravRolesController');
+const IusUserController = require('../controllers/IusControllers/IusUserController');
+const IusUserRolesController = require('../controllers/IusControllers/IusUserRolesController');
+const StaffController = require('../controllers/IusControllers/StaffController');
+
+// Маршруты для администраторов
+router.get('/adm', IusSpravAdmController.getAll);
+router.post('/adm', IusSpravAdmController.create);
+router.put('/adm', IusSpravAdmController.update);
+router.delete('/adm/:id', IusSpravAdmController.delete);
+
+// Маршруты для ролей
+router.get('/roles', IusSpravRolesController.getAll);
+router.post('/roles', IusSpravRolesController.create);
+router.put('/roles', IusSpravRolesController.update);
+router.delete('/roles/:id', IusSpravRolesController.delete);
+
+// Маршруты для пользователей
+router.get('/users', IusUserController.getAll);
+router.post('/users', IusUserController.createOrUpdate);
+router.delete('/users/:id', IusUserController.delete);
+
+// Маршруты для связей пользователей и ролей
+router.get('/user-roles', IusUserRolesController.getAll);
+router.post('/user-roles', IusUserRolesController.create);
+router.delete('/user-roles/:id', IusUserRolesController.delete);
+
+// Маршрут для получения данных из Staff и IusUser
+router.get('/staff-with-iususer', StaffController.getStaffWithIusUser);
+
+
 
 
 module.exports = router;

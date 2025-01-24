@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import PrivateRoute from '../../shared/PrivateRoute'; // Импортируем PrivateRoute
 import IusPt from './pages/IusPt';
 import IusPtUser from './pages/IusPtUser';
+import IusSprav from './pages/IusSprav';
 
 
 
@@ -10,6 +11,7 @@ const IusPtRoutes = () => {
     <Routes>
       <Route path="/" element={<PrivateRoute requiredRole={['ADMIN']}><IusPt /></PrivateRoute>}/>
       <Route path="/user/:id" element={<PrivateRoute requiredRole={['ADMIN']}><IusPtUser /></PrivateRoute>}/>
+      <Route path="/sprav" element={<PrivateRoute requiredRole={['ADMIN']}><IusSprav /></PrivateRoute>}/>
 
     </Routes>
   );

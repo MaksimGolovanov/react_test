@@ -1,0 +1,11 @@
+/* style.module.css */
+
+/* Стили для таблицы */
+.table {
+    width: 800px;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  
+  

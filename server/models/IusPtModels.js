@@ -37,6 +37,7 @@ const IusUser = sequelize.define('IusUser', {
     name: { type: DataTypes.STRING },
     contractDetails: { type: DataTypes.STRING },
     computerName: { type: DataTypes.STRING },
+    location: {type: DataTypes.STRING},
 });
 
 // Модель для промежуточной таблицы IusUserRoles
@@ -58,7 +59,7 @@ IusSpravRoles.belongsToMany(IusUser, {
     foreignKey: 'roleId', // Поле в промежуточной таблице, ссылающееся на IusSpravRoles
     otherKey: 'tabNumber', // Поле в промежуточной таблице, ссылающееся на IusUser
 });
-
+ 
 // Связь один к одному между Staff.tab_num и IusUser.tabNumber
 Staff.hasOne(IusUser, { foreignKey: 'tabNumber', sourceKey: 'tab_num' });
 IusUser.belongsTo(Staff, { foreignKey: 'tabNumber', targetKey: 'tab_num' });

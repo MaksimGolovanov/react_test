@@ -2,34 +2,49 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import styles from './style.module.css';
 
-const EditUserModal = ({ show, handleClose, user, onSave }) => {
+const EditUserModal = ({ show, handleClose, user, onSave, isLoading, error }) => {
+    // Инициализация состояния формы
     const [formData, setFormData] = useState({
-        name: user.IusUser ? user.IusUser.name : '',
-        fio: user.fio || '',
-        email: user.email || '',
-        department: user.department.slice(13) || '',
-        post: user.post || '',
-        tab_num: user.tab_num || '',
-        contractDetails: user.IusUser ? user.IusUser.contractDetails : '',
-        location: user.location || '',
-        computerName: user.IusUser ? user.IusUser.computerName : '',
-        telephone: user.telephone || '',
-        ip: user.ip || '',
+        name: user.IusUser ? user.IusUser.name : '-',
+        fio: user.fio || '-',
+        email: user.email || '-',
+        department: user.department?.slice(13) || '-',
+        post: user.post || '-',
+        tab_num: user.tab_num || '-',
+        contractDetails: user.IusUser ? user.IusUser.contractDetails : '-',
+        location: user.location || '-',
+        computerName: user.IusUser ? user.IusUser.computerName : '-',
+        telephone: user.telephone || '-',
+        ip: user.ip || '-',
     });
 
+    // Обработчик изменения значений полей
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Обработчик отправки формы
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSave(formData); // Передаем обновленные данные в родительский компонент
-        handleClose(); // Закрываем модальное окно
+        onSave(formData); // Передача обновленных данных
+        
     };
+
+    // Массив с описанием полей формы
+    const fields = [
+        { id: 'name', label: 'Имя пользователя', type: 'text', readOnly: false },
+        { id: 'fio', label: 'Фамилия Имя Отчество', type: 'text', readOnly: true },
+        { id: 'email', label: 'Электронная почта', type: 'email', readOnly: true },
+        { id: 'department', label: 'Подразделение', type: 'text', readOnly: true },
+        { id: 'post', label: 'Должность', type: 'text', readOnly: true },
+        { id: 'tab_num', label: 'Табельный номер', type: 'text', readOnly: true },
+        { id: 'contractDetails', label: 'Реквизиты договора о конфиденциальности', type: 'text', readOnly: false },
+        { id: 'location', label: 'Расположение (город, адрес)', type: 'text', readOnly: false },
+        { id: 'computerName', label: 'Имя компьютера', type: 'text', readOnly: false },
+        { id: 'telephone', label: 'Контактный телефон', type: 'text', readOnly: true },
+        { id: 'ip', label: 'IP адрес', type: 'text', readOnly: true },
+    ];
 
     return (
         <Modal show={show} onHide={handleClose} size="lg" backdropClassName={styles.backdrop}>
@@ -38,141 +53,31 @@ const EditUserModal = ({ show, handleClose, user, onSave }) => {
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
-                    <Form.Group controlId="formName">
-                        <Form.Label className={styles.formlabel}>Имя пользователя</Form.Label>
-                        <Form.Control
-                            className={styles.formcontrol}
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                        />
-                    </Form.Group>
+                    {/* Динамическое создание полей формы */}
+                    {fields.map((field) => (
+                        <Form.Group controlId={`form${field.id}`} key={field.id}>
+                            <Form.Label className={styles.formlabel}>{field.label}</Form.Label>
+                            <Form.Control
+                                className={styles.formcontrol}
+                                type={field.type}
+                                name={field.id}
+                                value={formData[field.id]}
+                                onChange={handleChange}
+                                readOnly={field.readOnly}
+                                disabled={isLoading} // Отключаем поля при загрузке
+                            />
+                        </Form.Group>
+                    ))}
 
-                    <Form.Group controlId="formFio">
-                        <Form.Label className={styles.formlabel}>Фамилия Имя Отчество</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="text"
-                            name="fio"
-                            value={formData.fio}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="formEmail">
-                        <Form.Label className={styles.formlabel}>Электронная почта</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="formDepartment">
-                        <Form.Label className={styles.formlabel}>Подразделение</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="text"
-                            name="department"
-                            value={formData.department}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="formPost">
-                        <Form.Label className={styles.formlabel}>Должность</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="text"
-                            name="post"
-                            value={formData.post}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="formEmployeeNumber">
-                        <Form.Label className={styles.formlabel}>Табельный номер</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="text"
-                            name="tab_num"
-                            value={formData.tab_num}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="formContractDetails">
-                        <Form.Label className={styles.formlabel}>Реквизиты договора о конфиденциальности</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="text"
-                            name="contractDetails"
-                            value={formData.contractDetails}
-                            onChange={handleChange}
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="formLocation">
-                        <Form.Label className={styles.formlabel}>Расположение (город, адрес)</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="text"
-                            name="location"
-                            value={formData.location}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="formComputerName">
-                        <Form.Label className={styles.formlabel}>Имя компьютера</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="text"
-                            name="computerName"
-                            value={formData.computerName}
-                            onChange={handleChange}
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="formPhone">
-                        <Form.Label className={styles.formlabel}>Контактный телефон</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="text"
-                            name="telephone"
-                            value={formData.telephone}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="formIpAddress">
-                        <Form.Label className={styles.formlabel}>IP адрес</Form.Label>
-                        <Form.Control
-                        className={styles.formcontrol}
-                            type="text"
-                            name="ip"
-                            value={formData.ip}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </Form.Group>
+                    {/* Отображение ошибки */}
+                    {error && <div className={styles.errorMessage}>{error}</div>}
 
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>
+                        <Button variant="secondary" onClick={handleClose} disabled={isLoading}>
                             Закрыть
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Сохранить изменения
+                        <Button variant="primary" type="submit" disabled={isLoading}>
+                            {isLoading ? 'Сохранение...' : 'Сохранить изменения'}
                         </Button>
                     </Modal.Footer>
                 </Form>
