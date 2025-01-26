@@ -1,0 +1,101 @@
+.container {
+  padding: 20px;
+  font-size: 12px;
+}
+
+.layout {
+  display: flex;
+  gap: 20px;
+  height: 100%; /* Задаем высоту для родительского контейнера */
+}
+
+.types {
+  flex: 1;
+  border-right: 1px solid #ccc;
+  padding-right: 20px;
+  overflow-y: auto; /* Добавляем прокрутку, если список типов слишком длинный */
+  max-height: 80vh; /* Ограничиваем высоту списка типов */
+}
+
+.roles {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Включаем вертикальную прокрутку */
+  height: 520px;
+  padding: 10px;
+  background-color: #f9f9f9; /* Легкий фон для правой колонки */
+  border-radius: 8px; /* Скругленные углы */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень для выделения */
+}
+
+.headerRow {
+  display: flex;
+  align-items: center; /* Выравниваем элементы по горизонтали */
+  justify-content: space-between; /* Разделяем заголовок и количество ролей */
+  padding: 2px;
+  background-color: #fff; /* Фон для строки */
+  border-bottom: 1px solid #eee; /* Граница снизу */
+  position: sticky; /* Фиксируем строку */
+  top: 0; /* Прилипаем к верхнему краю */
+  z-index: 1; /* Убедимся, что строка находится поверх других элементов */
+}
+
+.selectedCount {
+  font-size: 14px;
+  color: #555; /* Цвет текста для количества ролей */
+  margin-left: 10px; /* Отступ слева от заголовка */
+}
+
+.rolesList {
+  flex: 1;
+  overflow-y: auto; /* Включаем прокрутку для списка ролей */
+  margin-bottom: 10px; /* Отступ снизу для кнопки */
+}
+
+.row {
+  display: flex;
+  align-items: center; /* Выравниваем элементы по вертикали */
+  padding: 2px;
+  margin-bottom: 2px; /* Отступ между элементами */
+  background-color: #fff; /* Фон для каждого элемента */
+  border: 1px solid #eee; /* Граница для каждого элемента */
+  border-radius: 4px; /* Скругленные углы */
+  transition: background-color 0.2s ease; /* Плавный переход при наведении */
+}
+
+.row:hover {
+  background-color: #f1f1f1; /* Изменение фона при наведении */
+}
+
+.checkbox {
+  margin-right: 10px; /* Отступ справа от чекбокса */
+}
+
+.roleDetails {
+  display: flex;
+  flex-direction: column; /* Располагаем код и название роли вертикально */
+}
+
+.rolecode {
+  font-weight: bold;
+  color: #555; /* Цвет текста для кода роли */
+}
+
+.rolename {
+  color: #333; /* Цвет текста для названия роли */
+}
+
+.saveButton {
+  padding: 10px 20px;
+  background-color: #007bff; /* Цвет фона кнопки */
+  color: white; /* Цвет текста кнопки */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease; /* Плавный переход при наведении */
+}
+
+.saveButton:hover {
+  background-color: #0056b3; /* Изменение цвета фона при наведении */
+}

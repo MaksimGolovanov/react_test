@@ -43,22 +43,41 @@ const IusUser = sequelize.define('IusUser', {
 // Модель для промежуточной таблицы IusUserRoles
 const IusUserRoles = sequelize.define('IusUserRoles', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    tabNumber: { type: DataTypes.STRING, allowNull: false }, // Связь с IusUser
-    roleId: { type: DataTypes.INTEGER, allowNull: false }, // Связь с IusSpravRoles
+    tabNumber: { type: DataTypes.STRING, references: { model: 'IusUser', key: 'tabNumber' } },
+    roleId: { type: DataTypes.INTEGER, references: { model: 'IusSpravRoles', key: 'id' } },
+}, {
+    indexes: [
+        {
+            unique: true,
+            fields: ['tabNumber', 'roleId']
+        }
+    ]
 });
 
 // Связь многие ко многим между IusUser и IusSpravRoles
 IusUser.belongsToMany(IusSpravRoles, {
-    through: IusUserRoles, // Используем модель промежуточной таблицы
-    foreignKey: 'tabNumber', // Поле в промежуточной таблице, ссылающееся на IusUser
-    otherKey: 'roleId', // Поле в промежуточной таблице, ссылающееся на IusSpravRoles
+    through: IusUserRoles,
+    foreignKey: 'tabNumber', // Поле в промежуточной таблице, которое ссылается на IusUser
+    otherKey: 'roleId',      // Поле в промежуточной таблице, которое ссылается на IusSpravRoles
 });
 
 IusSpravRoles.belongsToMany(IusUser, {
-    through: IusUserRoles, // Используем модель промежуточной таблицы
-    foreignKey: 'roleId', // Поле в промежуточной таблице, ссылающееся на IusSpravRoles
-    otherKey: 'tabNumber', // Поле в промежуточной таблице, ссылающееся на IusUser
+    through: IusUserRoles,
+    foreignKey: 'roleId',    // Поле в промежуточной таблице, которое ссылается на IusSpravRoles
+    otherKey: 'tabNumber',   // Поле в промежуточной таблице, которое ссылается на IusUser
 });
+
+IusUserRoles.belongsTo(IusSpravRoles, {
+    foreignKey: 'roleId', // Поле в промежуточной таблице, которое ссылается на IusSpravRoles
+    targetKey: 'id',      // Поле в IusSpravRoles, на которое ссылается roleId
+});
+
+IusUserRoles.belongsTo(IusUser, {
+    foreignKey: 'tabNumber', // Поле в промежуточной таблице, которое ссылается на IusUser
+    targetKey: 'tabNumber',  // Поле в IusUser, на которое ссылается tabNumber
+});
+
+
  
 // Связь один к одному между Staff.tab_num и IusUser.tabNumber
 Staff.hasOne(IusUser, { foreignKey: 'tabNumber', sourceKey: 'tab_num' });

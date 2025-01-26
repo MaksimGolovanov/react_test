@@ -66,8 +66,9 @@ class IusPtService {
   }
 
   // Методы для работы со связями пользователей и ролей (IusUserRoles)
-  static fetchUserRoles = async () => {
-    return this.request('get', '/iuspt/user-roles');
+  static fetchUserRoles = async (tabNumber) => {
+    
+    return this.request('get', `/iuspt/user-roles/${tabNumber}`);
   }
 
   static createUserRole = async (userRole) => {
@@ -76,6 +77,10 @@ class IusPtService {
 
   static deleteUserRole = async (id) => {
     return this.request('delete', `/iuspt/user-roles/${id}`);
+  }
+
+  static addRolesToUser = async (tabNumber, roleIds) => {
+    return this.request('post', '/iuspt/user-roles/bulk', { tabNumber, roleIds });
   }
 
   // Методы для работы с сотрудниками и их связями с пользователями ИУС (Staff)

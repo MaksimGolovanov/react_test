@@ -8,6 +8,7 @@
     background-color: #fff;
     box-sizing: border-box; /* Учитываем padding и border в ширине */
     margin-bottom: 16px;
+    margin-top: 16px;
 }
 
 .searchIcon {

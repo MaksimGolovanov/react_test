@@ -8,6 +8,8 @@ import iusPtStore from '../store/IusPtStore';
 import Circle from '../../../Components/circle/Circle';
 import styles from './style.module.css'; // Импорт CSS модуля
 import UserTable from '../components/UserTable/UserTable';
+import UserRoles from '../components/UserRoles/UserRoles';
+import UserRolesPage from '../components/UserRolesPage/UserRolesPage';
 
 const IusPtUser = observer(() => {
     const { id } = useParams(); // Получаем ID пользователя из URL
@@ -90,10 +92,10 @@ const IusPtUser = observer(() => {
                     <UserTable info={user} />
                 </Tab>
                 <Tab eventKey="role" title="Роли">
-                    <div>Информация о ролях пользователя</div>
+                    <UserRoles info={user}/>
                 </Tab>
-                <Tab eventKey="contact" title="Contact">
-                    <div>Контактная информация</div>
+                <Tab eventKey="contact" title="Добавление ролей">
+                    <UserRolesPage info={user}/>
                 </Tab>
             </Tabs>
         </>

@@ -1,11 +1,91 @@
-/* style.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  max-height: 600px; /* Ограничиваем высоту контейнера */
+  overflow-y: auto; /* Добавляем вертикальную прокрутку */
+  font-size: 14px;
+}
 
-/* Стили для таблицы */
-.table {
-    width: 800px;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 14px;
-  }
-  
-  
+.header {
+  display: flex;
+  background-color: #f8f9fa;
+  padding: 10px;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  position: sticky; /* Фиксируем шапку */
+  top: 0; /* Привязываем к верхнему краю */
+  z-index: 1; /* Убедимся, что шапка поверх остального контента */
+}
+
+.header div {
+  flex: 1;
+  text-align: left;
+}
+
+
+
+
+
+.tableBody {
+  flex: 1;
+  overflow-y: auto; /* Добавляем прокрутку для тела таблицы */
+}
+
+.group {
+  border-bottom: 1px solid #ddd;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+.groupContent {
+  padding: 10px;
+}
+
+.row {
+  display: flex;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.row div {
+  flex: 1;
+  text-align: left;
+}
+
+.toggleButton {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+}
+
+.icon {
+  margin-right: 8px;
+}
+
+/* Задаем ширину столбцам */
+.header div:nth-child(1) { width: 10%; flex: none; } /* Type Name */
+.header div:nth-child(2) { width: 10%; flex: none; } /* Type */
+.header div:nth-child(3) { width: 39%; flex: none; } /* Name */
+.header div:nth-child(4) { width: 20%; flex: none; } /* Code */
+.header div:nth-child(5) { width: 10%; flex: none; } /* Mandat */
+.header div:nth-child(6) { width: 10%; flex: none; } /* Business Process */
+
+/* Задаем ширину столбцам для строк */
+.row div:nth-child(1) { width: 10%; flex: none; } /* Type Name */
+.row div:nth-child(2) { width: 10%; flex: none; } /* Type */
+.row div:nth-child(3) { width: 40%; flex: none; } /* Name */
+.row div:nth-child(4) { width: 20%; flex: none; } /* Code */
+.row div:nth-child(5) { width: 10%; flex: none; } /* Mandat */
+.row div:nth-child(6) { width: 10%; flex: none; } /* Business Process */

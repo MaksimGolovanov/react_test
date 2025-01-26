@@ -26,8 +26,10 @@ router.delete('/users/:id', IusUserController.delete);
 
 // Маршруты для связей пользователей и ролей
 router.get('/user-roles', IusUserRolesController.getAll);
+router.get('/user-roles/:tabNumber', IusUserRolesController.getAllTabNum);
 router.post('/user-roles', IusUserRolesController.create);
 router.delete('/user-roles/:id', IusUserRolesController.delete);
+router.post('/user-roles/bulk', IusUserRolesController.addRolesToUser);
 
 // Маршрут для получения данных из Staff и IusUser
 router.get('/staff-with-iususer', StaffController.getStaffWithIusUser);
