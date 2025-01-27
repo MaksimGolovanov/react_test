@@ -1,31 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react-lite';
 import iusPtStore from "../../store/IusPtStore";
-import styles from './style.module.css'; // Импорт стилей
-import SearchInput from '../SearchInput/SearchInput'; // Исправлено название компонента
+import styles from './style.module.css';
+import SearchInput from '../SearchInput/SearchInput';
+import * as XLSX from 'xlsx';
 
 const UserRolesPage = observer(({ info }) => {
-    const [selectedType, setSelectedType] = useState(null); // Состояние для выбранного типа ИУС
+    const [selectedType, setSelectedType] = useState(null);
     const [selectedRoles, setSelectedRoles] = useState([]); // Состояние для выбранных ролей
-    const [searchQuery, setSearchQuery] = useState(""); // Состояние для поискового запроса
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
-        iusPtStore.fetchRoles(); // Загружаем роли при монтировании компонента
+        iusPtStore.fetchRoles();
     }, []);
-    
-    // Фильтруем роли по выбранному типу и поисковому запросу
+
+    // Фильтрация ролей по выбранному типу и поисковому запросу
     const filteredRoles = selectedType
         ? iusPtStore.roles
-              .filter(
-                  (role) =>
-                      role.typename === selectedType &&
-                      (role.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                       role.name.toLowerCase().includes(searchQuery.toLowerCase()))
-              )
-              .sort((a, b) => a.code.localeCompare(b.code)) // Сортировка по полю code
+            .filter(
+                (role) =>
+                    role.typename === selectedType &&
+                    (role.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        role.name.toLowerCase().includes(searchQuery.toLowerCase()))
+            )
+            .sort((a, b) => a.code.localeCompare(b.code))
         : [];
 
-    // Обработчик изменения состояния выбора роли
+    // Обработчик выбора роли
     const handleRoleSelect = (roleId) => {
         setSelectedRoles((prevSelectedRoles) => {
             if (prevSelectedRoles.includes(roleId)) {
@@ -46,7 +47,7 @@ const UserRolesPage = observer(({ info }) => {
             alert("Ошибка: табельный номер не указан.");
             return;
         }
-    
+
         try {
             await iusPtStore.addRolesToUser(tabNumber, selectedRoles);
             alert("Роли успешно сохранены!");
@@ -56,18 +57,47 @@ const UserRolesPage = observer(({ info }) => {
         }
     };
 
+    // Обработчик загрузки файла Excel
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet);
+
+                // Сопоставление code из Excel с id ролей из справочника
+                const rolesFromExcel = json.map(row => row.code);
+                const matchedRoles = iusPtStore.roles
+                    .filter(role => rolesFromExcel.includes(role.code))
+                    .map(role => role.id);
+
+                setSelectedRoles(matchedRoles);
+                alert("Файл успешно загружен и роли сопоставлены!");
+            } catch (error) {
+                console.error("Ошибка при обработке файла:", error);
+                alert("Ошибка при обработке файла. Убедитесь, что файл имеет правильный формат.");
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    };
+
     return (
         <div className={styles.container}>
-            <h5>Выбор ИУС</h5>
-
             <div className={styles.layout}>
                 {/* Список типов ИУС слева */}
                 <div className={styles.types}>
+                    <h5>Выбор ИУС</h5>
                     {iusPtStore.rolesTypes.map((type, index) => (
                         <div
                             key={index}
                             className={`${styles.row} ${selectedType === type ? styles.selected : ''}`}
-                            onClick={() => setSelectedType(type)} // Выбираем тип при клике
+                            onClick={() => setSelectedType(type)}
                         >
                             {type}
                         </div>
@@ -76,7 +106,6 @@ const UserRolesPage = observer(({ info }) => {
 
                 {/* Список ролей справа */}
                 <div className={styles.roles}>
-                    {/* Компонент поиска */}
                     <SearchInput
                         value={searchQuery}
                         onChange={setSearchQuery}
@@ -95,8 +124,8 @@ const UserRolesPage = observer(({ info }) => {
                                     <div key={index} className={styles.row}>
                                         <input
                                             type="checkbox"
-                                            checked={selectedRoles.includes(role.id)} // Проверяем, выбрана ли роль
-                                            onChange={() => handleRoleSelect(role.id)} // Обрабатываем выбор роли
+                                            checked={selectedRoles.includes(role.id)}
+                                            onChange={() => handleRoleSelect(role.id)}
                                             className={styles.checkbox}
                                         />
                                         <div className={styles.roleDetails}>
@@ -113,6 +142,11 @@ const UserRolesPage = observer(({ info }) => {
                         </>
                     )}
                 </div>
+            </div>
+
+            {/* Поле для загрузки файла Excel */}
+            <div className={styles.fileUpload}>
+                <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
             </div>
         </div>
     );

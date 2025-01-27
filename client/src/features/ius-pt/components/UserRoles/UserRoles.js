@@ -1,75 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Button, Collapse } from 'react-bootstrap';
-import { FaAngleDown, FaAngleRight } from 'react-icons/fa'; // Иконки для раскрытия/сворачивания
+import { FaAngleDown, FaAngleRight } from 'react-icons/fa';
 import { observer } from 'mobx-react-lite';
 import iusPtStore from '../../store/IusPtStore';
-import styles from './style.module.css'; // Импорт стилей
+import styles from './style.module.css';
 import SearchInput from '../SearchInput/SearchInput';
 
 const UserRoles = observer(({ info }) => {
-  const { userRoles, fetchUserRoles, isLoading } = iusPtStore;
-  const [expandedGroups, setExpandedGroups] = useState({}); // Состояние для отслеживания раскрытых групп
-  const [searchQuery, setSearchQuery] = useState(''); // Состояние для поискового запроса
-
+  const { userRoles, fetchUserRoles, isLoading, error } = iusPtStore;
+  const [expandedGroups, setExpandedGroups] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
+  
   useEffect(() => {
-    
     fetchUserRoles(info.tab_num);
   }, [fetchUserRoles, info.tab_num]);
 
-  if (isLoading) {
-    return <div>Загрузка...</div>;
-  }
-
-  
-
-  // Преобразуем данные в массив, если это необходимо
-  const rolesArray = Array.isArray(userRoles) ? userRoles : [userRoles];
-
-  // Группировка данных по `typename`
-  const groupedData = rolesArray.reduce((acc, role) => {
-    const key = role.IusSpravRole?.typename || 'Без типа';
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(role);
-    return acc;
-  }, {});
-
-  // Фильтрация данных по поисковому запросу
-  const filteredGroupedData = Object.keys(groupedData).reduce((acc, typename) => {
-    const filteredRoles = groupedData[typename].filter((role) =>
-      role.IusSpravRole?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      role.IusSpravRole?.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      role.IusSpravRole?.typename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      role.IusSpravRole?.type.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    if (filteredRoles.length > 0) {
-      acc[typename] = filteredRoles;
-    }
-    return acc;
-  }, {});
-
-  // Обработчик для сворачивания/разворачивания групп
-  const toggleGroup = (typename) => {
+  const toggleGroup = useCallback((key) => {
     setExpandedGroups((prev) => ({
       ...prev,
-      [typename]: !prev[typename], // Инвертируем текущее состояние группы
+      [key]: !prev[key],
     }));
-  };
+  }, []);
 
+  const filterRoles = useCallback((roles, query) => {
+    return roles.filter((role) =>
+      Object.values(role.IusSpravRole || {}).some((value) =>
+        String(value).toLowerCase().includes(query.toLowerCase())
+      )
+    );
+  }, []);
+
+  const groupRoles = useCallback((roles) => {
+    return roles.reduce((acc, role) => {
+      const typename = role.IusSpravRole?.typename || 'Без типа';
+      const type = role.IusSpravRole?.type || 'Без типа';
+
+      if (!acc[typename]) acc[typename] = {};
+      if (!acc[typename][type]) acc[typename][type] = [];
+
+      acc[typename][type].push(role);
+      return acc;
+    }, {});
+  }, []);
+
+  if (isLoading) return <div>Загрузка...</div>;
+  if (error) return <div>Ошибка: {error}</div>;
+
+  const rolesArray = Array.isArray(userRoles) ? userRoles : [userRoles];
+  const filteredRoles = filterRoles(rolesArray, searchQuery);
+  const groupedData = groupRoles(filteredRoles);
+  console.log(groupedData)
   return (
     <>
-      {/* Поле поиска */}
       <SearchInput
         value={searchQuery}
         onChange={setSearchQuery}
         placeholder="Поиск ролей..."
-        styles className={styles.search}
+        className={styles.search}
       />
 
-      {/* Таблица с данными */}
       <div className={styles.container}>
-        {/* Заголовок */}
         <div className={styles.header}>
           <div>Тип</div>
           <div>SID</div>
@@ -77,13 +67,12 @@ const UserRoles = observer(({ info }) => {
           <div>Код роли</div>
           <div>Мандат</div>
           <div>Бизнес процесс</div>
+          <div>Дата назначения роли</div> {/* Новый столбец */}
         </div>
 
-        {/* Группы */}
         <div className={styles.tableBody}>
-          {Object.keys(filteredGroupedData).map((typename) => (
+          {Object.keys(groupedData).map((typename) => (
             <div key={typename} className={styles.group}>
-              {/* Родительская строка для группы */}
               <div className={styles.groupHeader}>
                 <Button
                   variant="link"
@@ -95,21 +84,54 @@ const UserRoles = observer(({ info }) => {
                   <span className={styles.icon}>
                     {expandedGroups[typename] ? <FaAngleDown /> : <FaAngleRight />}
                   </span>
-                  {typename} ({filteredGroupedData[typename].length} элементов)
+                  {typename} ({Object.values(groupedData[typename]).flat().length} элементов)
                 </Button>
               </div>
 
-              {/* Дочерние строки группы */}
               <Collapse in={expandedGroups[typename]}>
                 <div id={`group-${typename}`} className={styles.groupContent}>
-                  {filteredGroupedData[typename].map((role, index) => (
-                    <div key={`${typename}-${index}`} className={styles.row}>
-                      <div>{role.IusSpravRole?.typename}</div>
-                      <div>{role.IusSpravRole?.type}</div>
-                      <div>{role.IusSpravRole?.name}</div>
-                      <div>{role.IusSpravRole?.code}</div>
-                      <div>{role.mandat}</div>
-                      <div>{role.business_process}</div>
+                  {Object.keys(groupedData[typename]).map((type) => (
+                    <div key={type} className={styles.subGroup}>
+                      <div className={styles.subGroupHeader}>
+                        <Button
+                          variant="link"
+                          onClick={() => toggleGroup(`${typename}-${type}`)}
+                          aria-controls={`sub-group-${typename}-${type}`}
+                          aria-expanded={expandedGroups[`${typename}-${type}`]}
+                          className={styles.toggleButton}
+                        >
+                          <span className={styles.icon}>
+                            {expandedGroups[`${typename}-${type}`] ? <FaAngleDown /> : <FaAngleRight />}
+                          </span>
+                          {type} ({groupedData[typename][type].length} элементов)
+                        </Button>
+                      </div>
+
+                      <Collapse in={expandedGroups[`${typename}-${type}`]}>
+                        <div id={`sub-group-${typename}-${type}`} className={styles.groupContent}>
+                          {groupedData[typename][type].map((role, index) => (
+                            <div key={`${typename}-${type}-${index}`} className={styles.row}>
+                              <div>{role.IusSpravRole?.typename}</div>
+                              <div>{role.IusSpravRole?.type}</div>
+                              <div>{role.IusSpravRole?.name}</div>
+                              <div>{role.IusSpravRole?.code}</div>
+                              <div>{role.IusSpravRole?.mandat}</div>
+                              <div>{role.IusSpravRole?.business_process}</div>
+                              <div>
+                                {role.assignedAt
+                                  ? new Date(role.createdAt).toLocaleString('ru-RU', {
+                                      timeZone: 'Europe/Moscow',
+                                      day: 'numeric',
+                                      month: 'short',
+                                      year: 'numeric'
+                                      
+                                    })
+                                  : 'Дата не указана'}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </Collapse>
                     </div>
                   ))}
                 </div>
