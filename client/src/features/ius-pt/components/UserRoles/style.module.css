@@ -50,6 +50,7 @@
   
   .groupContent {
     padding: 4px 0px 4px 24px;
+    border-left: 3px solid #7eb2f3;
   }
   
   .row {
@@ -69,7 +70,7 @@
     color: inherit;
     display: flex;
     align-items: center;
-    width: 100%;
+    width: 40px;
     text-align: left;
   }
   
@@ -78,19 +79,43 @@
   }
   
   /* Задаем ширину столбцам */
-  .header div:nth-child(1) { width: 8%; flex: none; } /* Type Name */
-  .header div:nth-child(2) { width: 8%; flex: none; } /* Type */
-  .header div:nth-child(3) { width: 39%; flex: none; } /* Name */
-  .header div:nth-child(4) { width: 20%; flex: none; } /* Code */
-  .header div:nth-child(5) { width: 8%; flex: none; } /* Mandat */
-  .header div:nth-child(6) { width: 8%; flex: none; } /* Business Process */
+  .header div:nth-child(1) { width: 5%; flex: none; } /* Type Name */
+  .header div:nth-child(2) { width: 8%; flex: none; } /* Type Name */
+  .header div:nth-child(3) { width: 8%; flex: none; } /* Type */
+  .header div:nth-child(4) { width: 34%; flex: none; } /* Name */
+  .header div:nth-child(5) { width: 20%; flex: none; } /* Code */
+  .header div:nth-child(6) { width: 8%; flex: none; } /* Mandat */
   .header div:nth-child(7) { width: 8%; flex: none; } /* Business Process */
+  .header div:nth-child(8) { width: 8%; flex: none; } /* Business Process */
   
   /* Задаем ширину столбцам для строк */
-  .row div:nth-child(1) { width: 8%; flex: none; } /* Type Name */
-  .row div:nth-child(2) { width: 8%; flex: none; } /* Type */
-  .row div:nth-child(3) { width: 40%; flex: none; } /* Name */
-  .row div:nth-child(4) { width: 20%; flex: none; } /* Code */
-  .row div:nth-child(5) { width: 8%; flex: none; } /* Mandat */
-  .row div:nth-child(6) { width: 8%; flex: none; } /* Business Process */
+  .row div:nth-child(1) { width: 5%; flex: none; } /* Type Name */
+  .row div:nth-child(2) { width: 8%; flex: none; } /* Type Name */
+  .row div:nth-child(3) { width: 8%; flex: none; } /* Type */
+  .row div:nth-child(4) { width: 35%; flex: none; } /* Name */
+  .row div:nth-child(5) { width: 20%; flex: none; } /* Code */
+  .row div:nth-child(6) { width: 8%; flex: none; } /* Mandat */
   .row div:nth-child(7) { width: 8%; flex: none; } /* Business Process */
+  .row div:nth-child(8) { width: 8%; flex: none; } /* Business Process */
+
+  .checkbox {
+    margin-right: 10px; /* Отступ справа */
+  }
+
+  .subGroupHeader{
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    color: #212121;
+  }
+
+  .checkbox {
+    
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    
+    
+    background-color: #fff;
+    border-radius: 3px;
+  }

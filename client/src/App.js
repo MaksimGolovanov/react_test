@@ -69,7 +69,7 @@ function App() {
           </div>
         </div>
         
-        <div className='content p-4'>
+        <div className='content p-2'>
           <Routes>
             <Route path="/" element={<PrivateRoute requiredRole={['ADMIN', 'USER']}><Staff /></PrivateRoute>} />
             <Route path="/staff/*" element={<StaffRoutes />} />
