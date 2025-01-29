@@ -82,7 +82,7 @@ class IusPtStore {
   // Методы для работы с ролями пользователей
   fetchUserRoles = (tabNumber) => this.fetchData(IusPtService.fetchUserRoles, 'userRoles', tabNumber);
   createUserRole = (userRole) => this.createOrUpdateData(IusPtService.createUserRole, IusPtService.fetchUserRoles, 'userRoles', userRole);
-  deleteUserRole = (id) => this.deleteData(IusPtService.deleteUserRole, IusPtService.fetchUserRoles, 'userRoles', id);
+  deleteUserRole = (tabNumber, roleId) => this.deleteData(IusPtService.deleteUserRole, IusPtService.fetchUserRoles, 'userRoles', tabNumber, roleId);
 
 
   // Метод для загрузки сотрудников и их связей с пользователями ИУС

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Collapse } from 'react-bootstrap';
 import { FaAngleDown, FaAngleRight } from 'react-icons/fa';
 import styles from './style.module.css';
 import RoleSubGroup from './RoleSubGroup';
 
-const RoleGroup = ({ typename, types, expandedGroups, toggleGroup }) => {
+const RoleGroup = ({ typename, types, expandedGroups, toggleGroup, onSelectRole }) => {
   const [allChecked, setAllChecked] = useState(false);
 
   const handleSelectAll = (checked) => {
@@ -46,6 +46,7 @@ const RoleGroup = ({ typename, types, expandedGroups, toggleGroup }) => {
               expanded={expandedGroups[`${typename}-${type}`]}
               toggleGroup={() => toggleGroup(`${typename}-${type}`)}
               allChecked={allChecked}
+              onSelectRole={onSelectRole}
             />
           ))}
         </div>

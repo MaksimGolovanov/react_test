@@ -28,7 +28,7 @@ router.delete('/users/:id', IusUserController.delete);
 router.get('/user-roles', IusUserRolesController.getAll);
 router.get('/user-roles/:tabNumber', IusUserRolesController.getAllTabNum);
 router.post('/user-roles', IusUserRolesController.create);
-router.delete('/user-roles/:id', IusUserRolesController.delete);
+router.delete('/user-roles/:tabNumber/:roleId', IusUserRolesController.delete);
 router.post('/user-roles/bulk', IusUserRolesController.addRolesToUser);
 
 // Маршрут для получения данных из Staff и IusUser

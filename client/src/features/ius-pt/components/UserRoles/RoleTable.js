@@ -5,11 +5,14 @@ import styles from './style.module.css';
 import SearchInput from '../SearchInput/SearchInput';
 import RoleTableHeader from './RoleTableHeader';
 import RoleGroup from './RoleGroup';
+import ButtonAll from '../ButtonAll/ButtonAll';
+import { MdDeleteForever } from 'react-icons/md';
 
 const RoleTable = observer(({ info }) => {
-  const { userRoles, fetchUserRoles, isLoading, error } = iusPtStore;
+  const { userRoles, fetchUserRoles, isLoading, error, deleteUserRole } = iusPtStore;
   const [expandedGroups, setExpandedGroups] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRoles, setSelectedRoles] = useState([]);
 
   useEffect(() => {
     fetchUserRoles(info.tab_num);
@@ -43,6 +46,27 @@ const RoleTable = observer(({ info }) => {
     }, {});
   }, []);
 
+  const handleSelectRole = (role, isChecked) => {
+    setSelectedRoles((prev) =>
+      isChecked
+        ? [...prev, role]
+        : prev.filter((r) => r !== role)
+    );
+  };
+
+  const handleDeleteRoles = async () => {
+    try {
+      // Удаляем каждую выбранную роль
+      for (const role of selectedRoles) {
+        await deleteUserRole(info.tab_num, role.IusSpravRole.id);
+      }
+      // Очищаем список выбранных ролей
+      setSelectedRoles([]);
+    } catch (error) {
+      console.error('Ошибка при удалении ролей:', error);
+    }
+  };
+
   if (isLoading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
 
@@ -52,6 +76,12 @@ const RoleTable = observer(({ info }) => {
 
   return (
     <>
+      <ButtonAll
+        icon={MdDeleteForever}
+        text='Удалить'
+        disabled={selectedRoles.length === 0}
+        onClick={handleDeleteRoles}
+      />
       <SearchInput
         value={searchQuery}
         onChange={setSearchQuery}
@@ -69,6 +99,7 @@ const RoleTable = observer(({ info }) => {
               types={groupedData[typename]}
               expandedGroups={expandedGroups}
               toggleGroup={toggleGroup}
+              onSelectRole={handleSelectRole}
             />
           ))}
         </div>

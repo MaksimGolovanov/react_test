@@ -44,8 +44,8 @@ class IusUserRolesController {
 
     async delete(req, res, next) {
         try {
-            const { id } = req.params;
-            const userRole = await IusUserRoles.findByPk(id);
+            const { tabNumber, roleId} = req.params;
+            const userRole = await IusUserRoles.findByPk(tabNumber);
             if (!userRole) {
                 return next(ApiError.notFound('Связь не найдена'));
             }

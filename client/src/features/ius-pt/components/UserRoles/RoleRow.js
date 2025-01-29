@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import styles from './style.module.css';
 
-const RoleRow = ({ role, isChecked }) => {
-  const [checked, setChecked] = useState(false);
+const RoleRow = ({ role, isChecked, onSelectRole }) => {
+  const [checked, setChecked] = useState(isChecked);
 
   useEffect(() => {
     setChecked(isChecked);
   }, [isChecked]);
+
+  const handleCheckboxChange = (e) => {
+    const isChecked = e.target.checked;
+    setChecked(isChecked);
+    onSelectRole(role, isChecked); // Передаем выбранную роль вверх
+  };
 
   return (
     <div className={styles.row}>
@@ -14,7 +20,7 @@ const RoleRow = ({ role, isChecked }) => {
         <input
           type='checkbox'
           checked={checked}
-          onChange={(e) => setChecked(e.target.checked)}
+          onChange={handleCheckboxChange}
           className={styles.checkbox}
         />
       </div>

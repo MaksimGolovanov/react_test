@@ -75,8 +75,8 @@ class IusPtService {
     return this.request('post', '/iuspt/user-roles', userRole);
   }
 
-  static deleteUserRole = async (id) => {
-    return this.request('delete', `/iuspt/user-roles/${id}`);
+  static deleteUserRole = async (tabNumber, roleId) => {
+    return this.request('delete', `/iuspt/user-roles/${tabNumber}/${roleId}`);
   }
 
   static addRolesToUser = async (tabNumber, roleIds) => {

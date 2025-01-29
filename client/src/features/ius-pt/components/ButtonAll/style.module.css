@@ -21,3 +21,8 @@
 .iconbtn {
     margin-right: 4px;
 }
+.disabled {
+    opacity: 0.5; /* Делаем кнопку полупрозрачной */
+    cursor: not-allowed; /* Меняем курсор на "недоступно" */
+    pointer-events: none; /* Отключаем события мыши */
+}

@@ -4,7 +4,7 @@ import { FaAngleDown, FaAngleRight } from 'react-icons/fa';
 import styles from './style.module.css';
 import RoleRow from './RoleRow';
 
-const RoleSubGroup = ({ type, roles, expanded, toggleGroup, allChecked }) => {
+const RoleSubGroup = ({ type, roles, expanded, toggleGroup, allChecked, onSelectRole }) => {
   const [subGroupChecked, setSubGroupChecked] = useState(false);
 
   useEffect(() => {
@@ -43,7 +43,12 @@ const RoleSubGroup = ({ type, roles, expanded, toggleGroup, allChecked }) => {
       <Collapse in={expanded}>
         <div id={`sub-group-${type}`} className={styles.groupContent}>
           {roles.map((role, index) => (
-            <RoleRow key={`${type}-${index}`} role={role} isChecked={subGroupChecked} />
+            <RoleRow
+              key={`${type}-${index}`}
+              role={role}
+              isChecked={subGroupChecked}
+              onSelectRole={onSelectRole}
+            />
           ))}
         </div>
       </Collapse>
