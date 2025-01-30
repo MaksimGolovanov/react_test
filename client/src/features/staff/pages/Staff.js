@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Table from 'react-bootstrap/Table';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 import StaffService from '../services/StaffService'; // Сервис для взаимодействия с данными
 import './Staff.css'
 import { BiDownload } from "react-icons/bi";
@@ -11,8 +9,10 @@ import { MdDeleteForever } from "react-icons/md";
 import StaffEditModal from './StaffEditModal'; // Импорт созданного нами компонента модального окна
 import StaffImportModal from './StaffImportModal';
 import Spinner from 'react-bootstrap/Spinner';
-
+import ButtonAll from '../../ius-pt/components/ButtonAll/ButtonAll';
 import Circle from '../../../Components/circle/Circle';
+import SearchInput from '../../ius-pt/components/SearchInput/SearchInput';
+import styles from './style.module.css';
 
 function Staff() {
     const [staff, setStaff] = useState([]); // Список сотрудников
@@ -84,14 +84,6 @@ function Staff() {
         fetchData();
     }, []);
 
-
-
-
-
-    function handleSearchChange(event) {
-        setSearchQuery(event.target.value);
-    }
-
     useEffect(() => {
         if (!searchQuery) {
             setFilteredStaff(staff); // Если поисковой запрос пуст, показываем все сотрудники
@@ -103,7 +95,7 @@ function Staff() {
                 (member.department && member.department.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 (member.telephone && member.telephone.includes(searchQuery)) || // Проверка на существование свойства
                 (member.ip && member.ip.includes(searchQuery)) || // Проверка на существование свойства
-                (member.tab_num && member.tab_num.includes(searchQuery)) // Проверка на существование свойства
+                (member.tabNumber && member.tabNumber.includes(searchQuery)) // Проверка на существование свойства
             );
             setFilteredStaff(filteredList);
         }
@@ -167,7 +159,7 @@ function Staff() {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                
+
                 height: '730px', // Высота экрана
                 width: 'auto', // Ширина экрана
             }} className='text-dark'>
@@ -181,50 +173,46 @@ function Staff() {
     return (
 
         <div>
-            <div className='d-flex mb-2'>
-                <Form.Control //строка поиска
-                    type="text"
-                    placeholder="Поиск..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    style={{ width: '500px' }}
-                />
-                {}
-                <Button className='button-next ml-2' onClick={() => setModalShow(true)}><BiDownload className={'icon-staff'} size={20} style={{ marginRight: '8px' }} />ИМПОРТ</Button>
-            </div>
+            <ButtonAll text="Импорт" icon={BiDownload} onClick={() => setModalShow(true)} />
+            <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Поиск пользователей..."
+            />
 
-            <div style={{ maxHeight: '780px', overflowY: 'auto' }}>
-                <Table striped bordered hover variant="white" className='table-staff'>
-                    <thead className="fixed-header">
+
+            <div className={styles.tableContainer}>
+                <table className={styles.table}>
+                    <thead className={styles.headTable}>
                         <tr>
-                            <th style={{ width: '50px', backgroundColor: '#25292A', color: '#FA922F' }}></th>
-                            <th style={{ width: '210px', backgroundColor: '#25292A', color: '#FA922F', cursor: 'pointer' }}
+                            <th style={{ width: '45px' }}></th>
+                            <th
                                 onClick={() => requestSort('fio')}
                             >
                                 Фамилия Имя Отчество
                                 {sortConfig?.key === 'fio' && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
                             </th>
-                            <th style={{ width: '100px', backgroundColor: '#25292A', color: '#FA922F' }}>Логин</th>
-                            <th style={{ width: '250px', backgroundColor: '#25292A', color: '#FA922F', cursor: 'pointer' }}
+                            <th style={{ width: '120px' }}>Логин</th>
+                            <th
                                 onClick={() => requestSort('post')}
                             >
                                 Должность
                                 {sortConfig?.key === 'post' && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
                             </th>
-                            <th style={{ width: '250px', backgroundColor: '#25292A', color: '#FA922F', cursor: 'pointer' }}
+                            <th
                                 onClick={() => requestSort('department')}
                             >
                                 Служба
                                 {sortConfig?.key === 'department' && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
                             </th>
-                            <th style={{ width: '80px', backgroundColor: '#25292A', color: '#FA922F' }}>Телефон</th>
-                            <th style={{ width: '220px', backgroundColor: '#25292A', color: '#FA922F' }}>Email</th>
-                            <th style={{ width: '120px', backgroundColor: '#25292A', color: '#FA922F' }}>IP</th>
-                            <th style={{ width: '120px', backgroundColor: '#25292A', color: '#FA922F' }}>Табельный номер</th>
-                            <th style={{ width: '70px', backgroundColor: '#25292A', color: '#FA922F' }}></th>
+                            <th style={{ width: '80px' }}>Телефон</th>
+                            <th >Email</th>
+                            <th style={{ width: '120px' }}>IP</th>
+                            <th style={{ width: '90px' }}>Табельный номер</th>
+                            <th style={{ width: '80px' }}></th>
                         </tr>
                     </thead>
-                    <tbody className="left-aligned-table">
+                    <tbody className={styles.bodyTable}>
                         {sortedStaff.map(staffMember => (
                             <tr key={staffMember.id} className={staffMember.del == 1 ? 'table-danger' : undefined}>
                                 <td>
@@ -232,7 +220,7 @@ function Staff() {
                                         <Circle fullName={staffMember.fio} size={30} />
                                     </div>
                                 </td>
-                                <td>{staffMember.fio}</td>
+                                <td >{staffMember.fio}</td>
                                 <td>{staffMember.login}</td>
                                 <td>{staffMember.post}</td>
                                 <td>{getDepartmentById(staffMember.department)}</td>
@@ -248,7 +236,7 @@ function Staff() {
                                         </>
                                     ) : null}
                                 </td>
-                                <td>{staffMember.tab_num}</td>
+                                <td>{staffMember.tabNumber}</td>
                                 <td>
                                     <button className="edit-button" onClick={() => handleEditClick(staffMember)}><LuFileEdit size={20} /></button>
                                     <button className="delete-button" onClick={() => handleDelete(staffMember.id)}><MdDeleteForever size={24} style={{ marginLeft: '8px' }} /></button>
@@ -256,7 +244,7 @@ function Staff() {
                             </tr>
                         ))}
                     </tbody>
-                </Table>
+                </table>
             </div>
             <StaffEditModal
                 isOpen={modalIsOpen}

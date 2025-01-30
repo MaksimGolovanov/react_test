@@ -12,7 +12,7 @@ import UserRoles from '../components/UserRoles/UserRoles';
 import UserRolesPage from '../components/UserRolesPage/UserRolesPage';
 
 const IusPtUser = observer(() => {
-    const { id } = useParams(); // Получаем ID пользователя из URL
+    const { tabNumber } = useParams(); // Получаем ID пользователя из URL
     const navigate = useNavigate(); // Хук для навигации
     const [user, setUser] = useState(null); // Состояние для хранения данных пользователя
     const [isLoading, setIsLoading] = useState(true); // Состояние для отображения загрузки
@@ -27,9 +27,9 @@ const IusPtUser = observer(() => {
 
                 // Ищем пользователя по ID
                 const foundUser = iusPtStore.staffWithIusUsers.find(
-                    (staffUser) => staffUser.id === parseInt(id)
+                    (staffUser) => staffUser.tabNumber === tabNumber // прямое сравнение строк
                 );
-
+                console.log(tabNumber)
                 if (foundUser) {
                     setUser(foundUser);
                 } else {
@@ -44,7 +44,7 @@ const IusPtUser = observer(() => {
         };
 
         fetchUser();
-    }, [id]);
+    }, [tabNumber]);
 
     // Если данные загружаются, показываем индикатор загрузки
     if (isLoading) {

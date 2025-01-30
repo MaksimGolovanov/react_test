@@ -32,17 +32,13 @@ const IusPt = observer(() => {
         return iusPtStore.staffWithIusUsers.filter((staffUser) => {
             const searchLower = searchQuery.toLowerCase();
             return (
-                staffUser.tab_num.toLowerCase().includes(searchLower) ||
+                staffUser.tabNumber.toLowerCase().includes(searchLower) ||
                 staffUser.fio.toLowerCase().includes(searchLower) ||
                 staffUser.post.toLowerCase().includes(searchLower) ||
-                staffUser.organization.toLowerCase().includes(searchLower) ||
                 staffUser.department.toLowerCase().includes(searchLower) ||
                 staffUser.email.toLowerCase().includes(searchLower) ||
-                staffUser.telephone.toLowerCase().includes(searchLower) ||
-                staffUser.ip.toLowerCase().includes(searchLower) ||
-                (staffUser.IusUser && staffUser.IusUser.name.toLowerCase().includes(searchLower)) ||
-                (staffUser.IusUser && staffUser.IusUser.contractDetails.toLowerCase().includes(searchLower)) ||
-                (staffUser.IusUser && staffUser.IusUser.computerName.toLowerCase().includes(searchLower))
+                (staffUser.IusUser && staffUser.IusUser.name.toLowerCase().includes(searchLower))
+               
             );
         });
     }, [iusPtStore.staffWithIusUsers, searchQuery]);
@@ -55,8 +51,8 @@ const IusPt = observer(() => {
         });
     }, [filteredUsers]);
 
-    const handleUserClick = (id) => {
-        navigate(`/iuspt/user/${id}`);
+    const handleUserClick = (tabNumber) => {
+        navigate(`/iuspt/user/${tabNumber}`);
     };
 
     const handleSpravClick = () => {
@@ -68,7 +64,7 @@ const IusPt = observer(() => {
     }
 
     if (error) {
-        return <div>Ошибка: {error.message}</div>;
+        <div>Ошибка: {error?.message || 'Неизвестная ошибка'}</div>
     }
 
     return (
@@ -102,14 +98,12 @@ const IusPt = observer(() => {
                                 <td>
                                     <Circle fullName={staffUser.fio} size={30} />
                                 </td>
-                                <td style={{ color: '#117aa8' }} onClick={() => handleUserClick(staffUser.id)}>
-                                    {staffUser.fio}
-                                </td>
+                                <td className={styles.fioLink} onClick={() => handleUserClick(staffUser.tabNumber)}>{staffUser.fio}</td>
                                 <td>{staffUser.IusUser ? staffUser.IusUser.name : ''}</td>
                                 <td>{staffUser.email}</td>
-                                <td>{staffUser.tab_num}</td>
+                                <td>{staffUser.tabNumber}</td>
                                 <td>{staffUser.post}</td>
-                                <td>{staffUser.department.slice(13)}</td>
+                                <td>{staffUser.department?.length >= 13 ? staffUser.department.slice(13) : staffUser.department}</td>
                             </tr>
                         ))}
                     </tbody>

@@ -11,7 +11,7 @@ import {NotesRoutes} from './features/notes'
 import { IusPtRoutes } from './features/ius-pt'
 import {StaffRoutes } from './features/staff'
 import {AdminRoutes } from './features/admin'
-import {CarRoutes } from './features/cars'
+
 import {Staff} from './features/staff'
 import LoginPage from './features/admin/pages/LoginPage'
 import ButtonLogout from './Components/button/buttonLogout'
@@ -40,9 +40,6 @@ function App() {
       break;
     case location.pathname.startsWith('/admin'):
       pageTitle = 'АДМИНИСТРИРОВАНИЕ';
-      break;
-    case location.pathname.startsWith('/car'):
-      pageTitle = 'ЗАКАЗ АВТОТРАНСПОРТА';
       break;
     case location.pathname.startsWith('/iuspt'):
       pageTitle = 'ИУС П Т';
@@ -76,7 +73,7 @@ function App() {
             <Route path="/prints" element={<PrivateRoute requiredRole={['ADMIN', 'PRINT']}><Prints /></PrivateRoute>} />
             <Route path="/*" element={<NotesRoutes />} />
             <Route path="/admin/*" element={<AdminRoutes />} />
-            <Route path="/car/*" element={<CarRoutes />} />
+            
             <Route path="/iuspt/*" element={<IusPtRoutes />} />
             <Route path="/login" element={<LoginPage />} />
           </Routes>

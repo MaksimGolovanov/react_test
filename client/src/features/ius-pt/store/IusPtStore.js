@@ -38,9 +38,9 @@ class IusPtStore {
   });
 
   // Общий метод для удаления данных
-  deleteData = action(async (serviceFunction, fetchFunction, stateProperty, id) => {
+  deleteData = action(async (serviceFunction, fetchFunction, stateProperty, tabNumber) => {
     try {
-      await serviceFunction(id);
+      await serviceFunction(tabNumber);
       await this.fetchData(fetchFunction, stateProperty);
     } catch (error) {
       console.error(`Ошибка при удалении данных (${stateProperty}):`, error);

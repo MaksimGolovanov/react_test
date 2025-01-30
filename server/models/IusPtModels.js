@@ -32,8 +32,7 @@ const IusSpravRoles = sequelize.define('IusSpravRoles', {
 
 const IusUser = sequelize.define('IusUser', {
 
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    tabNumber: { type: DataTypes.STRING },
+    tabNumber: { type: DataTypes.STRING,primaryKey: true, },
     name: { type: DataTypes.STRING },
     contractDetails: { type: DataTypes.STRING },
     computerName: { type: DataTypes.STRING },
@@ -46,7 +45,7 @@ const IusUserRoles = sequelize.define('IusUserRoles', {
     tabNumber: { type: DataTypes.STRING, references: { model: 'IusUser', key: 'tabNumber' } },
     roleId: { type: DataTypes.INTEGER, references: { model: 'IusSpravRoles', key: 'id' } },
 }, {
-    indexes: [
+    indexes: [ 
         {
             unique: true,
             fields: ['tabNumber', 'roleId']
@@ -80,8 +79,8 @@ IusUserRoles.belongsTo(IusUser, {
 
  
 // Связь один к одному между Staff.tab_num и IusUser.tabNumber
-Staff.hasOne(IusUser, { foreignKey: 'tabNumber', sourceKey: 'tab_num' });
-IusUser.belongsTo(Staff, { foreignKey: 'tabNumber', targetKey: 'tab_num' });
+Staff.hasOne(IusUser, { foreignKey: 'tabNumber', sourceKey: 'tabNumber' });
+IusUser.belongsTo(Staff, { foreignKey: 'tabNumber', targetKey: 'tabNumber' });
 
 // Экспорт моделей  
 

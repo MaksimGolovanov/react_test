@@ -23,7 +23,7 @@ class StaffService {
 
   static async updateStaff(updatedStaff) {
     try {
-      await axios.put(`http://localhost:5000/api/staff/${updatedStaff.id}`, updatedStaff);
+      await axios.put(`http://localhost:5000/api/staff/${updatedStaff.tabNumber}`, updatedStaff);
       
     } catch (error) {
       console.error("Ошибка при изменении данных:", error);
@@ -40,9 +40,9 @@ class StaffService {
       throw error;
     }
   }
-  static async deleteStaff(id) {
+  static async deleteStaff(tabNumber) {
     try {
-      await axios.delete(`http://localhost:5000/api/staff/${id}`);
+      await axios.delete(`http://localhost:5000/api/staff/${tabNumber}`);
     } catch (error) {
       console.error("Ошибка при удалении пользователя:", error);
       throw error;

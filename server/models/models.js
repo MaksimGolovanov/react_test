@@ -14,13 +14,12 @@ const Role = sequelize.define('roles', {
     description: { type: DataTypes.STRING },
 })
 const Staff = sequelize.define('stafs', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    tabNumber: { type: DataTypes.STRING, primaryKey: true },
     login: { type: DataTypes.STRING },
     fio: { type: DataTypes.STRING },
-    tab_num: { type: DataTypes.STRING },
     post: { type: DataTypes.STRING },
     organization: { type: DataTypes.STRING },
-    department: { type: DataTypes.STRING },
+    department: { type: DataTypes.STRING }, 
     email: { type: DataTypes.STRING },
     telephone: { type: DataTypes.STRING },
     ip: { type: DataTypes.STRING },
@@ -31,7 +30,7 @@ const Department = sequelize.define('department', {
     code: { type: DataTypes.STRING },
     description: { type: DataTypes.STRING },
     short_name: { type: DataTypes.STRING },
-})
+})  
 const Prints = sequelize.define('prints', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     url: { type: DataTypes.STRING },

@@ -4,6 +4,7 @@
     overflow-y: auto;
     /* Включаем вертикальную прокрутку */
     position: relative;
+    font-size: 16px;
     /* Для корректного позиционирования sticky */
 }
 

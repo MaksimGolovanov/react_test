@@ -9,7 +9,7 @@ import { RiAdminLine } from "react-icons/ri";
 import { GrNotes } from "react-icons/gr";
 import { TbComponents } from "react-icons/tb";
 import { FaCaretDown, FaCaretRight } from "react-icons/fa";
-import { PiCarProfileFill } from "react-icons/pi";
+
 import christmasPlains from '../../Image/christmas-plains.png';
 import userStore from '../../features/admin/store/UserStore'; // Убедитесь, что путь правильный
 import { observer } from 'mobx-react'; // Импортируем observer
@@ -99,42 +99,7 @@ const NavBar = observer(() =>  {
         </Link>
       )}
 
-      {(userStore.userRolesAuth.includes('CAR') || userStore.userRolesAuth.includes('ADMIN')) && (
-        <>
-          <Link to="/car" className={`nav-link ${location.pathname.includes('/car') ? 'active' : ''}`} onClick={handleCarClick}>
-            <PiCarProfileFill className={'icon'} size={20} style={{ marginRight: '8px' }} />
-            <span style={{ paddingRight: '20px' }}>АВТОТРАНСПОРТ</span>
-            {isCarMenuOpen ? (
-              <FaCaretDown className={'icon'} size={20} style={{ float: 'right' }} />
-            ) : (
-              <FaCaretRight className={'icon'} size={20} style={{ float: 'right' }} />
-            )}
-          </Link>
-
-          {isCarMenuOpen && (
-            <ul className="admin-dropdown">
-              <li>
-                <Link
-                  to="/car/sprav"
-                  style={{ paddingLeft: '30px' }}
-                  className={location.pathname.includes('/car/sprav') ? 'admin-dropdown-active' : ''}
-                >
-                  Справочники
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/car/create"
-                  style={{ paddingLeft: '30px' }}
-                  className={location.pathname.includes('/car/create') ? 'admin-dropdown-active' : ''}
-                >
-                  Добавить автомобиль
-                </Link>
-              </li>
-            </ul>
-          )}
-        </>
-      )}
+      
 
       {/* Проверка на роль ADMIN для отображения админ-меню */}
       {userStore.userRolesAuth.includes('ADMIN') && (

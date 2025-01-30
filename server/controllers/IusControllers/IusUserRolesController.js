@@ -59,7 +59,7 @@ class IusUserRolesController {
     async addRolesToUser(req, res, next) {
         try {
             const { tabNumber, roleIds } = req.body;
-            
+            console.log(tabNumber)
             if (!tabNumber || !roleIds || !Array.isArray(roleIds)) {
                 return next(ApiError.badRequest('Необходимо указать табельный номер и массив ID ролей'));
             }

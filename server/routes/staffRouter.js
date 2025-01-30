@@ -7,8 +7,8 @@ const staffController=require('../controllers/StaffControllers')
 
 router.get('/',staffController.getAll)
 router.get('/department',staffController.getAllDepartment)
-router.put('/:id',staffController.updateStaff)
-router.delete('/:id',staffController.deleteStaff)
+router.put('/:tabNumber',staffController.updateStaff)
+router.delete('/:tabNumber',staffController.deleteStaff)
 router.post('/import', staffController.import);
 
 

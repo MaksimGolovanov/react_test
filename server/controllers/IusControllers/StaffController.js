@@ -11,7 +11,7 @@ class StaffController {
                     required: false,
                 }],
             });
-
+            
             return res.json(staffWithIusUser);
         } catch (err) {
             next(ApiError.internal(err.message));
