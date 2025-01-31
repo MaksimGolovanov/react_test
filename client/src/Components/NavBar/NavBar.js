@@ -18,17 +18,12 @@ import './NavBar.css';
 const NavBar = observer(() =>  {
   const location = useLocation();
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
-  const [isCarMenuOpen, setIsCarMenuOpen] = useState(false); // Новое состояние для автотранспорта
+  
 
   useEffect(() => {
     // Закрываем меню, если путь не связан с админ-разделом
     if (!location.pathname.includes('/admin')) {
       setIsAdminMenuOpen(false);
-    }
-
-    // Закрываем меню автотранспорта, если путь не связан с ним
-    if (!location.pathname.includes('/car')) {
-      setIsCarMenuOpen(false);
     }
   }, [location.pathname]);
 
@@ -39,15 +34,6 @@ const NavBar = observer(() =>  {
       setIsAdminMenuOpen(prevState => !prevState);
     }
   };
-
-  const handleCarClick = (e) => {
-    // Предотвращаем переход по ссылке при клике на стрелку
-    if (e.target.tagName === 'svg' || e.target.tagName === 'path') {
-      e.preventDefault();
-      setIsCarMenuOpen(prevState => !prevState);
-    }
-  };
-
   return (
     <Nav className="vertical-menu flex-column navbar-fixed">
       <div className="logo d-flex align-items-center">

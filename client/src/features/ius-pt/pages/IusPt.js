@@ -41,7 +41,7 @@ const IusPt = observer(() => {
                
             );
         });
-    }, [iusPtStore.staffWithIusUsers, searchQuery]);
+    }, [ searchQuery]);
 
     const sortedUsers = useMemo(() => {
         return [...filteredUsers].sort((a, b) => {
@@ -64,7 +64,7 @@ const IusPt = observer(() => {
     }
 
     if (error) {
-        <div>Ошибка: {error?.message || 'Неизвестная ошибка'}</div>
+        return <div>Ошибка: {error?.message || 'Неизвестная ошибка'}</div>
     }
 
     return (

@@ -15,8 +15,8 @@ const RoleTable = observer(({ info }) => {
   const [selectedRoles, setSelectedRoles] = useState([]);
 
   useEffect(() => {
-    fetchUserRoles(info.tab_num);
-  }, [fetchUserRoles, info.tab_num]);
+    fetchUserRoles(info.tabNumber);
+  }, [fetchUserRoles, info.tabNumber]);
 
   const toggleGroup = useCallback((key) => {
     setExpandedGroups((prev) => ({
@@ -58,7 +58,7 @@ const RoleTable = observer(({ info }) => {
     try {
       // Удаляем каждую выбранную роль
       for (const role of selectedRoles) {
-        await deleteUserRole(info.tab_num, role.IusSpravRole.id);
+        await deleteUserRole(info.tabNumber, role.IusSpravRole.id);
       }
       // Очищаем список выбранных ролей
       setSelectedRoles([]);

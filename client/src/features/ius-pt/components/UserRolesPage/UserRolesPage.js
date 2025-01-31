@@ -54,7 +54,7 @@ const UserRolesPage = observer(({ info }) => {
         } catch (error) {
             console.error("Ошибка при сохранении ролей:", error);
             alert("Ошибка при сохранении ролей.");
-        }
+        } 
     };
 
     // Обработчик загрузки файла Excel

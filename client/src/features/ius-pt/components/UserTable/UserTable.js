@@ -16,7 +16,7 @@ const UserTable = observer(({ info }) => {
     const handleEditClick = () => {
         setShowModal(true);
     };
-
+    
     // Обработчик закрытия модального окна
     const handleCloseModal = () => {
         setShowModal(false);
@@ -30,7 +30,7 @@ const UserTable = observer(({ info }) => {
 
         try {
             const userData = {
-                tabNumber: info.tab_num,
+                tabNumber: info.tabNumber,
                 name: updatedData.name,
                 contractDetails: updatedData.contractDetails,
                 computerName: updatedData.computerName,
@@ -42,6 +42,7 @@ const UserTable = observer(({ info }) => {
             // Обновляем данные пользователя через сервис
             await IusPtService.createOrUpdateUser(userData);
             await IusPtStore.fetchStaffWithIusUsers();
+            
             // Обновляем данные в хранилище
             
 
@@ -81,7 +82,7 @@ const UserTable = observer(({ info }) => {
                     <p>{info.email || ' - '}</p>
                     <p>{info.department && info.department.length > 13 ? info.department.slice(13) : info.department || ' - '}</p>
                     <p>{info.post || ' - '}</p>
-                    <p>{info.tab_num || ' - '}</p>
+                    <p>{info.tabNumber || ' - '}</p>
                     <p>{info.IusUser ? info.IusUser.contractDetails : ' - '}</p>
                     <p>{info.IusUser ? info.IusUser.location : ' - '}</p>
                     <p>{info.IusUser ? info.IusUser.computerName : ' - '}</p>

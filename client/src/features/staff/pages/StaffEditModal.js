@@ -71,12 +71,6 @@ export default function StaffEditModal({ isOpen, onRequestClose, fetchData, sele
     const handleEmailChange = (event) => setEmail(event.target.value);
     const handleIpChange = (event) => setIp(event.target.value);
     
-   // Изменено на tabNumber
-   const handleTabNumChange = (event) => {
-       console.log("Табельный номер:", event.target.value); 
-       return event.target.value; 
-   };
-
    // Обработчик сохранения данных
    const handleSave = async (event) => {
        event.preventDefault();

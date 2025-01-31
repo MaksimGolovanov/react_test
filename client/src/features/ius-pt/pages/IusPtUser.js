@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import { observer } from 'mobx-react-lite';
 import { useParams, useNavigate } from 'react-router-dom';
-import { IoArrowBack } from 'react-icons/io5';
+import { IoArrowBack, IoCreateOutline  } from 'react-icons/io5';
 import ButtonAll from '../components/ButtonAll/ButtonAll';
 import iusPtStore from '../store/IusPtStore';
 import Circle from '../../../Components/circle/Circle';
@@ -64,7 +64,10 @@ const IusPtUser = observer(() => {
     return (
         <>
             {/* Кнопка "Назад" */}
-            <ButtonAll icon={IoArrowBack} text="Назад" onClick={() => navigate('/iuspt')} />
+            <div style={{display: 'flex'}}>
+                <ButtonAll icon={IoArrowBack} text="Назад" onClick={() => navigate('/iuspt')} />
+                <ButtonAll icon={IoCreateOutline} text="Создать заявку" onClick={() => navigate(`/iuspt/user-application/${tabNumber}`)}/>
+            </div>
 
             {/* Информация о пользователе */}
             <div className={styles.userContainer}>
@@ -92,10 +95,10 @@ const IusPtUser = observer(() => {
                     <UserTable info={user} />
                 </Tab>
                 <Tab eventKey="role" title="Роли">
-                    <UserRoles info={user}/>
+                    <UserRoles info={user} />
                 </Tab>
                 <Tab eventKey="contact" title="Добавление ролей">
-                    <UserRolesPage info={user}/>
+                    <UserRolesPage info={user} />
                 </Tab>
             </Tabs>
         </>
