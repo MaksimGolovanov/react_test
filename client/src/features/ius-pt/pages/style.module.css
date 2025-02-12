@@ -121,3 +121,203 @@
     color: #117aa8;
     cursor: pointer;
 }
+
+.dateGroup {
+    margin: 1rem 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dateGroupHeader {
+    background-color: #f5f5f5;
+    padding: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dateGroupHeader:hover {
+    background-color: #eeeeee;
+}
+
+.systemGroup {
+    margin: 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+
+.systemGroupHeader {
+    background-color: #fafafa;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.systemGroupHeader:hover {
+    background-color: #f0f0f0;
+}
+
+.rolesList {
+    padding: 0.5rem;
+}
+
+.roleItem {
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.roleDetails {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.roleDetails p {
+    margin: 0.25rem 0;
+}
+
+
+.dateGroup {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.dateGroupHeader {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dateGroupContent {
+    display: flex;
+    margin-top: 10px;
+}
+
+.systemGroups {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.systemGroup {
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.systemGroupHeader {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+
+.roleItem {
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.roleDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* style.module.css */
+
+.twoColumnLayout {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.groupsColumn {
+    width: 550px;
+    border-right: 1px solid #eee;
+    padding-right: 1rem;
+}
+
+.detailsColumn {
+    flex: 1;
+    max-height: 670px;
+    /* Задайте нужную высоту */
+    overflow-y: auto;
+    /* Включаем вертикальную прокрутку */
+    position: relative;
+    /* Для корректного позиционирования sticky */
+}
+
+.groupItem {
+    padding: 2px;
+    margin-bottom: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.groupItem:hover {
+    background-color: #f5f5f5;
+}
+
+.groupItem.selected {
+    border-color: #007bff;
+    background-color: #e7f1ff;
+}
+
+.groupHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.systemType {
+    font-weight: 500;
+    color: #333;
+}
+
+.date {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.rolesCount {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.placeholder {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.roleItem {
+    padding: 2px;
+    margin-bottom: 5px;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    background-color: #f9f9f9;
+    font-size: 12px;
+}
+
+.selectedGroupInfo {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.selectedGroupInfoBlock {
+    display: flex;
+    gap: 30px;
+}

@@ -13,18 +13,18 @@ class IusUserController {
 
     async createOrUpdate(req, res, next) {
         try {
-            const { tabNumber, name, contractDetails, computerName, location } = req.body;
+            const { tabNumber, name, contractDetails, computerName, location, manager, managerEmail } = req.body;
             if (!tabNumber) {
                 return next(ApiError.badRequest('Не указаны обязательные поля'));
             }
 
             const [iususer, created] = await IusUser.findOrCreate({
                 where: { tabNumber },
-                defaults: { name, contractDetails, computerName, location },
+                defaults: { name, contractDetails, computerName, location, manager, managerEmail },
             });
 
             if (!created) {
-                Object.assign(iususer, { name, contractDetails, computerName, location });
+                Object.assign(iususer, { name, contractDetails, computerName, location, manager, managerEmail });
                 await iususer.save();
             }
 

@@ -38,10 +38,9 @@ const IusPt = observer(() => {
                 staffUser.department.toLowerCase().includes(searchLower) ||
                 staffUser.email.toLowerCase().includes(searchLower) ||
                 (staffUser.IusUser && staffUser.IusUser.name.toLowerCase().includes(searchLower))
-               
             );
         });
-    }, [ searchQuery]);
+    }, [iusPtStore.staffWithIusUsers, searchQuery]);
 
     const sortedUsers = useMemo(() => {
         return [...filteredUsers].sort((a, b) => {

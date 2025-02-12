@@ -16,6 +16,8 @@ const EditUserModal = ({ show, handleClose, user, onSave, isLoading, error }) =>
         computerName: user.IusUser ? user.IusUser.computerName : '-',
         telephone: user.telephone || '-',
         ip: user.ip || '-',
+        manager: user.manager || '-',
+        managerEmail: user.managerEmail || '-',
     });
 
     // Обработчик изменения значений полей
@@ -44,6 +46,8 @@ const EditUserModal = ({ show, handleClose, user, onSave, isLoading, error }) =>
         { id: 'computerName', label: 'Имя компьютера', type: 'text', readOnly: false },
         { id: 'telephone', label: 'Контактный телефон', type: 'text', readOnly: true },
         { id: 'ip', label: 'IP адрес', type: 'text', readOnly: true },
+        { id: 'manager', label: 'Ф.И.О. руководителя', type: 'text', readOnly: false },
+        { id: 'managerEmail', label: 'E-mail руководителя', type: 'text', readOnly: false },
     ];
 
     return (

@@ -7,24 +7,9 @@ import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom'; // Импорт useNavigate
 import { Tabs, Tab } from 'react-bootstrap';
 import SpravRole from '../components/SpravRole/SpravRole';
-import Table from '../../../Components/Table/Table'
+import IusAdm from '../components/IusAdm/IusAdm'
 const IusSprav = observer(() => {
     const navigate = useNavigate(); // Использование useNavigate
-
-    const columns = [
-        { key: 'id', label: 'ID' },
-        { key: 'name', label: 'Имя' },
-        { key: 'email', label: 'Email' },
-        { key: 'role', label: 'Роль' },
-    ];
-
-    const data = [
-        { id: 1, name: 'Иван Иванов', email: 'ivan@example.com', role: 'Admin' },
-        { id: 2, name: 'Петр Петров', email: 'petr@example.com', role: 'User' },
-        { id: 3, name: 'Анна Сидорова', email: 'anna@example.com', role: 'Editor' },
-        // ... другие данные
-    ];
-
 
 
 
@@ -43,13 +28,13 @@ const IusSprav = observer(() => {
                 <Tab eventKey="home" title="Справочник ролей">
                     <SpravRole />
                 </Tab>
-                <Tab eventKey="role" title="Роли">
-                    <div>Информация о ролях пользователя</div>
+                <Tab eventKey="role" title="Справочник подписантов">
+                    <IusAdm />
                 </Tab>
                 <Tab eventKey="contact" title="Contact">
                     <div>
                         <h1>Пользователи</h1>
-                        <Table data={data} columns={columns} />
+                        
                     </div>
                 </Tab>
             </Tabs>

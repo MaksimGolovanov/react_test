@@ -29,7 +29,7 @@ const IusPtUser = observer(() => {
                 const foundUser = iusPtStore.staffWithIusUsers.find(
                     (staffUser) => staffUser.tabNumber === tabNumber // прямое сравнение строк
                 );
-                console.log(tabNumber)
+                console.log(foundUser)
                 if (foundUser) {
                     setUser(foundUser);
                 } else {
@@ -60,7 +60,7 @@ const IusPtUser = observer(() => {
     if (!user) {
         return <div>Пользователь не найден</div>;
     }
-
+    
     return (
         <>
             {/* Кнопка "Назад" */}

@@ -13,11 +13,11 @@ class IusSpravAdmController {
 
     async create(req, res, next) {
         try {
-            const { iusadm, description } = req.body;
+            const { iusadm, description, email } = req.body;
             if (!iusadm) {
                 return next(ApiError.badRequest('Не указаны обязательные поля'));
             }
-            const adm = await IusSpravAdm.create({ iusadm, description });
+            const adm = await IusSpravAdm.create({ iusadm, description, email });
             return res.status(201).json(adm);
         } catch (err) {
             next(ApiError.internal(err.message));
@@ -26,7 +26,7 @@ class IusSpravAdmController {
 
     async update(req, res, next) {
         try {
-            const { id, iusadm, description } = req.body;
+            const { id, iusadm, description, email } = req.body;
             if (!id || !iusadm) {
                 return next(ApiError.badRequest('Не указаны обязательные поля'));
             }
@@ -37,6 +37,7 @@ class IusSpravAdmController {
             }
             adm.iusadm = iusadm;
             adm.description = description;
+            adm.email = email
             await adm.save();
 
             return res.json(adm);

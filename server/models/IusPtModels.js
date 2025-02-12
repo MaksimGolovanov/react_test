@@ -13,7 +13,8 @@ const IusSpravAdm = sequelize.define('IusSpravAdm', {
 
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     iusadm: { type: DataTypes.STRING },
-    description: { type: DataTypes.STRING }
+    description: { type: DataTypes.STRING },
+    email: { type: DataTypes.STRING },
 });
 
 
@@ -37,6 +38,8 @@ const IusUser = sequelize.define('IusUser', {
     contractDetails: { type: DataTypes.STRING },
     computerName: { type: DataTypes.STRING },
     location: {type: DataTypes.STRING},
+    manager: {type: DataTypes.STRING},
+    managerEmail: {type: DataTypes.STRING},
 });
 
 // Модель для промежуточной таблицы IusUserRoles

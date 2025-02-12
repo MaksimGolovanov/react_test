@@ -8,6 +8,7 @@ import IusPtService from '../../services/IusPtService';
 import IusPtStore from '../../store/IusPtStore'; // Импорт хранилища
 
 const UserTable = observer(({ info }) => {
+
     const [showModal, setShowModal] = useState(false); // Состояние для управления модальным окном
     const [isLoading, setIsLoading] = useState(false); // Состояние для отображения загрузки
     const [error, setError] = useState(null); // Состояние для хранения ошибок
@@ -22,7 +23,7 @@ const UserTable = observer(({ info }) => {
         setShowModal(false);
         setError(null); // Сбрасываем ошибку при закрытии модального окна
     };
-
+    
     // Обработчик сохранения данных
     const handleSave = async (updatedData) => {
         setIsLoading(true); // Включаем индикатор загрузки
@@ -35,6 +36,8 @@ const UserTable = observer(({ info }) => {
                 contractDetails: updatedData.contractDetails,
                 computerName: updatedData.computerName,
                 location: updatedData.location,
+                manager: updatedData.manager,
+                managerEmail: updatedData.managerEmail,
             };
 
             console.log('Данные для отправки:', userData); // Логируем данные
@@ -75,6 +78,8 @@ const UserTable = observer(({ info }) => {
                     <p>Имя компьютера</p>
                     <p>Контактный телефон</p>
                     <p>IP адрес</p>
+                    <p>Ф.И.О. непосредственного руководителя пользователя</p>
+                    <p>E-mail непосредственного руководителя пользователя:</p>
                 </div>
                 <div className={styles.ankCardDinamic}>
                     <p>{info.IusUser ? info.IusUser.name : '-'}</p>
@@ -88,6 +93,8 @@ const UserTable = observer(({ info }) => {
                     <p>{info.IusUser ? info.IusUser.computerName : ' - '}</p>
                     <p>{info.telephone || ' - '}</p>
                     <p>{info.ip || ' - '}</p>
+                    <p>{info.IusUser ? info.IusUser.manager : ' - '}</p>
+                    <p>{info.IusUser ? info.IusUser.managerEmail : ' - '}</p>
                 </div>
             </div>
 
