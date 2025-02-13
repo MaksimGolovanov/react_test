@@ -5,7 +5,7 @@ import { Button, Table, Form, Card, CardHeader, CardBody } from 'react-bootstrap
 import IusPtStore from '../../store/IusPtStore';
 
 const IusAdm = observer(() => {
-    const [newAdm, setNewAdm] = useState({ iusadm: '', description: '', email: '' });
+    const [newAdm, setNewAdm] = useState({ iusadm: '', description: '', email: '', cod:'' });
     const [editingAdm, setEditingAdm] = useState(null);
 
     useEffect(() => {
@@ -28,7 +28,7 @@ const IusAdm = observer(() => {
             setEditingAdm(null);
         } else {
             await IusPtStore.createAdmin(newAdm);
-            setNewAdm({ iusadm: '', description: '', email: '' });
+            setNewAdm({ iusadm: '', description: '', email: '', cod:''  });
         }
     };
 
@@ -50,20 +50,21 @@ const IusAdm = observer(() => {
                     <Table striped bordered hover variant="white" className='table-staff'>
                         <thead>
                             <tr>
-                                <th style={{ width: '40px' }}>ID</th>
                                 <th style={{ width: '100px' }}>И.О. Фамилия</th>
                                 <th>Должность</th>
                                 <th>Email</th>
+                                <th>Cod</th>
                                 <th style={{ width: '100px' }}>Действия</th>
                             </tr>
                         </thead>
                         <tbody>
                             {IusPtStore.admins.map(adm => (
                                 <tr key={adm.id}>
-                                    <td>{adm.id}</td>
+                                    
                                     <td>{adm.iusadm}</td>
                                     <td>{adm.description}</td>
                                     <td>{adm.email}</td>
+                                    <td>{adm.cod}</td>
                                     <td>
                                         <Button variant="warning" onClick={() => handleEdit(adm)}>
                                             <VscEdit size={10} />
@@ -78,7 +79,7 @@ const IusAdm = observer(() => {
                     </Table>
                 </Card>
 
-                <Card style={{ width: '500px', height: '400px', padding: '10px' }}>
+                <Card style={{ width: '500px', height: '450px', padding: '10px' }}>
                     <CardHeader>
                         <h3>{editingAdm ? 'Редактирование подписанта' : 'Создание подписанта'}</h3>
                     </CardHeader>
@@ -112,6 +113,16 @@ const IusAdm = observer(() => {
                                     value={editingAdm ? editingAdm.email : newAdm.email}
                                     onChange={handleInputChange}
                                     placeholder="Введите Email"
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label className='textModal'>Cod*</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="cod"
+                                    value={editingAdm ? editingAdm.cod : newAdm.cod}
+                                    onChange={handleInputChange}
+                                    placeholder="Введите Cod"
                                 />
                             </Form.Group>
 

@@ -15,6 +15,8 @@ const IusSpravAdm = sequelize.define('IusSpravAdm', {
     iusadm: { type: DataTypes.STRING },
     description: { type: DataTypes.STRING },
     email: { type: DataTypes.STRING },
+    cod: { type: DataTypes.STRING },
+    
 });
 
 

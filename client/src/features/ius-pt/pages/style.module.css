@@ -317,7 +317,22 @@
     border-bottom: 1px solid #eee;
 }
 
-.selectedGroupInfoBlock {
+
+.InfoBlock{
     display: flex;
-    gap: 30px;
+    gap: 10px;
+}
+
+.selectedGroupInfoBlock {
+   
+    text-align: right;
+    padding: 5px;
+    
+}
+.selectedGroupInfoBlock input {
+    margin-left: 10px;
+}
+.GroupInfoBlock {
+    display: flex;
+    gap: 10px;
 }

@@ -18,6 +18,22 @@ const IusUserApplication = observer(() => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedGroup, setSelectedGroup] = useState(null);
+    const [checkboxes, setCheckboxes] = useState({
+        internet: false, // Значение по умолчанию
+        ivs: false,
+        evspd: true,
+        newArmVariable: false,
+        disableArm: false,
+        conditionsChange: false,
+    });
+
+    const handleCheckboxChange = (event) => {
+        const { name, checked } = event.target;
+        setCheckboxes((prev) => ({
+            ...prev,
+            [name]: checked,
+        }));
+    };
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -27,6 +43,7 @@ const IusUserApplication = observer(() => {
                 const foundUser = iusPtStore.staffWithIusUsers.find(
                     (staffUser) => staffUser.tabNumber === tabNumber
                 );
+
                 if (foundUser) {
                     setUser(foundUser);
                 } else {
@@ -39,10 +56,15 @@ const IusUserApplication = observer(() => {
                 setIsLoading(false);
             }
         };
-
+        console.log('admins:', iusPtStore.admins);
         fetchUser();
     }, [tabNumber]);
-    console.log(iusPtStore.admins[1].iusadm)
+    const iusadm = (iusPtStore.admins.find((admin) => admin.cod === 'admarm').iusadm)
+    const iusadmemail = (iusPtStore.admins.find((admin) => admin.cod === 'admarm').email)
+    const iusib = (iusPtStore.admins.find((admin) => admin.cod === 'admib').iusadm)
+    const iusibemail = (iusPtStore.admins.find((admin) => admin.cod === 'admib').email)
+    const cps = (iusPtStore.admins.find((admin) => admin.cod === 'cps').iusadm)
+    const gd = (iusPtStore.admins.find((admin) => admin.cod === 'gd').iusadm)
     // Новая группировка данных
     const groupedRoles = () => {
         const roles = user?.IusUser?.IusSpravRoles || [];
@@ -244,22 +266,22 @@ const IusUserApplication = observer(() => {
         const footer = [
             { cell: `A${lastRowIndex}`, text: `Дополнительные параметры: табельный номер АСУП - ${user.IusUser.tabNumber}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
             { cell: `A${lastRowIndex + 1}`, text: `Раздел 3. Подключение рабочего места`, size: '9', horizontal: 'left', hasBorder: true, bold: true },
-            { cell: `A${lastRowIndex + 2}`, text: `Подключение нового АРМ`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
-            { cell: `Q${lastRowIndex + 2}`, text: `Отключение АРМ`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
-            { cell: `AF${lastRowIndex + 2}`, text: `Изменение условий подключения АРМ`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
+            { cell: `A${lastRowIndex + 2}`, text: `Подключение нового АРМ ${checkboxes.newArmVariable ? '☑' : '☐'}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
+            { cell: `Q${lastRowIndex + 2}`, text: `Отключение АРМ ${checkboxes.disableArm ? '☑' : '☐'}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
+            { cell: `AF${lastRowIndex + 2}`, text: `Изменение условий подключения АРМ ${checkboxes.conditionsChange ? '☑' : '☐'}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
             { cell: `A${lastRowIndex + 3}`, text: `Расположение рабочего места:`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
-            { cell: `Q${lastRowIndex + 3}`, text: `ИВС`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
-            { cell: `X${lastRowIndex + 3}`, text: `ЕВСПД ☑`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
-            { cell: `AF${lastRowIndex + 3}`, text: `Интернет`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
+            { cell: `Q${lastRowIndex + 3}`, text: `ИВС ${checkboxes.ivs ? '☑' : '☐'}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
+            { cell: `X${lastRowIndex + 3}`, text: `ЕВСПД ${checkboxes.evspd ? '☑' : '☐'}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
+            { cell: `AF${lastRowIndex + 3}`, text: `Интернет ${checkboxes.internet ? '☑' : '☐'}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
             { cell: `A${lastRowIndex + 4}`, text: `Рабочее место соответствует Требованиям по настройкам и мерам защиты рабочих мест, сетевой доступ предоставлен`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
             { cell: `A${lastRowIndex + 5}`, text: `Администратор АРМ`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
-            { cell: `N${lastRowIndex + 5}`, text: `${iusPtStore.admins[0].email}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
+            { cell: `N${lastRowIndex + 5}`, text: `${iusadmemail}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
             { cell: `AC${lastRowIndex + 5}`, text: `${currentDate}`, size: '9', horizontal: 'left', bold: false, borders: { bottom: { style: 'thin' }, left: { style: 'thin' }, top: { style: 'thin' } } },
-            { cell: `AM${lastRowIndex + 5}`, text: `${iusPtStore.admins[0].iusadm}`, size: '9', horizontal: 'right', bold: false, borders: { bottom: { style: 'thin' }, right: { style: 'thin' }, top: { style: 'thin' } } },
+            { cell: `AM${lastRowIndex + 5}`, text: `${iusadm}`, size: '9', horizontal: 'right', bold: false, borders: { bottom: { style: 'thin' }, right: { style: 'thin' }, top: { style: 'thin' } } },
             { cell: `A${lastRowIndex + 6}`, text: `Администратор ИБ`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
-            { cell: `N${lastRowIndex + 6}`, text: `${iusPtStore.admins[1].email}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
+            { cell: `N${lastRowIndex + 6}`, text: `${iusibemail}`, size: '9', horizontal: 'left', hasBorder: true, bold: false },
             { cell: `AC${lastRowIndex + 6}`, text: `${currentDate}`, size: '9', horizontal: 'left', bold: false, borders: { bottom: { style: 'thin' }, left: { style: 'thin' }, top: { style: 'thin' } } },
-            { cell: `AM${lastRowIndex + 6}`, text: `${iusPtStore.admins[1].iusadm}`, size: '9', horizontal: 'right', bold: false, borders: { bottom: { style: 'thin' }, right: { style: 'thin' }, top: { style: 'thin' } } },
+            { cell: `AM${lastRowIndex + 6}`, text: `${iusib}`, size: '9', horizontal: 'right', bold: false, borders: { bottom: { style: 'thin' }, right: { style: 'thin' }, top: { style: 'thin' } } },
             { cell: `A${lastRowIndex + 7}`, text: `С перечнем информации, составляющей коммерческую тайну, и иной конфиденциальной информации, установленными в Обществе`, size: '8', horizontal: 'left', bold: false, borders: { left: { style: 'thin' }, right: { style: 'thin' }, top: { style: 'thin' } } },
             { cell: `A${lastRowIndex + 8}`, text: `режимом коммерческой тайны и порядком обработки персональных данных, Памяткой пользователя ИУС по обеспечению`, size: '8', horizontal: 'left', bold: false, borders: { left: { style: 'thin' }, right: { style: 'thin' } } },
             { cell: `A${lastRowIndex + 9}`, text: `информационной безопасности ИУС ПАО «Газпром», а также с мерами ответственности за нарушение режима коммерческой тайны и`, size: '8', horizontal: 'left', bold: false, borders: { left: { style: 'thin' }, right: { style: 'thin' } } },
@@ -273,12 +295,12 @@ const IusUserApplication = observer(() => {
             { cell: `AM${lastRowIndex + 12}`, text: ``, size: '9', horizontal: 'right', bold: false, borders: { right: { style: 'thin' } } },
             { cell: `A${lastRowIndex + 13}`, text: `Руководитель подразделения корпоративной защиты ООО «Газпром трансгаз Ухта»:`, size: '8', horizontal: 'left', bold: false, borders: { left: { style: 'thin' } } },
             { cell: `AF${lastRowIndex + 13}`, text: ``, size: '8', horizontal: 'center', bold: false, borders: { bottom: { style: 'thin' } } },
-            { cell: `AM${lastRowIndex + 13}`, text: `( ${iusPtStore.admins[2].iusadm} )`, size: '9', horizontal: 'right', bold: false, borders: { right: { style: 'thin' } } },
+            { cell: `AM${lastRowIndex + 13}`, text: `( ${cps} )`, size: '9', horizontal: 'right', bold: false, borders: { right: { style: 'thin' } } },
             { cell: `A${lastRowIndex + 14}`, text: `Согласие субъекта персональных данных (пользователя) на обработку (в том числе передачу третьей стороне) его персональных данных`, size: '8', horizontal: 'left', bold: false, borders: { left: { style: 'thin' }, right: { style: 'thin' } } },
             { cell: `A${lastRowIndex + 15}`, text: `имеется.`, size: '8', horizontal: 'left', bold: false, borders: { left: { style: 'thin' }, right: { style: 'thin' } } },
             { cell: `A${lastRowIndex + 16}`, text: `Генеральный директор ООО «Газпром трансгаз Ухта»`, size: '9', horizontal: 'left', bold: false, borders: { left: { style: 'thin' } } },
             { cell: `U${lastRowIndex + 16}`, text: ``, size: '8', horizontal: 'center', bold: false, borders: { bottom: { style: 'thin' } } },
-            { cell: `AM${lastRowIndex + 16}`, text: `( ${iusPtStore.admins[3].iusadm} )`, size: '9', horizontal: 'right', bold: false, borders: { right: { style: 'thin' } } },
+            { cell: `AM${lastRowIndex + 16}`, text: `( ${gd} )`, size: '9', horizontal: 'right', bold: false, borders: { right: { style: 'thin' } } },
             { cell: `A${lastRowIndex + 17}`, text: `СОГЛАСОВАНО:`, size: '9', horizontal: 'left', hasBorder: true, bold: true },
             { cell: `A${lastRowIndex + 18}`, text: `Контакт-центр ООО «Газпром информ»`, size: '9', horizontal: 'left', hasBorder: true, bold: true },
             { cell: `U${lastRowIndex + 18}`, text: `(дата, подпись) (ФИО)`, size: '9', horizontal: 'right', hasBorder: true, bold: false },
@@ -290,8 +312,8 @@ const IusUserApplication = observer(() => {
                 [
                     { cell: `A${lastRowIndex + 22}`, text: `Владелец информационного ресурса`, size: '9', horizontal: 'left', bold: true, hasBorder: true },
                     { cell: `U${lastRowIndex + 22}`, text: `Генеральный директор`, size: '9', horizontal: 'left', bold: false, borders: { left: { style: 'thin' }, top: { style: 'thin' }, right: { style: 'thin' }, } },
-                    { cell: `U${lastRowIndex + 23}`, text: `ООО «Газпром трансгаз Ухта» _____________________  (А.Д. Баранов)`, size: '9', horizontal: 'right', bold: false, borders: { left: { style: 'thin' }, right: { style: 'thin' }, } },
-                    { cell: `U${lastRowIndex + 24}`, text: `                  (дата, подпись) (ФИО)`, size: '7', horizontal: 'center', bold: false, borders: { left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' }, } },
+                    { cell: `U${lastRowIndex + 23}`, text: `ООО «Газпром трансгаз Ухта» _____________________  (${gd})`, size: '9', horizontal: 'right', bold: false, borders: { left: { style: 'thin' }, right: { style: 'thin' }, } },
+                    { cell: `U${lastRowIndex + 24}`, text: `                                        (дата, подпись) (ФИО)`, size: '7', horizontal: 'center', bold: false, borders: { left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' }, } },
                 ] : [
                     { cell: `A${lastRowIndex + 22}`, text: `Владелец информационного ресурса`, size: '9', horizontal: 'left', bold: true, hasBorder: true },
                     { cell: `U${lastRowIndex + 22}`, text: `(дата, подпись) (ФИО)`, size: '9', horizontal: 'right', bold: false, hasBorder: true },
@@ -394,7 +416,7 @@ const IusUserApplication = observer(() => {
             // Создание ссылки для скачивания файла
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "example.xlsx";
+            link.download = `${selectedGroup.systemType} ${user.fio} ${selectedGroup.date}.xlsx`;
 
             document.body.appendChild(link);
             link.click();
@@ -462,7 +484,7 @@ const IusUserApplication = observer(() => {
                     {selectedGroup ? (
                         <>
 
-                            <div className={styles.selectedGroupInfoBlock}>
+                            <div className={styles.GroupInfoBlock}>
                                 <div className={styles.selectedGroupInfo}>
                                     <h3>Детали ролей</h3>
                                     <p>Система: {selectedGroup.systemType}</p>
@@ -470,38 +492,87 @@ const IusUserApplication = observer(() => {
                                 </div>
                                 <div>
                                     <h3>Дополнительные параметры</h3>
-                                    <div className={styles.selectedGroupInfoBlock}>
+                                    <div className={styles.InfoBlock}>
+                                        <div className={styles.selectedGroupInfoBlock}>
 
-                                        <div className={styles.selectionItem}>
-                                            <label>Подключение нового АРМ: </label>
-                                            <label><input type="checkbox" value="ДА" /></label>
+                                            <div className={styles.selectionItem}>
+                                                <label>Подключение нового АРМ: </label>
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        name="newArmVariable"
+                                                        checked={checkboxes.newArmVariable}
+                                                        onChange={handleCheckboxChange}
+                                                    />
+                                                </label>
+                                            </div>
+
+                                            <div className={styles.selectionItem}>
+                                                <label>ИВС: </label>
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        name="ivs"
+                                                        checked={checkboxes.ivs}
+                                                        onChange={handleCheckboxChange}
+                                                    />
+                                                </label>
+                                            </div>
+
                                         </div>
-                                        <div className={styles.selectionItem}>
-                                            <label>Отключение АРМ: </label>
-                                            <label><input type="checkbox" value="ДА" /></label>
+                                        <div className={styles.selectedGroupInfoBlock}>
+                                            <div className={styles.selectionItem}>
+                                                <label>Отключение АРМ: </label>
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        name="disableArm"
+                                                        checked={checkboxes.disableArm}
+                                                        onChange={handleCheckboxChange}
+                                                    />
+                                                </label>
+                                            </div>
+                                            <div className={styles.selectionItem}>
+                                                <label>ЕВСПД: </label>
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        name="evspd"
+                                                        checked={checkboxes.evspd}
+                                                        onChange={handleCheckboxChange}
+                                                    />
+                                                </label>
+                                            </div>
                                         </div>
-                                        <div className={styles.selectionItem}>
-                                            <label>Изменение условий подключения: </label>
-                                            <label><input type="checkbox" value="ДА" /></label>
+                                        <div className={styles.selectedGroupInfoBlock}>
+                                            <div className={styles.selectionItem}>
+                                                <label>Изменение условий подключения: </label>
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        name="conditionsChange"
+                                                        checked={checkboxes.conditionsChange}
+                                                        onChange={handleCheckboxChange}
+                                                    />
+                                                </label>
+                                            </div>
+                                            <div className={styles.selectionItem}>
+                                                <label>Интернет: </label>
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        name="internet"
+                                                        checked={checkboxes.internet}
+                                                        onChange={handleCheckboxChange}
+                                                    />
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className={styles.selectedGroupInfoBlock}>
 
-                                        <div className={styles.selectionItem}>
-                                            <label>ИВС: </label>
-                                            <label><input type="checkbox" value="ДА" /></label>
-                                        </div>
-                                        <div className={styles.selectionItem}>
-                                            <label>ЕВСПД: </label>
-                                            <label><input type="checkbox" value="ДА" /></label>
-                                        </div>
-                                        <div className={styles.selectionItem}>
-                                            <label>Интернет: </label>
-                                            <label><input type="checkbox" value="ДА" /></label>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
+
                             <div className={styles.rolesList}>
                                 {selectedGroup.roles.map((role, index) => (
                                     <div key={index} className={styles.roleItem}>
@@ -523,7 +594,7 @@ const IusUserApplication = observer(() => {
                         onClick={exportToExcel}
                     />
                 </div>
-            </div>
+            </div >
         </>
     );
 });

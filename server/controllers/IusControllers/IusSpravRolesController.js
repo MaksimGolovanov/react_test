@@ -14,16 +14,58 @@ class IusSpravRolesController {
     async create(req, res, next) {
         try {
             const { typename, type, name, code, mandat, business_process } = req.body;
+
+            // Проверяем наличие обязательных полей
             if (!typename || !type || !name || !code) {
                 return next(ApiError.badRequest('Не указаны обязательные поля'));
             }
 
-            const iusrole = await IusSpravRoles.create({ typename, type, name, code, mandat, business_process });
+            console.log("Данные для создания:", req.body); // Логируем данные для отладки
+
+            const iusrole = await IusSpravRoles.create({
+                typename,
+                type,
+                name,
+                code,
+                mandat,
+                business_process
+            });
+
+            console.log("Созданная запись:", iusrole); // Логируем созданную запись
+
             return res.status(201).json(iusrole);
         } catch (err) {
+            console.error("Ошибка при создании записи:", err); // Логируем ошибку
             next(ApiError.internal(err.message));
         }
     }
+
+    async createbulk(req, res, next) {
+        try {
+            const roles = req.body; // Получаем массив ролей из тела запроса
+
+            // Проверяем, что roles является массивом
+            if (!Array.isArray(roles)) {
+                return next(ApiError.badRequest('Ожидается массив ролей'));
+            }
+
+            // Проверяем наличие обязательных полей в каждой роли
+            for (const role of roles) {
+                if (!role.typename || !role.type || !role.name || !role.code) {
+                    return next(ApiError.badRequest('Не указаны обязательные поля для одной из ролей'));
+                }
+            }
+
+            // Массовое создание ролей
+            const createdRoles = await IusSpravRoles.bulkCreate(roles, { returning: true });
+
+            return res.status(201).json(createdRoles); // Возвращаем созданные роли
+        } catch (err) {
+            console.error("Ошибка при массовом создании ролей:", err); // Логируем ошибку
+            next(ApiError.internal(err.message));
+        }
+    }
+
 
     async update(req, res, next) {
         try {

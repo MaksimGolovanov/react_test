@@ -18,6 +18,7 @@ router.get('/roles', IusSpravRolesController.getAll);
 router.post('/roles', IusSpravRolesController.create);
 router.put('/roles', IusSpravRolesController.update);
 router.delete('/roles/:id', IusSpravRolesController.delete);
+router.post('/roles/bulk', IusSpravRolesController.createbulk);
 
 // Маршруты для пользователей
 router.get('/users', IusUserController.getAll);
