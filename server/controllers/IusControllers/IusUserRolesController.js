@@ -44,12 +44,20 @@ class IusUserRolesController {
 
     async delete(req, res, next) {
         try {
-            const { tabNumber, roleId} = req.params;
-            const userRole = await IusUserRoles.findByPk(tabNumber);
+            const { tabNumber, roleId } = req.params;
+    
+            // Ищем связь по составному ключу (tabNumber и roleId)
+            const userRole = await IusUserRoles.findOne({
+                where: { tabNumber, roleId }
+            });
+    
             if (!userRole) {
                 return next(ApiError.notFound('Связь не найдена'));
             }
+    
+            // Удаляем связь
             await userRole.destroy();
+    
             return res.json({ message: 'Связь успешно удалена' });
         } catch (err) {
             next(ApiError.internal(err.message));

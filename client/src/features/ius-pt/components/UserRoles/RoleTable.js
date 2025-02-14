@@ -7,12 +7,18 @@ import RoleTableHeader from './RoleTableHeader';
 import RoleGroup from './RoleGroup';
 import ButtonAll from '../ButtonAll/ButtonAll';
 import { MdDeleteForever } from 'react-icons/md';
+import { toJS } from 'mobx';
+import { GoChecklist } from "react-icons/go";
+import AddOverRoleModal from './AddOverRoleModal';
+
+
 
 const RoleTable = observer(({ info }) => {
   const { userRoles, fetchUserRoles, isLoading, error, deleteUserRole } = iusPtStore;
   const [expandedGroups, setExpandedGroups] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRoles, setSelectedRoles] = useState([]);
+  const [showModal, setShowModal] = useState(false); // Состояние для отображения модального окна
 
   useEffect(() => {
     fetchUserRoles(info.tabNumber);
@@ -56,16 +62,31 @@ const RoleTable = observer(({ info }) => {
 
   const handleDeleteRoles = async () => {
     try {
+      // Преобразуем Proxy-объекты в обычные объекты
+      const rolesToDelete = selectedRoles.map(role => toJS(role));
+
       // Удаляем каждую выбранную роль
-      for (const role of selectedRoles) {
+      for (const role of rolesToDelete) {
+        if (!role.IusSpravRole?.id) {
+          console.error('ID роли не найден:', role);
+          continue; // Пропускаем роль, если ID отсутствует
+        }
+
+        console.log('Удаление роли:', { tabNumber: info.tabNumber, roleId: role.IusSpravRole.id });
+
         await deleteUserRole(info.tabNumber, role.IusSpravRole.id);
       }
+
+      // Вызываем обновление данных после удаления
+      await fetchUserRoles(info.tabNumber);
+
       // Очищаем список выбранных ролей
       setSelectedRoles([]);
     } catch (error) {
       console.error('Ошибка при удалении ролей:', error);
     }
   };
+
 
   if (isLoading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
@@ -76,12 +97,22 @@ const RoleTable = observer(({ info }) => {
 
   return (
     <>
-      <ButtonAll
-        icon={MdDeleteForever}
-        text='Удалить'
-        disabled={selectedRoles.length === 0}
-        onClick={handleDeleteRoles}
-      />
+      <div className='d-flex'>
+        <ButtonAll
+          icon={MdDeleteForever}
+          text='Удалить'
+          disabled={selectedRoles.length === 0}
+          onClick={handleDeleteRoles}
+        />
+        <ButtonAll
+          icon={GoChecklist}
+          text='Создать по образцу'
+          disabled={selectedRoles.length === 0}
+          onClick={() => setShowModal(true)}
+
+        />
+      </div>
+
       <SearchInput
         value={searchQuery}
         onChange={setSearchQuery}
@@ -104,6 +135,11 @@ const RoleTable = observer(({ info }) => {
           ))}
         </div>
       </div>
+      <AddOverRoleModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        
+      />
     </>
   );
 });

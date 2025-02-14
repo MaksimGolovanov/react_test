@@ -81,8 +81,12 @@ class IusPtService {
   }
 
   static deleteUserRole = async (tabNumber, roleId) => {
+    
+    if (!tabNumber || !roleId) {
+      throw new Error('Не указаны tabNumber или roleId');
+    }
     return this.request('delete', `/iuspt/user-roles/${tabNumber}/${roleId}`);
-  }
+  };
 
   static addRolesToUser = async (tabNumber, roleIds) => {
     return this.request('post', '/iuspt/user-roles/bulk', { tabNumber, roleIds });

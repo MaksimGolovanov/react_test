@@ -1,121 +1,289 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-    max-height: 530px; /* Ограничиваем высоту контейнера */
-    overflow-y: auto; /* Добавляем вертикальную прокрутку */
-    font-size: 14px;
-  }
-  
-  .header {
-    display: flex;
-    background-color: #f8f9fa;
-    padding: 10px;
-    font-weight: bold;
-    border-bottom: 1px solid #ddd;
-    position: sticky; /* Фиксируем шапку */
-    top: 0; /* Привязываем к верхнему краю */
-    z-index: 1; /* Убедимся, что шапка поверх остального контента */
-  }
-  
-  .header div {
-    flex: 1;
-    text-align: left;
-  }
-  
-  
-  
-  
-  
-  .tableBody {
-    flex: 1;
-    overflow-y: auto; /* Добавляем прокрутку для тела таблицы */
-  }
-  
-  .group {
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .groupHeader {
-    font-size: 12px;
-    display: flex;
-    color: #212121;
-    align-items: center;
-    
-    background-color: #f8f8f8;
-    cursor: pointer;
-  }
-  
-  .groupContent {
-    padding: 4px 0px 4px 24px;
-    border-left: 3px solid #7eb2f3;
-  }
-  
-  .row {
-    display: flex;
-    margin: 0px 0px 0px -32px;
-    padding: 4px 0px 4px 56px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .row div {
-    flex: 1;
-    text-align: left;
-  }
-  
-  .toggleButton {
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    align-items: center;
-    width: 40px;
-    text-align: left;
-  }
-  
-  .icon {
-    margin-right: 8px;
-  }
-  
-  /* Задаем ширину столбцам */
-  .header div:nth-child(1) { width: 5%; flex: none; } /* Type Name */
-  .header div:nth-child(2) { width: 8%; flex: none; } /* Type Name */
-  .header div:nth-child(3) { width: 8%; flex: none; } /* Type */
-  .header div:nth-child(4) { width: 34%; flex: none; } /* Name */
-  .header div:nth-child(5) { width: 20%; flex: none; } /* Code */
-  .header div:nth-child(6) { width: 8%; flex: none; } /* Mandat */
-  .header div:nth-child(7) { width: 8%; flex: none; } /* Business Process */
-  .header div:nth-child(8) { width: 8%; flex: none; } /* Business Process */
-  
-  /* Задаем ширину столбцам для строк */
-  .row div:nth-child(1) { width: 5%; flex: none; } /* Type Name */
-  .row div:nth-child(2) { width: 8%; flex: none; } /* Type Name */
-  .row div:nth-child(3) { width: 8%; flex: none; } /* Type */
-  .row div:nth-child(4) { width: 35%; flex: none; } /* Name */
-  .row div:nth-child(5) { width: 20%; flex: none; } /* Code */
-  .row div:nth-child(6) { width: 8%; flex: none; } /* Mandat */
-  .row div:nth-child(7) { width: 8%; flex: none; } /* Business Process */
-  .row div:nth-child(8) { width: 8%; flex: none; } /* Business Process */
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  max-height: 530px;
+  /* Ограничиваем высоту контейнера */
+  overflow-y: auto;
+  /* Добавляем вертикальную прокрутку */
+  font-size: 14px;
+}
 
-  .checkbox {
-    margin-right: 10px; /* Отступ справа */
-  }
+.header {
+  display: flex;
+  background-color: #f8f9fa;
+  padding: 10px;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  /* Фиксируем шапку */
+  top: 0;
+  /* Привязываем к верхнему краю */
+  z-index: 1;
+  /* Убедимся, что шапка поверх остального контента */
+}
 
-  .subGroupHeader{
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    color: #212121;
-  }
+.header div {
+  flex: 1;
+  text-align: left;
+}
 
-  .checkbox {
-    
-    width: 14px;
-    height: 14px;
-    cursor: pointer;
-    
-    
-    background-color: #fff;
-    border-radius: 3px;
-  }
+
+
+
+
+.tableBody {
+  flex: 1;
+  overflow-y: auto;
+  /* Добавляем прокрутку для тела таблицы */
+}
+
+.group {
+  border-bottom: 1px solid #ddd;
+}
+
+.groupHeader {
+  font-size: 12px;
+  display: flex;
+  color: #212121;
+  align-items: center;
+
+  background-color: #f8f8f8;
+  cursor: pointer;
+}
+
+.groupContent {
+  padding: 4px 0px 4px 24px;
+  border-left: 3px solid #7eb2f3;
+}
+
+.row {
+  display: flex;
+  margin: 0px 0px 0px -32px;
+  padding: 4px 0px 4px 56px;
+  border-bottom: 1px solid #eee;
+}
+
+.row div {
+  flex: 1;
+  text-align: left;
+}
+
+.toggleButton {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  width: 40px;
+  text-align: left;
+}
+
+.icon {
+  margin-right: 8px;
+}
+
+/* Задаем ширину столбцам */
+.header div:nth-child(1) {
+  width: 5%;
+  flex: none;
+}
+
+/* Type Name */
+.header div:nth-child(2) {
+  width: 8%;
+  flex: none;
+}
+
+/* Type Name */
+.header div:nth-child(3) {
+  width: 8%;
+  flex: none;
+}
+
+/* Type */
+.header div:nth-child(4) {
+  width: 34%;
+  flex: none;
+}
+
+/* Name */
+.header div:nth-child(5) {
+  width: 20%;
+  flex: none;
+}
+
+/* Code */
+.header div:nth-child(6) {
+  width: 8%;
+  flex: none;
+}
+
+/* Mandat */
+.header div:nth-child(7) {
+  width: 8%;
+  flex: none;
+}
+
+/* Business Process */
+.header div:nth-child(8) {
+  width: 8%;
+  flex: none;
+}
+
+/* Business Process */
+
+/* Задаем ширину столбцам для строк */
+.row div:nth-child(1) {
+  width: 5%;
+  flex: none;
+}
+
+/* Type Name */
+.row div:nth-child(2) {
+  width: 8%;
+  flex: none;
+}
+
+/* Type Name */
+.row div:nth-child(3) {
+  width: 8%;
+  flex: none;
+}
+
+/* Type */
+.row div:nth-child(4) {
+  width: 35%;
+  flex: none;
+}
+
+/* Name */
+.row div:nth-child(5) {
+  width: 20%;
+  flex: none;
+}
+
+/* Code */
+.row div:nth-child(6) {
+  width: 8%;
+  flex: none;
+}
+
+/* Mandat */
+.row div:nth-child(7) {
+  width: 8%;
+  flex: none;
+}
+
+/* Business Process */
+.row div:nth-child(8) {
+  width: 8%;
+  flex: none;
+}
+
+/* Business Process */
+
+.checkbox {
+  margin-right: 10px;
+  /* Отступ справа */
+}
+
+.subGroupHeader {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  color: #212121;
+}
+
+.checkbox {
+
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+
+
+  background-color: #fff;
+  border-radius: 3px;
+}
+
+
+
+/* style.module.css */
+
+
+.modalAll {
+  max-height: 765px;
+  border-radius: 4px;
+  padding: 0px;
+  margin: 0px;
+  width: 536px;
+  box-shadow: 0 14px 61px -5px #0000008c;
+  overflow: hidden;
+  position: absolute;
+  top: 10%;
+  /* Смещение модального окна сверху */
+  left: 50%;
+  /* Смещение модального окна слева */
+  transform: translateX(-50%);
+  /* Центрирование по горизонтали */
+}
+
+.modalHeader {
+  margin: 0px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modalTitle {
+  color: #333;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.formLabel {
+  font-weight: 500;
+  color: #495057;
+}
+
+.formControl {
+  border-radius: 0.25rem;
+  border: 1px solid #ced4da;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+}
+
+.formControl:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.modalFooter {
+  border-top: 1px solid #dee2e6;
+  padding: 1rem;
+}
+
+.buttonSecondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+}
+
+.buttonPrimary {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: #fff;
+}
+
+.buttonPrimary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+
+.buttonSecondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}

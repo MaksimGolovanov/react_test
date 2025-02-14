@@ -13,6 +13,11 @@ const RoleSubGroup = ({ type, roles, expanded, toggleGroup, allChecked, onSelect
 
   const handleSelectAll = (checked) => {
     setSubGroupChecked(checked);
+
+    // Передаем состояние выбора всех ролей в родительский компонент
+    roles.forEach((role) => {
+      onSelectRole(role, checked);
+    });
   };
 
   return (
