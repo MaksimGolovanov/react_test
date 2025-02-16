@@ -26,7 +26,7 @@ const AddOverRoleModal = ({ show, onHide }) => {
     };
 
     return (
-        <Modal show={show} onHide={onHide} className={styles.modalAll}>
+        <Modal show={show} onHide={onHide} className={styles.modalAll} >
             <Modal.Header closeButton className={styles.modalHeader}>
                 <Modal.Title className={styles.modalTitle}>Добавить новую роль</Modal.Title>
             </Modal.Header>

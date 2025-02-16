@@ -9,7 +9,7 @@ import { RiAdminLine } from "react-icons/ri";
 import { GrNotes } from "react-icons/gr";
 import { TbComponents } from "react-icons/tb";
 import { FaCaretDown, FaCaretRight } from "react-icons/fa";
-
+import { MdOutlineSecurity } from "react-icons/md";
 import christmasPlains from '../../Image/christmas-plains.png';
 import userStore from '../../features/admin/store/UserStore'; // Убедитесь, что путь правильный
 import { observer } from 'mobx-react'; // Импортируем observer
@@ -82,6 +82,12 @@ const NavBar = observer(() =>  {
         <Link to="/iuspt" className={`nav-link ${location.pathname === '/iuspt' || location.pathname.match(/^\/iuspt\/.+$/) ? 'active' : ''}`}>
           <TbComponents className={'icon'} size={20} style={{ marginRight: '8px' }} />
           ИУС П Т
+        </Link>
+      )}
+            {(userStore.userRolesAuth.includes('IB') || userStore.userRolesAuth.includes('ADMIN')) && (
+        <Link to="/ib" className={`nav-link ${location.pathname === '/ib' || location.pathname.match(/^\/ib\/.+$/) ? 'active' : ''}`}>
+          <MdOutlineSecurity className={'icon'} size={20} style={{ marginRight: '8px' }} />
+          ИНФОРМАЦИОННАЯ БЕЗОПАСНОСТЬ
         </Link>
       )}
 

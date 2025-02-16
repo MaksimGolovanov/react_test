@@ -5,16 +5,15 @@ import { useLocation, Routes, Route } from 'react-router-dom';
 import Clock from './Components/Clock';
 import NavBar from './Components/NavBar/NavBar';
 import PrivateRoute from './shared/PrivateRoute';
-
 import {Prints} from './features/prints'
 import {NotesRoutes} from './features/notes'
 import { IusPtRoutes } from './features/ius-pt'
 import {StaffRoutes } from './features/staff'
 import {AdminRoutes } from './features/admin'
-
 import {Staff} from './features/staff'
 import LoginPage from './features/admin/pages/LoginPage'
 import ButtonLogout from './Components/button/buttonLogout'
+import Ib from './features/ib/pages/ib';
 
 
 
@@ -43,6 +42,9 @@ function App() {
       break;
     case location.pathname.startsWith('/iuspt'):
       pageTitle = 'ИУС П Т';
+      break;
+      case location.pathname.startsWith('/ib'):
+      pageTitle = 'ИНФОРМАЦИОННАЯ БЕЗОПАСНОСТЬ';
       break;
     default:
       pageTitle = '';
@@ -73,7 +75,7 @@ function App() {
             <Route path="/prints" element={<PrivateRoute requiredRole={['ADMIN', 'PRINT']}><Prints /></PrivateRoute>} />
             <Route path="/*" element={<NotesRoutes />} />
             <Route path="/admin/*" element={<AdminRoutes />} />
-            
+            <Route path="/ib/*" element={<Ib />} />
             <Route path="/iuspt/*" element={<IusPtRoutes />} />
             <Route path="/login" element={<LoginPage />} />
           </Routes>

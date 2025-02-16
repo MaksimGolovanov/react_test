@@ -445,7 +445,7 @@ const IusUserApplication = observer(() => {
                 onClick={() => navigate(`/iuspt/user/${tabNumber}`)}
             />
 
-            <div className={styles.userContainer}>
+            <div className={styles.userContainer }>
                 <div>
                     <Circle fullName={user.fio} size={80} />
                 </div>
