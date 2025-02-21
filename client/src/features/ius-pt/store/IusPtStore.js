@@ -8,10 +8,12 @@ class IusPtStore {
   iusUsers = []; // Пользователи ИУС
   userRoles = []; // Роли пользователей
   staffWithIusUsers = []; // Сотрудники и их связи с пользователями ИУС
+  stopRoles = [];
 
   constructor() {
     makeAutoObservable(this);
     this.fetchAdmins();
+    this.fetchStopRoles();
   }
 
 
@@ -100,6 +102,9 @@ class IusPtStore {
 
   // Метод для загрузки сотрудников и их связей с пользователями ИУС
   fetchStaffWithIusUsers = () => this.fetchData(IusPtService.fetchStaffWithIusUser, 'staffWithIusUsers');
+
+  fetchStopRoles = () => this.fetchData(IusPtService.fetchStopRoles, 'stopRoles');
+
 
   // Вычисляемое свойство для получения уникальных значений `typename`
   get rolesTypes() {

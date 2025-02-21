@@ -109,6 +109,7 @@ const RoleTable = observer(({ info }) => {
           text='Создать по образцу'
           disabled={selectedRoles.length === 0}
           onClick={() => setShowModal(true)}
+          
 
         />
       </div>
@@ -138,6 +139,7 @@ const RoleTable = observer(({ info }) => {
       <AddOverRoleModal
         show={showModal}
         onHide={() => setShowModal(false)}
+        role={selectedRoles}
         
       />
     </>

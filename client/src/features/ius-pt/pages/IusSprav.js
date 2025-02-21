@@ -8,6 +8,10 @@ import { useNavigate } from 'react-router-dom'; // Импорт useNavigate
 import { Tabs, Tab } from 'react-bootstrap';
 import SpravRole from '../components/SpravRole/SpravRole';
 import IusAdm from '../components/IusAdm/IusAdm'
+import StopRoles from '../components/StopRoles/StopRoles';
+
+
+
 const IusSprav = observer(() => {
     const navigate = useNavigate(); // Использование useNavigate
 
@@ -31,11 +35,8 @@ const IusSprav = observer(() => {
                 <Tab eventKey="role" title="Справочник подписантов">
                     <IusAdm />
                 </Tab>
-                <Tab eventKey="contact" title="Contact">
-                    <div>
-                        <h1>Пользователи</h1>
-                        
-                    </div>
+                <Tab eventKey="stoprole" title="Стоп-Роли">
+                    <StopRoles />
                 </Tab>
             </Tabs>
 

@@ -44,6 +44,17 @@ const IusUser = sequelize.define('IusUser', {
     managerEmail: {type: DataTypes.STRING},
 });
 
+const StopRole = sequelize.define('StopRole', {
+
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    CodName: { type: DataTypes.STRING },
+    Description: { type: DataTypes.STRING },
+    CanDoWithoutApproval: { type: DataTypes.TEXT },
+    Owner: {type: DataTypes.STRING},
+    Note: {type: DataTypes.STRING}, 
+    Approvers: {type: DataTypes.TEXT},
+});
+
 // Модель для промежуточной таблицы IusUserRoles
 const IusUserRoles = sequelize.define('IusUserRoles', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -94,5 +105,6 @@ module.exports = {
     IusSpravRoles,
     IusUser,
     IusUserRoles, // Экспортируем промежуточную таблицу
+    StopRole,
 };
 

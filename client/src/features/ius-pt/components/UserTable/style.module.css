@@ -1,8 +1,8 @@
-
 .ankCardContainer {
     display: flex;
-    
+
 }
+
 .ankCard {
 
     width: 510px;
@@ -10,14 +10,15 @@
     text-align: right;
 }
 
-.ankCard p{
+.ankCard p {
     padding: 7px 12px;
     color: #4f4f4f;
     font-size: 12px;
     line-height: 16px;
     font-weight: 600;
 }
-.ankCardDinamic p{
+
+.ankCardDinamic p {
     padding: 7px 12px;
     font-weight: 600;
     font-size: 12px;
@@ -29,6 +30,7 @@
     margin-bottom: 0px;
     color: #828282;
 }
+
 .formcontrol {
     font-size: 14px;
     padding: 5px 5px;
@@ -37,6 +39,9 @@
 }
 
 .formcontrol[readOnly] {
-    background-color: #f0f0f0; /* Серый цвет фона */
-    color: #666; /* Серый цвет текста */
+    background-color: #f0f0f0;
+    /* Серый цвет фона */
+    color: #666;
+    /* Серый цвет текста */
 }
+

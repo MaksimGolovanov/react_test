@@ -77,32 +77,30 @@ const IusPt = observer(() => {
                 onChange={setSearchQuery}
                 placeholder="Поиск пользователей..."
             />
-
+            <div className={styles.tablehead}>
+                <p style={{width: '45px'}}></p>
+                <p style={{width: '250px'}}>ФИО</p>
+                <p style={{width: '150px'}}>Имя для входа</p>
+                <p style={{width: '250px'}}>Электронная почта</p>
+                <p style={{width: '120px'}}>Табельный номер</p>
+                <p style={{width: '300px'}}>Должность</p>
+                <p>Подразделение</p>
+            </div>
             <div className={styles.tableContainer}>
                 <table className={styles.table}>
-                    <thead className={styles.headTable}>
-                        <tr>
-                            <th style={{ width: '45px' }}></th>
-                            <th>ФИО</th>
-                            <th>Имя для входа</th>
-                            <th>Электронная почта</th>
-                            <th>Табельный номер</th>
-                            <th>Должность</th>
-                            <th>Подразделение</th>
-                        </tr>
-                    </thead>
+                   
                     <tbody className={styles.bodyTable}>
                         {sortedUsers.map((staffUser, index) => (
                             <tr key={index}>
-                                <td>
+                                <td style={{width: '45px'}}>
                                     <Circle fullName={staffUser.fio} size={30} />
                                 </td>
-                                <td className={styles.fioLink} onClick={() => handleUserClick(staffUser.tabNumber)}>{staffUser.fio}</td>
-                                <td>{staffUser.IusUser ? staffUser.IusUser.name : ''}</td>
-                                <td>{staffUser.email}</td>
-                                <td>{staffUser.tabNumber}</td>
-                                <td>{staffUser.post}</td>
-                                <td>{staffUser.department?.length >= 13 ? staffUser.department.slice(13) : staffUser.department}</td>
+                                <td style={{width: '250px'}} className={styles.fioLink} onClick={() => handleUserClick(staffUser.tabNumber)}>{staffUser.fio}</td>
+                                <td style={{width: '150px'}}>{staffUser.IusUser ? staffUser.IusUser.name : ''}</td>
+                                <td style={{width: '250px'}}>{staffUser.email}</td>
+                                <td style={{width: '120px'}}>{staffUser.tabNumber}</td>
+                                <td style={{width: '300px'}}>{staffUser.post}</td>
+                                <td >{staffUser.department?.length >= 13 ? staffUser.department.slice(13) : staffUser.department}</td>
                             </tr>
                         ))}
                     </tbody>

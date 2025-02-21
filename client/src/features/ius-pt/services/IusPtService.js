@@ -96,6 +96,15 @@ class IusPtService {
   static fetchStaffWithIusUser = async () => {
     return this.request('get', '/iuspt/staff-with-iususer');
   }
+
+  static fetchStopRoles = async () => {
+    return this.request('get', '/iuspt/stoproles');
+  }
+
+
+
+
 }
+
 
 export default IusPtService;

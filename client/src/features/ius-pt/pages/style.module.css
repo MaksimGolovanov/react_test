@@ -336,3 +336,19 @@
     display: flex;
     gap: 10px;
 }
+
+.tablehead {
+    display: flex;
+    font-size: 12px;
+    color: #212121;
+    background-color: #dee6ea;
+    padding: 6px;
+}
+
+.tableheadfio {
+    width: 45px;
+}
+
+.tableheadname{
+    width: 200px;
+}

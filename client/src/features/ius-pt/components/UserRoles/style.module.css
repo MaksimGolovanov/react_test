@@ -217,3 +217,74 @@
   padding-left: 20px;
   padding-right: 20px;
 }
+
+.tableContainer {
+
+  overflow: hidden;
+  max-height: 530px;
+  /* Ограничиваем высоту контейнера */
+  overflow-y: auto;
+
+}
+
+.headTable{
+  font-size: 12px;
+  color: #212121;
+  height: 29px;
+  background-color: #dee6ea;
+}
+.bodyTable{
+  font-size: 12px;
+  color: #212121;
+  
+}
+.bodyTableTr{
+  border-bottom: 1px solid #dee6ea;
+}
+.fioLink {
+  width: 250px;
+}
+
+.nameLink{
+  width: 170px;
+}
+
+.tablehead {
+  display: flex;
+  font-size: 12px;
+  color: #212121;
+  background-color: #dee6ea;
+  padding: 6px;
+}
+
+.tableheadfio {
+  width: 270px;
+}
+
+.selectedRow {
+  background-color: #e0f7fa; /* Пример цвета фона для выбранной строки */
+}
+.code{
+ width: 280px;
+ font-size: 12px;
+}
+.typename{
+  font-size: 12px;
+}
+
+
+
+.disabledRow {
+  background-color: #f0f0f0; /* Серый фон */
+  color: #a0a0a0; /* Блеклый текст */
+}
+
+.disabledRow td {
+  color: inherit; /* Наследование блеклого текста для всех ячеек */
+}
+.stopRoleRow {
+  background-color: #ffcccc ; /* Розовый фон с приоритетом */
+  color: #000; /* Черный текст для лучшей читаемости */
+}
+
+

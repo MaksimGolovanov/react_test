@@ -1,0 +1,35 @@
+.tableContainer {
+  max-height: 650px;
+  /* Задайте нужную высоту */
+  overflow-y: auto;
+  /* Включаем вертикальную прокрутку */
+  position: relative;
+  /* Для корректного позиционирования sticky */
+}
+
+.table {
+  width: 100%;
+  table-layout: fixed;
+  /* Равномерное распределение ширины столбцов */
+  border-collapse: collapse;
+  /* Убираем двойные границы */
+}
+
+.headTable {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 28px;
+  width: 100%;
+  background-color: #dee6ea;
+  color: #212121;
+  font-size: 12px;
+}
+
+.bodyTable {
+  font-size: 12px;
+}
+
+.bodyTable tr {
+  border-bottom: 1px solid #dfe6ee;
+}

@@ -6,6 +6,7 @@ const IusSpravRolesController = require('../controllers/IusControllers/IusSpravR
 const IusUserController = require('../controllers/IusControllers/IusUserController');
 const IusUserRolesController = require('../controllers/IusControllers/IusUserRolesController');
 const StaffController = require('../controllers/IusControllers/StaffController');
+const IusStopRolesController = require('../controllers/IusControllers/IusStopRolesConroller');
 
 // Маршруты для администраторов
 router.get('/adm', IusSpravAdmController.getAll);
@@ -19,6 +20,10 @@ router.post('/roles', IusSpravRolesController.create);
 router.put('/roles', IusSpravRolesController.update);
 router.delete('/roles/:id', IusSpravRolesController.delete);
 router.post('/roles/bulk', IusSpravRolesController.createbulk);
+
+// Маршруты для стоп ролей
+router.get('/stoproles', IusStopRolesController.getAll );
+
 
 // Маршруты для пользователей
 router.get('/users', IusUserController.getAll);
