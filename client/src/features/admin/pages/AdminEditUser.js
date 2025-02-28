@@ -51,7 +51,7 @@ const AdminEditUser = () => {
                 roles: user.roles.map(role => role.role)
             });
         }
-    }, [id, userStore.userRoles]);
+    }, [id]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;

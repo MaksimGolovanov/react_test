@@ -135,6 +135,7 @@ const AddOverRoleModal = ({ show, onHide, role }) => {
         roles={role} // Передаем выбранные роли
         userRoles={userRoles} // Передаем роли выбранного пользователя
         stopRoles={iusPtStore.stopRoles} // Передаем стоп-роли
+        selectedUser={selectedUser}
       />
     </>
   );

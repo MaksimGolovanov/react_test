@@ -33,10 +33,9 @@ const StopRoles = observer(() => {
                 stoproles.Owner.toLowerCase().includes(searchLower) ||
                 stoproles.Note.toLowerCase().includes(searchLower) ||
                 stoproles.Approvers.toLowerCase().includes(searchLower)
-
             );
         });
-    }, [iusPtStore.staffWithIusUsers, searchQuery]);
+    }, [searchQuery]); 
 
     const sortedStopRoles = useMemo(() => {
         return [...filteredStopRoles].sort((a, b) => {
@@ -45,6 +44,13 @@ const StopRoles = observer(() => {
             return 0;
         });
     }, [filteredStopRoles]);
+    if (isLoading) {
+        return <div>Загрузка...</div>;
+    }
+
+    if (error) {
+        return <div>Ошибка: {error.message}</div>;
+    }
 
     return (
         <>
@@ -66,15 +72,14 @@ const StopRoles = observer(() => {
                         </tr>
                     </thead>
                     <tbody className={styles.bodyTable}>
-                        {sortedStopRoles.map((stoproles, index) => (
-                            <tr key={index}>
+                        {sortedStopRoles.map((stoproles) => (
+                            <tr key={`${stoproles.CodName}-${stoproles.Description}`}> {/* Уникальный ключ */}
                                 <td>{stoproles.CodName}</td>
                                 <td>{stoproles.Description}</td>
                                 <td>{stoproles.CanDoWithoutApproval}</td>
                                 <td>{stoproles.Owner}</td>
-                                <td>{stoproles.Note}</td>
+                                <td>{stoproles.Note}</td> 
                                 <td>{stoproles.Approvers}</td>
-
                             </tr>
                         ))}
                     </tbody>

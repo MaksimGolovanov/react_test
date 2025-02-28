@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Image, Table } from 'react-bootstrap';
+import { Image, Table } from 'react-bootstrap';
 import PrintsService from '../services/PrintsService';
-import { LuFileEdit } from "react-icons/lu";
+import { RiFileEditLine } from "react-icons/ri";
 import { MdDeleteForever } from "react-icons/md";
 import Button from 'react-bootstrap/Button';
 import { IoIosCreate } from "react-icons/io";
@@ -90,7 +90,7 @@ function PrintModel() {
                                     <td><Image width={151} height={100} src={'http://localhost:5000/' + printModel.img2}></Image></td>
                                     <td><Image width={151} height={100} src={'http://localhost:5000/' + printModel.img3}></Image></td>
                                     <td>
-                                        <button className="edit-button"><LuFileEdit size={20} /></button>
+                                        <button className="edit-button"><RiFileEditLine size={20} /></button>
                                         <button className="delete-button" onClick={() => handleDelete(printModel.id)} ><MdDeleteForever size={24} style={{ marginLeft: '8px' }} /></button>
                                     </td>
                                 </tr>

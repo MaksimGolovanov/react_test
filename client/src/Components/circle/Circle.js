@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './Circle.module.css'; // Импортируйте стили для Circle
 
 const Circle = ({ fullName, size = 40 }) => {
-  const [color, setColor] = useState(generatePastelColor());
+  const [color] = useState(generatePastelColor());
 
   // Генерация пастельного цвета
   function generatePastelColor() {

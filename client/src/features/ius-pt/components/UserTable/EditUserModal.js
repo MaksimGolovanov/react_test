@@ -35,8 +35,9 @@ const EditUserModal = ({ show, handleClose, user, onSave, isLoading, error }) =>
     const fetchStaff = async () => {
         setIsSearching(true);
         try {
-            const response = await IusPtService.fetchStaffWithIusUsers(); // Загрузка сотрудников
+            const response = await IusPtService.fetchStaffWithIusUser(); // Загрузка сотрудников
             setStaffList(response);
+            
         } catch (error) {
             console.error('Ошибка при загрузке сотрудников:', error);
         } finally {
@@ -118,13 +119,13 @@ const EditUserModal = ({ show, handleClose, user, onSave, isLoading, error }) =>
                             <Dropdown.Toggle variant="light" id="dropdown-manager" className={styles.formcontrol}>
                                 {formData.manager || 'Выберите руководителя'}
                             </Dropdown.Toggle>
-                            <Dropdown.Menu style={{ width: '100%' }}>
+                            <Dropdown.Menu style={{ width: '100%' }} className={styles.dropdownMenu} >
                                 <Form.Control
                                     type="text"
                                     placeholder="Поиск руководителя..."
                                     value={searchQuery}
                                     onChange={handleSearchChange}
-                                    className="mb-2"
+                                    className={styles.formcontrol}
                                 />
                                 {isSearching ? (
                                     <Dropdown.Item>Загрузка...</Dropdown.Item>
@@ -133,6 +134,7 @@ const EditUserModal = ({ show, handleClose, user, onSave, isLoading, error }) =>
                                         <Dropdown.Item
                                             key={staffUser.tabNumber}
                                             onClick={() => handleManagerSelect(staffUser)}
+                                            className={styles.dropdownItem}
                                         >
                                             {staffUser.fio} ({staffUser.email})
                                         </Dropdown.Item>

@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import Table from 'react-bootstrap/Table';
+
 import StaffService from '../services/StaffService'; // Сервис для взаимодействия с данными
 import './Staff.css'
 import { BiDownload } from "react-icons/bi";
 import { FaRegCopy } from "react-icons/fa";
-import { LuFileEdit } from "react-icons/lu";
+import { RiFileEditLine } from "react-icons/ri";
 import { MdDeleteForever } from "react-icons/md";
 import StaffEditModal from './StaffEditModal'; // Импорт созданного нами компонента модального окна
 import StaffImportModal from './StaffImportModal';
@@ -238,7 +238,7 @@ function Staff() {
                                 </td>
                                 <td>{staffMember.tabNumber}</td>
                                 <td>
-                                    <button className="edit-button" onClick={() => handleEditClick(staffMember)}><LuFileEdit size={20} /></button>
+                                    <button className="edit-button" onClick={() => handleEditClick(staffMember)}><RiFileEditLine size={20} /></button>
                                     <button className="delete-button" onClick={() => handleDelete(staffMember.id)}><MdDeleteForever size={24} style={{ marginLeft: '8px' }} /></button>
                                 </td>
                             </tr>

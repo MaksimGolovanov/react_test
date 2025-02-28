@@ -37,7 +37,7 @@ class UserStore {
             const responseUsers = await AdminService.fetchUser();
             const responseRoles = await AdminService.fetchRole();
             const responseUserRole = await AdminService.fetchRoleUser();
-            
+
             this.users = responseUsers;
             this.roles = responseRoles;
             this.userRoles = responseUserRole;
@@ -106,7 +106,7 @@ class UserStore {
     updateUser = action(async (userId, userData) => {
         try {
             this.loading = true;
-            const result = await AdminService.updateUser(userId, {
+            await AdminService.updateUser(userId, { // Убрали переменную result, так как она не используется
                 login: userData.login,
                 password: userData.password,
                 description: userData.description,

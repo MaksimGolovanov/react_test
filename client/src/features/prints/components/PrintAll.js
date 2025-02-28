@@ -6,7 +6,7 @@ import { IoIosCreate } from "react-icons/io";
 import PrintCreateModal from './PrintCreateModal';
 
 import PrintEditModal from './PrintEditModal';
-import { LuFileEdit } from "react-icons/lu";
+import { RiFileEditLine } from "react-icons/ri";
 import { MdDeleteForever } from "react-icons/md";
 import { FaFirefoxBrowser } from "react-icons/fa6";
 import PrintChart from './PrintChart';
@@ -172,7 +172,7 @@ function PrintAll() {
                                         <td>{print.location}</td>
                                         <td>{modelInfo?.name || 'Не найдено'}</td>
                                         <td>
-                                            <button className="edit-button"><LuFileEdit size={20} onClick={() => handleCreateClickEdit(print.id)} /></button>
+                                            <button className="edit-button"><RiFileEditLine size={20} onClick={() => handleCreateClickEdit(print.id)} /></button>
                                             <button className="delete-button"><MdDeleteForever size={24} style={{ marginLeft: '8px' }} onClick={() => deletePrint(print.id)} /></button>
                                         </td>
                                     </tr>

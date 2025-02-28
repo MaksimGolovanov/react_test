@@ -1,47 +1,59 @@
 .ankCardContainer {
-    display: flex;
-
+  display: flex;
 }
 
 .ankCard {
-
-    width: 510px;
-    background-color: #0000000d;
-    text-align: right;
+  width: 510px;
+  background-color: #0000000d;
+  text-align: right;
 }
 
 .ankCard p {
-    padding: 7px 12px;
-    color: #4f4f4f;
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 600;
+  padding: 7px 12px;
+  color: #4f4f4f;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
 }
 
 .ankCardDinamic p {
-    padding: 7px 12px;
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 16px;
+  padding: 7px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .formlabel {
-    font-size: 12px;
-    margin-bottom: 0px;
-    color: #828282;
+  font-size: 12px;
+  margin-bottom: 0px;
+  color: #828282;
 }
 
 .formcontrol {
-    font-size: 14px;
-    padding: 5px 5px;
-    border-radius: 3px;
-    border: 1px solid #acd5e6;
+  font-size: 14px;
+  padding: 5px 5px;
+  border-radius: 3px;
+  text-align: left;
+  width: 100%;
+  border: 1px solid #acd5e6;
+  position: sticky; /* Фиксируем поле поиска */
+  top: 0; /* Прижимаем к верхнему краю */
+  background-color: white; /* Фон, чтобы перекрывать содержимое */
+  z-index: 1; /* Убедитесь, что поле поиска поверх списка */
 }
 
 .formcontrol[readOnly] {
-    background-color: #f0f0f0;
-    /* Серый цвет фона */
-    color: #666;
-    /* Серый цвет текста */
+  background-color: #f0f0f0;
+  /* Серый цвет фона */
+  color: #666;
+  /* Серый цвет текста */
 }
 
+.dropdownItem {
+  display: flex;
+  align-items: center;
+}
+.dropdownMenu {
+  height: 120px;
+  overflow-y: auto;
+}

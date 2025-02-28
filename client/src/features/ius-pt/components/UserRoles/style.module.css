@@ -240,6 +240,7 @@
 }
 .bodyTableTr{
   border-bottom: 1px solid #dee6ea;
+  font-size: 12px;
 }
 .fioLink {
   width: 250px;
@@ -258,14 +259,14 @@
 }
 
 .tableheadfio {
-  width: 270px;
+  width: 200px;
 }
 
 .selectedRow {
   background-color: #e0f7fa; /* Пример цвета фона для выбранной строки */
 }
 .code{
- width: 280px;
+ width: 200px;
  font-size: 12px;
 }
 .typename{
@@ -288,3 +289,6 @@
 }
 
 
+.modal {
+  width: 700px;
+}

@@ -1,6 +1,6 @@
 const { User, Role } = require('../models/models')
 const ApiError = require('../error/ApiError')
-const bcrypt = require('bcrypt')
+const argon2 = require('argon2'); 
 const jwt = require('jsonwebtoken');
 
 const generateJwt = (id, login, roles) => {
@@ -27,7 +27,7 @@ class userController {
       }
 
       // Хеширование пароля
-      const hashPassword = await bcrypt.hash(password, 10);
+      const hashPassword = await argon2.hash(password);
       console.log('Password hashed successfully');
 
       // Создание пользователя
@@ -135,7 +135,7 @@ class userController {
     if (!user) {
       return res.status(400).json({ message: 'Пользователь не найден' });
     }
-    const comparePassword = bcrypt.compareSync(password, user.password);
+    const comparePassword = await argon2.verify(user.password, password);
     if (!comparePassword) {
       return res.status(400).json({ message: 'Указан неверный пароль' });
     }
@@ -188,7 +188,7 @@ class userController {
 
       // Если предоставлен новый пароль, хешируем его
       if (password) {
-        updateData.password = await bcrypt.hash(password, 5);
+        updateData.password = await argon2.hash(password);
       }
 
       // Обновление данных пользователя
