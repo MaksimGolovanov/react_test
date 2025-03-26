@@ -1,9 +1,9 @@
 import axios from 'axios';
-
+const API_URL = process.env.REACT_APP_API_URL;
 class PrintsService {
   static async fetchPrints() {
     try {
-      const response = await axios.get('http://localhost:5000/api/print/');
+      const response = await axios.get(`${API_URL}api/print/`);
 
       return response.data;
     } catch (error) {
@@ -13,7 +13,7 @@ class PrintsService {
   }
   static async fetchLocation() {
     try {
-      const response = await axios.get('http://localhost:5000/api/print/location')
+      const response = await axios.get(`${API_URL}api/print/location`)
       return response.data
     } catch (error) {
       console.error(error);
@@ -22,7 +22,7 @@ class PrintsService {
   }
   static async fetchDepartmens() {
     try {
-      const response = await axios.get('http://localhost:5000/api/print/department');
+      const response = await axios.get(`${API_URL}api/print/department`);
 
       return response.data;
     } catch (error) {
@@ -33,7 +33,7 @@ class PrintsService {
 
   static async fetchPrintModel() {
     try {
-      const response = await axios.get('http://localhost:5000/api/printmodels')
+      const response = await axios.get(`${API_URL}api/printmodels`)
       return response.data
     } catch (error) {
       throw error;
@@ -43,7 +43,7 @@ class PrintsService {
   static async fetchPrintStatistic(itemid) {
     
     try {
-      const response = await axios.get(`http://localhost:5000/api/print/statistics/${itemid}`)
+      const response = await axios.get(`${API_URL}/api/print/statistics/${itemid}`)
       
       return response.data
     } catch (error) {
@@ -54,7 +54,7 @@ class PrintsService {
  static async fetchPrint(id) {
     
      try {
-       const response = await axios.get(`http://localhost:5000/api/print/print/${id}`)
+       const response = await axios.get(`${API_URL}api/print/print/${id}`)
       
        return response.data
      } catch (error) {
@@ -65,7 +65,7 @@ class PrintsService {
 
   static async createPrintModel(formData) {
     try {
-      const response = await axios.post('http://localhost:5000/api/printmodels', formData, {
+      const response = await axios.post(`${API_URL}api/printmodels`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -83,7 +83,7 @@ class PrintsService {
 
     try {
         const response = await axios.post(
-            'http://localhost:5000/api/print/location/',
+            `${API_URL}api/print/location/`,
             formData
         );
 
@@ -96,7 +96,7 @@ class PrintsService {
 
   static async deleteLocation(id) {
     try {
-      const response = await axios.delete(`http://localhost:5000/api/print/location/${id}`);
+      const response = await axios.delete(`${API_URL}api/print/location/${id}`);
       return response.data;
     } catch (error) {
       console.error('Ошибка при удалении модели принтера:', error);
@@ -106,7 +106,7 @@ class PrintsService {
 
   static async deletePrint(id) {
     try {
-      const response = await axios.delete(`http://localhost:5000/api/print/${id}`);
+      const response = await axios.delete(`${API_URL}api/print/${id}`);
       return response.data;
     } catch (error) {
       console.error('Ошибка при удалении модели принтера:', error);
@@ -116,7 +116,7 @@ class PrintsService {
 
   static async deletePrintModel(id) {
     try {
-      const response = await axios.delete(`http://localhost:5000/api/printmodels/${id}`);
+      const response = await axios.delete(`${API_URL}api/printmodels/${id}`);
       return response.data;
     } catch (error) {
       console.error('Ошибка при удалении модели принтера:', error);
@@ -127,7 +127,7 @@ class PrintsService {
   static async createPrint(printData) {
     console.log(printData)
     try {
-      const response = await axios.post('http://localhost:5000/api/print/', {
+      const response = await axios.post(`${API_URL}api/print/`, {
         print_model: printData.print_model,
         logical_name: printData.logical_name,
         ip: printData.ip, 
@@ -147,7 +147,7 @@ class PrintsService {
   static async updatePrint(printData) {
     
     try {
-      const response = await axios.put('http://localhost:5000/api/print/update', {
+      const response = await axios.put(`${API_URL}api/print/update`, {
         print_model: printData.print_model,
         logical_name: printData.logical_name,
         ip: printData.ip, 

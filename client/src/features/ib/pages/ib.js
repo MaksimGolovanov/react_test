@@ -1,118 +1,88 @@
-import React from 'react';
+import React from "react";
 
-import { observer } from 'mobx-react-lite';
-import { Card, Image, ListGroup } from 'react-bootstrap';
-import img1 from '../components/image/i.jpg'
+import { observer } from "mobx-react-lite";
+import { Link } from "react-router-dom";
+
 const Ib = observer(() => {
+  return (
+    <div>
+      <nav>
+        <ul style={{ listStyleType: "none", padding: 0 }}>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/instructions" style={{ textDecoration: "none", color: "blue" }}>
+              Инструкция по работе с конфиденциальными документами
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/memo" style={{ textDecoration: "none", color: "blue" }}>
+              Памятка пользователю по ИБ
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/secrets-list" style={{ textDecoration: "none", color: "blue" }}>
+              Перечень информации составляющей коммерческую тайну и иной КИ
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+              Письмо СКЗ от 02_11_2020 СКЗ-14211
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            письмо СКЗ от 16_04_2019 43-686
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            письмо СКЗ от 17_07_2021 43-1352
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            Политика обработки ПД в ГТУ приказ 727 от 31_07_2024
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            Положение о порядке проведения служебных и внутренних расследований фактов нарушений обработки ПД
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            Положение о режиме коммерческой тайны в ООО _Газпром трансгаз Ухта_ к приказу 2024
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            Положение об обработке ПД в ГТУ 1021 от 30_10_24
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            Правила парольной защиты
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            Приказ от 27_12_2023 №1218 Перечень КТ_КИ
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            Р 46-027-2024 Эл почта
+            </Link>
+          </li>
+          <li style={{ margin: "10px 0" }}>
+            <Link to="/ib/letter" style={{ textDecoration: "none", color: "blue" }}>
+            Р 46-034-2024 инструкция пользователя по обеспечению ИБ
+            </Link>
+          </li>
 
+        </ul>
+      </nav>
+    </div>
+  );
+});
 
-    return (
-        <Card className='container-sm p-0'>
-            <Card.Header><h3>Что такое информационная безопасность?</h3></Card.Header>
-            <Card.Body>
-                <Image src={img1} fluid className='mb-3'/>
-                <p>
-                    Для работника предприятия <strong>информационная безопасность</strong> — это набор правил, технологий и мер, 
-                    которые защищают важную информацию компании от утечек, взломов, потери или повреждения. 
-                    Это важно, потому что утечка данных может привести к финансовым потерям, ущербу репутации
-                    компании и даже юридическим последствиям.
-                </p>
-
-                {/* Подзаголовок */}
-                <h5>Простыми словами:</h5>
-                <p>
-                    Информационная безопасность на предприятии — это как охрана для важных документов, компьютеров и данных компании. 
-                    Её задача — убедиться, что:
-                </p>
-
-                {/* Список */}
-                <ListGroup variant="flush" className='mb-3'>
-                    <ListGroup.Item>
-                        <strong>Конфиденциальная информация</strong> (например, клиентские данные, финансовые отчёты, планы развития) 
-                        не попадёт в чужие руки.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Данные не будут изменены или удалены</strong> без разрешения.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Информация будет доступна</strong> сотрудникам, которым она нужна для работы.
-                    </ListGroup.Item>
-                </ListGroup>
-
-                {/* Подзаголовок */}
-                <h5>Примеры угроз, от которых защищает информационная безопасность:</h5>
-                <ListGroup variant="flush" className='mb-3'>
-                    <ListGroup.Item>
-                        <strong>Хакерские атаки</strong> — злоумышленники могут взломать систему компании, чтобы украсть данные или вывести из строя оборудование.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Утечка информации</strong> — например, если сотрудник случайно отправит секретный документ не тому человеку или потеряет флешку с важными данными.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Вирусы и вредоносные программы</strong> — они могут удалить или зашифровать данные, требуя выкуп за их восстановление.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Неосторожность сотрудников</strong> — например, использование простых паролей или переход по подозрительным ссылкам в письмах.
-                    </ListGroup.Item>
-                </ListGroup>
-
-                {/* Подзаголовок */}
-                <h5>Что должен делать каждый сотрудник для защиты информации?</h5>
-                <ListGroup variant="flush" className='mb-3'>
-                    <ListGroup.Item>
-                        <strong>Использовать надёжные пароли</strong> — пароль должен быть сложным (например, <code>P@ssw0rd2023!</code>) и уникальным для каждого сервиса.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Не открывать подозрительные письма и вложения</strong> — фишинговые письма могут выглядеть как сообщения от коллег или партнёров, но на самом деле содержать вирусы.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Не передавать данные посторонним</strong> — даже если кто-то представляется коллегой или клиентом, нужно убедиться в его полномочиях.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Регулярно обновлять программы</strong> — обновления часто содержат исправления уязвимостей, которые могут использовать злоумышленники.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Не использовать личные устройства для работы</strong> — если это разрешено, то только с установленным антивирусом и шифрованием данных.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Сообщать о подозрительных ситуациях</strong> — если вы заметили что-то странное (например, подозрительные файлы или письма), сразу сообщите в IT-отдел.
-                    </ListGroup.Item>
-                </ListGroup>
-
-                {/* Подзаголовок */}
-                <h5>Почему это важно для предприятия?</h5>
-                <ListGroup variant="flush" className='mb-3'>
-                    <ListGroup.Item>
-                        <strong>Финансовые потери</strong> — утечка данных или остановка работы из-за хакерской атаки может стоить компании миллионов.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Репутация</strong> — если клиенты узнают, что их данные были украдены, они могут потерять доверие к компании.
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Юридические последствия</strong> — за утечку персональных данных компания может быть оштрафована по законам о защите данных (например, ФЗ-152).
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Бизнес-процессы</strong> — потеря данных или сбой в работе системы могут остановить производство, доставку или обслуживание клиентов.
-                    </ListGroup.Item>
-                </ListGroup>
-
-                {/* Пример из рабочей жизни */}
-                <h5>Пример из рабочей жизни:</h5>
-                <p>
-                    Представьте, что вы работаете с базой данных клиентов. Если вы случайно отправите её по электронной почте не тому человеку, это может привести к утечке. 
-                    Или если вы откроете подозрительное письмо с вирусом, он может заразить весь офисный компьютер и заблокировать доступ к важным файлам.
-                </p>
-                <p>
-                    <strong>Информационная безопасность</strong> — это не только задача IT-отдела. Каждый сотрудник играет важную роль в защите данных компании. 
-                    Соблюдая простые правила, вы помогаете избежать серьёзных проблем и сохранить работу компании в безопасности.
-                </p>
-
-            </Card.Body>
-        </Card>
-
-    )
-
-})
-
-
-export default Ib
+export default Ib;

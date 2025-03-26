@@ -1,28 +1,31 @@
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL;
+ 
 class AdminService {
     static async fetchUser() {
         try {
-            const response = await axios.get('http://localhost:5000/api/user/user');
+            const response = await axios.get(`${API_URL}api/user/user`);
             return response.data;
         } catch (error) {
             console.error(error);
             throw error;
         }
     }
+
     static async fetchRoleUser() {
         try {
-            const response = await axios.get('http://localhost:5000/api/user/userrouter');
-
+            const response = await axios.get(`${API_URL}api/user/userrouter`);
             return response.data;
         } catch (error) {
             console.error(error);
             throw error;
         }
     }
+
     static async fetchRole() {
         try {
-            const response = await axios.get('http://localhost:5000/api/user/role');
+            const response = await axios.get(`${API_URL}api/user/role`);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -32,7 +35,7 @@ class AdminService {
 
     static async createRole(role) {
         try {
-            const response = await axios.post('http://localhost:5000/api/user/role', role);
+            const response = await axios.post(`${API_URL}api/user/role`, role);
             return response.data;
         } catch (error) {
             console.error(error);
@@ -43,7 +46,7 @@ class AdminService {
     static async registration(data) {
         try {
             console.log('Sending registration data:', data);
-            const response = await axios.post('http://localhost:5000/api/user/registration', data);
+            const response = await axios.post(`${API_URL}api/user/registration`, data);
             console.log('Registration response:', response.data);
             return response.data;
         } catch (error) {
@@ -51,45 +54,46 @@ class AdminService {
             throw error;
         }
     }
+
     static async login(credentials) {
         try {
-            
-            const response = await axios.post('http://localhost:5000/api/user/login', credentials); // Предполагается, что ваш API ожидает POST-запрос на этот маршрут
-            
-            return response.data; // Здесь вы можете вернуть токен, права доступа и т. д.
+            const response = await axios.post(`${API_URL}api/user/login`, credentials);
+            return response.data;
         } catch (error) {
             console.error('Login error:', error.response?.data || error.message);
-            throw error; // Пробрасываем ошибку дальше, чтобы её можно было обработать в компоненте
+            throw error;
         }
     }
+
     static async deleteUser(id) {
         try {
-            await axios.delete(`http://localhost:5000/api/user/${id}`);
+            await axios.delete(`${API_URL}api/user/${id}`);
         } catch (error) {
             console.error("Ошибка при удалении пользователя:", error);
             throw error;
         }
     }
+
     static async removeRoleFromUser(userId, roleId) {
-        console.log(userId + ' ' + roleId)
+        console.log(userId + ' ' + roleId);
         try {
-            await axios.delete(`http://localhost:5000/api/user/${userId}/roles/${roleId}`);
+            await axios.delete(`${API_URL}api/user/${userId}/roles/${roleId}`);
         } catch (error) {
             console.error("Ошибка при удалении пользователя:", error);
             throw error;
         }
     }
+
     static async updateUser(userId, userData) {
         try {
             console.log('Updating user with data:', userData);
-            const response = await axios.put(`http://localhost:5000/api/user/${userId}`, userData);
+            const response = await axios.put(`${API_URL}api/user/${userId}`, userData);
             return response.data;
         } catch (error) {
             console.error('Update error:', error.response?.data || error.message);
             throw error;
         }
     }
-
 }
 
 export default AdminService;

@@ -83,7 +83,25 @@ PrintsModel.belongsToMany(Prints, { through: 'print_models' })
 User.belongsToMany(Role, { through: 'user_roles' });
 Role.belongsToMany(User, { through: 'user_roles' });
 
+const EsMtr = sequelize.define('EsMtr',{
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    cod: { type: DataTypes.STRING },
+    name: { type: DataTypes.STRING },
+    unit: { type: DataTypes.STRING },
+    gross: { type: DataTypes.STRING },
+    cargoClass: { type: DataTypes.STRING },
+    jobCategory: { type: DataTypes.STRING },
+    BasicEstimatedPrice: { type: DataTypes.INTEGER },
+    BasicWholesalePrice: { type: DataTypes.INTEGER },
+    BasicJustification: { type: DataTypes.STRING },
+    CurrentEstimatedPrice: { type: DataTypes.INTEGER },
+    CurrentWholesalePrice: { type: DataTypes.INTEGER },
+    CurrentJustification: { type: DataTypes.STRING },
+    Note: { type: DataTypes.STRING },
+})
+
+
 
 module.exports = {
-    User, Role, Staff, Department, Prints, PrintsModel, Location, PrinterStatistics, Post
+    User, Role, Staff, Department, Prints, PrintsModel, Location, PrinterStatistics, Post, EsMtr
 }

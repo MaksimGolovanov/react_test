@@ -1,9 +1,9 @@
 import axios from 'axios';
-
+const API_URL = process.env.REACT_APP_API_URL;
 class StaffService {
   static async fetchStaff() {
     try {
-      const response = await axios.get('http://localhost:5000/api/staff/');
+      const response = await axios.get(`${API_URL}api/staff/`);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -13,7 +13,7 @@ class StaffService {
 
   static async fetchDepartment() {
     try {
-      const response = await axios.get('http://localhost:5000/api/staff/department');
+      const response = await axios.get(`${API_URL}api/staff/department`);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -23,7 +23,7 @@ class StaffService {
 
   static async updateStaff(updatedStaff) {
     try {
-      await axios.put(`http://localhost:5000/api/staff/${updatedStaff.tabNumber}`, updatedStaff);
+      await axios.put(`${API_URL}api/staff/${updatedStaff.tabNumber}`, updatedStaff);
       
     } catch (error) {
       console.error("Ошибка при изменении данных:", error);
@@ -34,7 +34,7 @@ class StaffService {
 
   static async createUser(newUser) {
     try {
-      await axios.post('http://localhost:5000/api/user', newUser);
+      await axios.post(`${API_URL}api/user`, newUser);
     } catch (error) {
       console.error("Ошибка при создании пользователя:", error);
       throw error;
@@ -42,7 +42,7 @@ class StaffService {
   }
   static async deleteStaff(tabNumber) {
     try {
-      await axios.delete(`http://localhost:5000/api/staff/${tabNumber}`);
+      await axios.delete(`${API_URL}api/staff/${tabNumber}`);
     } catch (error) {
       console.error("Ошибка при удалении пользователя:", error);
       throw error;
@@ -50,7 +50,7 @@ class StaffService {
   }
   static async importStaffData(staffData) {
     try {
-      const response = await axios.post('http://localhost:5000/api/staff/import', staffData);
+      const response = await axios.post(`${API_URL}api/staff/import`, staffData);
       return response.data;
     } catch (error) {
       console.error("Ошибка при импорте данных:", error);
