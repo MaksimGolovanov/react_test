@@ -54,7 +54,7 @@ function Staff() {
                 console.error(error);
             }
         }
-        departmensGet()
+        departmensGet() 
     }, [])
 
     const getDepartmentById = (id) => {

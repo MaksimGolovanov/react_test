@@ -10,7 +10,7 @@ import { GrNotes } from "react-icons/gr";
 import { TbComponents } from "react-icons/tb";
 import { FaCaretDown, FaCaretRight } from "react-icons/fa";
 import { MdOutlineSecurity } from "react-icons/md";
-import christmasPlains from '../../Image/christmas-plains.png';
+import christmasPlains from '../../Image/Landscaping-Logo.png';
 import userStore from '../../features/admin/store/UserStore'; // Убедитесь, что путь правильный
 import { observer } from 'mobx-react'; // Импортируем observer
 import './NavBar.css';
