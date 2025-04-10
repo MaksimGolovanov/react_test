@@ -352,3 +352,53 @@
 .tableheadname{
     width: 200px;
 }
+
+
+
+.groupItem {
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.groupItem:hover {
+    background-color: #f5f5f5;
+}
+
+.groupItem.selected {
+    background-color: #e3f2fd;
+    border-color: #90caf9;
+}
+
+.groupHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.systemType {
+    font-weight: bold;
+}
+
+.type {
+    color: #666;
+    font-style: italic;
+}
+
+.groupDetails {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.date {
+    color: #2196f3;
+}
+
+.rolesCount {
+    color: #4caf50;
+}

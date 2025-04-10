@@ -76,7 +76,7 @@ function App() {
             <Route path="/*" element={<NotesRoutes />} />
             <Route path="/admin/*" element={<AdminRoutes />} />
             <Route path="/ib/*" element={<Ib />} />
-            <Route path="/iuspt/*" element={<IusPtRoutes />} />
+            <Route path="/iuspt/*" element={<IusPtRoutes />} /> 
             <Route path="/login" element={<LoginPage />} />
           </Routes>
         </div>

@@ -29,6 +29,26 @@ class StaffController {
             next(ApiError.internal(err.message));
         }
     }
+
+    async getStaffWithIusUserSimple(req, res, next) {
+        try {
+            const staffWithIusUser = await Staff.findAll({
+                include: [
+                    {
+                        model: IusUser,
+                        required: false,
+                        // Убрано включение информации о ролях
+                        attributes: ['tabNumber', 'name'] // Можно указать конкретные поля IusUser
+                    },
+                ],
+            });
+
+            return res.json(staffWithIusUser);
+        } catch (err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+
 }
 
 module.exports = new StaffController();

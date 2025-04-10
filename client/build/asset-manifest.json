@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/static/css/main.0ded44d2.css",
+    "main.js": "/static/js/main.d30418be.js",
+    "static/media/Landscaping-Logo.png": "/static/media/Landscaping-Logo.a62e7d2675befafa2e18.png",
+    "static/media/UI.jpg": "/static/media/UI.52fa37422d26490984fd.jpg",
+    "index.html": "/index.html",
+    "main.0ded44d2.css.map": "/static/css/main.0ded44d2.css.map",
+    "main.d30418be.js.map": "/static/js/main.d30418be.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0ded44d2.css",
+    "static/js/main.d30418be.js"
+  ]
+}

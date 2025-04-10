@@ -1,5 +1,5 @@
-import { makeAutoObservable, action, runInAction } from 'mobx';
-import IusPtService from '../services/IusPtService';
+import { makeAutoObservable, action, runInAction, reaction } from "mobx";
+import IusPtService from "../services/IusPtService";
 
 class IusPtStore {
   users = []; // Пользователи
@@ -9,13 +9,22 @@ class IusPtStore {
   userRoles = []; // Роли пользователей
   staffWithIusUsers = []; // Сотрудники и их связи с пользователями ИУС
   stopRoles = [];
+  staffWithIusUsersSimple = [];
 
   constructor() {
     makeAutoObservable(this);
     this.fetchAdmins();
     this.fetchStopRoles();
+    reaction(
+      () => this.staffWithIusUsers,
+      (staff) => {
+        console.log(
+          "staffWithIusUsers changed:",
+          JSON.stringify(staff, null, 2)
+        );
+      }
+    );
   }
-
 
   // Общий метод для загрузки данных
   fetchData = action(async (fetchFunction, stateProperty, ...args) => {
@@ -24,33 +33,45 @@ class IusPtStore {
       runInAction(() => {
         this[stateProperty] = response; // Изменение состояния внутри runInAction
       });
-
     } catch (error) {
       console.error(`Ошибка при получении данных (${stateProperty}):`, error);
     }
   });
 
   // Общий метод для создания/обновления данных
-  createOrUpdateData = action(async (serviceFunction, fetchFunction, stateProperty, data) => {
-    try {
-      await serviceFunction(data);
-      await this.fetchData(fetchFunction, stateProperty);
-    } catch (error) {
-      console.error(`Ошибка при создании/обновлении данных (${stateProperty}):`, error);
-      throw error;
+  createOrUpdateData = action(
+    async (serviceFunction, fetchFunction, stateProperty, data) => {
+      try {
+        await serviceFunction(data);
+        await this.fetchData(fetchFunction, stateProperty);
+      } catch (error) {
+        console.error(
+          `Ошибка при создании/обновлении данных (${stateProperty}):`,
+          error
+        );
+        throw error;
+      }
     }
-  });
+  );
 
   // Общий метод для удаления данных
-  deleteData = action(async (serviceFunction, fetchFunction, stateProperty, tabNumber, ...args) => {
-    try {
-      await serviceFunction(tabNumber, ...args);
-      await this.fetchData(fetchFunction, stateProperty);
-    } catch (error) {
-      console.error(`Ошибка при удалении данных (${stateProperty}):`, error);
-      throw error;
+  deleteData = action(
+    async (
+      serviceFunction,
+      fetchFunction,
+      stateProperty,
+      tabNumber,
+      ...args
+    ) => {
+      try {
+        await serviceFunction(tabNumber, ...args);
+        await this.fetchData(fetchFunction, stateProperty);
+      } catch (error) {
+        console.error(`Ошибка при удалении данных (${stateProperty}):`, error);
+        throw error;
+      }
     }
-  });
+  );
 
   addRolesToUser = action(async (tabNumber, roleIds) => {
     try {
@@ -60,23 +81,58 @@ class IusPtStore {
       });
       return response;
     } catch (error) {
-      console.error('Ошибка при добавлении ролей пользователю:', error);
+      console.error("Ошибка при добавлении ролей пользователю:", error);
       throw error;
     }
   });
 
-
   // Методы для работы с администраторами
-  fetchAdmins = () => this.fetchData(IusPtService.fetchAdmins, 'admins');
-  createAdmin = (newAdmin) => this.createOrUpdateData(IusPtService.createAdmin, IusPtService.fetchAdmins, 'admins', newAdmin);
-  updateAdmin = (updatedAdmin) => this.createOrUpdateData(IusPtService.updateAdmin, IusPtService.fetchAdmins, 'admins', updatedAdmin);
-  deleteAdmin = (id) => this.deleteData(IusPtService.deleteAdmin, IusPtService.fetchAdmins, 'admins', id);
+  fetchAdmins = () => this.fetchData(IusPtService.fetchAdmins, "admins");
+  createAdmin = (newAdmin) =>
+    this.createOrUpdateData(
+      IusPtService.createAdmin,
+      IusPtService.fetchAdmins,
+      "admins",
+      newAdmin
+    );
+  updateAdmin = (updatedAdmin) =>
+    this.createOrUpdateData(
+      IusPtService.updateAdmin,
+      IusPtService.fetchAdmins,
+      "admins",
+      updatedAdmin
+    );
+  deleteAdmin = (id) =>
+    this.deleteData(
+      IusPtService.deleteAdmin,
+      IusPtService.fetchAdmins,
+      "admins",
+      id
+    );
 
   // Методы для работы с ролями
-  fetchRoles = () => this.fetchData(IusPtService.fetchRoles, 'roles');
-  createRole = (newRole) => this.createOrUpdateData(IusPtService.createRole, IusPtService.fetchRoles, 'roles', newRole);
-  updateRole = (updatedRole) => this.createOrUpdateData(IusPtService.updateRole, IusPtService.fetchRoles, 'roles', updatedRole);
-  deleteRole = (id) => this.deleteData(IusPtService.deleteRole, IusPtService.fetchRoles, 'roles', id);
+  fetchRoles = () => this.fetchData(IusPtService.fetchRoles, "roles");
+  createRole = (newRole) =>
+    this.createOrUpdateData(
+      IusPtService.createRole,
+      IusPtService.fetchRoles,
+      "roles",
+      newRole
+    );
+  updateRole = (updatedRole) =>
+    this.createOrUpdateData(
+      IusPtService.updateRole,
+      IusPtService.fetchRoles,
+      "roles",
+      updatedRole
+    );
+  deleteRole = (id) =>
+    this.deleteData(
+      IusPtService.deleteRole,
+      IusPtService.fetchRoles,
+      "roles",
+      id
+    );
   bulkCreateRoles = action(async (roles) => {
     try {
       const response = await IusPtService.bulkCreateRoles(roles); // Отправляем данные на сервер
@@ -85,30 +141,60 @@ class IusPtStore {
       });
       return response;
     } catch (error) {
-      console.error('Ошибка при массовом создании ролей:', error);
+      console.error("Ошибка при массовом создании ролей:", error);
       throw error;
     }
   });
   // Методы для работы с пользователями ИУС
-  fetchIusUsers = () => this.fetchData(IusPtService.fetchIusUsers, 'iusUsers');
-  createOrUpdateUser = (user) => this.createOrUpdateData(IusPtService.createOrUpdateUser, IusPtService.fetchIusUsers, 'iusUsers', user);
-  deleteUser = (id) => this.deleteData(IusPtService.deleteUser, IusPtService.fetchIusUsers, 'iusUsers', id);
+  fetchIusUsers = () => this.fetchData(IusPtService.fetchIusUsers, "iusUsers");
+  createOrUpdateUser = (user) =>
+    this.createOrUpdateData(
+      IusPtService.createOrUpdateUser,
+      IusPtService.fetchIusUsers,
+      "iusUsers",
+      user
+    );
+  deleteUser = (id) =>
+    this.deleteData(
+      IusPtService.deleteUser,
+      IusPtService.fetchIusUsers,
+      "iusUsers",
+      id
+    );
 
   // Методы для работы с ролями пользователей
-  fetchUserRoles = (tabNumber) => this.fetchData(IusPtService.fetchUserRoles, 'userRoles', tabNumber);
-  createUserRole = (userRole) => this.createOrUpdateData(IusPtService.createUserRole, IusPtService.fetchUserRoles, 'userRoles', userRole);
-  deleteUserRole = (tabNumber, roleId) => this.deleteData(IusPtService.deleteUserRole, IusPtService.fetchUserRoles, 'userRoles', tabNumber, roleId);
-
+  fetchUserRoles = (tabNumber) =>
+    this.fetchData(IusPtService.fetchUserRoles, "userRoles", tabNumber);
+  createUserRole = (userRole) =>
+    this.createOrUpdateData(
+      IusPtService.createUserRole,
+      IusPtService.fetchUserRoles,
+      "userRoles",
+      userRole
+    );
+  deleteUserRole = (tabNumber, roleId) =>
+    this.deleteData(
+      IusPtService.deleteUserRole,
+      IusPtService.fetchUserRoles,
+      "userRoles",
+      tabNumber,
+      roleId
+    );
 
   // Метод для загрузки сотрудников и их связей с пользователями ИУС
-  fetchStaffWithIusUsers = () => this.fetchData(IusPtService.fetchStaffWithIusUser, 'staffWithIusUsers');
-
-  fetchStopRoles = () => this.fetchData(IusPtService.fetchStopRoles, 'stopRoles');
-
+  fetchStaffWithIusUsers = () =>
+    this.fetchData(IusPtService.fetchStaffWithIusUser, "staffWithIusUsers");
+  fetchStaffWithIusUserSimple = () =>
+    this.fetchData(
+      IusPtService.fetchStaffWithIusUser,
+      "staffWithIusUsersSimple"
+    );
+  fetchStopRoles = () =>
+    this.fetchData(IusPtService.fetchStopRoles, "stopRoles");
 
   // Вычисляемое свойство для получения уникальных значений `typename`
   get rolesTypes() {
-    const uniqueTypes = [...new Set(this.roles.map(role => role.typename))];
+    const uniqueTypes = [...new Set(this.roles.map((role) => role.typename))];
     return uniqueTypes;
   }
 }

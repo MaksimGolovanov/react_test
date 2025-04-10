@@ -99,3 +99,25 @@
 .saveButton:hover {
   background-color: #0056b3; /* Изменение цвета фона при наведении */
 }
+.uploadLabel {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.uploadLabel:hover {
+  background-color: #e0e0e0;
+}
+
+.uploadInput {
+  display: none;
+}
+
+.uploadHint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+}

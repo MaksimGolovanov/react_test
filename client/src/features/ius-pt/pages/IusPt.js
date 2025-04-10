@@ -18,7 +18,7 @@ const IusPt = observer(() => {
         const fetchData = async () => {
             try {
                 await iusPtStore.fetchStaffWithIusUsers();
-            } catch (err) {
+            } catch (err) { 
                 setError(err);
             } finally {
                 setIsLoading(false);
