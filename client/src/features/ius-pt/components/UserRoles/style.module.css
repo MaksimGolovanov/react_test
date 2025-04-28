@@ -244,10 +244,12 @@
 }
 .fioLink {
   width: 250px;
+  font-size: 12px;
 }
 
 .nameLink{
   width: 170px;
+  font-size: 12px;
 }
 
 .tablehead {
@@ -291,4 +293,12 @@
 
 .modal {
   width: 700px;
+}
+.rowContainer {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  
+  cursor: pointer;
 }

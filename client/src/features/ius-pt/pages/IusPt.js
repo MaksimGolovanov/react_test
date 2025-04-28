@@ -17,7 +17,9 @@ const IusPt = observer(() => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                await iusPtStore.fetchStaffWithIusUsers();
+                
+                await iusPtStore.fetchStaffWithIusUserSimple();
+                
             } catch (err) { 
                 setError(err);
             } finally {
@@ -26,10 +28,11 @@ const IusPt = observer(() => {
         };
 
         fetchData();
+        
     }, []);
-
+    
     const filteredUsers = useMemo(() => {
-        return iusPtStore.staffWithIusUsers.filter((staffUser) => {
+        return iusPtStore.staffWithIusUsersSimple.filter((staffUser) => {
             const searchLower = searchQuery.toLowerCase();
             return (
                 staffUser.tabNumber.toLowerCase().includes(searchLower) ||
@@ -40,7 +43,7 @@ const IusPt = observer(() => {
                 (staffUser.IusUser && staffUser.IusUser.name.toLowerCase().includes(searchLower))
             );
         });
-    }, [iusPtStore.staffWithIusUsers, searchQuery]);
+    }, [iusPtStore.staffWithIusUsersSimple, searchQuery]);
 
     const sortedUsers = useMemo(() => {
         return [...filteredUsers].sort((a, b) => {

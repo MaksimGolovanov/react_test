@@ -6,14 +6,14 @@ import EditPost from './pages/EditPost';
 
 
 
-const StaffRoutes = () => {
+const NotesRoutes = () => {
   return (
     <Routes>
-      <Route path="/notes" element={<PrivateRoute requiredRole={['ADMIN', 'NOTES']}><Notes /></PrivateRoute>} />
+      <Route path="/" element={<PrivateRoute requiredRole={['ADMIN', 'NOTES']}><Notes /></PrivateRoute>} />
       <Route path="/create-post" element={<PrivateRoute requiredRole={['ADMIN']}><CreatePost /></PrivateRoute>} />
       <Route path="/edit-post/:id" element={<PrivateRoute requiredRole={['ADMIN']}><EditPost /></PrivateRoute>} />
     </Routes>
   );
 };
 
-export default StaffRoutes; 
+export default NotesRoutes; 

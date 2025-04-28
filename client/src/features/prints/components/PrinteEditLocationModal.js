@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-modal';
 import { CgCloseO } from "react-icons/cg";
 import { VscSaveAs } from "react-icons/vsc";

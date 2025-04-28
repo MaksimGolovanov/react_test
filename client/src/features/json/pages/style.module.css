@@ -1,0 +1,201 @@
+.app {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+
+  
+ 
+  
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .controlGroup {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .searchContainer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .searchInput {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .searchNavigation {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .searchNavigation button {
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .searchNavigation button:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .searchHighlight {
+    background-color: yellow;
+    color: black;
+    padding: 0 2px;
+  }
+  
+  .currentHighlight {
+    background-color: orange !important;
+    box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.5);
+  }
+  
+  .jsonInput textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 10px;
+    font-family: monospace;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .jsonDisplayContainer {
+    height: 670px;
+    overflow: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+  }
+  
+  .jsonDisplay {
+    padding: 20px;
+    position: relative;
+    min-height: 100%;
+  }
+  
+  .jsonTree {
+    font-family: monospace;
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  
+  .jsonRaw {
+    font-family: monospace;
+    white-space: pre;
+    margin: 0;
+    line-height: 1.5;
+  }
+  
+  .jsonLine {
+    min-height: 1.2em;
+    padding: 2px 0;
+  }
+  
+  .jsonTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: monospace;
+  }
+  
+  .jsonTable th, 
+  .jsonTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .jsonTable th {
+    background-color: #f2f2f2;
+  }
+  
+  .jsonKey {
+    color: #d63384;
+  }
+  
+  .jsonString {
+    color: #20c997;
+  }
+  
+  .jsonNumber {
+    color: #fd7e14;
+  }
+  
+  .jsonBoolean {
+    color: #6610f2;
+  }
+  
+  .jsonNull {
+    color: #6c757d;
+  }
+  
+  .error {
+    color: #dc3545;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+  }
+  
+  /* Dark theme styles */
+  .dark .jsonDisplayContainer {
+    background-color: #222;
+    border-color: #444;
+  }
+  
+  .dark .searchInput,
+  .dark .jsonInput textarea {
+    background-color: #444;
+    color: #fff;
+    border-color: #666;
+  }
+  
+  .dark .searchNavigation button {
+    background-color: #555;
+    color: #fff;
+    border-color: #666;
+  }
+  
+  .dark .searchNavigation button:hover {
+    background-color: #666;
+  }
+  
+  .dark .searchHighlight {
+    background-color: #ffeb3b;
+    color: #000;
+  }
+  
+  .dark .currentHighlight {
+    background-color: #ff9800 !important;
+  }
+  
+  .dark .jsonTable th {
+    background-color: #444;
+    color: #fff;
+  }
+  
+  .dark .jsonTable td {
+    border-color: #555;
+  }
+  
+  .dark .error {
+    background-color: #4a1c24;
+    border-color: #842029;
+    color: #f8d7da;
+  }

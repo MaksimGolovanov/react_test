@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useMemo } from 'react';
-
-import StaffService from '../services/StaffService'; // Сервис для взаимодействия с данными
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import ClipboardJS from 'clipboard'; // Импортируем библиотеку
+import StaffService from '../services/StaffService';
 import './Staff.css'
 import { BiDownload } from "react-icons/bi";
 import { FaRegCopy } from "react-icons/fa";
 import { RiFileEditLine } from "react-icons/ri";
 import { MdDeleteForever } from "react-icons/md";
-import StaffEditModal from './StaffEditModal'; // Импорт созданного нами компонента модального окна
+import StaffEditModal from './StaffEditModal';
 import StaffImportModal from './StaffImportModal';
 import Spinner from 'react-bootstrap/Spinner';
 import ButtonAll from '../../ius-pt/components/ButtonAll/ButtonAll';
@@ -15,15 +15,18 @@ import SearchInput from '../../ius-pt/components/SearchInput/SearchInput';
 import styles from './style.module.css';
 
 function Staff() {
-    const [staff, setStaff] = useState([]); // Список сотрудников
-    const [filteredStaff, setFilteredStaff] = useState([]); // Фильтрованный список сотрудников
-    const [searchQuery, setSearchQuery] = useState(''); // Текущий запрос поиска
-    const [modalIsOpen, setModalIsOpen] = useState(false); // Состояние для открытия/закрытия модального окна
-    const [selectedData, setSelectedData] = useState(''); // Данные строки, которую мы редактируем
+    const [staff, setStaff] = useState([]);
+    const [filteredStaff, setFilteredStaff] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [selectedData, setSelectedData] = useState('');
     const [modalShow, setModalShow] = useState(false);
     const [sortConfig, setSortConfig] = useState(null)
     const [departmens, setDepatmens] = useState([])
-    const [isLoading, setIsLoading] = useState(true); // Начальное состояние загрузки
+    const [isLoading, setIsLoading] = useState(true);
+    
+    // Создаем реф для кнопок копирования
+    const copyButtonsRef = useRef([]);
 
     const openModal = () => {
         setModalIsOpen(true);
@@ -31,25 +34,22 @@ function Staff() {
 
     const closeModal = () => {
         setModalIsOpen(false);
-
-
     };
+
     const closeModalImport = () => {
         setModalShow(false);
-
     };
+
     const handleEditClick = (data) => {
-        setSelectedData(data); // Сохраняем данные текущей строки для редактирования
-        openModal(); // Открываем модальное окно
+        setSelectedData(data);
+        openModal();
     };
-
 
     useEffect(() => {
         async function departmensGet() {
             try {
                 const departments = await StaffService.fetchDepartment()
                 setDepatmens(departments)
-
             } catch (error) {
                 console.error(error);
             }
@@ -57,88 +57,95 @@ function Staff() {
         departmensGet() 
     }, [])
 
+    // Инициализация ClipboardJS после монтирования компонента
+    useEffect(() => {
+        // Инициализируем ClipboardJS для всех элементов с классом .copy-button
+        const clipboard = new ClipboardJS('.copy-button', {
+            text: function(trigger) {
+                // Получаем IP-адрес из data-атрибута кнопки
+                return trigger.getAttribute('data-clipboard-text');
+            }
+        });
+
+        // Обработчики событий для отображения обратной связи
+        clipboard.on('success', function(e) {
+            console.log('Текст скопирован:', e.text);
+            // Можно добавить уведомление для пользователя
+        });
+
+        clipboard.on('error', function(e) {
+            console.error('Ошибка при копировании:', e.action);
+        });
+
+        // Очистка при размонтировании компонента
+        return () => {
+            clipboard.destroy();
+        };
+    }, [filteredStaff]); // Зависимость от filteredStaff, чтобы переинициализировать при изменении данных
+
     const getDepartmentById = (id) => {
         const departmentCode = String(id).split(' ')[0]
         const foundDepartment = departmens.find(department => department.code === departmentCode);
         if (foundDepartment) {
             return foundDepartment.description;
         }
-
-        return null; // Вернем null, если отдел не найден
+        return null;
     };
 
     const fetchData = async () => {
         try {
             const fetchedStaff = await StaffService.fetchStaff();
             setStaff(fetchedStaff);
-            setFilteredStaff(fetchedStaff); // Изначально показываем весь список
+            setFilteredStaff(fetchedStaff);
         } catch (error) {
             console.error(error);
         } finally {
-            setIsLoading(false); // Завершаем загрузку
+            setIsLoading(false);
         }
     }
 
     useEffect(() => {
-
         fetchData();
     }, []);
 
     useEffect(() => {
         if (!searchQuery) {
-            setFilteredStaff(staff); // Если поисковой запрос пуст, показываем все сотрудники
+            setFilteredStaff(staff);
         } else {
             const filteredList = staff.filter(member =>
                 (member.fio && member.fio.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 (member.login && member.login.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 (member.post && member.post.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 (member.department && member.department.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (member.telephone && member.telephone.includes(searchQuery)) || // Проверка на существование свойства
-                (member.ip && member.ip.includes(searchQuery)) || // Проверка на существование свойства
-                (member.tabNumber && member.tabNumber.includes(searchQuery)) // Проверка на существование свойства
+                (member.telephone && member.telephone.includes(searchQuery)) ||
+                (member.ip && member.ip.includes(searchQuery)) ||
+                (member.tabNumber && member.tabNumber.includes(searchQuery))
             );
             setFilteredStaff(filteredList);
         }
     }, [searchQuery, staff]);
 
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text)
-            .then(() => {
-                console.log("Текст скопирован в буфер обмена!");
-            })
-            .catch((err) => {
-                console.error("Ошибка при копировании:", err);
-            });
-    }
-
     const requestSort = (key) => {
-        let direction = 'ascending'; // Направление сортировки
-
+        let direction = 'ascending';
         if (sortConfig?.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
         }
-
         setSortConfig({ key, direction });
     };
 
-    // Применение сортировки к фильтрованным данным
     const sortedStaff = useMemo(() => {
         let sortedData = [...filteredStaff];
-
         if (sortConfig !== null) {
             sortedData.sort((a, b) => {
                 if (a[sortConfig.key] < b[sortConfig.key]) {
                     return sortConfig.direction === 'ascending' ? -1 : 1;
                 }
-
                 if (a[sortConfig.key] > b[sortConfig.key]) {
                     return sortConfig.direction === 'ascending' ? 1 : -1;
                 }
-
                 return 0;
             });
         }
-
         return sortedData;
     }, [filteredStaff, sortConfig]);
 
@@ -159,9 +166,8 @@ function Staff() {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-
-                height: '730px', // Высота экрана
-                width: 'auto', // Ширина экрана
+                height: '730px',
+                width: 'auto',
             }} className='text-dark'>
                 <Spinner animation="border" role="status" style={{ width: '5rem', height: '5rem' }}>
                     <span className="visually-hidden">Загрузка...</span>
@@ -171,7 +177,6 @@ function Staff() {
     }
 
     return (
-
         <div>
             <ButtonAll text="Импорт" icon={BiDownload} onClick={() => setModalShow(true)} />
             <SearchInput
@@ -180,47 +185,40 @@ function Staff() {
                 placeholder="Поиск пользователей..."
             />
 
-
             <div className={styles.tableContainer}>
                 <table className={styles.table}>
                     <thead className={styles.headTable}>
                         <tr>
                             <th style={{ width: '45px' }}></th>
-                            <th
-                                onClick={() => requestSort('fio')}
-                            >
+                            <th onClick={() => requestSort('fio')}>
                                 Фамилия Имя Отчество
                                 {sortConfig?.key === 'fio' && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
                             </th>
                             <th style={{ width: '120px' }}>Логин</th>
-                            <th
-                                onClick={() => requestSort('post')}
-                            >
+                            <th onClick={() => requestSort('post')}>
                                 Должность
                                 {sortConfig?.key === 'post' && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
                             </th>
-                            <th
-                                onClick={() => requestSort('department')}
-                            >
+                            <th onClick={() => requestSort('department')}>
                                 Служба
                                 {sortConfig?.key === 'department' && (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
                             </th>
                             <th style={{ width: '80px' }}>Телефон</th>
-                            <th >Email</th>
+                            <th>Email</th>
                             <th style={{ width: '120px' }}>IP</th>
                             <th style={{ width: '90px' }}>Табельный номер</th>
                             <th style={{ width: '80px' }}></th>
                         </tr>
                     </thead>
                     <tbody className={styles.bodyTable}>
-                        {sortedStaff.map(staffMember => (
-                            <tr key={staffMember.id} className={staffMember.del == 1 ? 'table-danger' : undefined}>
+                        {sortedStaff.map((staffMember, index) => (
+                            <tr key={staffMember.id} className={staffMember.del === 1 ? 'table-danger' : undefined}>
                                 <td>
                                     <div>
                                         <Circle fullName={staffMember.fio} size={30} />
                                     </div>
                                 </td>
-                                <td >{staffMember.fio}</td>
+                                <td>{staffMember.fio}</td>
                                 <td>{staffMember.login}</td>
                                 <td>{staffMember.post}</td>
                                 <td>{getDepartmentById(staffMember.department)}</td>
@@ -230,7 +228,11 @@ function Staff() {
                                     {staffMember.ip !== '' && staffMember.ip !== '-' ? (
                                         <>
                                             {staffMember.ip}
-                                            <button className="copy-button" onClick={() => copyToClipboard(staffMember.ip)}>
+                                            <button 
+                                                className="copy-button" 
+                                                data-clipboard-text={staffMember.ip}
+                                                ref={el => copyButtonsRef.current[index] = el}
+                                            >
                                                 <FaRegCopy size={13} style={{ marginLeft: '8px' }} />
                                             </button>
                                         </>
@@ -238,8 +240,12 @@ function Staff() {
                                 </td>
                                 <td>{staffMember.tabNumber}</td>
                                 <td>
-                                    <button className="edit-button" onClick={() => handleEditClick(staffMember)}><RiFileEditLine size={20} /></button>
-                                    <button className="delete-button" onClick={() => handleDelete(staffMember.id)}><MdDeleteForever size={24} style={{ marginLeft: '8px' }} /></button>
+                                    <button className="edit-button" onClick={() => handleEditClick(staffMember)}>
+                                        <RiFileEditLine size={20} />
+                                    </button>
+                                    <button className="delete-button" onClick={() => handleDelete(staffMember.id)}>
+                                        <MdDeleteForever size={24} style={{ marginLeft: '8px' }} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}
@@ -255,12 +261,7 @@ function Staff() {
             <StaffImportModal
                 isOpen={modalShow}
                 onRequestClose={closeModalImport}
-
-
             />
-
-
-
         </div>
     );
 }

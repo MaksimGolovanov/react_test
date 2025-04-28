@@ -16,5 +16,6 @@ router.get('/location',printController.getAllLocation)
 router.post('/location', printController.createLocation);
 router.delete('/location/:id', printController.delete);
 router.delete('/:id', printController.deletePrint);
+router.get('/print/:id/pagecount', printController.getPrinterPageCount);
 
 module.exports = router;

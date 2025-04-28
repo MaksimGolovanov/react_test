@@ -86,7 +86,7 @@ const SpravRole = () => {
                         business_process: row[5],
                     }));
     
-                console.log(roles); // Логируем преобразованные данные
+                
     
                 // Отправляем данные на сервер
                 handleBulkSaveRoles(roles);

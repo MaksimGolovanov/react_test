@@ -9,6 +9,7 @@ const route = require('./routes/index')
 const fileUpload = require('express-fileupload')
 const path = require('path')
 const PORT = process.env.PORT || 5000;
+const snmpPoller = require('./snmpPoller'); // Добавляем импорт
 
 const app = express();
 app.use(cors())
@@ -26,7 +27,7 @@ const start = async () => {
         await sequelize.authenticate();
         await sequelize.sync();
         
-     
+        snmpPoller.start();
         
         app.listen(PORT, () => console.log(`Сервер запущен на порту ${PORT}`));
     } catch (e) {

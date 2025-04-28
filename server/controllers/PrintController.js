@@ -167,6 +167,55 @@ class PrintController {
             console.error('Ошибка при получении статистики:', error);
         }
     }
+
+    async getPrinterPageCount(req, res) {
+        const { id } = req.params;
+        try {
+            const printer = await Prints.findOne({ where: { id } });
+            if (!printer) {
+                return res.status(404).json({ message: 'Принтер не найден' });
+            }
+    
+            const snmp = require('snmp');
+            const PAGE_COUNT_OID = '1.3.6.1.2.1.43.10.2.1.4.1.1';
+            
+            const pageCount = await new Promise((resolve, reject) => {
+                const session = new snmp.Session({ 
+                    host: printer.ip, 
+                    community: 'public' 
+                });
+                
+                session.get({ oid: PAGE_COUNT_OID }, (error, varbind) => {
+                    session.close();
+                    if (error) {
+                        reject(`SNMP error: ${error}`);
+                    } else {
+                        resolve(varbind.value);
+                    }
+                });
+            });
+    
+            // Сохраняем результат в базу
+            await PrinterStatistics.create({
+                itemid: printer.serial_number,
+                value: pageCount,
+                clock: Math.floor(Date.now() / 1000)
+            });
+    
+            return res.json({ 
+                printerId: printer.id,
+                pageCount,
+                message: 'Данные успешно получены и сохранены'
+            });
+        } catch (error) {
+            console.error('Ошибка при получении счетчика страниц:', error);
+            return res.status(500).json({ 
+                error: 'Ошибка при получении счетчика страниц',
+                details: error.toString() 
+            });
+        }
+    }
+
 }
 
 module.exports = new PrintController();

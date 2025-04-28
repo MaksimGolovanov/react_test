@@ -1,5 +1,5 @@
 .tableContainer {
-  max-height: 650px;
+  max-height: 565px;
   /* Задайте нужную высоту */
   overflow-y: auto;
   /* Включаем вертикальную прокрутку */
@@ -33,3 +33,103 @@
 .bodyTable tr {
   border-bottom: 1px solid #dfe6ee;
 }
+.editBtn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-right: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.deleteBtn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.saveBtn {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-right: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancelBtn {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.editInput {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.headTable {
+  background-color: #f2f2f2;
+}
+
+.headTable th {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.bodyTable td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.bodyTable tr:hover {
+  background-color: #f5f5f5;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.createBtn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.createBtn:hover {
+  background-color: #45a049;
+}
+
+.editingRow {
+  background-color: #f9f9f9;
+}
+
+/* Остальные стили остаются без изменений */

@@ -65,7 +65,7 @@ const UserTable = observer(({ info }) => {
         managerEmail: updatedData.managerEmail,
       };
 
-      console.log("Данные для отправки:", userData); // Логируем данные
+      
 
       // Обновляем данные пользователя через сервис
       await IusPtService.createOrUpdateUser(userData);
@@ -74,7 +74,7 @@ const UserTable = observer(({ info }) => {
       // Обновляем данные в хранилище
 
       setShowModal(false); // Закрываем модальное окно
-      console.log("Данные успешно обновлены:", userData);
+      
     } catch (error) {
       console.error("Ошибка при обновлении данных пользователя:", error);
       setError("Ошибка при обновлении данных пользователя");

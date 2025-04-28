@@ -1,62 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import styles from './style.module.css';
 import iusPtStore from "../../store/IusPtStore";
 import { useNavigate } from 'react-router-dom';
 
-const RoleSelectionModal = ({ show, onHide, roles, userRoles, stopRoles, userInfo, selectedUser }) => {
+const RoleSelectionModal = memo(({ show, onHide, roles, userRoles, stopRoles, userInfo, selectedUser }) => {
     const [selectedRoles, setSelectedRoles] = useState([]);
     const navigate = useNavigate();
-    // Инициализация selectedRoles при монтировании компонента
-    useEffect(() => {
-        const initialSelectedRoles = roles
-            .filter(role => !hasRole(role) && !isStopRole(role)) // Исключаем роли, которые уже есть у пользователя, и стоп-роли
-            .map(role => role.IusSpravRole?.id);
-        setSelectedRoles(initialSelectedRoles);
-    }, [roles, userRoles, stopRoles]);
 
-    // Функция для проверки наличия роли у пользователя
-    const hasRole = (role) => {
+    // Мемоизированные функции проверки ролей
+    const hasRole = useCallback((role) => {
         return userRoles.some(
             (userRole) => userRole.IusSpravRole?.id === role.IusSpravRole?.id
         );
-    };
+    }, [userRoles]);
 
-    // Функция для поиска стоп-роли
-    const findStopRole = (role) => {
+    const findStopRole = useCallback((role) => {
         return stopRoles.find(
             (stopRole) => stopRole.CodName.trim() === role.IusSpravRole?.code.trim()
         );
-    };
+    }, [stopRoles]);
 
-    // Функция для проверки, является ли роль стоп-ролью
-    const isStopRole = (role) => {
+    const isStopRole = useCallback((role) => {
         return !!findStopRole(role);
-    };
+    }, [findStopRole]);
 
-    // Функция для определения классов строки таблицы
-    const getRowClass = (role) => {
-        if (isStopRole(role)) return styles.stopRoleRow;
-        if (hasRole(role)) return styles.disabledRow;
-        return '';
-    };
+    // Инициализация selectedRoles
+    useEffect(() => {
+        const initialSelectedRoles = roles
+            .filter(role => !hasRole(role) && !isStopRole(role))
+            .map(role => role.IusSpravRole?.id);
+        setSelectedRoles(initialSelectedRoles);
+    }, [roles, hasRole, isStopRole]);
 
-    // Обработчик изменения состояния чекбокса
-    const handleCheckboxChange = (role) => {
-        if (hasRole(role)) return; // Отключаем выбор, если роль уже есть у пользователя
+    // Мемоизированный обработчик изменения чекбокса
+    const handleCheckboxChange = useCallback((role) => {
+        if (hasRole(role)) return;
 
-        const isSelected = selectedRoles.includes(role.IusSpravRole?.id);
-        if (isSelected) {
-            setSelectedRoles(selectedRoles.filter(id => id !== role.IusSpravRole?.id));
-        } else {
-            setSelectedRoles([...selectedRoles, role.IusSpravRole?.id]);
-        }
-    };
+        setSelectedRoles(prev => {
+            const roleId = role.IusSpravRole?.id;
+            return prev.includes(roleId)
+                ? prev.filter(id => id !== roleId)
+                : [...prev, roleId];
+        });
+    }, [hasRole]);
 
-    // Функция для сохранения выбранных ролей
-    const saveSelectedRoles = async () => {
+    // Мемоизированная функция сохранения
+    const saveSelectedRoles = useCallback(async () => {
         const tabNumber = selectedUser.tabNumber;
-        console.log(tabNumber)
+        
         if (!tabNumber) {
             console.error("Ошибка: табельный номер не указан.");
             alert("Ошибка: табельный номер не указан.");
@@ -66,13 +58,61 @@ const RoleSelectionModal = ({ show, onHide, roles, userRoles, stopRoles, userInf
         try {
             await iusPtStore.addRolesToUser(tabNumber, selectedRoles);
             alert("Роли успешно сохранены!");
-            onHide(); // Закрываем модальное окно после успешного сохранения
+            onHide();
             navigate(`/iuspt/user/${tabNumber}`);
         } catch (error) {
             console.error("Ошибка при сохранении ролей:", error);
             alert("Ошибка при сохранении ролей.");
         }
-    };
+    }, [selectedRoles, selectedUser, onHide, navigate]);
+
+    // Мемоизированное вычисление классов строк
+    const getRowClass = useCallback((role) => {
+        if (isStopRole(role)) return styles.stopRoleRow;
+        if (hasRole(role)) return styles.disabledRow;
+        return '';
+    }, [isStopRole, hasRole]);
+
+    // Мемоизированный рендеринг строк таблицы
+    const renderRoleRow = useCallback((role) => {
+        const stopRole = findStopRole(role);
+        const isRoleSelected = selectedRoles.includes(role.IusSpravRole?.id);
+        const isDisabled = hasRole(role);
+        const isStopRoleActive = isStopRole(role);
+
+        return (
+            <tr
+                key={role.IusSpravRole?.id || role.code}
+                className={`${styles.bodyTableTr} ${getRowClass(role)}`}
+            >
+                <td className={styles.code}>
+                    <p>{role.IusSpravRole?.code || 'Нет названия'}</p>
+                </td>
+                <td className={styles.typename}>
+                    {role.IusSpravRole?.typename || 'Нет типа'}
+                </td>
+                <td>
+                    {isStopRoleActive ? 'Запрещено' : ''}
+                </td>
+                <td>
+                    {stopRole ? stopRole.CanDoWithoutApproval : ''}
+                </td>
+                <td>
+                    <input
+                        type="checkbox"
+                        checked={isRoleSelected}
+                        disabled={isDisabled}
+                        onChange={() => handleCheckboxChange(role)}
+                    />
+                </td>
+            </tr>
+        );
+    }, [selectedRoles, findStopRole, hasRole, isStopRole, getRowClass, handleCheckboxChange]);
+
+    // Мемоизированный список ролей
+    const roleRows = useMemo(() => {
+        return roles.map(role => renderRoleRow(role));
+    }, [roles, renderRoleRow]);
 
     return (
         <Modal show={show} onHide={onHide} size="lg">
@@ -87,40 +127,7 @@ const RoleSelectionModal = ({ show, onHide, roles, userRoles, stopRoles, userInf
                 <div className={styles.tableContainer}>
                     <table className={styles.table}>
                         <tbody>
-                            {roles.map((role) => {
-                                const stopRole = findStopRole(role); // Находим стоп-роль
-                                const isRoleSelected = selectedRoles.includes(role.IusSpravRole?.id);
-                                const isDisabled = hasRole(role); // Чекбокс отключен, если роль уже есть у пользователя
-                                const isStopRoleActive = isStopRole(role); // Проверяем, является ли роль стоп-ролью
-
-                                return (
-                                    <tr
-                                        key={role.IusSpravRole?.id || role.code}
-                                        className={`${styles.bodyTableTr} ${getRowClass(role)}`}
-                                    >
-                                        <td className={styles.code}>
-                                            <p>{role.IusSpravRole?.code || 'Нет названия'}</p>
-                                        </td>
-                                        <td className={styles.typename}>
-                                            {role.IusSpravRole?.typename || 'Нет типа'}
-                                        </td>
-                                        <td>
-                                            {isStopRole(role) ? 'Запрещено' : ''}
-                                        </td>
-                                        <td>
-                                            {stopRole ? stopRole.CanDoWithoutApproval : ''}
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                checked={isRoleSelected} // Галочка ставится, если роль выбрана
-                                                disabled={isDisabled} // Отключаем, если роль уже есть у пользователя
-                                                onChange={() => handleCheckboxChange(role)}
-                                            />
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {roleRows}
                         </tbody>
                     </table>
                 </div>
@@ -135,6 +142,6 @@ const RoleSelectionModal = ({ show, onHide, roles, userRoles, stopRoles, userInf
             </Modal.Footer>
         </Modal>
     );
-};
+});
 
 export default RoleSelectionModal;
