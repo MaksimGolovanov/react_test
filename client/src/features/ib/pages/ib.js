@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { Link } from "react-router-dom";
 
 const Ib = observer(() => {
-  return (
+  return ( 
     <div>
       <nav>
         <ul style={{ listStyleType: "none", padding: 0 }}>

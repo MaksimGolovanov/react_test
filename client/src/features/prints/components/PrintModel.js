@@ -18,18 +18,11 @@ function PrintModel() {
 
     const closeModal = () => {
         setModalIsOpen(false);
-
-
     };
-    const handleCreateClick = () => {
 
+    const handleCreateClick = () => {
         openModal(); // Открываем модальное окно
     };
-
-
-
-
-
 
     const fetchData = async () => {
         try {
@@ -57,8 +50,6 @@ function PrintModel() {
         }
     };
 
-
-
     return (
         <>
             <div style={{ maxHeight: '760px', overflowY: 'auto' }}>
@@ -75,7 +66,6 @@ function PrintModel() {
                             <th>Вид тонера/картриджа</th>
                             <th>Вид блока</th>
                             <th>Действие</th>
-
                         </tr>
                     </thead>
                     <tbody>
@@ -86,9 +76,9 @@ function PrintModel() {
                                     <td>{printModel.cartridge}</td>
                                     <td>{printModel.paper_size}</td>
                                     <td>{printModel.scanner}</td>
-                                    <td ><Image width={100} height={100} src={'http://localhost:5000/' + printModel.img1}></Image></td>
-                                    <td><Image width={151} height={100} src={'http://localhost:5000/' + printModel.img2}></Image></td>
-                                    <td><Image width={151} height={100} src={'http://localhost:5000/' + printModel.img3}></Image></td>
+                                    <td ><Image width={100} height={100} src={`${process.env.REACT_APP_API_URL}${printModel.img1}`}></Image></td>
+                                    <td><Image width={151} height={100} src={`${process.env.REACT_APP_API_URL}${printModel.img2}`}></Image></td>
+                                    <td><Image width={151} height={100} src={`${process.env.REACT_APP_API_URL}${printModel.img3}`}></Image></td>
                                     <td>
                                         <button className="edit-button"><RiFileEditLine size={20} /></button>
                                         <button className="delete-button" onClick={() => handleDelete(printModel.id)} ><MdDeleteForever size={24} style={{ marginLeft: '8px' }} /></button>
@@ -103,9 +93,7 @@ function PrintModel() {
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}
                 onSuccess={fetchData}
-
             />
-
         </>
     );
 }

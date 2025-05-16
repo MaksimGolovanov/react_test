@@ -15,7 +15,8 @@ class PrintController {
                 department,
                 location,
                 serial_number,
-                status
+                status,
+                description
             } = req.body;
 
 
@@ -29,7 +30,8 @@ class PrintController {
                 department: department,
                 location: location || null,
                 serial_number: serial_number || null,
-                status: Number(status) || null
+                status: Number(status) || null,
+                description: description || null,
             };
 
             console.log('Данные для создания принтера:', printData); // Логируем данные перед созданием
@@ -112,7 +114,8 @@ class PrintController {
                 department: printData.department,
                 location: printData.location,
                 serial_number: printData.serial_number,
-                status: printData.status
+                status: printData.status,
+                description: printData.description
             }, {
                 where: { id: printData.id }
             });

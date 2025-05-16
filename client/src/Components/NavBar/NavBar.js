@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Image, Nav } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
-import { HiOutlineUsers } from 'react-icons/hi2'
+
 import { PiPrinterLight } from 'react-icons/pi'
 import { BsUsbDrive } from 'react-icons/bs'
 import { MdOutlineBadge } from 'react-icons/md'
@@ -9,6 +9,7 @@ import { RiAdminLine } from 'react-icons/ri'
 import { GrNotes } from 'react-icons/gr'
 import { TbComponents } from 'react-icons/tb'
 import { FaCaretDown, FaCaretRight } from 'react-icons/fa'
+import { FaNetworkWired } from "react-icons/fa";
 
 import { SiJson } from "react-icons/si";
 import christmasPlains from '../../Image/Landscaping-Logo.png'
@@ -65,12 +66,27 @@ const NavBar = observer(() => {
                </div>
 
                {(userStore.userRolesAuth.includes('USER') || userStore.userRolesAuth.includes('ADMIN')) && (
-                    <Link to="/staff" className={`nav-link ${location.pathname === '/staff' ? 'active' : ''}`}>
-                         <HiOutlineUsers className={'icon'} size={20} style={{ marginRight: '8px' }} />
-                         ПОЛЬЗОВАТЕЛИ
-                    </Link>
+                    <Link
+                    to="/staff"
+                    className={`nav-link ${
+                         location.pathname === '/staff' || location.pathname.match(/^\/staff\/.+$/) ? 'active' : ''
+                    }`}
+               >
+                    <TbComponents className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                    ПОЛЬЗОВАТЕЛИ
+               </Link>
                )}
-
+               {(userStore.userRolesAuth.includes('ADMIN') || userStore.userRolesAuth.includes('IP')) && (
+                    <Link
+                    to="/ipaddress"
+                    className={`nav-link ${
+                         location.pathname === '/ipaddress' || location.pathname.match(/^\/ipaddress\/.+$/) ? 'active' : ''
+                    }`}
+               >
+                    <FaNetworkWired className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                    УЧЕТ IP
+               </Link>
+               )}
                {(userStore.userRolesAuth.includes('PRINT') || userStore.userRolesAuth.includes('ADMIN')) && (
                     <Link to="/prints" className={`nav-link ${location.pathname === '/prints' ? 'active' : ''}`}>
                          <PiPrinterLight className={'icon'} size={20} style={{ marginRight: '8px' }} />

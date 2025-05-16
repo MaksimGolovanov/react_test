@@ -122,3 +122,92 @@
     color: #117aa8;
     cursor: pointer;
 }
+
+.tableWrapper {
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.stickyTable thead th {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+}
+
+.sortableHeader {
+    cursor: pointer;
+    user-select: none;
+    background: #f8f9fa;
+    transition: background-color 0.3s;
+}
+
+.sortableHeader:hover {
+    background-color: #e9ecef;
+}
+.tableRowDeleted {
+    background-color: #f3ced1;
+}
+/* Добавьте эти стили в style.module.css */
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 730px;
+    width: auto;
+}
+
+.spinner {
+    width: 5rem;
+    height: 5rem;
+}
+
+.buttonsContainer {
+    display: flex;
+}
+
+.copyButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+}
+
+.copyButton:hover {
+    color: #FA922F;
+}
+
+.copyIcon {
+    margin-left: 8px;
+}
+
+.editButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+}
+
+.editButton:hover {
+    color: #FA922F;
+}
+
+.deleteButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+}
+
+.deleteButton:hover {
+    color: #FA922F;
+}
+
+.deleteIcon {
+    margin-left: 8px;
+}

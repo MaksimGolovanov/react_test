@@ -6,6 +6,8 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import PrintAll from '../components/PrintAll';
 
+import PrintReport from '../components/PrintReport'
+
 function Print() {
 
 
@@ -23,7 +25,7 @@ function Print() {
                     <PrintLocation />
                 </Tab>
                 <Tab eventKey="print_statistic" title="Отчет">
-                    <div>Содержимое отчета</div>
+                    <PrintReport />
                 </Tab>
             </Tabs>
 

@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react'
 import styles from './style.module.css'
 
-// Функция для безопасной сериализации с обработкой циклических ссылок
+// Безопасная сериализация JSON с обработкой циклических ссылок
 const safeStringify = (obj, space = 2) => {
-  const seen = new WeakSet()
+  const seen = new WeakSet() // WeakSet для отслеживания объектов
   return JSON.stringify(
     obj,
     (key, value) => {
       if (typeof value === 'object' && value !== null) {
-        if (seen.has(value)) return '[Circular]'
+        if (seen.has(value)) return '[Circular]' // Обнаружена циклическая ссылка
         seen.add(value)
       }
       return value
@@ -31,6 +31,7 @@ function App() {
   const jsonDisplayRef = useRef(null)
   const searchHighlights = useRef({})
 
+  // Обработка изменений JSON-ввода
   useEffect(() => {
     if (jsonInput.trim() === '') {
       setJsonData(null)
@@ -40,16 +41,17 @@ function App() {
 
     try {
       const parsed = JSON.parse(jsonInput)
-      // Проверка на циклические ссылки при парсинге
+      // Проверка на циклические ссылки
       safeStringify(parsed)
       setJsonData(parsed)
       setError('')
     } catch (err) {
-      setError('Invalid JSON: ' + err.message)
+      setError('Ошибка JSON: ' + err.message)
       setJsonData(null)
     }
   }, [jsonInput])
 
+  // Поиск по JSON-данным
   useEffect(() => {
     if (!searchTerm || !jsonData) {
       setSearchResults([])
@@ -58,15 +60,18 @@ function App() {
 
     searchHighlights.current = {}
     const results = []
-    const seen = new WeakSet()
+    const seen = new WeakSet() // Для отслеживания обработанных объектов
 
     const searchInObject = (obj, path = '') => {
+      // Пропускаем примитивы и null
+      if (obj === null || typeof obj !== 'object') return
       if (seen.has(obj)) return
       seen.add(obj)
 
       for (const key in obj) {
         const currentPath = path ? `${path}.${key}` : key
 
+        // Поиск по ключам
         if (key.toLowerCase().includes(searchTerm.toLowerCase())) {
           results.push({
             path: currentPath,
@@ -76,9 +81,11 @@ function App() {
         }
 
         const value = obj[key]
+        // Рекурсивный поиск во вложенных объектах
         if (value !== null && typeof value === 'object') {
           searchInObject(value, currentPath)
         } else {
+          // Поиск по значениям (примитивам)
           const stringValue = String(value)
           if (stringValue.toLowerCase().includes(searchTerm.toLowerCase())) {
             results.push({
@@ -103,14 +110,15 @@ function App() {
         searchInObject(jsonData)
       }
     } catch (error) {
-      console.error('Search error:', error)
-      setError('Error during search: Circular structure detected')
+      console.error('Ошибка поиска:', error)
+      setError('Ошибка при поиске: обнаружена циклическая структура')
     }
 
     setSearchResults(results)
     setCurrentResultIndex(0)
   }, [searchTerm, jsonData, displayMode])
 
+  // Загрузка JSON из файла
   const handleFileUpload = (event) => {
     const file = event.target.files[0]
     if (!file) return
@@ -119,56 +127,23 @@ function App() {
     reader.onload = (e) => {
       setJsonInput(e.target.result)
     }
+    reader.onerror = () => {
+      setError('Ошибка чтения файла')
+    }
     reader.readAsText(file)
   }
 
-  const scrollToResult = (index) => {
-    if (searchResults.length === 0) return
-
-    const result = searchResults[index]
-    const highlightId = `${result.path}-${result.type}`
-    const element = searchHighlights.current[highlightId]
-
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      })
-
-      Object.values(searchHighlights.current).forEach((el) => {
-        el.classList.remove(styles.currentHighlight)
-      })
-      element.classList.add(styles.currentHighlight)
-    }
-  }
-
-  const handleNextResult = () => {
-    if (searchResults.length === 0) return
-    const nextIndex = (currentResultIndex + 1) % searchResults.length
-    setCurrentResultIndex(nextIndex)
-    scrollToResult(nextIndex)
-  }
-
-  const handlePrevResult = () => {
-    if (searchResults.length === 0) return
-    const prevIndex = (currentResultIndex - 1 + searchResults.length) % searchResults.length
-    setCurrentResultIndex(prevIndex)
-    scrollToResult(prevIndex)
-  }
-
-  const registerHighlight = (path, type, element) => {
-    if (element) {
-      const highlightId = `${path}-${type}`
-      searchHighlights.current[highlightId] = element
-    }
-  }
-
+  // Компонент для подсветки совпадений при поиске
   const HighlightMatch = ({ text, searchTerm, path, type = 'value' }) => {
     if (!searchTerm || !text) return text
 
-    const parts = text.split(new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+    const parts = text.split(regex)
+    
     return (
-      <span ref={(el) => registerHighlight(path, type, el)}>
+      <span ref={(el) => {
+        if (el) searchHighlights.current[`${path}-${type}`] = el
+      }}>
         {parts.map((part, i) =>
           part.toLowerCase() === searchTerm.toLowerCase() ? (
             <mark key={i} className={styles.searchHighlight}>
@@ -182,137 +157,133 @@ function App() {
     )
   }
 
+  // Рендер значения JSON с учетом типа
   const renderJsonValue = (value, depth = 0, path = '', seen = new WeakSet()) => {
-    if (seen.has(value)) {
-      return <span className={styles.jsonError}>[Circular]</span>
+    // Обработка циклических ссылок (только для объектов)
+    if (value !== null && typeof value === 'object') {
+      if (seen.has(value)) {
+        return <span className={styles.jsonError}>[Circular]</span>
+      }
+      seen.add(value)
     }
-    seen.add(value)
 
-    if (value === null) {
-      return <span className={styles.jsonNull}>null</span>
-    }
-    if (typeof value === 'boolean') {
-      return <span className={styles.jsonBoolean}>{value.toString()}</span>
-    }
-    if (typeof value === 'number') {
-      return <span className={styles.jsonNumber}>{value}</span>
-    }
-    if (typeof value === 'string') {
-      return (
-        <span className={styles.jsonString}>
-          "<HighlightMatch text={value} searchTerm={searchTerm} path={path} type="value" />"
-        </span>
-      )
-    }
-    if (Array.isArray(value)) {
-      if (value.length === 0) return <span>[]</span>
-      return (
-        <div style={{ marginLeft: `${depth * 15}px` }}>
-          <span>[</span>
-          {value.map((item, index) => {
-            const newPath = `${path}[${index}]`
-            return (
+    switch (true) {
+      case value === null:
+        return <span className={styles.jsonNull}>null</span>
+      case typeof value === 'boolean':
+        return <span className={styles.jsonBoolean}>{value.toString()}</span>
+      case typeof value === 'number':
+        return <span className={styles.jsonNumber}>{value}</span>
+      case typeof value === 'string':
+        return (
+          <span className={styles.jsonString}>
+            "<HighlightMatch text={value} searchTerm={searchTerm} path={path} type="value" />"
+          </span>
+        )
+      case Array.isArray(value):
+        if (value.length === 0) return <span>[]</span>
+        return (
+          <div style={{ marginLeft: `${depth * 15}px` }}>
+            <span>[</span>
+            {value.map((item, index) => (
               <div key={index}>
-                {renderJsonValue(item, depth + 1, newPath, seen)}
+                {renderJsonValue(item, depth + 1, `${path}[${index}]`, seen)}
                 {index < value.length - 1 && <span>,</span>}
               </div>
-            )
-          })}
-          <span>]</span>
-        </div>
-      )
-    }
-    if (typeof value === 'object') {
-      const keys = Object.keys(value)
-      if (keys.length === 0) return <span>{'{'}</span>
-      return (
-        <div style={{ marginLeft: `${depth * 15}px` }}>
-          <span>{'{'}</span>
-          {keys.map((key, index) => {
-            const newPath = path ? `${path}.${key}` : key
-            return (
+            ))}
+            <span>]</span>
+          </div>
+        )
+      case typeof value === 'object':
+        const keys = Object.keys(value)
+        if (keys.length === 0) return <span>{'{'}</span>
+        return (
+          <div style={{ marginLeft: `${depth * 15}px` }}>
+            <span>{'{'}</span>
+            {keys.map((key, index) => (
               <div key={key}>
                 <span className={styles.jsonKey}>
-                  "<HighlightMatch text={key} searchTerm={searchTerm} path={newPath} type="key" />":
+                  "<HighlightMatch text={key} searchTerm={searchTerm} path={`${path}.${key}`} type="key" />":
                 </span>
-                {renderJsonValue(value[key], depth + 1, newPath, seen)}
+                {renderJsonValue(value[key], depth + 1, `${path}.${key}`, seen)}
                 {index < keys.length - 1 && <span>,</span>}
               </div>
-            )
-          })}
-          <span>{'}'}</span>
-        </div>
-      )
+            ))}
+            <span>{'}'}</span>
+          </div>
+        )
+      default:
+        return <span>{String(value)}</span>
     }
   }
 
-  const renderRawJson = () => {
-    try {
-      const jsonString = safeStringify(jsonData, 2)
-      return (
-        <pre className={styles.jsonRaw} ref={jsonDisplayRef}>
-          {jsonString.split('\n').map((line, i) => (
-            <div key={i} className={styles.jsonLine}>
-              <HighlightMatch text={line} searchTerm={searchTerm} path={`line-${i}`} type="value" />
-            </div>
-          ))}
-        </pre>
-      )
-    } catch (error) {
-      return <div className={styles.error}>Error displaying JSON: Circular structure detected</div>
-    }
-  }
+  // Отображение JSON в разных режимах
+  const renderTreeView = () => (
+    <div className={styles.jsonTree} ref={jsonDisplayRef}>
+      {renderJsonValue(jsonData)}
+    </div>
+  )
 
-  const renderTreeView = () => {
+  const renderRawJson = () => (
+    <pre className={styles.jsonRaw} ref={jsonDisplayRef}>
+      {safeStringify(jsonData, 2)
+        .split('\n')
+        .map((line, i) => (
+          <div key={i} className={styles.jsonLine}>
+            <HighlightMatch text={line} searchTerm={searchTerm} path={`line-${i}`} type="value" />
+          </div>
+        ))}
+    </pre>
+  )
+
+  const renderTable = () => {
+    if (!jsonData || typeof jsonData !== 'object' || Array.isArray(jsonData)) {
+      return <div>Табличный вид доступен только для объектов</div>
+    }
+
     return (
-      <div className={styles.jsonTree} ref={jsonDisplayRef}>
-        {renderJsonValue(jsonData)}
-      </div>
+      <table className={styles.jsonTable} ref={jsonDisplayRef}>
+        <thead>
+          <tr>
+            <th>Ключ</th>
+            <th>Значение</th>
+            <th>Тип</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(jsonData).map(([key, value]) => (
+            <tr key={key}>
+              <td><HighlightMatch text={key} searchTerm={searchTerm} path={key} type="key" /></td>
+              <td><HighlightMatch text={safeStringify(value)} searchTerm={searchTerm} path={key} type="value" /></td>
+              <td>{Array.isArray(value) ? 'массив' : typeof value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     )
   }
 
-  const renderTable = () => {
-    try {
-      if (!jsonData || typeof jsonData !== 'object' || Array.isArray(jsonData)) {
-        return <div>Table view is only available for object JSON</div>
-      }
+  // Навигация по результатам поиска
+  const navigateSearchResults = (direction) => {
+    if (searchResults.length === 0) return
+    const newIndex = direction === 'next'
+      ? (currentResultIndex + 1) % searchResults.length
+      : (currentResultIndex - 1 + searchResults.length) % searchResults.length
+    setCurrentResultIndex(newIndex)
+    scrollToHighlight(newIndex)
+  }
 
-      safeStringify(jsonData) // Проверка на циклические ссылки
-
-      return (
-        <table className={styles.jsonTable} ref={jsonDisplayRef}>
-          <thead>
-            <tr>
-              <th>Key</th>
-              <th>Value</th>
-              <th>Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(jsonData).map(([key, value]) => {
-              const path = key
-              return (
-                <tr key={key}>
-                  <td>
-                    <HighlightMatch text={key} searchTerm={searchTerm} path={path} type="key" />
-                  </td>
-                  <td>
-                    <HighlightMatch
-                      text={safeStringify(value, 2)}
-                      searchTerm={searchTerm}
-                      path={path}
-                      type="value"
-                    />
-                  </td>
-                  <td>{Array.isArray(value) ? 'array' : typeof value}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+  // Прокрутка к найденному результату
+  const scrollToHighlight = (index) => {
+    const result = searchResults[index]
+    const element = searchHighlights.current[`${result.path}-${result.type}`]
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      // Подсветка текущего результата
+      Object.values(searchHighlights.current).forEach(el => 
+        el.classList.remove(styles.currentHighlight)
       )
-    } catch (error) {
-      return <div className={styles.error}>Cannot display table view: Circular structure detected</div>
+      element.classList.add(styles.currentHighlight)
     }
   }
 
@@ -321,28 +292,28 @@ function App() {
       <div className={styles.controls}>
         <div className={styles.controlGroup}>
           <label>
-            Upload JSON file:
+            Загрузить JSON:
             <input type="file" accept=".json" onChange={handleFileUpload} />
           </label>
         </div>
 
         <div className={styles.controlGroup}>
           <label>
-            Display Mode:
+            Режим отображения:
             <select value={displayMode} onChange={(e) => setDisplayMode(e.target.value)}>
-              <option value="tree">Tree View</option>
-              <option value="raw">Raw JSON</option>
-              <option value="table">Table View</option>
+              <option value="tree">Дерево</option>
+              <option value="raw">Исходный JSON</option>
+              <option value="table">Таблица</option>
             </select>
           </label>
         </div>
 
         <div className={styles.controlGroup}>
           <label>
-            Theme:
+            Тема:
             <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
+              <option value="light">Светлая</option>
+              <option value="dark">Тёмная</option>
             </select>
           </label>
         </div>
@@ -354,7 +325,7 @@ function App() {
               checked={showInputPanel}
               onChange={(e) => setShowInputPanel(e.target.checked)}
             />
-            Show Input Panel
+            Показать поле ввода
           </label>
         </div>
       </div>
@@ -364,16 +335,16 @@ function App() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search in JSON..."
+          placeholder="Поиск в JSON..."
           className={styles.searchInput}
         />
         {searchResults.length > 0 && (
           <div className={styles.searchNavigation}>
-            <button onClick={handlePrevResult}>&lt; Prev</button>
+            <button onClick={() => navigateSearchResults('prev')}>&lt; Назад</button>
             <span>
               {currentResultIndex + 1} / {searchResults.length}
             </span>
-            <button onClick={handleNextResult}>Next &gt;</button>
+            <button onClick={() => navigateSearchResults('next')}>Вперед &gt;</button>
           </div>
         )}
       </div>
@@ -383,7 +354,7 @@ function App() {
           <textarea
             value={jsonInput}
             onChange={(e) => setJsonInput(e.target.value)}
-            placeholder="Paste your JSON here or upload a file"
+            placeholder="Вставьте JSON или загрузите файл"
             rows={10}
           />
         </div>

@@ -40,7 +40,9 @@ const Prints = sequelize.define('prints', {
     department: { type: DataTypes.STRING },
     location: { type: DataTypes.STRING },
     serial_number: { type: DataTypes.STRING },
-    status: { type: DataTypes.INTEGER }
+    status: { type: DataTypes.INTEGER },
+    description: { type: DataTypes.STRING }
+
 
 })
 
@@ -74,6 +76,17 @@ const Post = sequelize.define('post', {
     body: { type: DataTypes.TEXT, allowNull: false },
 })
 
+const IP_addresses = sequelize.define('ip_addresses', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    ip: { type: DataTypes.STRING(15), allowNull: false },
+    subnet_mask: { type: DataTypes.STRING(15) },
+    device_type: { type: DataTypes.STRING(60) },
+    switch: { type: DataTypes.STRING(60) },
+    switch_port: { type: DataTypes.STRING(5) },
+    network_segment: { type: DataTypes.STRING(50) },
+    description: { type: DataTypes.TEXT }
+    
+})
 
 
 
@@ -103,5 +116,5 @@ const EsMtr = sequelize.define('EsMtr',{
 
 
 module.exports = {
-    User, Role, Staff, Department, Prints, PrintsModel, Location, PrinterStatistics, Post, EsMtr
+    User, Role, Staff, Department, Prints, PrintsModel, Location, PrinterStatistics, Post, EsMtr,IP_addresses
 }

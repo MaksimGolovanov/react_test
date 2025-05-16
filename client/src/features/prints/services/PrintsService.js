@@ -43,7 +43,7 @@ class PrintsService {
   static async fetchPrintStatistic(itemid) {
     
     try {
-      const response = await axios.get(`${API_URL}/api/print/statistics/${itemid}`)
+      const response = await axios.get(`${API_URL}api/print/statistics/${itemid}`)
       
       return response.data
     } catch (error) {
@@ -134,7 +134,8 @@ class PrintsService {
         url: printData.url,
         department: printData.department,
         location: printData.location,
-        serial_number: printData.serial_number
+        serial_number: printData.serial_number,
+        description: printData.description
       });
       return response.data;
     } catch (error) {
@@ -156,7 +157,8 @@ class PrintsService {
         location: printData.location,
         serial_number: printData.serial_number,
         id: printData.id,
-        status: printData.status
+        status: printData.status,
+        description: printData.description
       });
       return response.data;
     } catch (error) {

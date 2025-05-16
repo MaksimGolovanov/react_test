@@ -9,7 +9,7 @@ import PrintsService from '../services/PrintsService';
 const customStyles = {
     content: {
         width: '600px',
-        height: '700px',
+        height: '760px',
         position: 'absolute',
         top: '50%',
         left: '50%',
@@ -43,6 +43,7 @@ export default function PrintCreateModal({ isOpen, onRequestClose, onSuccess }) 
         department: '',
         location: '',
         serial_number: '',
+        description: '',
         model_id: '' // ID выбранной модели принтера
     });
 
@@ -137,7 +138,8 @@ export default function PrintCreateModal({ isOpen, onRequestClose, onSuccess }) 
                 department: formData.department,
                 location: formData.location,
                 serial_number: formData.serial_number,
-                status: Number(formData.status)
+                status: Number(formData.status),
+                description: formData.description,
             });
 
             onSuccess?.();
@@ -162,7 +164,9 @@ export default function PrintCreateModal({ isOpen, onRequestClose, onSuccess }) 
             location: '',
             serial_number: '',
             model_id: '',
-            status: ''
+            status: '',
+            description: ''
+
 
         });
         setError(null);
@@ -289,6 +293,16 @@ export default function PrintCreateModal({ isOpen, onRequestClose, onSuccess }) 
 
                 </Form.Group>
 
+                <Form.Group>
+                    <Form.Label className='textModal'>Примечание</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        placeholder="Введите примечание"
+                    />
+                </Form.Group>
                 <Form.Group>
                     <Form.Label className='textModal'>Серийный номер</Form.Label>
                     <Form.Control

@@ -10,6 +10,7 @@ import { NotesRoutes } from './features/notes'
 import { IusPtRoutes } from './features/ius-pt'
 import { StaffRoutes } from './features/staff'
 import { AdminRoutes } from './features/admin'
+import { IpRoutes } from './features/ip'
 
 import { Staff } from './features/staff'
 import LoginPage from './features/admin/pages/LoginPage'
@@ -25,8 +26,11 @@ function App() {
           case location.pathname.startsWith('/staff'):
                pageTitle = 'ПОЛЬЗОВАТЕЛИ'
                break
+          case location.pathname.startsWith('/ipaddress'):
+               pageTitle = 'УЧЁТ IP'
+               break
           case location.pathname.startsWith('/prints'):
-               pageTitle = 'УЧЕТ ПРИНТЕРОВ'
+               pageTitle = 'УЧЁТ ПРИНТЕРОВ'
                break
           case location.pathname.startsWith('/notes'):
                pageTitle = 'ЗАПИСНАЯ КНИЖКА'
@@ -85,6 +89,14 @@ function App() {
                               />
                               <Route path="/staff/*" element={<StaffRoutes />} />
                               <Route
+                                   path="/ipaddress"
+                                   element={
+                                        <PrivateRoute requiredRole={['ADMIN', 'IP']}>
+                                             <IpRoutes />
+                                        </PrivateRoute>
+                                   }
+                              />
+                              <Route
                                    path="/prints"
                                    element={
                                         <PrivateRoute requiredRole={['ADMIN', 'PRINT']}>
@@ -92,6 +104,7 @@ function App() {
                                         </PrivateRoute>
                                    }
                               />
+
                               <Route
                                    path="/notes/*"
                                    element={
@@ -126,7 +139,6 @@ function App() {
                                         </PrivateRoute>
                                    }
                               />
-
                          </Routes>
                     </div>
                </div>

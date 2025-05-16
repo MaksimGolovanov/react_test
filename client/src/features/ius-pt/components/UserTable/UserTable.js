@@ -17,7 +17,7 @@ const UserTable = observer(({ info }) => {
   useEffect(() => {
     async function departmensGet() {
       try {
-        const departments = await StaffService.fetchDepartment();
+        const departments = await StaffService.fetchAllDepartments();
         setDepatmens(departments);
       } catch (error) {
         console.error(error);

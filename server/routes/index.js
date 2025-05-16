@@ -5,6 +5,7 @@ const staffRouter = require('./staffRouter');
 const printRouter = require('./printRouter')
 const printModelRouter = require('./printModelsRouter')
 const postRouter = require('./notesRouter')
+const ipRouter = require('./ipaddressRouter')
 
 const iusRouter = require('./iusRouter')
 
@@ -14,7 +15,7 @@ router.use('/staff', staffRouter)
 router.use('/print', printRouter)
 router.use('/printmodels',printModelRouter)
 router.use('/notes', postRouter)
-
+router.use('/ipaddress', ipRouter)
 router.use('/iuspt', iusRouter)
 
 

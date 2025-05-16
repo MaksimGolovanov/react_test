@@ -20,10 +20,25 @@
     margin: 0;
     
 }
-.table-prints{
+.table-prints {
+    max-height: 650px; /* или любая другая высота */
+    height: 650px; /* если нужна строгая фиксация */
+    overflow-y: auto; /* вертикальный скролл */
+    display: block; /* чтобы таблица не растягивала родителя */
     font-size: 11px;
     text-align: center;
+    width: 100%; /* чтобы не сжималась */
+    margin-bottom: 0; /* убираем лишние отступы */
 }
+
+/* Дополнительно: стиль для шапки таблицы, чтобы она не скроллилась */
+.table-prints thead {
+    position: sticky;
+    top: 0;
+    background-color: white; /* или любой другой фон */
+    z-index: 1;
+}
+
 .green-circle {
     display: inline-block;
     width: 16px;
