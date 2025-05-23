@@ -111,12 +111,7 @@ export default function PrintCreateModal({ isOpen, onRequestClose, onSuccess }) 
         }
     };
 
-    const validateForm = () => {
-        if (!formData.model_id) return 'Выберите модель принтера';
-        if (!formData.ip) return 'Введите IP-адрес';
-        if (!formData.department) return 'Введите название отдела';
-        return null;
-    };
+   
 
     const handleSubmit = async (e) => {
         e.preventDefault();

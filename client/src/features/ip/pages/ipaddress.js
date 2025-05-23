@@ -112,15 +112,7 @@ const IpAddress = observer(() => {
           }
      }
 
-     const handleDelete = async (id) => {
-          if (window.confirm('Вы уверены, что хотите удалить этот IP-адрес?')) {
-               try {
-                    await IpStore.deleteIp(id)
-               } catch (error) {
-                    console.error('Ошибка при удалении:', error)
-               }
-          }
-     }
+
 
      const filteredIps = useMemo(() => {
           if (!IpStore.ipaddress) return []
@@ -130,7 +122,7 @@ const IpAddress = observer(() => {
                     (ip.description && ip.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
                     (ip.device_type && ip.device_type.toLowerCase().includes(searchTerm.toLowerCase()))
           )
-     }, [IpStore.ipaddress, searchTerm])
+     }, [searchTerm])
 
      const sortedIps = useMemo(() => {
           if (!filteredIps) return []

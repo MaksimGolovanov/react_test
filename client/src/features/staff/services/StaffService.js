@@ -114,6 +114,70 @@ class StaffService {
             throw error;
           }
         }
+
+     static async fetchAllDolgnost() {
+          try {
+               const response = await axios.get(`${API_URL}api/staff/dolgnost`)
+               console.log('Dolgnost response:', response)
+               return response.data
+          } catch (error) {
+               console.error('Dolgnost fetch error:', error.response || error)
+               throw error
+          }
+     }
+
+     static async fetchDolgnostById(id) {
+          try {
+               const response = await axios.get(`${API_URL}api/dolgnost/${id}`)
+               return response.data
+          } catch (error) {
+               console.error('Ошибка при получении должности:', error)
+               throw error
+          }
+     }
+
+     static async createDolgnost(newDolgnost) {
+          try {
+              const response = await axios.post(`${API_URL}api/staff/dolgnost`, newDolgnost, {
+                  headers: {
+                      'Content-Type': 'application/json'
+                  }
+              });
+              return response.data;
+          } catch (error) {
+              console.error('Create dolgnost error:', error.response?.data || error.message);
+              throw error;
+          }
+      }
+
+      static async updateDolgnost(id, updatedData) {
+          try {
+              const response = await axios.put(
+                  `${API_URL}api/staff/dolgnost/${id}`,
+                  updatedData,
+                  {
+                      headers: {
+                          'Content-Type': 'application/json'
+                      }
+                  }
+              );
+              return response.data;
+          } catch (error) {
+              console.error('Update dolgnost error:', error.response?.data || error.message);
+              throw error;
+          }
+      }
+
+     static async deleteDolgnost(id) {
+          try {
+               await axios.delete(`${API_URL}api/staff/dolgnost/${id}`)
+               return true
+          } catch (error) {
+               console.error('Ошибка при удалении отдела:', error)
+               throw error
+          }
+     }
+
 }
 
 export default StaffService

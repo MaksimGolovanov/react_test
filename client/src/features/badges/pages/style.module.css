@@ -1,0 +1,127 @@
+/* style.module.css */
+
+/* Main container styles */
+.container {
+    padding: 1rem;
+}
+
+/* Search section styles */
+.searchContainer {
+    background-color: #f8f9fa;
+    border-radius: 0.3rem;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Scrollable containers */
+.scrollableContainer {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.selectedStaffContainer {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.previewContainer {
+    max-height: 800px;
+    overflow-y: auto;
+}
+
+/* Table styles */
+.staffTable {
+    width: 100%;
+}
+
+.staffTable tr {
+    vertical-align: middle;
+}
+
+/* Badge preview styles */
+.badgePreviewContainer {
+    width: 180mm;
+}
+
+.badge {
+    width: 90mm;
+    height: 57mm;
+    text-align: center;
+}
+
+.badgeHeader {
+    width: 100%;
+    height: 15mm;
+    background-color: #003366;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.badgeLogo {
+    height: 15mm;
+}
+
+.badgeCompanyName {
+    text-align: center;
+    width: 100%;
+    margin: 0;
+}
+
+.badgeNameSection {
+    width: 100%;
+    height: 27mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badgeFullName {
+    font-weight: bold;
+    padding: 0.25rem;
+    margin: 0;
+}
+
+.badgeFooter {
+    width: 100%;
+    height: 15mm;
+    background-color: #0079C2;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badgePosition {
+    padding: 0.25rem;
+    margin: 0;
+}
+
+/* Utility classes */
+.flexWrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.alignmiddle {
+    vertical-align: middle;
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+    width: 220px;
+}
+
+.textCenter {
+    text-align: center;
+}
+
+/* Button styles */
+.removeButton {
+    padding: 0;
+    color: #dc3545;
+}
+
+.removeButton:hover {
+    color: #bb2d3b;
+}

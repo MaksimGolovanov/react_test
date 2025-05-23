@@ -24,11 +24,7 @@ const ButtonAll = ({
     };
 
     // Стили по умолчанию из CSS модуля
-    const buttonStyle = {
-        // Применяем переданные margin/padding или значения по умолчанию
-        margin: margin || '',
-        padding: padding || ''
-    };
+  
 
     return ( 
         <div className={styles.headerbtn} style={{ margin: margin }}>

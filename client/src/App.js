@@ -11,6 +11,9 @@ import { IusPtRoutes } from './features/ius-pt'
 import { StaffRoutes } from './features/staff'
 import { AdminRoutes } from './features/admin'
 import { IpRoutes } from './features/ip'
+import { BadgesRoutes } from './features/badges'
+import { UsbRoutes } from './features/usb'
+
 
 import { Staff } from './features/staff'
 import LoginPage from './features/admin/pages/LoginPage'
@@ -31,6 +34,13 @@ function App() {
                break
           case location.pathname.startsWith('/prints'):
                pageTitle = 'УЧЁТ ПРИНТЕРОВ'
+               break
+          case location.pathname.startsWith('/badges'):
+               pageTitle = 'БЭЙДЖИК'
+               break
+       
+          case location.pathname.startsWith('/usb'):
+               pageTitle = 'УЧЕТ USB'
                break
           case location.pathname.startsWith('/notes'):
                pageTitle = 'ЗАПИСНАЯ КНИЖКА'
@@ -101,6 +111,23 @@ function App() {
                                    element={
                                         <PrivateRoute requiredRole={['ADMIN', 'PRINT']}>
                                              <Prints />
+                                        </PrivateRoute>
+                                   }
+                              />
+                              <Route
+                                   path="/usb"
+                                   element={
+                                        <PrivateRoute requiredRole={['ADMIN', 'USB']}>
+                                             <UsbRoutes />
+                                        </PrivateRoute>
+                                   }
+                              />
+                        
+                              <Route
+                                   path="/badges"
+                                   element={
+                                        <PrivateRoute requiredRole={['ADMIN', 'BADGES']}>
+                                             <BadgesRoutes />
                                         </PrivateRoute>
                                    }
                               />

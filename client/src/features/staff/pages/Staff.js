@@ -238,12 +238,7 @@ function Staff() {
                                              >
                                                   <MdDeleteForever size={24} className={styles.deleteIcon} />
                                              </button>
-                                             <button
-                                                  onClick={() => navigate('badge', { state: { staffMember } })}
-                                                  className={styles.badgeButton}
-                                             >
-                                                  Бейджик
-                                             </button>
+                                          
                                         </td>
                                    </tr>
                               ))}

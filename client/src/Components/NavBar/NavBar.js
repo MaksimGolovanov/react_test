@@ -9,9 +9,9 @@ import { RiAdminLine } from 'react-icons/ri'
 import { GrNotes } from 'react-icons/gr'
 import { TbComponents } from 'react-icons/tb'
 import { FaCaretDown, FaCaretRight } from 'react-icons/fa'
-import { FaNetworkWired } from "react-icons/fa";
+import { FaNetworkWired } from 'react-icons/fa'
 
-import { SiJson } from "react-icons/si";
+import { SiJson } from 'react-icons/si'
 import christmasPlains from '../../Image/Landscaping-Logo.png'
 import userStore from '../../features/admin/store/UserStore' // Убедитесь, что путь правильный
 import { observer } from 'mobx-react' // Импортируем observer
@@ -67,26 +67,30 @@ const NavBar = observer(() => {
 
                {(userStore.userRolesAuth.includes('USER') || userStore.userRolesAuth.includes('ADMIN')) && (
                     <Link
-                    to="/staff"
-                    className={`nav-link ${
-                         location.pathname === '/staff' || location.pathname.match(/^\/staff\/.+$/) ? 'active' : ''
-                    }`}
-               >
-                    <TbComponents className={'icon'} size={20} style={{ marginRight: '8px' }} />
-                    ПОЛЬЗОВАТЕЛИ
-               </Link>
+                         to="/staff"
+                         className={`nav-link ${
+                              location.pathname === '/staff' || location.pathname.match(/^\/staff\/.+$/) ? 'active' : ''
+                         }`}
+                    >
+                         <TbComponents className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         ПОЛЬЗОВАТЕЛИ
+                    </Link>
                )}
                {(userStore.userRolesAuth.includes('ADMIN') || userStore.userRolesAuth.includes('IP')) && (
                     <Link
-                    to="/ipaddress"
-                    className={`nav-link ${
-                         location.pathname === '/ipaddress' || location.pathname.match(/^\/ipaddress\/.+$/) ? 'active' : ''
-                    }`}
-               >
-                    <FaNetworkWired className={'icon'} size={20} style={{ marginRight: '8px' }} />
-                    УЧЕТ IP
-               </Link>
+                         to="/ipaddress"
+                         className={`nav-link ${
+                              location.pathname === '/ipaddress' || location.pathname.match(/^\/ipaddress\/.+$/)
+                                   ? 'active'
+                                   : ''
+                         }`}
+                    >
+                         <FaNetworkWired className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         УЧЕТ IP
+                    </Link>
                )}
+              
+
                {(userStore.userRolesAuth.includes('PRINT') || userStore.userRolesAuth.includes('ADMIN')) && (
                     <Link to="/prints" className={`nav-link ${location.pathname === '/prints' ? 'active' : ''}`}>
                          <PiPrinterLight className={'icon'} size={20} style={{ marginRight: '8px' }} />

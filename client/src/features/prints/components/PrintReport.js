@@ -17,7 +17,7 @@ const PrintReport = () => {
      const [loading, setLoading] = useState(true)
      const [error, setError] = useState(null)
      const [timeRange, setTimeRange] = useState('year')
-     const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM'))
+     const [selectedDate, setSelectedDate] = useState(moment().format('YYYY')) // Изменено на текущий год
      const [chartData, setChartData] = useState({
           labels: [],
           datasets: [
@@ -88,7 +88,7 @@ const PrintReport = () => {
      // Обработка и сохранение статистики
      const processAndSaveStats = useCallback(
           (allStats) => {
-               const date = moment(selectedDate)
+               const date = timeRange === 'year' ? moment(selectedDate, 'YYYY') : moment(selectedDate, 'YYYY-MM')
                const start = timeRange === 'year' ? date.clone().startOf('year') : date.clone().startOf('month')
                const end = timeRange === 'year' ? date.clone().endOf('year') : date.clone().endOf('month')
 
@@ -119,7 +119,7 @@ const PrintReport = () => {
                })
 
                setPrinterStats(stats)
-               updateChartData(stats, sortDirection) // Явно передаем текущее направление сортировки
+               updateChartData(stats, sortDirection)
           },
           [printers, selectedDate, timeRange, sortDirection]
      )
@@ -157,12 +157,13 @@ const PrintReport = () => {
      const toggleSortDirection = useCallback(() => {
           const newDirection = sortDirection === 'desc' ? 'asc' : 'desc'
           setSortDirection(newDirection)
-          updateChartData(printerStats, newDirection) // Используем новое направление сразу
+          updateChartData(printerStats, newDirection)
      }, [printerStats, sortDirection, updateChartData])
 
      const handleTimeRangeChange = (e) => {
           setTimeRange(e.target.value)
-          setSelectedDate(moment().format('YYYY-MM'))
+          // Устанавливаем текущий год или месяц при изменении типа периода
+          setSelectedDate(e.target.value === 'year' ? moment().format('YYYY') : moment().format('YYYY-MM'))
      }
 
      const handleDateChange = (e) => {
@@ -177,7 +178,7 @@ const PrintReport = () => {
           if (timeRange === 'year') {
                for (let year = start.year(); year <= current.year(); year++) {
                     options.push(
-                         <option key={year} value={`${year}-01`}>
+                         <option key={year} value={year}>
                               {year}
                          </option>
                     )
@@ -208,18 +209,13 @@ const PrintReport = () => {
                <Card className="mb-4">
                     <Card.Body>
                          <Row className="g-3 align-items-center">
-                              {' '}
-                              {/* Добавлен g-3 для отступов между колонками */}
                               <Col md={3}>
                                    <Form.Group className="h-100 d-flex flex-column">
-                                        {' '}
-                                        {/* Добавлены flex-стили */}
-                                        
                                         <Form.Select
                                              value={timeRange}
                                              onChange={handleTimeRangeChange}
                                              disabled={loading}
-                                             className="flex-grow-0" /* Запрещаем растягивание */
+                                             className="flex-grow-0"
                                         >
                                              <option value="year">Год</option>
                                              <option value="month">Месяц</option>
@@ -228,9 +224,8 @@ const PrintReport = () => {
                               </Col>
                               <Col md={3}>
                                    <Form.Group className="h-100 d-flex flex-column">
-                                        
                                         <Form.Select
-                                             value={selectedDate}
+                                             value={timeRange === 'year' ? selectedDate : selectedDate}
                                              onChange={handleDateChange}
                                              disabled={loading}
                                              className="flex-grow-0"
@@ -241,14 +236,12 @@ const PrintReport = () => {
                               </Col>
                               <Col md={3}>
                                    <div className="h-100 d-flex flex-column justify-content-end">
-                                        {' '}
-                                        {/* Контейнер для кнопки */}
                                         <Button
                                              variant={sortDirection === 'desc' ? 'primary' : 'outline-primary'}
                                              onClick={toggleSortDirection}
                                              disabled={loading || printerStats.length === 0}
                                              style={{
-                                                  height: '38px' /* Фиксированная высота как у Form.Select */,
+                                                  height: '38px',
                                                   display: 'flex',
                                                   alignItems: 'center',
                                                   justifyContent: 'center',

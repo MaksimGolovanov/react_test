@@ -1,1 +1,0 @@
-export {default as IbRoutes} from './routes'

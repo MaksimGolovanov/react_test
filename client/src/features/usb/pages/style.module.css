@@ -1,0 +1,100 @@
+/* IpAddress.module.css */
+.container {
+    margin-top: 1rem;
+    padding: 0;
+    font-size: 12px;
+    max-width: 100%;
+}
+
+.header {
+    
+    justify-content: space-between;
+    align-items: center;
+    
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.searchInput {
+    width: 200px;
+    display: inline-block;
+}
+
+.badge {
+    margin-left: 0.5rem;
+}
+
+.tableContainer {
+    max-height: 600px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}
+
+.table {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.table th {
+    cursor: pointer;
+    user-select: none;
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 10;
+}
+
+.table th:hover {
+    background-color: #e9ecef;
+}
+
+.sortIcon {
+    margin-left: 5px;
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+.loadingText {
+    margin-top: 1rem;
+}
+
+.errorContainer {
+    padding: 2rem;
+}
+
+.ipCell {
+    font-family: monospace;
+}
+
+.emptyCell {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Стили для скроллбара */
+.tableContainer::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
