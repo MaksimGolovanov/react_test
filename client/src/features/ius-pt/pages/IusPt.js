@@ -96,7 +96,7 @@ const IusPt = observer(() => {
                         {sortedUsers.map((staffUser, index) => (
                             <tr key={index}>
                                 <td style={{width: '45px'}}>
-                                    <Circle fullName={staffUser.fio} size={30} />
+                                    <Circle fullName={staffUser.fio} employeeId={staffUser.tabNumber} size={30} />
                                 </td>
                                 <td style={{width: '250px'}} className={styles.fioLink} onClick={() => handleUserClick(staffUser.tabNumber)}>{staffUser.fio}</td>
                                 <td style={{width: '150px'}}>{staffUser.IusUser ? staffUser.IusUser.name : ''}</td>

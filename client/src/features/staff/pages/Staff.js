@@ -25,7 +25,7 @@ function Staff() {
      const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
      const [selectedData, setSelectedData] = useState('')
      const [modalShow, setModalShow] = useState(false)
-     const [sortConfig, setSortConfig] = useState(null)
+     const [sortConfig, setSortConfig] = useState({ key: 'fio', direction: 'ascending' })
      const [departmens, setDepatmens] = useState([])
      const [isLoading, setIsLoading] = useState(true)
      const navigate = useNavigate()
@@ -131,6 +131,9 @@ function Staff() {
      }, [filteredStaff, sortConfig])
 
      const handleSpravClick = () => navigate('/staff/sprav')
+     const handleUserClick = (staffMember) => () => {
+          navigate('/staff/user', { state: { staffMember } })
+     }
 
      const handleDelete = async (tabNumber) => {
           if (!window.confirm('Вы уверены, что хотите удалить этого сотрудника?')) return
@@ -163,13 +166,14 @@ function Staff() {
                     <ButtonAll text="Создать" icon={IoCreateOutline} onClick={openCreateModal} />
                     <ButtonAll text="Справочник" icon={TbManualGearbox} onClick={handleSpravClick} />
                </div>
+
                <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Поиск пользователей..." />
 
                <div className={styles.tableContainer}>
                     <table className={styles.table}>
                          <thead className={styles.headTable}>
                               <tr>
-                                   <th style={{ width: '45px' }}></th>
+                                   <th style={{ width: '55px' }}></th>
                                    <th onClick={() => requestSort('fio')}>
                                         Фамилия Имя Отчество
                                         {sortConfig?.key === 'fio' &&
@@ -201,10 +205,14 @@ function Staff() {
                                    >
                                         <td>
                                              <div>
-                                                  <Circle fullName={staffMember.fio} size={30} />
+                                                  <Circle
+                                                       fullName={staffMember.fio}
+                                                       employeeId={staffMember.tabNumber}
+                                                       size={45}
+                                                  />
                                              </div>
                                         </td>
-                                        <td>{staffMember.fio}</td>
+                                        <td onClick={handleUserClick(staffMember)}>{staffMember.fio}</td>
                                         <td>{staffMember.login}</td>
                                         <td>{staffMember.post}</td>
                                         <td>{getDepartmentById(staffMember.department)}</td>
@@ -238,7 +246,6 @@ function Staff() {
                                              >
                                                   <MdDeleteForever size={24} className={styles.deleteIcon} />
                                              </button>
-                                          
                                         </td>
                                    </tr>
                               ))}

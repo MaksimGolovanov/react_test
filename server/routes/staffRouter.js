@@ -3,6 +3,7 @@ const router = new Router();
 const staffController = require('../controllers/StaffControllers');
 const departmentController = require('../controllers/DepartmentController');
 const dolgnostController = require('../controllers/DolgnostController');
+
 // Маршруты для работы с сотрудниками
 router.get('/', staffController.getAll);
 router.get('/department', staffController.getAllDepartment);
@@ -10,6 +11,8 @@ router.put('/:tabNumber', staffController.updateStaff);
 router.delete('/:tabNumber', staffController.deleteStaff);
 router.post('/import', staffController.import);
 router.post('/', staffController.create);
+
+router.post('/upload-photo',  staffController.uploadPhoto);
 
 // Маршруты для работы с отделами
 router.get('/departments', departmentController.getAllDepartments)

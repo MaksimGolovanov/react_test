@@ -65,7 +65,7 @@ const IusPtUser = observer(() => {
 
             <div className={styles.userContainer}>
                 <div>
-                    <Circle fullName={user.fio} size={80} />
+                    <Circle fullName={user.fio} employeeId={user.tabNumber} size={80} />
                 </div>
                 <div className={styles.userDetails}>
                     <p className={styles.fio}>{user.fio}</p>

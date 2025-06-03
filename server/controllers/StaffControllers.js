@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const { Staff, Department } = require('../models/models')
 const ApiError = require('../error/ApiError')
 
@@ -116,6 +118,56 @@ class StaffController {
           } catch (error) {
                console.error('Ошибка при создании сотрудника:', error)
                next(ApiError.internal('Ошибка при создании сотрудника'))
+          }
+     }
+     // controllers/StaffController.js
+     async uploadPhoto(req, res, next) {
+          try {
+               // Проверяем наличие файла
+               if (!req.files || !req.files.photo) {
+                    throw ApiError.badRequest('Фото не загружено')
+               }
+
+               // Получаем табельный номер из FormData
+               const { tabNumber } = req.body
+               if (!tabNumber) {
+                    throw ApiError.badRequest('Не указан табельный номер')
+               }
+
+               // Создаем папку для фото, если ее нет
+               const photoDir = path.resolve(__dirname, '..', 'static', 'photo')
+               if (!fs.existsSync(photoDir)) {
+                    fs.mkdirSync(photoDir, { recursive: true })
+               }
+
+               // Генерируем имя файла
+               const photo = req.files.photo
+               const fileExt = path.extname(photo.name).toLowerCase()
+
+               // Проверяем расширение
+               if (!['.jpg', '.jpeg', '.png'].includes(fileExt)) {
+                    throw ApiError.badRequest('Допустимы только JPG/JPEG и PNG изображения')
+               }
+
+               const fileName = `${tabNumber}${fileExt}`
+               const filePath = path.join(photoDir, fileName)
+
+               // Удаляем старый файл
+               if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath)
+               }
+
+               // Сохраняем файл
+               await photo.mv(filePath)
+
+               return res.json({
+                    success: true,
+                    photoUrl: `/static/photo/${fileName}?t=${Date.now()}`,
+                    message: 'Фото успешно сохранено',
+               })
+          } catch (e) {
+               console.error('Ошибка загрузки фото:', e)
+               next(ApiError.internal(e.message))
           }
      }
 }

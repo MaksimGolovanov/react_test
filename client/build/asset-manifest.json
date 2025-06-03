@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.9bcfa6e4.css",
+    "main.js": "/static/js/main.ff8ebdc1.js",
+    "static/media/Landscaping-Logo.png": "/static/media/Landscaping-Logo.a62e7d2675befafa2e18.png",
+    "static/media/helioscondc.ttf": "/static/media/helioscondc.b1bfafe566309e409b54.ttf",
+    "static/media/logo.jpg": "/static/media/logo.e841a51ff74ccc0ce080.jpg",
+    "index.html": "/index.html",
+    "main.9bcfa6e4.css.map": "/static/css/main.9bcfa6e4.css.map",
+    "main.ff8ebdc1.js.map": "/static/js/main.ff8ebdc1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9bcfa6e4.css",
+    "static/js/main.ff8ebdc1.js"
+  ]
+}

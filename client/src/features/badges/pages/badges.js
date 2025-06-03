@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { pdf, Document, Page, View, Text, StyleSheet, Image, Font } from '@react-pdf/renderer'
+import { pdf, Document, Page, View, Text, StyleSheet, Image as PdfImage, Font } from '@react-pdf/renderer'
 import { saveAs } from 'file-saver'
-import { Button, Form, Table, Card, Row, Col } from 'react-bootstrap'
-import { FaRegFilePdf } from 'react-icons/fa6'
+import { Button, Form, Table, Card, Row, Col,  Spinner } from 'react-bootstrap'
+import { FaRegFilePdf} from 'react-icons/fa'
 import { BiTrash } from 'react-icons/bi'
 
 import BadgesService from '../services/BadgesService'
@@ -10,6 +10,8 @@ import ButtonAll from '../../../Components/ButtonAll/ButtonAll'
 import styles from './style.module.css'
 import logoImage from './logo.jpg'
 import HeliosCondC_ from '../fonts/helioscondc.ttf'
+
+const API_URL = process.env.REACT_APP_API_URL
 
 Font.register({
      family: 'HeliosCondC',
@@ -33,6 +35,17 @@ const pdfStyles = StyleSheet.create({
           width: '90mm',
           height: '57mm',
           border: '1px solid rgb(199, 199, 199)',
+     },
+     photoContainer: {
+          width: '30mm',
+          height: '40mm',
+          border: '1px solid #ccc',
+          margin: '2mm',
+     },
+     photoImage: {
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
      },
      header: {
           width: '100%',
@@ -95,10 +108,8 @@ const pdfStyles = StyleSheet.create({
      },
 })
 
-// Компонент бейджика для PDF
 const BadgePDF = ({ badges, getDepartmentById, getDolgnostByCode }) => {
      const itemsPerPage = 4
-
      const splitName = (fio) => {
           const parts = fio.split(' ')
           return {
@@ -122,7 +133,7 @@ const BadgePDF = ({ badges, getDepartmentById, getDolgnostByCode }) => {
                                                   {/* Оригинал */}
                                                   <View style={pdfStyles.badgeContainer}>
                                                        <View style={pdfStyles.header}>
-                                                            <Image src={logoImage} style={pdfStyles.logo} />
+                                                            <PdfImage src={logoImage} style={pdfStyles.logo} />
                                                             <Text style={pdfStyles.companyName}>Вуктыльское ЛПУМГ</Text>
                                                        </View>
                                                        <View style={pdfStyles.nameSection}>
@@ -146,7 +157,7 @@ const BadgePDF = ({ badges, getDepartmentById, getDolgnostByCode }) => {
                                                   {/* Копия */}
                                                   <View style={pdfStyles.badgeContainer}>
                                                        <View style={pdfStyles.header}>
-                                                            <Image src={logoImage} style={pdfStyles.logo} />
+                                                            <PdfImage src={logoImage} style={pdfStyles.logo} />
                                                             <Text style={pdfStyles.companyName}>Вуктыльское ЛПУМГ</Text>
                                                        </View>
                                                        <View style={pdfStyles.nameSection}>
@@ -176,14 +187,48 @@ const BadgePDF = ({ badges, getDepartmentById, getDolgnostByCode }) => {
      )
 }
 
+const PhotoPDF = ({ badges }) => {
+     const itemsPerPage = 30 // 8 фото на странице (2 ряда по 4)
+
+     return (
+          <Document>
+               {Array.from({ length: Math.ceil(badges.length / itemsPerPage) }).map((_, pageIndex) => (
+                    <Page key={pageIndex} size="A4" style={pdfStyles.page}>
+                         <View
+                              style={{
+                                   flexDirection: 'row',
+                                   flexWrap: 'wrap',
+                                   justifyContent: 'space-around',
+                                   padding: '10mm',
+                              }}
+                         >
+                              {badges
+                                   .slice(pageIndex * itemsPerPage, (pageIndex + 1) * itemsPerPage)
+                                   .map((badge, idx) => (
+                                        <View key={idx} style={pdfStyles.photoContainer}>
+                                             <PdfImage
+                                                  src={`${API_URL}static/photo/${badge.tabNumber}.jpg`}
+                                                  style={pdfStyles.photoImage}
+                                             />
+                                        </View>
+                                   ))}
+                         </View>
+                    </Page>
+               ))}
+          </Document>
+     )
+}
+
 function BadgePage() {
      const [staffList, setStaffList] = useState([])
      const [selectedBadges, setSelectedBadges] = useState([])
      const [searchQuery, setSearchQuery] = useState('')
      const [isLoading, setIsLoading] = useState(true)
-     const [departmens, setDepatmens] = useState([])
+     const [departments, setDepartments] = useState([])
      const [dolgnostList, setDolgnostList] = useState([])
-     
+     const [photoStatus, setPhotoStatus] = useState({})
+
+     const [outputType, setOutputType] = useState('badges') // 'badges' или 'photos'
 
      useEffect(() => {
           const fetchInitialData = async () => {
@@ -192,7 +237,7 @@ function BadgePage() {
                          BadgesService.fetchAllDepartments(),
                          BadgesService.fetchAllDolgnost(),
                     ])
-                    setDepatmens(departments)
+                    setDepartments(departments)
                     setDolgnostList(dolgnost)
                } catch (error) {
                     console.error(error)
@@ -208,7 +253,7 @@ function BadgePage() {
 
      const getDepartmentById = (id) => {
           const departmentCode = String(id).split(' ')[0]
-          const foundDepartment = departmens.find((department) => department.code === departmentCode)
+          const foundDepartment = departments.find((department) => department.code === departmentCode)
           return foundDepartment ? foundDepartment.short_name : null
      }
 
@@ -217,6 +262,11 @@ function BadgePage() {
                try {
                     const fetchedStaff = await BadgesService.fetchStaff()
                     setStaffList(fetchedStaff)
+
+                    // Проверяем наличие фото для каждого сотрудника
+                    fetchedStaff.forEach((staff) => {
+                         checkPhotoExists(staff.tabNumber)
+                    })
                } catch (error) {
                     console.error('Error fetching staff:', error)
                } finally {
@@ -225,6 +275,35 @@ function BadgePage() {
           }
           fetchStaff()
      }, [])
+
+     const checkPhotoExists = (tabNumber) => {
+          if (!tabNumber) return
+
+          setPhotoStatus((prev) => ({ ...prev, [tabNumber]: 'loading' }))
+
+          const img = new Image()
+          img.src = `${API_URL}static/photo/${tabNumber}.jpg?t=${Date.now()}`
+
+          const onLoad = () => {
+               if (img.width > 0) {
+                    setPhotoStatus((prev) => ({ ...prev, [tabNumber]: 'photo' }))
+               } else {
+                    setPhotoStatus((prev) => ({ ...prev, [tabNumber]: 'error' }))
+               }
+          }
+
+          const onError = () => {
+               setPhotoStatus((prev) => ({ ...prev, [tabNumber]: 'error' }))
+          }
+
+          img.addEventListener('load', onLoad)
+          img.addEventListener('error', onError)
+
+          return () => {
+               img.removeEventListener('load', onLoad)
+               img.removeEventListener('error', onError)
+          }
+     }
 
      const handleAddBadge = (staffMember) => {
           const newBadge = {
@@ -241,17 +320,33 @@ function BadgePage() {
 
      const handleGeneratePDF = async () => {
           if (selectedBadges.length === 0) {
-               alert('Добавьте сотрудников для генерации бейджиков')
+               alert('Добавьте сотрудников для генерации')
                return
           }
+
+          if (outputType === 'photos') {
+               // Для фото проверяем, есть ли хотя бы одно фото
+               const hasPhotos = selectedBadges.some((badge) => photoStatus[badge.tabNumber] === 'photo')
+
+               if (!hasPhotos) {
+                    alert('Нет доступных фото для выбранных сотрудников')
+                    return
+               }
+          }
+
           const blob = await pdf(
-               <BadgePDF
-                    badges={selectedBadges}
-                    getDepartmentById={getDepartmentById}
-                    getDolgnostByCode={getDolgnostByCode}
-               />
+               outputType === 'badges' ? (
+                    <BadgePDF
+                         badges={selectedBadges}
+                         getDepartmentById={getDepartmentById}
+                         getDolgnostByCode={getDolgnostByCode}
+                    />
+               ) : (
+                    <PhotoPDF badges={selectedBadges.filter((badge) => photoStatus[badge.tabNumber] === 'photo')} />
+               )
           ).toBlob()
-          saveAs(blob, `badges_${new Date().toISOString().slice(0, 10)}.pdf`)
+
+          saveAs(blob, `${outputType}_${new Date().toISOString().slice(0, 10)}.pdf`)
      }
 
      const filteredStaff = staffList.filter(
@@ -263,12 +358,31 @@ function BadgePage() {
      )
 
      if (isLoading) {
-          return <div>Загрузка данных...</div>
+          return (
+               <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                    <Spinner animation="border" variant="primary" />
+               </div>
+          )
      }
 
      return (
           <div className="p-3">
-               <ButtonAll text="Выгрузить в PDF" icon={FaRegFilePdf} onClick={handleGeneratePDF} />
+               <div className="d-flex justify-content-between mb-3">
+                    <div className="d-flex gap-2">
+                         <ButtonAll text="Выгрузить в PDF" icon={FaRegFilePdf} onClick={handleGeneratePDF} />
+                         <Form.Group  controlId="outputTypeSelect" className={styles.select}>
+                              <Form.Select
+                                   value={outputType}
+                                   onChange={(e) => setOutputType(e.target.value)}
+                                   className={styles.selectopt}
+                              >
+                                   <option value="badges">Формировать бейджики</option>
+                                   <option value="photos">Формировать фото 3×4</option>
+                              </Form.Select>
+                         </Form.Group>
+                    </div>
+               </div>
+
                <Row>
                     <Col md={5}>
                          <div className="mb-3 bg-light rounded-3 p-2">
@@ -281,20 +395,40 @@ function BadgePage() {
                          </div>
 
                          <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                              <Table striped bordered hover>
+                              <Table striped bordered hover className={styles.tabl}>
+                                   <thead>
+                                        <tr>
+                                             <th>ФИО</th>
+                                             <th>Должность</th>
+                                             <th>Фото</th>
+                                             <th></th>
+                                        </tr>
+                                   </thead>
                                    <tbody>
                                         {filteredStaff.map((staffMember) => (
-                                             <tr key={staffMember.tabNumber} className={styles.alignmiddle}>
+                                             <tr key={staffMember.tabNumber}>
+                                                  <td>{staffMember.fio}</td>
+                                                  <td>{getDolgnostByCode(staffMember.post)}</td>
+                                                  <td>
+                                                       {photoStatus[staffMember.tabNumber] === 'loading' && (
+                                                            <Spinner animation="border" size="sm" />
+                                                       )}
+                                                       {photoStatus[staffMember.tabNumber] === 'photo' && (
+                                                            <span className="text-success">Есть</span>
+                                                       )}
+                                                       {photoStatus[staffMember.tabNumber] === 'error' && (
+                                                            <span className="text-muted">Нет</span>
+                                                       )}
+                                                  </td>
                                                   <td>
                                                        <Button
                                                             variant="link"
+                                                            size="sm"
                                                             onClick={() => handleAddBadge(staffMember)}
-                                                            className={styles.alignmiddle}
                                                        >
-                                                            {staffMember.fio}
+                                                            Добавить
                                                        </Button>
                                                   </td>
-                                                  <td>{staffMember.post}</td>
                                              </tr>
                                         ))}
                                    </tbody>
@@ -303,24 +437,26 @@ function BadgePage() {
 
                          <h5 className="mt-4">Выбранные сотрудники</h5>
                          <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                              <Table striped bordered hover className="mt-3">
+                              <Table striped bordered hover className={styles.tabl}>
                                    <thead>
-                                        <tr className={styles.alignmiddle}>
+                                        <tr>
                                              <th></th>
                                              <th>ФИО</th>
                                              <th>Должность</th>
                                              <th>Отдел</th>
-                                             <th className="text-center">Уп. по ОТ</th>
+
+                                             {outputType === 'badges' && <th>Уп. по ОТ</th>}
                                         </tr>
                                    </thead>
                                    <tbody>
                                         {selectedBadges.map((badge) => (
-                                             <tr key={badge.uid} className={styles.alignmiddle}>
+                                             <tr key={badge.uid}>
                                                   <td>
                                                        <Button
                                                             variant="link"
+                                                            size="sm"
+                                                            className="text-danger p-0"
                                                             onClick={() => handleRemoveBadge(badge.uid)}
-                                                            className="p-0 text-danger"
                                                        >
                                                             <BiTrash />
                                                        </Button>
@@ -328,20 +464,27 @@ function BadgePage() {
                                                   <td>{badge.fio}</td>
                                                   <td>{getDolgnostByCode(badge.post)}</td>
                                                   <td>{getDepartmentById(badge.department)}</td>
-                                                  <td className="text-center">
-                                                       <Form.Check
-                                                            type="checkbox"
-                                                            checked={badge.isSafetyOfficer || false}
-                                                            onChange={(e) => {
-                                                                 const updated = selectedBadges.map((b) =>
-                                                                      b.uid === badge.uid
-                                                                           ? { ...b, isSafetyOfficer: e.target.checked }
-                                                                           : b
-                                                                 )
-                                                                 setSelectedBadges(updated)
-                                                            }}
-                                                       />
-                                                  </td>
+
+                                                  {outputType === 'badges' && (
+                                                       <td>
+                                                            <Form.Check
+                                                                 type="checkbox"
+                                                                 checked={badge.isSafetyOfficer || false}
+                                                                 onChange={(e) => {
+                                                                      const updated = selectedBadges.map((b) =>
+                                                                           b.uid === badge.uid
+                                                                                ? {
+                                                                                       ...b,
+                                                                                       isSafetyOfficer:
+                                                                                            e.target.checked,
+                                                                                  }
+                                                                                : b
+                                                                      )
+                                                                      setSelectedBadges(updated)
+                                                                 }}
+                                                            />
+                                                       </td>
+                                                  )}
                                              </tr>
                                         ))}
                                    </tbody>
@@ -350,10 +493,10 @@ function BadgePage() {
                     </Col>
 
                     <Col md={7} style={{ maxHeight: '700px', overflowY: 'auto' }}>
-                         <div className="d-flex flex-wrap ">
-                              {selectedBadges.map((badge, index) => (
-                                   <div key={index}>
-                                        <Card style={{ width: '180mm' }}>
+                         {outputType === 'badges' ? (
+                              <div className="d-flex flex-wrap gap-3">
+                                   {selectedBadges.map((badge, index) => (
+                                        <Card key={index} style={{ width: '180mm' }}>
                                              <Card.Body className="p-0">
                                                   <Row className="g-0">
                                                        <Col md={6}>
@@ -388,11 +531,8 @@ function BadgePage() {
                                                                            )}`}</h6>
                                                                            {badge.isSafetyOfficer && (
                                                                                 <div
-                                                                                     className="mt-1"
-                                                                                     style={{
-                                                                                          color: '#FFD700',
-                                                                                          fontSize: '0.8rem',
-                                                                                     }}
+                                                                                     className="mt-1 text-warning"
+                                                                                     style={{ fontSize: '0.8rem' }}
                                                                                 >
                                                                                      Уполномоченный по ОТ
                                                                                 </div>
@@ -433,11 +573,8 @@ function BadgePage() {
                                                                            )}`}</h6>
                                                                            {badge.isSafetyOfficer && (
                                                                                 <div
-                                                                                     className="mt-1"
-                                                                                     style={{
-                                                                                          color: '#FFD700',
-                                                                                          fontSize: '0.8rem',
-                                                                                     }}
+                                                                                     className="mt-1 text-warning"
+                                                                                     style={{ fontSize: '0.8rem' }}
                                                                                 >
                                                                                      Уполномоченный по ОТ
                                                                                 </div>
@@ -449,9 +586,41 @@ function BadgePage() {
                                                   </Row>
                                              </Card.Body>
                                         </Card>
-                                   </div>
-                              ))}
-                         </div>
+                                   ))}
+                              </div>
+                         ) : (
+                              <div className="d-flex flex-wrap gap-3">
+                                   {selectedBadges
+                                        .filter((badge) => photoStatus[badge.tabNumber] === 'photo')
+                                        .map((badge, index) => (
+                                             <Card key={index} style={{ width: '30mm', height: '40mm' }}>
+                                                  <Card.Body className="p-0">
+                                                       <img
+                                                            src={`${API_URL}static/photo/${badge.tabNumber}.jpg`}
+                                                            alt={badge.fio}
+                                                            style={{
+                                                                 width: '100%',
+                                                                 height: '100%',
+                                                                 objectFit: 'cover',
+                                                            }}
+                                                            onError={(e) => {
+                                                                 e.target.src = ''
+                                                                 e.target.alt = 'Фото не найдено'
+                                                                 e.target.style.backgroundColor = '#f8f9fa'
+                                                                 e.target.style.display = 'flex'
+                                                                 e.target.style.justifyContent = 'center'
+                                                                 e.target.style.alignItems = 'center'
+                                                                 e.target.style.color = '#6c757d'
+                                                            }}
+                                                       />
+                                                  </Card.Body>
+                                                  <Card.Footer className="p-1 text-center small">
+                                                       {badge.fio.split(' ')[0]}
+                                                  </Card.Footer>
+                                             </Card>
+                                        ))}
+                              </div>
+                         )}
                     </Col>
                </Row>
           </div>

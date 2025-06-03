@@ -211,3 +211,80 @@
 .deleteIcon {
     margin-left: 8px;
 }
+.staffUserContainer {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.userCard {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.avatarWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.userImg {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border: 5px solid #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.statusBadge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.75rem;
+}
+
+.listGroupItem {
+  border-left: none;
+  border-right: none;
+  padding: 1rem 0;
+}
+
+.editPhotoBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  cursor: pointer;
+  z-index: 10;
+  padding: 5px 5px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.editPhotoBadge:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.cameraIcon {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.avatarWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.userImg {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border: 5px solid #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.statusBadge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.75rem;
+}

@@ -76,9 +76,9 @@ function PrintModel() {
                                     <td>{printModel.cartridge}</td>
                                     <td>{printModel.paper_size}</td>
                                     <td>{printModel.scanner}</td>
-                                    <td ><Image width={100} height={100} src={`${process.env.REACT_APP_API_URL}${printModel.img1}`}></Image></td>
-                                    <td><Image width={151} height={100} src={`${process.env.REACT_APP_API_URL}${printModel.img2}`}></Image></td>
-                                    <td><Image width={151} height={100} src={`${process.env.REACT_APP_API_URL}${printModel.img3}`}></Image></td>
+                                    <td ><Image width={100} height={100} src={`${process.env.REACT_APP_API_URL}static/${printModel.img1}`}></Image></td>
+                                    <td><Image width={151} height={100} src={`${process.env.REACT_APP_API_URL}static/${printModel.img2}`}></Image></td>
+                                    <td><Image width={151} height={100} src={`${process.env.REACT_APP_API_URL}static/${printModel.img3}`}></Image></td>
                                     <td>
                                         <button className="edit-button"><RiFileEditLine size={20} /></button>
                                         <button className="delete-button" onClick={() => handleDelete(printModel.id)} ><MdDeleteForever size={24} style={{ marginLeft: '8px' }} /></button>

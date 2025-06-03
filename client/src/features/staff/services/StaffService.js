@@ -26,35 +26,31 @@ class StaffService {
 
      static async createDepartment(newDepartment) {
           try {
-              const response = await axios.post(`${API_URL}api/staff/departments`, newDepartment, {
-                  headers: {
-                      'Content-Type': 'application/json'
-                  }
-              });
-              return response.data;
+               const response = await axios.post(`${API_URL}api/staff/departments`, newDepartment, {
+                    headers: {
+                         'Content-Type': 'application/json',
+                    },
+               })
+               return response.data
           } catch (error) {
-              console.error('Create department error:', error.response?.data || error.message);
-              throw error;
+               console.error('Create department error:', error.response?.data || error.message)
+               throw error
           }
-      }
+     }
 
-      static async updateDepartment(id, updatedData) {
+     static async updateDepartment(id, updatedData) {
           try {
-              const response = await axios.put(
-                  `${API_URL}api/staff/departments/${id}`,
-                  updatedData,
-                  {
-                      headers: {
-                          'Content-Type': 'application/json'
-                      }
-                  }
-              );
-              return response.data;
+               const response = await axios.put(`${API_URL}api/staff/departments/${id}`, updatedData, {
+                    headers: {
+                         'Content-Type': 'application/json',
+                    },
+               })
+               return response.data
           } catch (error) {
-              console.error('Update department error:', error.response?.data || error.message);
-              throw error;
+               console.error('Update department error:', error.response?.data || error.message)
+               throw error
           }
-      }
+     }
 
      static async deleteDepartment(id) {
           try {
@@ -107,13 +103,13 @@ class StaffService {
      }
      static async importStaffData(staffData) {
           try {
-            const response = await axios.post(`${API_URL}api/staff/import`, staffData);
-            return response.data;
+               const response = await axios.post(`${API_URL}api/staff/import`, staffData)
+               return response.data
           } catch (error) {
-            console.error("Ошибка при импорте данных:", error);
-            throw error;
+               console.error('Ошибка при импорте данных:', error)
+               throw error
           }
-        }
+     }
 
      static async fetchAllDolgnost() {
           try {
@@ -138,35 +134,31 @@ class StaffService {
 
      static async createDolgnost(newDolgnost) {
           try {
-              const response = await axios.post(`${API_URL}api/staff/dolgnost`, newDolgnost, {
-                  headers: {
-                      'Content-Type': 'application/json'
-                  }
-              });
-              return response.data;
+               const response = await axios.post(`${API_URL}api/staff/dolgnost`, newDolgnost, {
+                    headers: {
+                         'Content-Type': 'application/json',
+                    },
+               })
+               return response.data
           } catch (error) {
-              console.error('Create dolgnost error:', error.response?.data || error.message);
-              throw error;
+               console.error('Create dolgnost error:', error.response?.data || error.message)
+               throw error
           }
-      }
+     }
 
-      static async updateDolgnost(id, updatedData) {
+     static async updateDolgnost(id, updatedData) {
           try {
-              const response = await axios.put(
-                  `${API_URL}api/staff/dolgnost/${id}`,
-                  updatedData,
-                  {
-                      headers: {
-                          'Content-Type': 'application/json'
-                      }
-                  }
-              );
-              return response.data;
+               const response = await axios.put(`${API_URL}api/staff/dolgnost/${id}`, updatedData, {
+                    headers: {
+                         'Content-Type': 'application/json',
+                    },
+               })
+               return response.data
           } catch (error) {
-              console.error('Update dolgnost error:', error.response?.data || error.message);
-              throw error;
+               console.error('Update dolgnost error:', error.response?.data || error.message)
+               throw error
           }
-      }
+     }
 
      static async deleteDolgnost(id) {
           try {
@@ -177,7 +169,25 @@ class StaffService {
                throw error
           }
      }
+     static async uploadPhoto(tabNumber, file) {
+          console.log(tabNumber, file)
+          try {
+               const formData = new FormData()
+               formData.append('photo', file)
+               formData.append('tabNumber', tabNumber)
+               
 
+               const response = await axios.post(`${API_URL}api/staff/upload-photo`, formData, {
+                    headers: {
+                         'Content-Type': 'multipart/form-data',
+                    },
+               })
+               return response.data
+          } catch (error) {
+               console.error('Photo upload error:', error.response?.data || error.message)
+               throw error
+          }
+     }
 }
 
 export default StaffService

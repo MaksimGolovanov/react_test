@@ -255,19 +255,19 @@ function PrintAll() {
                                     <Row>
                                         <Col>
                                             <Image
-                                                src={getModelInfoById(selectedPrint.print_model)?.img1 ? `${API_BASE_URL}${getModelInfoById(selectedPrint.print_model)?.img1}` : null}
+                                                src={getModelInfoById(selectedPrint.print_model)?.img1 ? `${API_BASE_URL}static/${getModelInfoById(selectedPrint.print_model)?.img1}` : null}
                                                 style={{ width: '245px', height: '245px', objectFit: 'cover' }}
                                                 alt="Внешний вид принтера"
                                             />
                                         </Col>
                                         <Col>
                                             <Image
-                                                src={getModelInfoById(selectedPrint.print_model)?.img2 ? `${API_BASE_URL}${getModelInfoById(selectedPrint.print_model)?.img2}` : null}
+                                                src={getModelInfoById(selectedPrint.print_model)?.img2 ? `${API_BASE_URL}static/${getModelInfoById(selectedPrint.print_model)?.img2}` : null}
                                                 style={{ width: '164px', height: '113px', objectFit: 'cover' }}
                                                 alt="Картридж"
                                             />
                                             <Image
-                                                src={getModelInfoById(selectedPrint.print_model)?.img3 ? `${API_BASE_URL}${getModelInfoById(selectedPrint.print_model)?.img3}` : null}
+                                                src={getModelInfoById(selectedPrint.print_model)?.img3 ? `${API_BASE_URL}static/${getModelInfoById(selectedPrint.print_model)?.img3}` : null}
                                                 style={{ width: '164px', height: '113px', objectFit: 'cover', marginTop: '19px' }}
                                                 alt="Блок"
                                             />

@@ -125,3 +125,27 @@
 .removeButton:hover {
     color: #bb2d3b;
 }
+.tabl {
+    font-size: 12px;
+}
+
+.select {
+    margin: 16px 0px 16px 8px;
+    padding: 4px 8px;
+    color: #0973a1;
+    fill: #0973a1;
+    border: 1px solid #acd5e6;
+    border-radius: 3px;
+    font-size: 14px;
+    background-color: white;
+}
+
+.selectopt {
+    width: 250px;
+    padding: 0px;
+    font-size: 14px;
+    border: 0;
+    color: #0973a1;
+    border-radius: 0;
+
+}

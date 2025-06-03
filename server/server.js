@@ -1,27 +1,63 @@
-require('dotenv').config()
+require('dotenv').config();
 const express = require('express');
-const sequelize = require('./db')
-const models = require('./models/models')
-
-const iususer = require('./models/IusPtModels')
-const cors = require('cors')
-const route = require('./routes/index')
-const fileUpload = require('express-fileupload')
-const path = require('path')
+const sequelize = require('./db');
+const models = require('./models/models');
+const iususer = require('./models/IusPtModels');
+const cors = require('cors');
+const route = require('./routes/index');
+const fileUpload = require('express-fileupload');
+const path = require('path');
+const fs = require('fs');
 const PORT = process.env.PORT || 5000;
-const snmpPoller = require('./snmpPoller'); // Добавляем импорт
+const snmpPoller = require('./snmpPoller');
 
 const app = express();
-app.use(cors())
-app.use(express.json({limit: '50mb'}))
-app.use(express.static(path.resolve(__dirname,'static')))
-app.use(fileUpload({}))
 
-app.use(express.urlencoded({limit: '50mb', extended: true}));
-app.use('/api',route)
+// Настройка CORS
+app.use(cors());
 
+// Настройка парсинга JSON
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Настройка загрузки файлов
+app.use(fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+    useTempFiles: true,
+    tempFileDir: '/tmp/'
+}));
 
+// Создаем папку для фото, если ее нет
+const photoDir = path.resolve(__dirname, 'static', 'photo');
+if (!fs.existsSync(photoDir)) {
+    fs.mkdirSync(photoDir, { recursive: true });
+}
+
+// Обслуживание статических файлов
+app.use('/static', express.static(path.resolve(__dirname, 'static')));
+app.use('/static/photo', express.static(path.join(__dirname, 'static', 'photo')));
+
+// Middleware для проверки файлов
+app.use('/static/:filename', (req, res, next) => {
+    const filePath = path.join(__dirname, 'static', req.params.filename);
+    if (!fs.existsSync(filePath)) {
+        return next(); // Пробуем искать в /photo
+    }
+    next();
+});
+
+app.use('/static/photo/:filename', (req, res, next) => {
+    const filePath = path.join(__dirname, 'static', 'photo', req.params.filename);
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).send('Not found');
+    }
+    next();
+});
+
+// Роуты API
+app.use('/api', route);
+
+// Запуск сервера
 const start = async () => {
     try {
         await sequelize.authenticate();
@@ -31,8 +67,9 @@ const start = async () => {
         
         app.listen(PORT, () => console.log(`Сервер запущен на порту ${PORT}`));
     } catch (e) {
-        console.log(e);
+        console.error('Ошибка при запуске сервера:', e);
+        process.exit(1);
     }
 };
 
-start();     
+start();
