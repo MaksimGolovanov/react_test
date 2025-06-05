@@ -14,7 +14,7 @@ const Role = sequelize.define('roles', {
 })
 const Dolgnost = sequelize.define('dolgnost', {
      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-     dolgn: { type: DataTypes.STRING, },
+     dolgn: { type: DataTypes.STRING },
      dolgn_s: { type: DataTypes.STRING },
 })
 const Staff = sequelize.define('stafs', {
@@ -59,7 +59,7 @@ const Usb = sequelize.define('usb', {
      department: { type: DataTypes.STRING },
      data_prov: { type: DataTypes.DATE },
      log: { type: DataTypes.STRING },
-}) 
+})
 
 const PrintsModel = sequelize.define('printsmodels', {
      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -124,6 +124,16 @@ const EsMtr = sequelize.define('EsMtr', {
      Note: { type: DataTypes.STRING },
 })
 
+const RefreshToken = sequelize.define('refresh_tokens', {
+     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+     token: { type: DataTypes.STRING, unique: true },
+     expiresAt: { type: DataTypes.DATE },
+     userId: { type: DataTypes.INTEGER, references: { model: User, key: 'id' } },
+})
+
+User.hasMany(RefreshToken, { foreignKey: 'userId' });
+RefreshToken.belongsTo(User, { foreignKey: 'userId' });
+
 module.exports = {
      User,
      Role,
@@ -137,5 +147,6 @@ module.exports = {
      EsMtr,
      IP_addresses,
      Dolgnost,
-     Usb
+     Usb,
+     RefreshToken 
 }

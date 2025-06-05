@@ -5,7 +5,7 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: aliceblue;
+  background-image: url("./Image/UI.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -20,7 +20,7 @@ body {
 .logo {
   width: 250px;
   height: 90px;
-  background-color: #004c5e;
+  background-color: #25292A;
   text-align: right;
 }
 
