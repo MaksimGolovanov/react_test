@@ -67,7 +67,7 @@ function App() {
      }
 
      return (
-          <Container fluid className="d-flex flex-row h-100">
+          <Container fluid className="d-flex flex-row h-100 m-0 p-0">
                <div>
                     <NavBar />
                </div>

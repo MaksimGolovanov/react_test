@@ -1,5 +1,6 @@
 .full-height-container {
   height: 100vh;
+
 }
 
 body {
@@ -20,7 +21,7 @@ body {
 .logo {
   width: 250px;
   height: 90px;
-  background-color: #25292A;
+  
   text-align: right;
 }
 
