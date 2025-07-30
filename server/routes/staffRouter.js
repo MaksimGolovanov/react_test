@@ -1,7 +1,7 @@
 const Router = require('express');
 const router = new Router();
 const staffController = require('../controllers/StaffControllers');
-const departmentController = require('../controllers/DepartmentController');
+
 const dolgnostController = require('../controllers/DolgnostController');
 
 // Маршруты для работы с сотрудниками
@@ -13,13 +13,6 @@ router.post('/import', staffController.import);
 router.post('/', staffController.create);
 
 router.post('/upload-photo',  staffController.uploadPhoto);
-
-// Маршруты для работы с отделами
-router.get('/departments', departmentController.getAllDepartments)
-router.get('/departments/:id', departmentController.getDepartmentById)
-router.post('/departments', departmentController.createDepartment)
-router.put('/departments/:id', departmentController.updateDepartment)
-router.delete('/departments/:id', departmentController.deleteDepartment)
 
 // Маршруты для работы с должностями
 router.get('/dolgnost', dolgnostController.getAllDolgnost)

@@ -30,10 +30,28 @@ class DepartmentController {
      async createDepartment(req, res, next) {
           try {
                const { code, description, short_name } = req.body
-               const department = await Department.create({ code, description, short_name })
+               console.log('Creating department with:', { code, description, short_name })
+
+               const department = await Department.create({
+                    code,
+                    description,
+                    short_name,
+               })
+
                return res.json(department)
           } catch (err) {
-               return next(ApiError.internal('Ошибка при создании отдела'))
+               console.error('FULL ERROR DETAILS:', {
+                    name: err.name,
+                    message: err.message,
+                    stack: err.stack,
+                    sequelizeErrors: err.errors?.map((e) => ({
+                         message: e.message,
+                         path: e.path,
+                         value: e.value,
+                         validatorKey: e.validatorKey,
+                    })),
+               })
+               return next(ApiError.internal(err.message)) // Передаём оригинальное сообщение
           }
      }
 

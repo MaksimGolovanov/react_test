@@ -7,9 +7,8 @@ const printModelRouter = require('./printModelsRouter')
 const postRouter = require('./notesRouter')
 const ipRouter = require('./ipaddressRouter')
 const usbRouter = require('./usbRouter')
-
+const departmentRouter = require('./departmentRouter') 
 const iusRouter = require('./iusRouter')
-
 
 
 router.use('/user', userRouter)
@@ -20,6 +19,7 @@ router.use('/notes', postRouter)
 router.use('/ipaddress', ipRouter)
 router.use('/usb', usbRouter)
 router.use('/iuspt', iusRouter)
+router.use('/departments', departmentRouter) // Добавьте эту строку
 
 
 

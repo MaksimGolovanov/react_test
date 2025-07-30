@@ -5,7 +5,7 @@ class BadgesService {
      // Методы для работы с отделами
      static async fetchAllDepartments() {
           try {
-               const response = await axios.get(`${API_URL}api/staff/departments`)
+               const response = await axios.get(`${API_URL}api/departments`)
                console.log('Departments response:', response)
                return response.data
           } catch (error) {

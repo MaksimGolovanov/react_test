@@ -5,7 +5,7 @@ class StaffService {
      // Методы для работы с отделами
      static async fetchAllDepartments() {
           try {
-               const response = await axios.get(`${API_URL}api/staff/departments`)
+               const response = await axios.get(`${API_URL}api/departments`)
                console.log('Departments response:', response)
                return response.data
           } catch (error) {
@@ -26,7 +26,7 @@ class StaffService {
 
      static async createDepartment(newDepartment) {
           try {
-               const response = await axios.post(`${API_URL}api/staff/departments`, newDepartment, {
+               const response = await axios.post(`${API_URL}api/departments`, newDepartment, {
                     headers: {
                          'Content-Type': 'application/json',
                     },
@@ -40,7 +40,7 @@ class StaffService {
 
      static async updateDepartment(id, updatedData) {
           try {
-               const response = await axios.put(`${API_URL}api/staff/departments/${id}`, updatedData, {
+               const response = await axios.put(`${API_URL}api/departments/${id}`, updatedData, {
                     headers: {
                          'Content-Type': 'application/json',
                     },
@@ -54,7 +54,7 @@ class StaffService {
 
      static async deleteDepartment(id) {
           try {
-               await axios.delete(`${API_URL}api/staff/departments/${id}`)
+               await axios.delete(`${API_URL}api/departments/${id}`)
                return true
           } catch (error) {
                console.error('Ошибка при удалении отдела:', error)

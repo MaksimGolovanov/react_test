@@ -67,8 +67,12 @@ function Staff() {
      }, [filteredStaff])
 
      const getDepartmentById = (id) => {
+          if (id === null || id === undefined) return null
+
           const departmentCode = String(id).split(' ')[0]
-          const foundDepartment = departmens.find((department) => department.code === departmentCode)
+          const foundDepartment =
+               departmens.find((d) => d.code === departmentCode) || departmens.find((d) => d.code === id)
+
           return foundDepartment ? foundDepartment.description : null
      }
 

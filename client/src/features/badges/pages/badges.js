@@ -252,9 +252,12 @@ function BadgePage() {
      }
 
      const getDepartmentById = (id) => {
+          if (id === null || id === undefined) return null
           const departmentCode = String(id).split(' ')[0]
-          const foundDepartment = departments.find((department) => department.code === departmentCode)
+          const foundDepartment =  departments.find((d) => d.code === departmentCode) || departments.find((d) => d.code === id)
           return foundDepartment ? foundDepartment.short_name : null
+
+          
      }
 
      useEffect(() => {
