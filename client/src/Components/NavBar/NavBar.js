@@ -38,13 +38,13 @@ const NavBar = observer(() => {
      return (
           <Nav className="vertical-menu flex-column navbar-fixed">
                <div className="logo d-flex align-items-center">
-                    <Image src={christmasPlains} style={{ width: '50px', height: 'auto', marginLeft: '10px' }} />
-                    <div style={{ display: 'inline-block', marginLeft: '20px' }}>
+                    
+                    <div style={{ display: 'inline-block', marginLeft: '150px' }}>
                          <p
                               style={{
                                    fontWeight: 'bold',
                                    color: 'white',
-                                   fontSize: '20px',
+                                   fontSize: '12px',
                                    margin: '0',
                                    lineHeight: '1.0',
                               }}
@@ -55,7 +55,7 @@ const NavBar = observer(() => {
                               style={{
                                    fontWeight: 'bold',
                                    color: '#FA922F',
-                                   fontSize: '26px',
+                                   fontSize: '12px',
                                    margin: '0',
                                    lineHeight: '1.0',
                               }}
@@ -72,7 +72,7 @@ const NavBar = observer(() => {
                               location.pathname === '/staff' || location.pathname.match(/^\/staff\/.+$/) ? 'active' : ''
                          }`}
                     >
-                         <TbComponents className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         <TbComponents className={'icon'} size={16} style={{ marginRight: '8px' }} />
                          ПОЛЬЗОВАТЕЛИ
                     </Link>
                )}
@@ -85,7 +85,7 @@ const NavBar = observer(() => {
                                    : ''
                          }`}
                     >
-                         <FaNetworkWired className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         <FaNetworkWired className={'icon'} size={16} style={{ marginRight: '8px' }} />
                          УЧЕТ IP
                     </Link>
                )}
@@ -93,21 +93,21 @@ const NavBar = observer(() => {
 
                {(userStore.userRolesAuth.includes('PRINT') || userStore.userRolesAuth.includes('ADMIN')) && (
                     <Link to="/prints" className={`nav-link ${location.pathname === '/prints' ? 'active' : ''}`}>
-                         <PiPrinterLight className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         <PiPrinterLight className={'icon'} size={16} style={{ marginRight: '8px' }} />
                          ПРИНТЕРЫ
                     </Link>
                )}
 
                {(userStore.userRolesAuth.includes('USB') || userStore.userRolesAuth.includes('ADMIN')) && (
                     <Link to="/usb" className={`nav-link ${location.pathname === '/usb' ? 'active' : ''}`}>
-                         <BsUsbDrive className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         <BsUsbDrive className={'icon'} size={16} style={{ marginRight: '8px' }} />
                          FLASH USB
                     </Link>
                )}
 
                {(userStore.userRolesAuth.includes('BADGES') || userStore.userRolesAuth.includes('ADMIN')) && (
                     <Link to="/badges" className={`nav-link ${location.pathname === '/badges' ? 'active' : ''}`}>
-                         <MdOutlineBadge className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         <MdOutlineBadge className={'icon'} size={16} style={{ marginRight: '8px' }} />
                          БЕЙДЖИКИ
                     </Link>
                )}
@@ -123,7 +123,7 @@ const NavBar = observer(() => {
                                    : ''
                          }`}
                     >
-                         <GrNotes className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         <GrNotes className={'icon'} size={16} style={{ marginRight: '8px' }} />
                          ЗАМЕТКИ
                     </Link>
                )}
@@ -134,7 +134,7 @@ const NavBar = observer(() => {
                               location.pathname === '/iuspt' || location.pathname.match(/^\/iuspt\/.+$/) ? 'active' : ''
                          }`}
                     >
-                         <TbComponents className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         <TbComponents className={'icon'} size={16} style={{ marginRight: '8px' }} />
                          ИУС П Т
                     </Link>
                )}
@@ -146,7 +146,7 @@ const NavBar = observer(() => {
                               location.pathname === '/json' || location.pathname.match(/^\/json\/.+$/) ? 'active' : ''
                          }`}
                     >
-                         <SiJson className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                         <SiJson className={'icon'} size={16} style={{ marginRight: '8px' }} />
                          JSON
                     </Link>
                )}
@@ -159,12 +159,12 @@ const NavBar = observer(() => {
                               className={`nav-link ${location.pathname.includes('/admin') ? 'active' : ''}`}
                               onClick={handleAdminClick}
                          >
-                              <RiAdminLine className={'icon'} size={20} style={{ marginRight: '8px' }} />
+                              <RiAdminLine className={'icon'} size={16} style={{ marginRight: '8px' }} />
                               <span style={{ paddingRight: '20px' }}>АДМИН</span>
                               {isAdminMenuOpen ? (
-                                   <FaCaretDown className={'icon'} size={20} style={{ float: 'right' }} />
+                                   <FaCaretDown className={'icon'} size={16} style={{ float: 'right' }} />
                               ) : (
-                                   <FaCaretRight className={'icon'} size={20} style={{ float: 'right' }} />
+                                   <FaCaretRight className={'icon'} size={16} style={{ float: 'right' }} />
                               )}
                          </Link>
 

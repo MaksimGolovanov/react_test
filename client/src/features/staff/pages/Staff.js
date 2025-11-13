@@ -1,21 +1,20 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
+import { Table, Spinner, Card } from 'react-bootstrap'
 import ClipboardJS from 'clipboard'
 import StaffService from '../services/StaffService'
-import { BiDownload } from 'react-icons/bi'
 import { FaRegCopy } from 'react-icons/fa'
 import { RiFileEditLine } from 'react-icons/ri'
 import { MdDeleteForever } from 'react-icons/md'
 import StaffEditModal from './StaffEditModal'
 import StaffImportModal from './StaffImportModal'
 import StaffCreateModal from './StaffCreateModal'
-import Spinner from 'react-bootstrap/Spinner'
 import ButtonAll from '../../ius-pt/components/ButtonAll/ButtonAll'
 import Circle from '../../../Components/circle/Circle'
 import SearchInput from '../../ius-pt/components/SearchInput/SearchInput'
 import styles from './style.module.css'
-import { IoCreateOutline } from 'react-icons/io5'
-import { TbManualGearbox } from 'react-icons/tb'
 import { useNavigate } from 'react-router-dom'
+import * as XLSX from 'xlsx'
+import IconBtn from '../../../Components/IconBtn/IconBtn'
 
 function Staff() {
      const [staff, setStaff] = useState([])
@@ -25,12 +24,10 @@ function Staff() {
      const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
      const [selectedData, setSelectedData] = useState('')
      const [modalShow, setModalShow] = useState(false)
-     const [sortConfig, setSortConfig] = useState({ key: 'fio', direction: 'ascending' })
+     const [sortConfig, setSortConfig] = useState({ key: 'fio', direction: 'asc' })
      const [departmens, setDepatmens] = useState([])
      const [isLoading, setIsLoading] = useState(true)
      const navigate = useNavigate()
-
-     const copyButtonsRef = useRef([])
 
      const openModal = () => setModalIsOpen(true)
      const closeModal = () => setModalIsOpen(false)
@@ -77,6 +74,7 @@ function Staff() {
      }
 
      const fetchData = async () => {
+          setIsLoading(true)
           try {
                const fetchedStaff = await StaffService.fetchStaff()
                setStaff(fetchedStaff)
@@ -110,31 +108,38 @@ function Staff() {
           }
      }, [searchQuery, staff])
 
-     const requestSort = (key) => {
-          let direction = 'ascending'
-          if (sortConfig?.key === key && sortConfig.direction === 'ascending') {
-               direction = 'descending'
+     const handleSort = (key) => {
+          let direction = 'asc'
+          if (sortConfig.key === key && sortConfig.direction === 'asc') {
+               direction = 'desc'
           }
           setSortConfig({ key, direction })
      }
 
+     const getSortIndicator = (key) => {
+          if (sortConfig.key === key) {
+               return sortConfig.direction === 'asc' ? ' ▲' : ' ▼'
+          }
+          return ''
+     }
+
      const sortedStaff = useMemo(() => {
-          let sortedData = [...filteredStaff]
-          if (sortConfig !== null) {
-               sortedData.sort((a, b) => {
-                    if (a[sortConfig.key] < b[sortConfig.key]) {
-                         return sortConfig.direction === 'ascending' ? -1 : 1
-                    }
-                    if (a[sortConfig.key] > b[sortConfig.key]) {
-                         return sortConfig.direction === 'ascending' ? 1 : -1
-                    }
+          const sortableItems = [...filteredStaff]
+          if (sortConfig.key) {
+               sortableItems.sort((a, b) => {
+                    const aValue = a[sortConfig.key]?.toLowerCase() || ''
+                    const bValue = b[sortConfig.key]?.toLowerCase() || ''
+
+                    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1
+                    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1
                     return 0
                })
           }
-          return sortedData
+          return sortableItems
      }, [filteredStaff, sortConfig])
 
      const handleSpravClick = () => navigate('/staff/sprav')
+     const handlePSW = () => navigate('/staff/PSW')
      const handleUserClick = (staffMember) => () => {
           navigate('/staff/user', { state: { staffMember } })
      }
@@ -142,18 +147,50 @@ function Staff() {
      const handleDelete = async (tabNumber) => {
           if (!window.confirm('Вы уверены, что хотите удалить этого сотрудника?')) return
 
+          setIsLoading(true)
           try {
                await StaffService.deleteStaff(tabNumber)
-               const updatedStaff = staff.filter((member) => member.tabNumber !== tabNumber)
-               setStaff(updatedStaff)
-               setFilteredStaff(updatedStaff)
+               fetchData()
           } catch (error) {
                console.error('Ошибка при удалении:', error)
                alert('Не удалось удалить сотрудника')
+          } finally {
+               setIsLoading(false)
           }
      }
 
-     if (isLoading) {
+     const exportToExcel = () => {
+          const dataToExport = filteredStaff.map((staffMember) => ({
+               ФИО: staffMember.fio || '',
+               Логин: staffMember.login || '',
+               Должность: staffMember.post || '',
+               Служба: getDepartmentById(staffMember.department) || '',
+               Телефон: staffMember.telephone || '',
+               Email: staffMember.email || '',
+               IP: staffMember.ip || '',
+               'Табельный номер': staffMember.tabNumber || '',
+          }))
+
+          const wb = XLSX.utils.book_new()
+          const ws = XLSX.utils.json_to_sheet(dataToExport)
+
+          const columnWidths = [
+               { wch: 37 },
+               { wch: 15 },
+               { wch: 65 },
+               { wch: 42 },
+               { wch: 8 },
+               { wch: 29 },
+               { wch: 13 },
+               { wch: 16 },
+          ]
+
+          ws['!cols'] = columnWidths
+          XLSX.utils.book_append_sheet(wb, ws, 'Сотрудники')
+          XLSX.writeFile(wb, 'Сотрудники.xlsx')
+     }
+
+     if (isLoading && staff.length === 0) {
           return (
                <div className={styles.loadingContainer}>
                     <Spinner animation="border" role="status" className={styles.spinner}>
@@ -164,97 +201,129 @@ function Staff() {
      }
 
      return (
-          <div>
+          <div className={styles.container}>
                <div className={styles.buttonsContainer}>
-                    <ButtonAll text="Импорт" icon={BiDownload} onClick={() => setModalShow(true)} />
-                    <ButtonAll text="Создать" icon={IoCreateOutline} onClick={openCreateModal} />
-                    <ButtonAll text="Справочник" icon={TbManualGearbox} onClick={handleSpravClick} />
+                    <ButtonAll text="Импорт" onClick={() => setModalShow(true)} />
+                    <ButtonAll text="Создать" onClick={openCreateModal} />
+                    <ButtonAll text="Справочник" onClick={handleSpravClick} />
+                    <ButtonAll text="Экспорт" onClick={exportToExcel} />
+                    <ButtonAll text="Генератор пароля" onClick={handlePSW} />
+                    <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Поиск пользователей..." />
                </div>
 
-               <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Поиск пользователей..." />
-
                <div className={styles.tableContainer}>
-                    <table className={styles.table}>
-                         <thead className={styles.headTable}>
-                              <tr>
-                                   <th style={{ width: '55px' }}></th>
-                                   <th onClick={() => requestSort('fio')}>
-                                        Фамилия Имя Отчество
-                                        {sortConfig?.key === 'fio' &&
-                                             (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
-                                   </th>
-                                   <th style={{ width: '120px' }}>Логин</th>
-                                   <th onClick={() => requestSort('post')}>
-                                        Должность
-                                        {sortConfig?.key === 'post' &&
-                                             (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
-                                   </th>
-                                   <th onClick={() => requestSort('department')}>
-                                        Служба
-                                        {sortConfig?.key === 'department' &&
-                                             (sortConfig.direction === 'ascending' ? ' ↑' : ' ↓')}
-                                   </th>
-                                   <th style={{ width: '80px' }}>Телефон</th>
-                                   <th>Email</th>
-                                   <th style={{ width: '120px' }}>IP</th>
-                                   <th style={{ width: '90px' }}>Табельный номер</th>
-                                   <th style={{ width: '80px' }}></th>
-                              </tr>
-                         </thead>
-                         <tbody className={styles.bodyTable}>
+                    {isLoading ? (
+                         <div>Загрузка данных...</div>
+                    ) : (
+                         <div >
                               {sortedStaff.map((staffMember, index) => (
-                                   <tr
-                                        key={staffMember.id}
-                                        className={String(staffMember.del) === '1' ? styles.tableRowDeleted : ''}
-                                   >
-                                        <td>
-                                             <div>
+                                   <Card className={styles.cardWidth}>
+                                        <div class="row g-0">
+                                             <div class="col-md-2 card-header">
                                                   <Circle
                                                        fullName={staffMember.fio}
                                                        employeeId={staffMember.tabNumber}
-                                                       size={45}
+                                                       size={60}
                                                   />
                                              </div>
-                                        </td>
-                                        <td onClick={handleUserClick(staffMember)}>{staffMember.fio}</td>
-                                        <td>{staffMember.login}</td>
-                                        <td>{staffMember.post}</td>
-                                        <td>{getDepartmentById(staffMember.department)}</td>
-                                        <td>{staffMember.telephone}</td>
-                                        <td>{staffMember.email}</td>
-                                        <td>
-                                             {staffMember.ip !== '' && staffMember.ip !== '-' && (
-                                                  <>
-                                                       {staffMember.ip}
-                                                       <button
-                                                            className={styles.copyButton}
-                                                            data-clipboard-text={staffMember.ip}
-                                                            ref={(el) => (copyButtonsRef.current[index] = el)}
-                                                       >
-                                                            <FaRegCopy size={13} className={styles.copyIcon} />
-                                                       </button>
-                                                  </>
-                                             )}
-                                        </td>
-                                        <td>{staffMember.tabNumber}</td>
-                                        <td>
-                                             <button
-                                                  className={styles.editButton}
-                                                  onClick={() => handleEditClick(staffMember)}
-                                             >
-                                                  <RiFileEditLine size={20} />
-                                             </button>
-                                             <button
-                                                  className={styles.deleteButton}
-                                                  onClick={() => handleDelete(staffMember.tabNumber)}
-                                             >
-                                                  <MdDeleteForever size={24} className={styles.deleteIcon} />
-                                             </button>
-                                        </td>
-                                   </tr>
+                                             <div class="col-md-10">
+                                                  <div class="card-body">
+                                                       <h5 class="card-title" className={styles.cardWidthFio} >{staffMember.fio}</h5>
+                                                       <p class="card-text" className={styles.cardWidthDep}>{getDepartmentById(staffMember.department)}</p>
+                                                       <p class="card-text" className={styles.cardWidthDep}>{staffMember.post}</p>
+                                                       
+                                                  </div>
+                                             </div>
+                                        </div>
+                                   </Card>
                               ))}
-                         </tbody>
-                    </table>
+
+                              {/*  <Table striped className={styles.stickyTable}>
+                                   <thead> 
+                                        <tr className={styles.sortableHeader}>
+                                             <th style={{ width: '55px' }}></th>
+                                             <th
+                                                  onClick={() => handleSort('fio')}
+                                                  className={styles.sortableHeader}
+                                                  style={{ width: '220px' }}
+                                             >
+                                                  Ф.И.О.{getSortIndicator('fio')}
+                                             </th>
+                                             <th style={{ width: '120px' }}>Логин</th>
+                                             <th onClick={() => handleSort('post')} className={styles.sortableHeader}>
+                                                  Должность{getSortIndicator('post')}
+                                             </th>
+                                             <th
+                                                  onClick={() => handleSort('department')}
+                                                  className={styles.sortableHeader}
+                                             >
+                                                  Служба{getSortIndicator('department')}
+                                             </th>
+                                             <th style={{ width: '80px' }}>Телефон</th>
+                                             <th>Email</th>
+                                             <th style={{ width: '120px' }}>IP</th>
+                                             <th style={{ width: '90px' }}>Таб №</th>
+                                             <th style={{ width: '80px' }}>Действия</th>
+                                        </tr>
+                                   </thead>
+                                   <tbody className={styles.sortableHeader2}>
+                                        {sortedStaff.map((staffMember, index) => (
+                                             <tr
+                                                  key={staffMember.id}
+                                                  className={
+                                                       String(staffMember.del) === '1' ? styles.tableRowDeleted : ''
+                                                  }
+                                             >
+                                                  <td>
+                                                       <Circle
+                                                            fullName={staffMember.fio}
+                                                            employeeId={staffMember.tabNumber}
+                                                            size={45}
+                                                       />
+                                                  </td>
+                                                  <td onClick={handleUserClick(staffMember)} className={styles.fioLink}>
+                                                       {staffMember.fio}
+                                                  </td>
+                                                  <td>{staffMember.login}</td>
+                                                  <td>{staffMember.post}</td>
+                                                  <td>{getDepartmentById(staffMember.department)}</td>
+                                                  <td>{staffMember.telephone}</td>
+                                                  <td>{staffMember.email}</td>
+                                                  <td>
+                                                       {staffMember.ip !== '' && staffMember.ip !== '-' && (
+                                                            <>
+                                                                 {staffMember.ip}
+                                                                 <button
+                                                                      className={styles.copyButton}
+                                                                      data-clipboard-text={staffMember.ip}
+                                                                 >
+                                                                      <FaRegCopy
+                                                                           size={13}
+                                                                           className={styles.copyIcon}
+                                                                      />
+                                                                 </button>
+                                                            </>
+                                                       )}
+                                                  </td>
+                                                  <td>{staffMember.tabNumber}</td>
+                                                  <td className={styles.actionsCell}>
+                                                       <div className={styles.actionsContainer}>
+                                                            <IconBtn
+                                                                 icon={RiFileEditLine}
+                                                                 onClick={() => handleEditClick(staffMember)}
+                                                            />
+                                                            <IconBtn
+                                                                 icon={MdDeleteForever}
+                                                                 onClick={() => handleDelete(staffMember.tabNumber)}
+                                                            />
+                                                       </div>
+                                                  </td>
+                                             </tr>
+                                        ))}
+                                   </tbody>
+                              </Table> */}
+                         </div>
+                    )}
                </div>
                <StaffEditModal
                     isOpen={modalIsOpen}

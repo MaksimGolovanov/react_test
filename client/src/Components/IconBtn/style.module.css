@@ -1,0 +1,34 @@
+.iconbtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+}
+
+.disabled {
+    opacity: 0.5; /* Делаем кнопку полупрозрачной */
+    cursor: not-allowed; /* Меняем курсор на "недоступно" */
+    pointer-events: none; /* Отключаем события мыши */
+}
+
+.configbtn {
+    color: #0973a1;
+    fill: #0973a1 ;
+    padding: 4px 8px;
+    font-size: 14px;
+    border: none;
+     background: none;
+    
+    
+}
+.configbtn:hover {
+    color: #64b4d6;
+    fill: #64b4d6 ;
+    padding: 4px 8px;
+    font-size: 14px;
+    border: none;
+     background: none;
+    
+    
+}

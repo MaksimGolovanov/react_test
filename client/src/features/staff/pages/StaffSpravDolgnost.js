@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Modal, Form, Table, Alert } from 'react-bootstrap'
+import { Button, Modal, Form, Table } from 'react-bootstrap'
 import StaffService from '../services/StaffService'
 import styles from './style.module.css'
+import ButtonAll from '../../ius-pt/components/ButtonAll/ButtonAll'
+import IconBtn from '../../../Components/IconBtn/IconBtn'
+import { IoCreateOutline } from 'react-icons/io5'
+import { MdDeleteForever } from 'react-icons/md'
 
 function StaffSpravDolgnost() {
      const [Dolgnost, setDolgnost] = useState([])
@@ -11,8 +15,6 @@ function StaffSpravDolgnost() {
           dolgn: '',
           dolgn_s: '',
      })
-     const [error, setError] = useState(null)
-     const [success, setSuccess] = useState(null)
      const [isLoading, setIsLoading] = useState(false)
      const [sortConfig, setSortConfig] = useState({
           key: null,
@@ -58,9 +60,7 @@ function StaffSpravDolgnost() {
           try {
                const data = await StaffService.fetchAllDolgnost()
                setDolgnost(data)
-               setError(null)
           } catch (err) {
-               setError('Ошибка при загрузке данных отделов')
                console.error(err)
           } finally {
                setIsLoading(false)
@@ -105,7 +105,6 @@ function StaffSpravDolgnost() {
                setShowModal(false)
                loadDolgnost()
           } catch (err) {
-               setError('Ошибка при сохранении данных')
                console.error(err)
           } finally {
                setIsLoading(false)
@@ -129,70 +128,58 @@ function StaffSpravDolgnost() {
 
      return (
           <div className={styles.container}>
-               <h2>Справочник должностей</h2>
-               {error && <Alert variant="danger">{error}</Alert>}
-               {success && (
-                    <Alert variant="success" onClose={() => setSuccess(null)} dismissible>
-                         {success}
-                    </Alert>
-               )}
+               
+                    <ButtonAll text="Добавить должность" icon={IoCreateOutline} onClick={() => handleCreate()} />
+               
 
-               <Button variant="primary" onClick={handleCreate} className="mb-3" disabled={isLoading}>
-                    {isLoading ? 'Загрузка...' : 'Добавить должность'}
-               </Button>
-
-               {isLoading ? (
-                    <div>Загрузка данных...</div>
-               ) : (
-                    <div className={styles.tableWrapper}>
-                         <Table striped bordered hover className={styles.stickyTable}>
-                              <thead>
-                                   <tr>
-                                        <th onClick={() => handleSort('dolgn')} className={styles.sortableHeader}>
-                                             Название{getSortIndicator('dolgn')}
-                                        </th>
-                                        <th onClick={() => handleSort('dolgn_s')} className={styles.sortableHeader}>
-                                             Короткое название{getSortIndicator('dolgn_s')}
-                                        </th>
-
-                                        <th>Действия</th>
-                                   </tr>
-                              </thead>
-                              <tbody>
-                                   {sortedDolgnost.map((dolgnost) => (
-                                        <tr key={dolgnost.id}>
-                                             <td>{dolgnost.dolgn}</td>
-                                             <td>{dolgnost.dolgn_s}</td>
-
-                                             <td>
-                                                  <Button
-                                                       variant="warning"
-                                                       size="sm"
-                                                       onClick={() => handleEdit(dolgnost)}
-                                                       className="me-2"
-                                                       disabled={isLoading}
-                                                  >
-                                                       Изменить
-                                                  </Button>
-                                                  <Button
-                                                       variant="danger"
-                                                       size="sm"
-                                                       onClick={() => handleDelete(dolgnost.id)}
-                                                       disabled={isLoading}
-                                                  >
-                                                       Удалить
-                                                  </Button>
-                                             </td>
+               <div className={styles.tableContainer}>
+                    {isLoading ? (
+                         <div className={styles.loadingContainer}>
+                              <div>Загрузка данных...</div>
+                         </div>
+                    ) : (
+                         <div className={styles.tableWrapper}>
+                              <Table striped bordered hover className={styles.stickyTable}>
+                                   <thead>
+                                        <tr>
+                                             <th onClick={() => handleSort('dolgn')} className={styles.sortableHeader}>
+                                                  Название{getSortIndicator('dolgn')}
+                                             </th>
+                                             <th
+                                                  onClick={() => handleSort('dolgn_s')}
+                                                  className={styles.sortableHeader}
+                                             >
+                                                  Короткое название{getSortIndicator('dolgn_s')}
+                                             </th>
+                                             <th className={styles.sortableHeader}>Действия</th>
                                         </tr>
-                                   ))}
-                              </tbody>
-                         </Table>
-                    </div>
-               )}
+                                   </thead>
+                                   <tbody>
+                                        {sortedDolgnost.map((dolgnost) => (
+                                             <tr key={dolgnost.id}>
+                                                  <td>{dolgnost.dolgn}</td>
+                                                  <td>{dolgnost.dolgn_s}</td>
+                                                  <td className="d-flex">
+                                                       <IconBtn
+                                                            icon={IoCreateOutline}
+                                                            onClick={() => handleEdit(dolgnost)}
+                                                       />
+                                                       <IconBtn
+                                                            icon={MdDeleteForever}
+                                                            onClick={() => handleDelete(dolgnost.id)}
+                                                       />
+                                                  </td>
+                                             </tr>
+                                        ))}
+                                   </tbody>
+                              </Table>
+                         </div>
+                    )}
+               </div>
 
                <Modal show={showModal} onHide={() => !isLoading && setShowModal(false)}>
                     <Modal.Header closeButton>
-                         <Modal.Title>{currentdolgnost ? 'Редактирование отдела' : 'Новый отдел'}</Modal.Title>
+                         <Modal.Title>{currentdolgnost ? 'Редактирование должности' : 'Новая должность'}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                          <Form onSubmit={handleSubmit}>

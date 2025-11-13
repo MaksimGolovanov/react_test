@@ -8,7 +8,7 @@ const UsbRoutes = () => {
                <Route
                     path="/"
                     element={
-                         <PrivateRoute requiredRole={['ADMIN', 'IP']}>
+                         <PrivateRoute requiredRole={['ADMIN', 'USB']}>
                               <UsbPage />
                          </PrivateRoute>
                     }

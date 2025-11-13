@@ -51,6 +51,15 @@ class UsbService {
                throw error
           }
      }
+          static async fetchStaff() {
+          try {
+               const response = await axios.get(`${API_URL}api/staff/`)
+               return response.data
+          } catch (error) {
+               console.error(error)
+               throw error
+          }
+     }
 }
 
 export default UsbService

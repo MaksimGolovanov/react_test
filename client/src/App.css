@@ -1,6 +1,25 @@
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin-left: 250px; /* Такой же как ширина панели навигации */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #fff;
+}
+
+/* Остальные ваши стили остаются */
 .full-height-container {
   height: 100vh;
-
 }
 
 body {
@@ -10,7 +29,7 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  min-height: 100vh;
+  min-height: 100%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -20,24 +39,40 @@ body {
 
 .logo {
   width: 250px;
-  height: 90px;
-  
+  height: 48px;
   text-align: right;
 }
 
 .head {
-  height: 90px;
-  background-color: white;
+  height: 48px;
+  background-color: #2c353c;
+  border-bottom: 1px solid #222b34;
+  width: 100%;
 }
 
-.content {
-  background-color: #fff;
-  height: 90.6%;
- }
+.clock-bg {
+  background-color: #259ed5;
+  height: 48px;
+  padding-left: 10px;
+  padding-right: 10px;
+  color: #fff;
+}
 
 .sticky-header {
   position: sticky;
   top: 0;
   z-index: 99;
-  background-color: #fff;
+  
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    margin-top: 60px;
+  }
+  
+  .app-container {
+    flex-direction: column;
+  }
 }

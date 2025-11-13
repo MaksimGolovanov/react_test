@@ -4,15 +4,18 @@
     padding: 0;
     font-size: 12px;
     max-width: 100%;
+    height: calc(100vh - 2rem); /* Занимаем всю высоту окна с отступом */
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
-    
-    justify-content: space-between;
-    align-items: center;
-    
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 1rem;
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
 }
 
 .searchInput {
@@ -25,9 +28,9 @@
 }
 
 .tableContainer {
-    max-height: 600px;
+    flex: 1; /* Занимает все оставшееся пространство */
+    min-height: 0; /* Критически важно для flex */
     overflow-y: auto;
-    margin-bottom: 1rem;
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
 }
@@ -82,7 +85,6 @@
 /* Стили для скроллбара */
 .tableContainer::-webkit-scrollbar {
     width: 8px;
-    height: 8px;
 }
 
 .tableContainer::-webkit-scrollbar-track {
@@ -96,5 +98,60 @@
 }
 
 .tableContainer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Убираем горизонтальную прокрутку у таблицы */
+.tableContainer table {
+    min-width: 100%;
+}
+
+/* Стили для статус-контейнера (если используется) */
+.statusContainer {
+    margin-bottom: 1rem;
+    flex-shrink: 0; /* Не сжимается */
+}
+
+/* Альтернативный вариант с grid */
+.containerGrid {
+    margin-top: 1rem;
+    padding: 0;
+    font-size: 12px;
+    max-width: 100%;
+    height: calc(100vh - 6rem);
+    display: grid;
+    grid-template-rows: auto 1fr; /* Хедер и таблица */
+    gap: 1rem;
+}
+
+.mainCard {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.tableContainerGrid {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}
+
+.tableContainerGrid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tableContainerGrid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tableContainerGrid::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.tableContainerGrid::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
