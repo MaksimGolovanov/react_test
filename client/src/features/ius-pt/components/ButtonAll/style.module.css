@@ -1,40 +1,40 @@
-.headerbtn {
-  cursor: pointer;
-  margin: 8px 0;
 
-  margin-right: 8px;
+
+.headerbtn {
+    cursor: pointer;
+    margin: 12px 0;
+    
+    margin-right: 8px;
+    
 }
 
 .configbtn {
-  color: #fff;
-  fill: #0973a1;
-  border: 1px solid #acd5e6;
-  border-radius: 3px;
-  padding: 4px 8px;
-  font-size: 14px;
-  background-color: #2c353c;
-}
-
-.configbtn:hover .iconbtn {
-  color: #fff;
+    color: #0973a1;
+    fill: #0973a1 ;
+    border: 1px solid #acd5e6;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 14px;
+    background-color: white;
+    
 }
 
 .configbtn:hover {
-  color: #fff;
-  fill: #0973a1;
-  border: 1px solid #acd5e6;
-  border-radius: 3px;
-  padding: 4px 8px;
-  font-size: 14px;
-  
-  background-color: #259ed5;
+    color: #0973a1;
+    fill: #0973a1 ;
+    border: 1px solid #acd5e6;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 14px;
+    background-color: #e6f4fa;
+    
 }
 .iconbtn {
-  margin-right: 4px;
-  color: #0973a1;
+    margin-right: 4px;
+    
 }
 .disabled {
-  opacity: 0.5; /* Делаем кнопку полупрозрачной */
-  cursor: not-allowed; /* Меняем курсор на "недоступно" */
-  pointer-events: none; /* Отключаем события мыши */
+    opacity: 0.5; /* Делаем кнопку полупрозрачной */
+    cursor: not-allowed; /* Меняем курсор на "недоступно" */
+    pointer-events: none; /* Отключаем события мыши */
 }

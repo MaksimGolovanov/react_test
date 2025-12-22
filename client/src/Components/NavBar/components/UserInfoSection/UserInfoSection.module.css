@@ -1,0 +1,73 @@
+.userInfoExpanded,
+.userInfoCollapsed {
+     position: absolute;
+     bottom: 0;
+     width: 100%;
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.userInfoExpanded {
+     padding: 16px;
+}
+
+.userInfoCollapsed {
+     padding: 8px;
+}
+
+.userInfoContainer {
+     width: 100%;
+     justify-content: space-between;
+     padding: 0 4px;
+}
+
+.userTextContainer {
+     min-width: 0;
+}
+
+.userName {
+     color: white !important;
+     display: block !important;
+     font-size: 12px !important;
+     font-weight: 500 !important;
+     white-space: nowrap !important;
+     overflow: hidden !important;
+     text-overflow: ellipsis !important;
+}
+
+.userRoles {
+     color: rgba(255, 255, 255, 0.65) !important;
+     display: block !important;
+     font-size: 11px !important;
+     white-space: nowrap !important;
+     overflow: hidden !important;
+     text-overflow: ellipsis !important; /* было textOverflow */
+}
+
+.logoutButton {
+     color: rgba(255, 255, 255, 0.65) !important;
+     font-size: 16px !important;
+     width: 32px !important;
+     height: 32px !important;
+     padding: 0 !important;
+     display: flex !important;
+     align-items: center !important;
+     justifyContent: center !important;
+     flexShrink: 0 !important;
+     margin-left: 8px !important;
+}
+
+.logoutCollapsedContainer {
+     display: flex;
+     justify-content: center;
+}
+
+.logoutButtonCollapsed {
+     color: rgba(255, 255, 255, 0.65) !important;
+     font-size: 16px !important;
+     width: 32px !important;
+     height: 32px !important;
+     padding: 0 !important;
+     display: flex !important;
+     align-items: center !important;
+     justify-content: center !important;
+}

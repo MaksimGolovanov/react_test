@@ -7,6 +7,7 @@ const printModelRouter = require('./printModelsRouter')
 const postRouter = require('./notesRouter')
 const ipRouter = require('./ipaddressRouter')
 const usbRouter = require('./usbRouter')
+const cardRouter = require('./cardRouter')
 const departmentRouter = require('./departmentRouter') 
 const iusRouter = require('./iusRouter')
 
@@ -18,6 +19,7 @@ router.use('/printmodels',printModelRouter)
 router.use('/notes', postRouter)
 router.use('/ipaddress', ipRouter)
 router.use('/usb', usbRouter)
+router.use('/card', cardRouter)
 router.use('/iuspt', iusRouter)
 router.use('/departments', departmentRouter) // Добавьте эту строку
 

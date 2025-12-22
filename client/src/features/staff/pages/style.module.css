@@ -1,529 +1,74 @@
-.tableContainer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0; /* важно для правильного скролла */
-}
-
-.table {
-  flex: 1;
-  overflow-y: auto;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  max-height: calc(100vh - 220px); /* Запас для кнопки и отступов */
-}
-
-.headTable {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  height: 28px;
-  width: 100%;
-  background-color: #dee6ea;
-  color: #28a9e0;
-  font-size: 12px;
-}
-
-.bodyTable {
-  font-size: 12px;
-}
-
-.bodyTable tr {
-  border-bottom: 1px solid #dfe6ee;
-}
-
-/* Убедитесь, что ячейки таблицы также имеют одинаковую ширину */
-.table th,
-.table td {
-  padding: 8px;
-  /* Добавляем отступы для текста */
-  text-align: left;
-  /* Выравнивание текста по левому краю */
-  word-wrap: break-word;
-  /* Перенос текста, если он не помещается */
-}
-
-.headTable th {
-  border-right: 1px solid #ccc;
-  /* Черточка между колонками */
-  padding: 8px;
-  /* Отступы для текста */
-  text-align: left;
-  /* Выравнивание текста по левому краю */
-}
-
-/* Убираем правую границу у последней ячейки */
-.headTable th:last-child {
-  border-right: none;
-}
-
-.bodyTable tr:hover {
-  background-color: #f0f0f0;
-  /* Цвет фона при наведении */
-  cursor: pointer;
-  /* Курсор в виде указателя */
-}
-
-.pageHeader {
-  color: #364760;
-  font-size: 24px;
-}
-
-.userContainer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.fio {
-  font-size: 24px;
-  margin: 0;
-}
-
-.name {
-  color: gray;
-  font-size: 16px;
-  margin: 4px 0 0 0;
-}
-
-.department {
-  font-size: 16px;
-  color: #212121;
-  margin: 4px 0 0 0;
-}
-
-.customtabs :global(.nav-link) {
-  height: 32px;
-  padding: 0 24px;
-  border-radius: 1px;
-  background-color: #ebebeb;
-  border-bottom: none;
-  color: #4f4f4f;
-}
-
-.customtabs :global(.nav-link.active) {
-  background-color: #fff;
-  border-top: 2px solid #60a8d8;
-  border-bottom: none;
-  height: 32px;
-  padding: 0 24px;
-}
-
-.fioLink {
-  color: #117aa8;
-  cursor: pointer;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 160px);
-
-  box-sizing: border-box;
-}
-
-.tableWrapper {
-  flex: 1;
-  overflow: auto; /* вместо overflow-y: auto */
-}
-
-.stickyTable {
-  margin-bottom: 0;
-}
-
-.stickyTable thead th {
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 1;
-  box-shadow: 0 1px 0 #dee2e6;
-}
-
-.stickyTable thead th {
-  color: #259ed5;
-  font-weight: 600; /* Можно добавить жирность для лучшей читаемости */
-}
-
-.stickyTable tbody tr:hover {
-  background-color: #73b1f0 !important;
-  cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
-}
-
-.stickyTable tbody tr.tableRowDeleted:hover {
-  background-color: #f1b0b7 !important;
-}
-
-.sortableHeader {
-  cursor: pointer;
-  color: #259ed5;
-  font-size: 14px;
-  user-select: none;
-  background: #f8f9fa;
-  transition: background-color 0.3s;
-}
-.sortableHeader2 {
-  cursor: pointer;
-
-  font-size: 12px;
-}
-
-.tableRowDeleted {
-  background-color: #f8d7da !important;
-}
-.tableRowDeleted td {
-  background-color: inherit !important;
-}
-/* Добавьте эти стили в style.module.css */
+/* ===== ОСНОВНЫЕ СТИЛИ ===== */
 .loadingContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 730px;
-  width: auto;
+  height: 100vh;
 }
 
-.spinner {
-  width: 5rem;
-  height: 5rem;
-}
-
-.buttonsContainer {
+/* ===== КОМПОНЕНТ STAFF ===== */
+.staffContainer {
+  height: calc(100vh - 60px);
   display: flex;
-}
-
-.copyButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  outline: none;
-}
-
-.copyButton:hover {
-  color: #fa922f;
-}
-
-.copyIcon {
-  margin-left: 8px;
-}
-
-.editButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  outline: none;
-}
-
-.editButton:hover {
-  color: #fa922f;
-}
-
-.deleteButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  outline: none;
-}
-
-.deleteButton:hover {
-  color: #fa922f;
-}
-
-.deleteIcon {
-  margin-left: 8px;
-}
-.staffUserContainer {
-  padding: 2rem;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-}
-
-.userCard {
-  border: none;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  flex-direction: column;
+  background: #f0f2f5;
+  padding: 16px;
   overflow: hidden;
 }
 
-.avatarWrapper {
-  position: relative;
-  display: inline-block;
+.topPanel {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  flex-shrink: 0;
 }
 
-.userImg {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border: 5px solid #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.statusBadge {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 0.75rem;
-}
-
-.listGroupItem {
-  border-left: none;
-  border-right: none;
-  padding: 1rem 0;
-}
-
-.editPhotoBadge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  cursor: pointer;
-  z-index: 10;
-  padding: 5px 5px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.editPhotoBadge:hover {
-  background-color: #f0f0f0 !important;
-}
-
-.cameraIcon {
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.avatarWrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.userImg {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border: 5px solid #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.statusBadge {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 0.75rem;
-}
-
-.actionsCell {
-  height: 100%; /* Занимает всю высоту строки */
-  padding: 0 !important; /* Убираем стандартные отступы */
-  vertical-align: middle; /* Вертикальное выравнивание по центру */
-}
-
-.actionsContainer {
-  display: flex;
-  flex-direction: row; /* Горизонтальное расположение */
-  align-items: center; /* Центрирование по вертикали */
-  justify-content: center; /* Центрирование по горизонтали */
-  height: 100%; /* Занимает всю высоту ячейки */
-  gap: 8px; /* Отступ между иконками */
-  padding: 0 8px; /* Горизонтальные отступы */
-}
-
-.passwordGenerator {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 30px;
-  background: #f5f5f5;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.title {
-  text-align: center;
-  color: #333;
-  margin-bottom: 30px;
-  font-size: 24px;
-}
-
-.controls {
-  margin-bottom: 25px;
-}
-
-.lengthControl {
-  text-align: center;
-}
-
-.label {
-  display: block;
-  margin-bottom: 10px;
-  font-weight: 600;
-  color: #333;
-}
-
-.slider {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: #ddd;
-  outline: none;
-  margin-bottom: 5px;
-}
-
-.slider::-webkit-slider-thumb {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #2196f3;
-  cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #2196f3;
-  cursor: pointer;
-  border: none;
-}
-
-.lengthValues {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: #666;
-  margin-top: 5px;
-}
-
-.passwordDisplay {
-  margin-bottom: 25px;
-}
-
-.passwordField {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.passwordInput {
+.mainContent {
   flex: 1;
-  padding: 15px;
-  font-size: 18px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  background: white;
-  font-family: "Courier New", monospace;
-  letter-spacing: 1px;
-  width: 100%;
-  box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.copyBtn {
-  position: absolute;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+/* Правая панель - профиль */
+.profilePanel {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.copyBtn:hover {
-  background-color: #f0f0f0;
+.userListPanel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.strengthIndicator {
-  padding: 8px 15px;
-  border-radius: 6px;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  font-size: 14px;
-}
-
-.generateBtn {
-  width: 100%;
-  padding: 15px;
-  background: #2196f3;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-bottom: 25px;
-}
-
-.generateBtn:hover {
-  background: #1976d2;
-}
-
-.requirements {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  border-left: 4px solid #2196f3;
-}
-
-.requirements h3 {
-  margin-top: 0;
-  color: #333;
-  margin-bottom: 15px;
-}
-
-.requirements ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.requirements li {
-  padding: 5px 0;
-  color: #555;
-  font-size: 14px;
-}
-
+/* Адаптивность */
 @media (max-width: 768px) {
-  .passwordGenerator {
-    margin: 20px;
-    padding: 20px;
+  .staffContainer {
+    padding: 12px;
   }
-
-  .passwordInput {
-    font-size: 16px;
+  
+  .mainContent {
+    flex-direction: column;
   }
-
-  .title {
-    font-size: 20px;
+  
+  .userListPanel,
+  .profilePanel {
+    width: 100%;
+    max-width: 100%;
   }
 }
 
-.cardWidth {
-  max-width: 700px;
-}
-
-.cardWidthFio {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #595959;
-  padding: 0;
-  margin: 0;
-}
-.cardWidthDep {
-  font-size: 0.8rem;
-  color: #8e8e93;
-  padding: 0;
-  margin: 0;
-}
-.cardWidthPost {
-  font-size: 0.8rem;
-  color: #8e8e93;
-  padding: 0;
-  margin: 0;
+@media (max-width: 576px) {
+  .staffContainer {
+    padding: 8px;
+  }
+  
+  .topPanel {
+    padding: 12px;
+  }
 }

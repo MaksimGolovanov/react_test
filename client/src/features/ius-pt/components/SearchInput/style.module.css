@@ -1,21 +1,20 @@
 .searchContainer {
-    width: 400px; /* Занимает всю ширину родительского контейнера */
+    width: 100%; /* Занимает всю ширину родительского контейнера */
     display: flex;
     align-items: center; /* Выравнивание по вертикали */
-    border: 1px solid #2c353c;
+    border: 1px solid #acd5e6;
     border-radius: 2px;
     padding: 2px 2px;
-    
-    background-color: #2c353c;
+    background-color: #fff;
     box-sizing: border-box; /* Учитываем padding и border в ширине */
-    margin-bottom: 8px;
-    margin-top: 8px;
+    margin-bottom: 5px;
+    margin-top: 2px;
 }
 
 .searchIcon {
     margin-right: 8px; /* Отступ между иконкой и полем ввода */
-    margin-left: 8px;
-    color: #fff; /* Цвет иконки */
+    margin-left: 6px;
+    color: #0973a1; /* Цвет иконки */
     display: flex;
     width: 20px; 
     height: 20px;
@@ -28,7 +27,7 @@
     outline: none;
     font-size: 12px;
     height: 26px;
-    color: #fff;
+    color: #212121;
     background-color: transparent; /* Прозрачный фон */
     padding: 8px; /* Внутренний отступ для текста */
 }
@@ -40,12 +39,12 @@
 .clearIcon {
     margin-left: 8px; /* Отступ между полем ввода и иконкой крестика */
     margin-right: 8px;
-    color: #fff; /* Цвет иконки */
+    color: #0973a1; /* Цвет иконки */
     cursor: pointer; /* Курсор в виде указателя */
     display: flex;
     align-items: center;
 }
 
 .clearIcon:hover {
-    color: #007bff; /* Изменение цвета при наведении */
+    color: #333; /* Изменение цвета при наведении */
 }

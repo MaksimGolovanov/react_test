@@ -1,100 +1,64 @@
 /* IpAddress.module.css */
 .container {
-    margin-top: 1rem;
-    padding: 0;
-    
-    max-width: 100%;
+  height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  background: #f0f2f5;
+  padding: 16px;
+  overflow: hidden;
 }
 
-.header {
-    
-    justify-content: space-between;
-    align-items: center;
-    
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+.tableCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
+    0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  min-height: 0;
+  overflow: hidden;
 }
 
-.searchInput {
-    width: 200px;
-    display: inline-block;
+.tableCard :global(.ant-card-body) {
+  padding: 0 !important;
 }
 
-.badge {
-    margin-left: 0.5rem;
+.userListScroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  max-height: calc(100vh - 195px);
+
+  /* Стили для скроллбара */
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 #f5f5f5;
 }
 
-.tableContainer {
-    max-height: 600px;
-    overflow-y: auto;
-    margin-bottom: 1rem;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
+.userListScroll::-webkit-scrollbar {
+  width: 4px;
 }
 
-.table {
-    margin-bottom: 0;
-    width: 100%;
+.userListScroll::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 2px;
 }
 
-.table th {
-    cursor: pointer;
-    user-select: none;
-    position: sticky;
-    top: 0;
-    background-color: #f8f9fa;
-    z-index: 10;
+.userListScroll::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 2px;
 }
 
-.table th:hover {
-    background-color: #e9ecef;
+.userListScroll::-webkit-scrollbar-thumb:hover {
+  background: #bfbfbf;
 }
 
-.sortIcon {
-    margin-left: 5px;
+.tableRow :global(.ant-table-cell) {
+  cursor: pointer;
+  max-width: 400px;
 }
 
-.loadingContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
-}
-
-.loadingText {
-    margin-top: 1rem;
-}
-
-.errorContainer {
-    padding: 2rem;
-}
-
-.ipCell {
-    font-family: monospace;
-}
-
-.emptyCell {
-    color: #6c757d;
-    font-style: italic;
-}
-
-/* Стили для скроллбара */
-.tableContainer::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.tableContainer::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.tableContainer::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.tableContainer::-webkit-scrollbar-thumb:hover {
-    background: #555;
+.tableRow:hover :global(.ant-table-cell) {
+  background-color: #fafafa !important;
 }

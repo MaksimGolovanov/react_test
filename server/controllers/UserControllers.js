@@ -13,8 +13,8 @@ const generateJwt = (id, login, roles) => {
 class userController {
   async registration(req, res, next) {
     try {
-      const { login, password, roles, description } = req.body;
-      console.log('Received registration data:', { login, password, roles, description });
+      const { login, password, roles, description, tabNumber } = req.body;
+     
 
       if (!login || !password) {
         return next(ApiError.badRequest('Некорректный Логин или Пароль'));
@@ -28,13 +28,14 @@ class userController {
 
       // Хеширование пароля
       const hashPassword = await argon2.hash(password);
-      console.log('Password hashed successfully');
+      
 
       // Создание пользователя
       const user = await User.create({
         login,
         password: hashPassword,
-        description
+        description,
+        tabNumber,
       });
       console.log('User created:', user.id);
 
@@ -79,7 +80,7 @@ class userController {
             through: { attributes: [] },
           }
         ],
-        attributes: ['id', 'login', 'description']
+        attributes: ['id', 'login', 'description', 'tabNumber']
       });
       console.log(JSON.stringify(users, null, 2)); // Форматируем вывод для удобочитаемости
       return res.json(users);
@@ -171,9 +172,9 @@ class userController {
   async updateUser(req, res, next) {
     try {
       const { id } = req.params;
-      const { login, password, description, roles } = req.body;
+      const { login, password, description, roles, tabNumber } = req.body;
 
-      console.log('Updating user:', { id, login, description, roles });
+      console.log('Updating user:', { id, login, description, roles, tabNumber });
 
       const user = await User.findByPk(id);
       if (!user) {
@@ -184,6 +185,7 @@ class userController {
       const updateData = {
         login: login || user.login,
         description: description !== undefined ? description : user.description,
+        tabNumber: tabNumber || user.tabNumber
       };
 
       // Если предоставлен новый пароль, хешируем его
@@ -210,7 +212,7 @@ class userController {
           model: Role,
           through: { attributes: [] }
         }],
-        attributes: ['id', 'login', 'description']
+        attributes: ['id', 'login', 'description', 'tabNumber']
       });
 
       return res.json(updatedUser);

@@ -1,0 +1,478 @@
+/* ===== КОНТЕЙНЕР ПАНЕЛИ ===== */
+.userListCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  background: white;
+}
+
+.panelHeader {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleIcon {
+  font-size: 20px;
+  color: #1890ff;
+  background: #e6f7ff;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.panelTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+  white-space: nowrap;
+}
+
+.countBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.titleWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.activeCount {
+  background: #1890ff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 24px;
+  text-align: center;
+}
+
+.deletedCount {
+  background: #ff4d4f;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+
+
+.searchInput :global(.ant-input-affix-wrapper) {
+  border-radius: 8px;
+  border-color: #e8e8e8;
+  transition: all 0.2s;
+}
+
+.searchInput :global(.ant-input-affix-wrapper:hover),
+.searchInput :global(.ant-input-affix-wrapper-focused) {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+/* ===== СПИСОК СОТРУДНИКОВ ===== */
+.userListContainer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.userListScroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  
+  /* Стили для скроллбара */
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 #f5f5f5;
+}
+
+.userListScroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.userListScroll::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 2px;
+}
+
+.userListScroll::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 2px;
+}
+
+.userListScroll::-webkit-scrollbar-thumb:hover {
+  background: #bfbfbf;
+}
+
+/* ===== КАРТОЧКА СОТРУДНИКА ===== */
+.userItem {
+  display: flex;
+  align-items: center; /* Выравнивание по центру по вертикали */
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  background: white;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0; /* Для корректной работы ellipsis */
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.userItem:hover {
+  border-color: #1890ff;
+  background: #fafafa;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+}
+
+.itemSelected {
+  border-color: #1890ff !important;
+  background: #e6f7ff !important;
+}
+
+.itemDeleted {
+  opacity: 0.7;
+  background: linear-gradient(45deg, #fafafa 25%, #fff1f0 25%, #fff1f0 50%, #fafafa 50%, #fafafa 75%, #fff1f0 75%);
+  background-size: 20px 20px;
+}
+
+.itemDeleted:hover {
+  opacity: 0.9;
+}
+
+.itemAvatar {
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center; /* Центрируем аватар */
+}
+
+.userAvatar {
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.deletedOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 77, 79, 0.1);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 77, 79, 0.2);
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between; /* Разделяем ФИО и телефон по краям */
+  align-items: flex-start; /* Выравниваем по верхнему краю */
+  margin-bottom: 4px;
+  width: 100%;
+}
+
+.itemName {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: #262626;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deletedLabel {
+  background: #ff4d4f;
+  color: white;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.itemPosition {
+  font-size: 12px;
+  display: block;
+  margin-bottom: 4px;
+  line-height: 1.3;
+  color: #595959;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemDepartment {
+  font-size: 11px;
+  color: #8c8c8c;
+  display: block;
+  margin-bottom: 4px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phoneIcon {
+  font-size: 11px;
+  color: #1890ff;
+  opacity: 0.8;
+}
+
+.phoneText {
+  font-size: 12px;
+  color: #1890ff;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.selectionIndicator {
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: #1890ff;
+  border-radius: 2px;
+}
+
+/* ===== ПУСТОЕ СОСТОЯНИЕ ===== */
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  color: #bfbfbf;
+  min-height: 200px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.emptyText {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 768px) {
+  .userListCard {
+    margin-bottom: 16px;
+  }
+  
+  .panelHeader {
+    padding: 12px;
+  }
+  
+  .userItem {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .panelHeader {
+    padding: 12px;
+  }
+  
+  .userItem {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .itemName {
+    font-size: 13px;
+  }
+  
+  .itemPosition {
+    font-size: 11px;
+  }
+  
+  .itemDepartment {
+    font-size: 10px;
+  }
+}
+
+/* Добавьте эти стили в ваш файл StaffListPanel.module.css */
+
+.filterStatus {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.filterTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #8c8c8c;
+  background: #f5f5f5;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.noPhotoCount {
+  color: #faad14;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.itemNoPhoto {
+  background-color: #fffbf0;
+}
+
+.noPhotoBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #faad14;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(30%, 30%);
+  z-index: 1;
+}
+
+.noPhotoLabel {
+  color: #faad14;
+  margin-left: 6px;
+  font-size: 12px;
+}
+
+.emptyText {
+  text-align: center;
+  padding: 0 16px;
+}
+
+/* Обновленный счетчик */
+.countBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+/* StaffListPanel.module.css */
+
+/* Стили для исключенных служб */
+.itemExcluded {
+  opacity: 0.8;
+  background-color: #f6ffed;
+}
+
+.itemExcluded:hover {
+  background-color: #f0fff3;
+}
+
+.excludedBadge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.excludedLabel {
+  font-size: 10px;
+  padding: 2px 6px;
+  background-color: #fff3cd;
+  color: #856404;
+  border-radius: 10px;
+  font-weight: 500;
+  border: 1px solid #ffeaa7;
+}
+
+.excludedOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 193, 7, 0.05);
+  border-radius: 50%;
+}
+
+.departmentRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.excludedMarker {
+  font-size: 11px;
+  color: #ffc107;
+  font-style: italic;
+}
+
+/* Обновить отображение статистики в заголовке */
+.countBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.excludedCount {
+  font-size: 11px;
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 4px;
+}

@@ -22,7 +22,7 @@ const ButtonAll = ({ icon: Icon, text, path, onClick, disabled = false }) => {
                 onClick={handleClick}
                 disabled={disabled} // Отключаем кнопку, если disabled=true
             >
-                
+                {Icon && <Icon size={20} className={styles.iconbtn} />}
                 {text}
             </button>
         </div>

@@ -26,8 +26,8 @@ const Clock = () => {
 
   return (
     <div className="text-center mr-4">
-      <p style={{ fontWeight: 'bold', color: '#fff', fontSize: '23px', lineHeight: '1.0' }} className="m-0">{currentTime}</p>
-      <p style={{ fontWeight: 'bold', color: '#fff', fontSize: '12px', lineHeight: '1.0' }}className="m-0">{currentDate}</p>
+      <p style={{ fontWeight: 'bold', color: '#707070', fontSize: '23px', lineHeight: '1.0' }} className="m-0">{currentTime}</p>
+      <p style={{ fontWeight: 'bold', color: '#707070', fontSize: '12px', lineHeight: '1.0' }}className="m-0">{currentDate}</p>
     </div>
   );
 };

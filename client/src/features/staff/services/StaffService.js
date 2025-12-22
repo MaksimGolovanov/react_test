@@ -175,7 +175,6 @@ class StaffService {
                const formData = new FormData()
                formData.append('photo', file)
                formData.append('tabNumber', tabNumber)
-               
 
                const response = await axios.post(`${API_URL}api/staff/upload-photo`, formData, {
                     headers: {
@@ -185,6 +184,44 @@ class StaffService {
                return response.data
           } catch (error) {
                console.error('Photo upload error:', error.response?.data || error.message)
+               throw error
+          }
+     }
+
+     static async fetchCard() {
+          try {
+               const response = await axios.get(`${API_URL}api/card`)
+               return response.data
+          } catch (error) {
+               console.error('Ошибка при получении', error)
+               throw error
+          }
+     }
+
+     static async fetchCardsByFio(fio) {
+          try {
+               const response = await axios.get(`${API_URL}api/card`)
+               // Фильтруем на клиенте
+               const userCards = response.data.filter(
+                    (card) => card.fio && card.fio.toLowerCase() === fio.toLowerCase()
+               )
+               return userCards
+          } catch (error) {
+               console.error('Ошибка при получении карт:', error)
+               throw error
+          }
+     }
+
+     static async fetchUsbByFio(fio) {
+          try {
+               const response = await axios.get(`${API_URL}api/usb`)
+               const userUsb = response.data.filter(
+                    (usb) => usb.fio && usb.fio.toLowerCase() === fio.toLowerCase()
+               )
+               return userUsb
+               
+          } catch (error) {
+               console.error('Ошибка при получении', error)
                throw error
           }
      }

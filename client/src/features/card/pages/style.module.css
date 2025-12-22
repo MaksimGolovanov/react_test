@@ -1,0 +1,142 @@
+/* Основной контейнер с grid */
+.containerGrid {
+    margin-top: 1rem;
+    padding: 0;
+    font-size: 12px;
+    max-width: 100%;
+    height: calc(100vh - 6rem);
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 1rem;
+}
+
+/* Заголовок карточки */
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+    flex-shrink: 0;
+}
+
+/* Контейнер для таблицы с фиксированной высотой и скроллом */
+.tableContainerGrid {
+    height: calc(100vh - 220px);
+    min-height: 300px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* Таблица */
+.table {
+    margin-bottom: 0;
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* Фиксированный заголовок таблицы при скролле */
+.table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f8f9fa;
+}
+
+/* Стили для checkbox в первой колонке */
+.table th:first-child,
+.table td:first-child {
+    width: 40px;
+    text-align: center;
+}
+
+/* Стили для скроллбара */
+.tableContainerGrid::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.tableContainerGrid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tableContainerGrid::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.tableContainerGrid::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.tableContainerGrid {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+
+/* Стили для ячеек с просрочкой */
+.expiredCell {
+    background-color: #dc3545 !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+.warningCell {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+    font-weight: 500;
+}
+
+/* Чтобы полоски таблицы (striped) не перекрывали цвета */
+.table-striped > tbody > tr:nth-of-type(odd) .expiredCell,
+.table-striped > tbody > tr:nth-of-type(even) .expiredCell {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) .warningCell,
+.table-striped > tbody > tr:nth-of-type(even) .warningCell {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+/* Состояния загрузки и ошибок */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+.loadingText {
+    margin-top: 1rem;
+}
+
+.errorContainer {
+    padding: 2rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .containerGrid {
+        height: calc(100vh - 4rem);
+    }
+    
+    .header .d-flex.justify-content-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .header .d-flex.justify-content-between > div:first-child {
+        width: 100% !important;
+    }
+    
+    .header .d-flex.justify-content-between > div:last-child {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

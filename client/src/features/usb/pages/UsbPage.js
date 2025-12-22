@@ -382,6 +382,30 @@ const UsbAddress = observer(() => {
           })
      }
 
+     const getCellColorClass = (usb) => {
+          // Если USB не в работе, не подсвечиваем даты
+          if (usb.log && usb.log.toLowerCase().trim() === 'нет') {
+               return ''
+          }
+
+          const nextCheckDate = getNextCheckDate(usb.data_prov)
+          if (!nextCheckDate) return ''
+
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+
+          const nextCheckDateOnly = new Date(nextCheckDate)
+          nextCheckDateOnly.setHours(0, 0, 0, 0)
+
+          const warningDate = new Date(nextCheckDateOnly)
+          warningDate.setDate(warningDate.getDate() - 7) // За 7 дней предупреждение для USB (вместо 30 для карт)
+
+          if (nextCheckDateOnly < today) return styles.expiredCell
+          if (warningDate <= today) return styles.warningCell
+
+          return ''
+     }
+
      const hasUsbsToNotify = UsbStore.usb?.some((usb) => {
           if (!usb.data_prov || !usb.email || (usb.log && usb.log.toLowerCase() === 'нет')) return false
 
@@ -524,7 +548,6 @@ const UsbAddress = observer(() => {
                <Card>
                     <Card.Header className={styles.header}>
                          <div className="d-flex align-items-center w-100">
-                              {/* Кнопки слева */}
                               <div className="d-flex gap-2">
                                    <Button variant="primary" size="sm" onClick={handleAddNew}>
                                         <IoCreateOutline className="me-2" />
@@ -561,64 +584,133 @@ const UsbAddress = observer(() => {
                                    </Button>
                               </div>
 
-                              {/* Переключатель справа с автоматическим отступом */}
-                              <div className="ms-auto">
+                              <div className="ms-auto d-flex flex-column gap-1">
                                    <FormCheck
                                         type="switch"
                                         id="showInWorkOnly"
                                         label="Показывать только USB-накопители в работе"
                                         checked={showInWorkOnly}
                                         onChange={(e) => setShowInWorkOnly(e.target.checked)}
+                                        className="mb-0"
                                    />
                               </div>
                          </div>
 
-                         {/* Строка поиска под всем */}
-                         <div className="mt-1">
-                              <SearchInput
-                                   value={searchTerm}
-                                   onChange={(value) => setSearchTerm(value)}
-                                   placeholder="Поиск пользователей..."
-                              />
+                         <div className="d-flex align-items-center justify-content-between mt-2 pt-2">
+                              <div style={{ width: '600px' }}>
+                                   <SearchInput
+                                        value={searchTerm}
+                                        onChange={(value) => setSearchTerm(value)}
+                                        placeholder="Поиск по регистрационному номеру, серийному номеру или ФИО..."
+                                        size="sm"
+                                   />
+                              </div>
+
+                              <div className="d-flex gap-3">
+                                   <small className="text-muted">
+                                        Всего: <strong>{UsbStore.usb?.length || 0}</strong>
+                                   </small>
+                                   <small className="text-success">
+                                        В работе:{' '}
+                                        <strong>
+                                             {UsbStore.usb?.filter((u) => u.log?.toLowerCase() === 'да').length || 0}
+                                        </strong>
+                                   </small>
+                                   <small className="text-warning">
+                                        Не в работе:{' '}
+                                        <strong>
+                                             {UsbStore.usb?.filter((u) => u.log?.toLowerCase() === 'нет').length || 0}
+                                        </strong>
+                                   </small>
+                                   <small className="text-info">
+                                        Отображается: <strong>{sortedItems().length}</strong>
+                                   </small>
+                              </div>
                          </div>
                     </Card.Header>
 
-                    <Card.Body style={{ padding: 0, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Card.Body
+                         style={{
+                              padding: 0,
+                              flex: 1,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              overflow: 'hidden',
+                         }}
+                    >
                          <div className={styles.tableContainerGrid}>
                               <Table striped bordered hover className={styles.table}>
                                    <thead className="table-light">
                                         <tr className="table-primary">
-                                             <th></th>
-                                             <th onClick={() => requestSort('num_form')} style={{ cursor: 'pointer' }}>
-                                                  Рег. номер {getSortIcon('num_form')}
+                                             <th style={{ width: '15px' }} className="border-end"></th>
+                                             <th
+                                                  onClick={() => requestSort('num_form')}
+                                                  style={{ cursor: 'pointer', width: '60px' }}
+                                                  className="align-middle border-end"
+                                             >
+                                                  форма {getSortIcon('num_form')}
                                              </th>
-                                             <th onClick={() => requestSort('ser_num')} style={{ cursor: 'pointer' }}>
+                                             <th
+                                                  onClick={() => requestSort('ser_num')}
+                                                  style={{ cursor: 'pointer', width: '80px' }}
+                                                  className="align-middle border-end"
+                                             >
                                                   Серийный номер {getSortIcon('ser_num')}
                                              </th>
-                                             <th onClick={() => requestSort('volume')} style={{ cursor: 'pointer' }}>
+                                             <th
+                                                  onClick={() => requestSort('volume')}
+                                                  style={{ cursor: 'pointer', width: '60px' }}
+                                                  className="align-middle border-end"
+                                             >
                                                   Объем {getSortIcon('volume')}
                                              </th>
-                                             <th onClick={() => requestSort('data_uch')} style={{ cursor: 'pointer' }}>
+                                             <th
+                                                  onClick={() => requestSort('data_uch')}
+                                                  style={{ cursor: 'pointer', width: '80px' }}
+                                                  className="align-middle border-end"
+                                             >
                                                   Дата регистрации {getSortIcon('data_uch')}
                                              </th>
-                                             <th onClick={() => requestSort('email')} style={{ cursor: 'pointer' }}>
+                                             <th
+                                                  onClick={() => requestSort('email')}
+                                                  style={{ cursor: 'pointer', width: '150px' }}
+                                                  className="align-middle border-end"
+                                             >
                                                   Электронная почта {getSortIcon('email')}
                                              </th>
-                                             <th onClick={() => requestSort('fio')} style={{ cursor: 'pointer' }}>
+                                             <th
+                                                  onClick={() => requestSort('fio')}
+                                                  style={{ cursor: 'pointer', width: '130px' }}
+                                                  className="align-middle border-end"
+                                             >
                                                   ФИО {getSortIcon('fio')}
                                              </th>
                                              <th
                                                   onClick={() => requestSort('department')}
-                                                  style={{ cursor: 'pointer' }}
+                                                  style={{ cursor: 'pointer', width: '150px' }}
+                                                  className="align-middle border-end"
                                              >
                                                   Служба {getSortIcon('department')}
                                              </th>
-                                             <th onClick={() => requestSort('data_prov')} style={{ cursor: 'pointer' }}>
+                                             <th
+                                                  onClick={() => requestSort('data_prov')}
+                                                  style={{ cursor: 'pointer', width: '80px' }}
+                                                  className="align-middle border-end"
+                                             >
                                                   Дата проверки {getSortIcon('data_prov')}
                                              </th>
-                                             <th>Дата следующей проверки</th>
-                                             <th onClick={() => requestSort('log')} style={{ cursor: 'pointer' }}>
-                                                  В работе Да/Нет {getSortIcon('log')}
+                                             <th
+                                                  style={{ width: '80px' }}
+                                                  className="text-center align-middle border-end"
+                                             >
+                                                  Дата следующей проверки
+                                             </th>
+                                             <th
+                                                  onClick={() => requestSort('log')}
+                                                  style={{ cursor: 'pointer', width: '60px' }}
+                                                  className="align-middle"
+                                             >
+                                                  В работе {getSortIcon('log')}
                                              </th>
                                         </tr>
                                    </thead>
@@ -627,18 +719,10 @@ const UsbAddress = observer(() => {
                                              const nextCheckDate = getNextCheckDate(usb.data_prov)
                                              const isExpired = nextCheckDate && nextCheckDate < new Date()
                                              const isNotInWork = usb.log && usb.log.toLowerCase().trim() === 'нет'
+                                             const rowColorClass = isNotInWork ? 'table-warning' : ''
 
                                              return (
-                                                  <tr
-                                                       key={usb.id}
-                                                       className={
-                                                            isExpired
-                                                                 ? 'table-danger'
-                                                                 : isNotInWork
-                                                                 ? 'table-warning'
-                                                                 : ''
-                                                       }
-                                                  >
+                                                  <tr key={usb.id} className={rowColorClass}>
                                                        <td>
                                                             <input
                                                                  className="form-check-input"
@@ -655,7 +739,7 @@ const UsbAddress = observer(() => {
                                                        <td>{usb.fio || '-'}</td>
                                                        <td>{usb.department || '-'}</td>
                                                        <td>{formatDate(usb.data_prov) || '-'}</td>
-                                                       <td>
+                                                       <td className={getCellColorClass(usb)}>
                                                             {usb.data_prov
                                                                  ? formatDate(getNextCheckDate(usb.data_prov))
                                                                  : '-'}

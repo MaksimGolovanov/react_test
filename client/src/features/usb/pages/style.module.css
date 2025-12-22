@@ -1,62 +1,149 @@
-/* IpAddress.module.css */
+/* Основные контейнеры */
 .container {
     margin-top: 1rem;
     padding: 0;
     font-size: 12px;
     max-width: 100%;
-    height: calc(100vh - 2rem); /* Занимаем всю высоту окна с отступом */
+    height: calc(100vh - 2rem);
     display: flex;
     flex-direction: column;
 }
 
-.header {
+.containerGrid {
+    margin-top: 1rem;
+    padding: 0;
+    font-size: 12px;
+    max-width: 100%;
+    height: calc(100vh - 6rem);
     display: grid;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto 1fr;
+    gap: 1rem;
+}
+
+/* Заголовки */
+.header {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
     padding: 1rem;
+    flex-shrink: 0;
 }
 
-.searchInput {
-    width: 200px;
-    display: inline-block;
-}
-
-.badge {
-    margin-left: 0.5rem;
-}
-
+/* Контейнеры для таблиц */
 .tableContainer {
-    flex: 1; /* Занимает все оставшееся пространство */
-    min-height: 0; /* Критически важно для flex */
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
 }
 
+.tableContainerGrid {
+    height: calc(100vh - 220px);
+    min-height: 300px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* Таблицы */
 .table {
     margin-bottom: 0;
     width: 100%;
+    table-layout: fixed;
+}
+
+.table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f8f9fa;
 }
 
 .table th {
     cursor: pointer;
     user-select: none;
-    position: sticky;
-    top: 0;
-    background-color: #f8f9fa;
-    z-index: 10;
 }
 
 .table th:hover {
     background-color: #e9ecef;
 }
 
-.sortIcon {
-    margin-left: 5px;
+/* Стили для checkbox в первой колонке */
+.table th:first-child,
+.table td:first-child {
+    width: 40px;
+    text-align: center;
 }
 
+/* Стили для скроллбара */
+.tableContainer::-webkit-scrollbar,
+.tableContainerGrid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tableContainer::-webkit-scrollbar-track,
+.tableContainerGrid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb,
+.tableContainerGrid::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover,
+.tableContainerGrid::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Для Firefox */
+.tableContainer,
+.tableContainerGrid {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+
+.tableContainerGrid::-webkit-scrollbar {
+    height: 8px;
+}
+
+/* Стили для ячеек с просрочкой */
+.expiredCell {
+    background-color: #dc3545 !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+.warningCell {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+    font-weight: 500;
+}
+
+/* Чтобы полоски таблицы (striped) не перекрывали цвета */
+.table-striped > tbody > tr:nth-of-type(odd) .expiredCell,
+.table-striped > tbody > tr:nth-of-type(even) .expiredCell {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) .warningCell,
+.table-striped > tbody > tr:nth-of-type(even) .warningCell {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+/* Статус контейнер */
+.statusContainer {
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+}
+
+/* Состояния загрузки и ошибок */
 .loadingContainer {
     display: flex;
     flex-direction: column;
@@ -73,85 +160,9 @@
     padding: 2rem;
 }
 
-.ipCell {
-    font-family: monospace;
-}
 
-.emptyCell {
-    color: #6c757d;
-    font-style: italic;
-}
-
-/* Стили для скроллбара */
-.tableContainer::-webkit-scrollbar {
-    width: 8px;
-}
-
-.tableContainer::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.tableContainer::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.tableContainer::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
 
 /* Убираем горизонтальную прокрутку у таблицы */
 .tableContainer table {
     min-width: 100%;
-}
-
-/* Стили для статус-контейнера (если используется) */
-.statusContainer {
-    margin-bottom: 1rem;
-    flex-shrink: 0; /* Не сжимается */
-}
-
-/* Альтернативный вариант с grid */
-.containerGrid {
-    margin-top: 1rem;
-    padding: 0;
-    font-size: 12px;
-    max-width: 100%;
-    height: calc(100vh - 6rem);
-    display: grid;
-    grid-template-rows: auto 1fr; /* Хедер и таблица */
-    gap: 1rem;
-}
-
-.mainCard {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.tableContainerGrid {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
-}
-
-.tableContainerGrid::-webkit-scrollbar {
-    width: 8px;
-}
-
-.tableContainerGrid::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.tableContainerGrid::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.tableContainerGrid::-webkit-scrollbar-thumb:hover {
-    background: #555;
 }

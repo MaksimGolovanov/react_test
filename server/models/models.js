@@ -6,6 +6,7 @@ const User = sequelize.define('users', {
      login: { type: DataTypes.STRING, unique: true },
      password: { type: DataTypes.STRING },
      description: { type: DataTypes.STRING },
+     tabNumber: { type: DataTypes.STRING },
 })
 const Role = sequelize.define('roles', {
      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -55,6 +56,16 @@ const Usb = sequelize.define('usb', {
      volume: { type: DataTypes.STRING },
      data_uch: { type: DataTypes.DATE },
      email: { type: DataTypes.STRING },
+     fio: { type: DataTypes.STRING },
+     department: { type: DataTypes.STRING },
+     data_prov: { type: DataTypes.DATE },
+     log: { type: DataTypes.STRING },
+}) 
+const Card = sequelize.define('card', {
+     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+     ser_num: { type: DataTypes.STRING },
+     type: { type: DataTypes.STRING },
+     description: { type: DataTypes.STRING },
      fio: { type: DataTypes.STRING },
      department: { type: DataTypes.STRING },
      data_prov: { type: DataTypes.DATE },
@@ -137,5 +148,6 @@ module.exports = {
      EsMtr,
      IP_addresses,
      Dolgnost,
-     Usb
+     Usb,
+     Card
 }
