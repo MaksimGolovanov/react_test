@@ -1,75 +1,79 @@
-import React, { useState } from 'react';
-import { Form, Button, Card } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
-import userStore from '../store/UserStore'; // Убедитесь, что путь правильный
+import React, { useState, useEffect } from 'react';
+import { Form, Button, Card, Input, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import userStore from '../store/UserStore';
 
 const LoginPage = () => {
-    const [login, setLogin] = useState('');
-    const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const navigate = useNavigate(); // Получаем функцию навигации
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const [form] = Form.useForm();
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    const handleSubmit = async (values) => {
+        setLoading(true);
         try {
-            const success = await userStore.login(login, password);
+            const success = await userStore.login(values.login, values.password);
             if (success) {
-                navigate('/'); // Перенаправление на главную страницу или панель управления
+                message.success('Вход выполнен успешно');
+                navigate('/');
             } else {
-                setErrorMessage('Неверные учетные данные. Пожалуйста, попробуйте еще раз.');
+                message.error('Неверные учетные данные');
             }
         } catch (error) {
-            console.error('Ошибка при входе:', error);
-            setErrorMessage('Произошла ошибка при входе. Попробуйте еще раз позже.');
+            message.error('Ошибка при входе');
+        } finally {
+            setLoading(false);
         }
     };
-
+useEffect(() => {
+        userStore.fetchUsers();
+    }, []);
     return (
-        <div
-            style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-            }}
-        >
-            <Card style={{ width: '100%', maxWidth: '400px' }}>
-                <Card.Body>
-                    <Card.Title className="text-center">Вход</Card.Title>
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group controlId="formLogin">
-                            <Form.Label>Логин</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="login"
-                                placeholder="Введите логин"
-                                value={login}
-                                onChange={(e) => setLogin(e.target.value)}
-                                autoComplete="username"
-                            />
-                        </Form.Group>
+        <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+            background: '#f0f2f5'
+        }}>
+            <Card 
+                style={{ width: '100%', maxWidth: '400px' }}
+                bordered={false}
+            >
+                <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Вход в систему</h2>
+                
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleSubmit}
+                    autoComplete="off"
+                >
+                    <Form.Item
+                        label="Логин"
+                        name="login"
+                        rules={[{ required: true, message: 'Введите логин' }]}
+                    >
+                        <Input placeholder="Введите логин" />
+                    </Form.Item>
 
-                        <Form.Group controlId="formPassword" className="mt-3">
-                            <Form.Label>Пароль</Form.Label>
-                            <Form.Control
-                                type="password"
-                                name="password"
-                                placeholder="Введите пароль"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                autoComplete="current-password" 
-                            />
-                        </Form.Group>
+                    <Form.Item
+                        label="Пароль"
+                        name="password"
+                        rules={[{ required: true, message: 'Введите пароль' }]}
+                    >
+                        <Input.Password placeholder="Введите пароль" />
+                    </Form.Item>
 
-                        {errorMessage && (
-                            <div className="text-danger mt-2">{errorMessage}</div>
-                        )}
-
-                        <Button variant="primary" type="submit" className="w-100 mt-4">
+                    <Form.Item>
+                        <Button 
+                            type="primary" 
+                            htmlType="submit" 
+                            loading={loading}
+                            block
+                        >
                             Войти
                         </Button>
-                    </Form>
-                </Card.Body>
+                    </Form.Item>
+                </Form>
             </Card>
         </div>
     );

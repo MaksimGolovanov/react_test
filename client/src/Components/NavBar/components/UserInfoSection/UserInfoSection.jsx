@@ -41,9 +41,6 @@ const UserInfoSection = ({
               <Text className={styles.userName}>
                 {userName || "Пользователь"}
               </Text>
-              <Text className={styles.userRoles}>
-                {userRolesAuth?.join(", ") || "Роли не назначены"}
-              </Text>
             </div>
           </Space>
           <Tooltip title="Выйти">

@@ -5,8 +5,8 @@ import Button from 'react-bootstrap/Button';
 import { VscSaveAs } from "react-icons/vsc";
 import { CgCloseO } from "react-icons/cg";
 import { Image } from 'react-bootstrap';
-import plug from '../../../Image/plug1.jpg'
-import plug2 from '../../../Image/plug2.jpg'
+import plug from '../../../shared/assets/Image/plug1.jpg'
+import plug2 from '../../../shared/assets/Image/plug2.jpg'
 import PrintsService from '../services/PrintsService';
 
 const customStyles = {

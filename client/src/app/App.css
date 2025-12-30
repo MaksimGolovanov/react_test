@@ -2,7 +2,7 @@
 .app-container {
   display: flex;
   min-height: 100vh;
-  background-image: url("./Image/UI.jpg");
+  background-image: url("../shared/assets/Image/UI.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;

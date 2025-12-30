@@ -1,30 +1,77 @@
-import React, { useState } from 'react'
-import { useLocation, Routes, Route } from 'react-router-dom'
-import Clock from './Components/Clock'
-import NavBar from './Components/NavBar/NavBar'
-import PrivateRoute from './shared/PrivateRoute'
-import { Prints } from './features/prints'
-import { NotesRoutes } from './features/notes'
-import { IusPtRoutes } from './features/ius-pt'
-import { StaffRoutes } from './features/staff'
-import { AdminRoutes } from './features/admin'
-import { IpRoutes } from './features/ip'
-import { BadgesRoutes } from './features/badges'
-import { UsbRoutes } from './features/usb'
-import { CardRoutes } from './features/card'
-import { Staff } from './features/staff'
-import LoginPage from './features/admin/pages/LoginPage'
-import Json from './features/json/pages/json'
+import React, { useState, useEffect } from 'react'
+import { useLocation, Routes, Route, Navigate } from 'react-router-dom'
+import Clock from '../Components/Clock'
+import NavBar from '../Components/NavBar/NavBar'
+import PrivateRoute from '../shared/PrivateRoute'
+import { Prints } from '../features/prints'
+import { NotesRoutes } from '../features/notes'
+import { IusPtRoutes } from '../features/ius-pt'
+import { StaffRoutes } from '../features/staff'
+import { AdminRoutes } from '../features/admin'
+import { IpRoutes } from '../features/ip'
+import { BadgesRoutes } from '../features/badges'
+import { UsbRoutes } from '../features/usb'
+import { CardRoutes } from '../features/card'
+import { SecurityTrainingRoutes } from '../features/security-training/routes'
+import LoginPage from '../features/admin/pages/LoginPage'
+import Json from '../features/json/pages/JsonViewer'
 import './App.css'
+import userStore from '../features/admin/store/UserStore'
+import { observer } from 'mobx-react-lite'
+
+// Компонент для определения первой доступной страницы
+const FirstAvailablePage = observer(() => {
+     const userRoles = userStore.userRolesAuth || []
+
+     // Порядок проверки маршрутов (от более приоритетных к менее)
+     const routesPriority = [
+          { path: '/staff', roles: ['ADMIN', 'USER'] },
+          { path: '/ipaddress', roles: ['ADMIN', 'IP'] },
+          { path: '/prints', roles: ['ADMIN', 'PRINT'] },
+          { path: '/badges', roles: ['ADMIN', 'BADGES'] },
+          { path: '/usb', roles: ['ADMIN', 'USB'] },
+          { path: '/card', roles: ['ADMIN', 'CARD'] },
+          { path: '/notes', roles: ['ADMIN', 'NOTES'] },
+          { path: '/iuspt', roles: ['ADMIN', 'IUSPT'] },
+          { path: '/admin', roles: ['ADMIN'] },
+          { path: '/json', roles: ['ADMIN'] },
+          { path: '/security-training', roles: ['ADMIN', 'ST'] },
+     ]
+
+     // Находим первую доступную страницу
+     const getFirstAvailablePath = () => {
+          console.log('Available roles:', userRoles)
+
+          for (const route of routesPriority) {
+               console.log(`Checking route: ${route.path}, required roles: ${route.roles}`)
+               if (route.roles.some((role) => userRoles.includes(role))) {
+                    console.log(`First available page: ${route.path}`)
+                    return route.path
+               }
+          }
+          console.log('No available pages found')
+          return '/login'
+     }
+
+     const firstPath = getFirstAvailablePath()
+
+     return <Navigate to={firstPath} replace />
+})
 
 function App() {
      const location = useLocation()
      const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-     
+
+     useEffect(() => {
+          userStore.fetchUsers()
+     }, [])
+
      // Определяем заголовок страницы
      const getPageTitle = () => {
           switch (true) {
-               case location.pathname.startsWith('/staff'):
+               case location.pathname === '/' || location.pathname === '/staff':
+                    return 'ПОЛЬЗОВАТЕЛИ'
+               case location.pathname.startsWith('/staff/'):
                     return 'ПОЛЬЗОВАТЕЛИ'
                case location.pathname.startsWith('/ipaddress'):
                     return 'УЧЁТ IP'
@@ -49,7 +96,7 @@ function App() {
                case location.pathname.startsWith('/json'):
                     return 'JSON Viewer'
                default:
-                    return ''
+                    return 'ГЛАВНАЯ'
           }
      }
 
@@ -70,15 +117,39 @@ function App() {
                     {/* Основное содержимое страницы */}
                     <div className="content-container">
                          <Routes>
+                              {/* Основной маршрут / - всегда редиректит на первую доступную страницу */}
                               <Route
                                    path="/"
                                    element={
-                                        <PrivateRoute requiredRole={['ADMIN', 'USER']}>
-                                             <Staff />
+                                        <PrivateRoute
+                                             requiredRole={[
+                                                  'ADMIN',
+                                                  'USER',
+                                                  'IP',
+                                                  'PRINT',
+                                                  'BADGES',
+                                                  'USB',
+                                                  'CARD',
+                                                  'NOTES',
+                                                  'IUSPT',
+                                                  'ST'
+                                             ]}
+                                        >
+                                             <FirstAvailablePage />
                                         </PrivateRoute>
                                    }
                               />
-                              <Route path="/staff/*" element={<StaffRoutes />} />
+
+                              {/* Маршрут /staff должен быть доступен только для ADMIN и USER */}
+                              <Route
+                                   path="/staff/*"
+                                   element={
+                                        <PrivateRoute requiredRole={['ADMIN', 'USER']}>
+                                             <StaffRoutes />
+                                        </PrivateRoute>
+                                   }
+                              />
+
                               <Route
                                    path="/ipaddress/*"
                                    element={
@@ -149,6 +220,36 @@ function App() {
                                    element={
                                         <PrivateRoute requiredRole={['ADMIN']}>
                                              <Json />
+                                        </PrivateRoute>
+                                   }
+                              />
+                              <Route
+                                   path="/security-training/*"
+                                   element={
+                                        <PrivateRoute requiredRole={['ADMIN', 'ST']}>
+                                             <SecurityTrainingRoutes />
+                                        </PrivateRoute>
+                                   }
+                              />
+                              {/* Редирект для несуществующих маршрутов */}
+                              <Route
+                                   path="*"
+                                   element={
+                                        <PrivateRoute
+                                             requiredRole={[
+                                                  'ADMIN',
+                                                  'USER',
+                                                  'IP',
+                                                  'PRINT',
+                                                  'BADGES',
+                                                  'USB',
+                                                  'CARD',
+                                                  'NOTES',
+                                                  'IUSPT',
+                                                  'ST',
+                                             ]}
+                                        >
+                                             <Navigate to="/" replace />
                                         </PrivateRoute>
                                    }
                               />

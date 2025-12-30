@@ -1,99 +1,110 @@
 import React, { useState, useEffect } from 'react';
 import { useObserver } from 'mobx-react-lite';
 import userStore from '../store/UserStore';
-import { Button, Table, Form, Card, CardHeader, CardBody } from 'react-bootstrap';
-
-import { VscSaveAs } from "react-icons/vsc";
+import { 
+  Table, 
+  Form, 
+  Card, 
+  Input, 
+  Button, 
+  Row, 
+  Col,
+  message,
+  Space 
+} from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
 
 const RoleSprav = () => {
+    const [form] = Form.useForm();
     
-    const [newRole, setNewRole] = useState({ role: '', description: '' });
-
     useEffect(() => {
         userStore.fetchRoles();
     }, []);
 
-    
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewRole(prevState => ({ ...prevState, [name]: value }));
+    const handleSubmit = async (values) => {
+        try {
+            await userStore.createRole(values);
+            message.success('Роль успешно создана');
+            form.resetFields();
+        } catch (error) {
+            message.error('Ошибка при создании роли');
+        }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        await userStore.createRole(newRole);
-        
-        setNewRole({ role: '', description: '' });
-    };
+    const columns = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+            width: 80,
+        },
+        {
+            title: 'Название роли',
+            dataIndex: 'role',
+            key: 'role',
+            width: 150,
+        },
+        {
+            title: 'Описание',
+            dataIndex: 'description',
+            key: 'description',
+            ellipsis: true,
+        },
+    ];
 
     return useObserver(() => (
-        <>
-            <div style={{ display: 'flex', gap: '20px' }}>
-                <Card style={{ width: '500px', padding: '10px' }}>
-                    <CardHeader>
-                        <h3>Список ролей</h3>
-                    </CardHeader>
-                    <Table striped bordered hover variant="white" className='table-staff'>
-                        <thead>
-                            <tr>
-                                <th style={{ width: '40px' }}>ID</th>
-                                <th style={{ width: '100px' }}>Название роли</th>
-                                <th >Описание</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {userStore.roles.map(role => (
-                                <tr key={role.id}>
-                                    <td>{role.id}</td>
-                                    <td>{role.role}</td>
-                                    <td>{role.description}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+        <Row gutter={[20, 20]} style={{ padding: '20px' }}>
+            <Col xs={24} lg={12}>
+                <Card title="Список ролей">
+                    <Table
+                        columns={columns}
+                        dataSource={userStore.roles}
+                        rowKey="id"
+                        pagination={{ pageSize: 10 }}
+                        size="middle"
+                        scroll={{ x: true }}
+                    />
                 </Card>
+            </Col>
+            
+            <Col xs={24} lg={12}>
+                <Card title="Создание роли">
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={handleSubmit}
+                    >
+                        <Form.Item
+                            label="Название роли"
+                            name="role"
+                            rules={[{ required: true, message: 'Введите название роли' }]}
+                        >
+                            <Input placeholder="Введите название роли" />
+                        </Form.Item>
 
-                <Card style={{ width: '500px', height:'300px', padding: '10px' }}>
-                    <CardHeader>
-                        <h3>Создание роли</h3>
-                    </CardHeader>
-                    <CardBody>
-                        <Form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '500px' }}>
-                            <Form.Group>
-                                <Form.Label className='textModal'>Название роли*</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="role"
-                                    value={newRole.role}
-                                    onChange={handleInputChange}
-                                    placeholder="Введите название роли"
-                                />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label className='textModal'>Описание роли*</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="description"
-                                    value={newRole.description}
-                                    onChange={handleInputChange}
-                                    placeholder="Введите описание роли"
-                                />
-                            </Form.Group>
+                        <Form.Item
+                            label="Описание роли"
+                            name="description"
+                            rules={[{ required: true, message: 'Введите описание роли' }]}
+                        >
+                            <Input placeholder="Введите описание роли" />
+                        </Form.Item>
 
-                            <Button
-                                type="submit"
-                                className='button-next w-100 mt-2'
-                            >
-                                <VscSaveAs className={'icon-staff'} size={20} style={{ marginRight: '8px' }} />
-                                СОХРАНИТЬ
-                            </Button>
-                        </Form>
-                    </CardBody>
+                        <Form.Item>
+                            <Space style={{ float: 'right' }}>
+                                <Button 
+                                    type="primary" 
+                                    htmlType="submit"
+                                    icon={<SaveOutlined />}
+                                >
+                                    СОХРАНИТЬ
+                                </Button>
+                            </Space>
+                        </Form.Item>
+                    </Form>
                 </Card>
-            </div>
-           
-        </>
+            </Col>
+        </Row>
     ));
 };
 

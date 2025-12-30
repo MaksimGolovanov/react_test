@@ -1,0 +1,81 @@
+.header {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
+.actionsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.searchStatsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.statsContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statItem {
+  font-size: 14px;
+  color: #666;
+}
+
+.statItem strong {
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.statInWork {
+  color: #52c41a;
+}
+
+.statNotInWork {
+  color: #fa8c16;
+}
+
+.switchContainer {
+  margin-left: auto;
+}
+
+.switchLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 8px;
+}
+
+.switchInput {
+  margin: 0;
+}
+
+.switchText {
+  font-size: 14px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .searchStatsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .statsContainer {
+    justify-content: center;
+  }
+}

@@ -27,16 +27,31 @@ const NavBar = observer(({ onCollapseChange }) => {
 
   useEffect(() => {
     setSelectedKeys([location.pathname]);
-
-    if (location.pathname.includes("/admin")) {
-      setOpenKeys(["admin"]);
-    } else {
-      setOpenKeys([]);
+    
+    // Определяем, какие меню должны быть открыты на основе текущего пути
+    const newOpenKeys = [];
+    
+    if (location.pathname.includes("/security-training")) {
+      // Если мы находимся в разделе информационной безопасности
+      newOpenKeys.push("security-training-group");
+    } else if (location.pathname.includes("/admin")) {
+      // Если мы находимся в системном админ-меню
+      newOpenKeys.push("admin");
     }
+    
+    setOpenKeys(newOpenKeys);
   }, [location.pathname]);
 
   const onOpenChange = (keys) => {
-    setOpenKeys(keys);
+    // Логика автоматического закрытия других меню
+    const latestOpenKey = keys.find(key => openKeys.indexOf(key) === -1);
+    
+    // Если нажали на другое меню, закрываем предыдущие
+    if (latestOpenKey && !openKeys.includes(latestOpenKey)) {
+      setOpenKeys([latestOpenKey]);
+    } else {
+      setOpenKeys(keys);
+    }
   };
 
   const toggleCollapsed = () => {

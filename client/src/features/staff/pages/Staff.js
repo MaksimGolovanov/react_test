@@ -96,8 +96,6 @@ function Staff() {
                     const fetchedStaff = await StaffService.fetchStaff()
                     console.log('Загружено сотрудников из API:', fetchedStaff.length)
 
-      
-
                     // Получаем массив табельных номеров для проверки фото
                     const tabNumbers = fetchedStaff
                          .map((item) => item.tabNumber)
@@ -136,9 +134,6 @@ function Staff() {
                               isDeleted: isDeleted,
                          }
                     })
-
-
- 
 
                     // Используем стабильную сортировку - по умолчанию показываем всех вместе
                     const sortedStaff = sortStaff(staffWithDepartmentInfo, true) // true = сортировать всех вместе
@@ -183,8 +178,6 @@ function Staff() {
           // Исключенные пользователи (сторонние)
           const excluded = staff.filter((user) => user.isExcludedDepartment)
 
-
-
           return {
                activeCount: active.length,
                deletedCount: deleted.length,
@@ -194,16 +187,12 @@ function Staff() {
      }, [staff])
 
      const filteredStaff = useMemo(() => {
-
-
           if (!Array.isArray(staff) || staff.length === 0) {
                console.log('filteredStaff: staff пустой')
                return []
           }
 
           let result = [...staff]
-
-
 
           // 1. Фильтр по статусу увольнения
           if (!showDeleted) {
@@ -401,6 +390,11 @@ function Staff() {
           await fetchData()
      }, [selectedUser, fetchData])
 
+     const handleClearSearch = useCallback(() => {
+          console.log('Очистка поиска')
+          setSearchQuery('')
+     }, [])
+
      // Функция для получения названия отдела
      const getDepartmentNameForComponent = useCallback(
           (departmentCode) => {
@@ -442,6 +436,7 @@ function Staff() {
                     noPhotoCount={noPhotoCount}
                     staff={staff}
                     excludedCount={excludedCount}
+                    onClearSearch={handleClearSearch} // Добавьте эту строку
                />
 
                <Row gutter={16} className={styles.mainContent}>

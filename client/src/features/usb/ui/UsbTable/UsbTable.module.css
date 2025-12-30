@@ -1,0 +1,95 @@
+/* UsbTable.module.css */
+
+/* Ячейка с просроченной датой - красный фон */
+.nextCheckOverdue {
+  background-color: #dc3545 !important;
+ 
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* Ячейка с предупреждением (осталось <= 7 дней) - розовый фон */
+.nextCheckWarning {
+  background-color: #f8d7da !important;
+ 
+  color: #721c24;
+  font-weight: 500;
+}
+
+/* Наведение на ячейки */
+.nextCheckOverdue:hover {
+  background-color: #ffe9e6 !important;
+}
+
+.nextCheckWarning:hover {
+  background-color: #fff0eb !important;
+}
+
+/* Стили для строк таблицы */
+:global(.ant-table-row .ant-table-cell) {
+  transition: background-color 0.2s ease;
+}
+
+/* Отключаем выделение для неактивных записей */
+:global(.ant-table-row-warning .nextCheckOverdue),
+:global(.ant-table-row-warning .nextCheckWarning) {
+  background-color: transparent !important;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+}
+:global(.ant-table-wrapper .ant-table.ant-table-small) {
+  font-size: 12px !important;
+}
+
+:global(.ant-table-cell.nextCheckOverdue) {
+  background-color: #fff2f0 !important;
+  border: 1px solid #ffccc7 !important;
+  color: #d4380d !important;
+  font-weight: 500 !important;
+}
+
+/* Стили для ячейки с предупреждением */
+:global(.ant-table-cell.nextCheckWarning) {
+  background-color: #fff8bb !important;
+  border: 1px solid #ffd8d3 !important;
+  color: #fa541c !important;
+  font-weight: 500 !important;
+}
+
+/* Наведение на ячейки */
+:global(.ant-table-cell.nextCheckOverdue:hover) {
+  background-color: #ffe9e6 !important;
+}
+
+:global(.ant-table-cell.nextCheckWarning:hover) {
+  background-color: #fff0eb !important;
+}
+
+/* Стили для строки с статусом "нет" (не в работе) */
+.notInWorkRow {
+  background-color: #fffbe6 !important; /* Светло-желтый фон */
+}
+
+.notInWorkRow:hover {
+  background-color: #fff8e1 !important; /* Немного темнее при наведении */
+}
+
+/* Убираем заливку для неактивных записей (не в работе) в ячейке даты */
+:global(.notInWorkRow .ant-table-cell.nextCheckOverdue),
+:global(.notInWorkRow .ant-table-cell.nextCheckWarning) {
+  background-color: transparent !important;
+  border: none !important;
+  color: inherit !important;
+  opacity: 0.6;
+}
+
+/* Уменьшаем размер шрифта для всей таблицы */
+:global(.ant-table-wrapper .ant-table.ant-table-small) {
+  font-size: 12px !important;
+}
+
+/* Убеждаемся, что стили применяются правильно */
+:global(.ant-table-cell) {
+  padding: 4px 8px !important;
+}

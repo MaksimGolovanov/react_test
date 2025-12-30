@@ -37,8 +37,21 @@ const TopActionsPanel = ({
   passwordCopied,
   showPasswordField,
   noPhotoCount = 0,
+  onClearSearch = () => {}, // Новый prop для очистки поиска
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+
+  // Обработчик переключения уволенных с очисткой поиска
+  const handleToggleDeleted = (checked) => {
+    onToggleDeleted(checked);
+    onClearSearch(); // Очищаем поиск при переключении
+  };
+
+  // Обработчик переключения "без фото" с очисткой поиска
+  const handleToggleNoPhoto = (checked) => {
+    onToggleNoPhoto(checked);
+    onClearSearch(); // Очищаем поиск при переключении
+  };
 
   return (
     <div className={`${styles.topPanel} ${className}`}>
@@ -69,7 +82,7 @@ const TopActionsPanel = ({
           <div className={styles.toggleContainer}>
             <Switch
               checked={showDeleted}
-              onChange={onToggleDeleted}
+              onChange={handleToggleDeleted} // Используем новый обработчик
               checkedChildren={<EyeOutlined />}
               unCheckedChildren={<EyeInvisibleOutlined />}
               size="small"
@@ -92,7 +105,7 @@ const TopActionsPanel = ({
             >
               <Switch
                 checked={showNoPhoto}
-                onChange={onToggleNoPhoto}
+                onChange={handleToggleNoPhoto} // Используем новый обработчик
                 checkedChildren={<UserOutlined />}
                 unCheckedChildren={<UserOutlined />}
                 size="small"

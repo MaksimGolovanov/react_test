@@ -1,142 +1,99 @@
-/* Основной контейнер с grid */
-.containerGrid {
-    margin-top: 1rem;
-    padding: 0;
-    font-size: 12px;
-    max-width: 100%;
-    height: calc(100vh - 6rem);
-    display: grid;
-    grid-template-rows: auto 1fr;
-    gap: 1rem;
+/* IpAddress.module.css */
+.container {
+  height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  background: #f0f2f5;
+  padding: 16px;
+  overflow: hidden;
 }
 
-/* Заголовок карточки */
-.header {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    padding: 1rem;
-    flex-shrink: 0;
+.tableCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
+    0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  min-height: 0;
+  overflow: hidden;
 }
 
-/* Контейнер для таблицы с фиксированной высотой и скроллом */
-.tableContainerGrid {
-    height: calc(100vh - 220px);
-    min-height: 300px;
-    overflow-y: auto;
-    overflow-x: auto;
+.tableCard :global(.ant-card-body) {
+  padding: 0 !important;
 }
 
-/* Таблица */
-.table {
-    margin-bottom: 0;
-    width: 100%;
-    table-layout: fixed;
+.userListScroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  max-height: calc(100vh - 240px);
+
+  /* Стили для скроллбара */
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 #f5f5f5;
 }
 
-/* Фиксированный заголовок таблицы при скролле */
-.table thead {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #f8f9fa;
+.userListScroll::-webkit-scrollbar {
+  width: 4px;
 }
 
-/* Стили для checkbox в первой колонке */
-.table th:first-child,
-.table td:first-child {
-    width: 40px;
-    text-align: center;
+.userListScroll::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 2px;
 }
 
-/* Стили для скроллбара */
-.tableContainerGrid::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+.userListScroll::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 2px;
 }
 
-.tableContainerGrid::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
+.userListScroll::-webkit-scrollbar-thumb:hover {
+  background: #bfbfbf;
 }
 
-.tableContainerGrid::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
+.tableRow :global(.ant-table-cell) {
+  cursor: pointer;
+  max-width: 400px;
 }
 
-.tableContainerGrid::-webkit-scrollbar-thumb:hover {
-    background: #555;
+.tableRow:hover :global(.ant-table-cell) {
+  background-color: #fafafa !important;
 }
 
-.tableContainerGrid {
-    scrollbar-width: thin;
-    scrollbar-color: #888 #f1f1f1;
+/* CardTable.module.css */
+
+.nextCheckOverdue {
+  background-color: #fff2f0 !important;
+  color: #d4380d !important;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
-/* Стили для ячеек с просрочкой */
-.expiredCell {
-    background-color: #dc3545 !important;
-    color: white !important;
-    font-weight: bold;
+.nextCheckWarning {
+  background-color: #fff8bb !important;
+  color: #fa541c !important;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
-.warningCell {
-    background-color: #f8d7da !important;
-    color: #721c24 !important;
-    font-weight: 500;
+/* Для строк, которые не в работе, убираем подсветку */
+.table-warning .nextCheckOverdue,
+.table-warning .nextCheckWarning {
+  background-color: transparent !important;
+  color: inherit !important;
+  font-weight: normal;
+  padding: 0;
+  border-radius: 0;
 }
 
-/* Чтобы полоски таблицы (striped) не перекрывали цвета */
-.table-striped > tbody > tr:nth-of-type(odd) .expiredCell,
-.table-striped > tbody > tr:nth-of-type(even) .expiredCell {
-    background-color: #dc3545 !important;
-    color: white !important;
-}
-
-.table-striped > tbody > tr:nth-of-type(odd) .warningCell,
-.table-striped > tbody > tr:nth-of-type(even) .warningCell {
-    background-color: #f8d7da !important;
-    color: #721c24 !important;
-}
-
-/* Состояния загрузки и ошибок */
-.loadingContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
-}
-
-.loadingText {
-    margin-top: 1rem;
-}
-
-.errorContainer {
-    padding: 2rem;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .containerGrid {
-        height: calc(100vh - 4rem);
-    }
-    
-    .header .d-flex.justify-content-between {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    
-    .header .d-flex.justify-content-between > div:first-child {
-        width: 100% !important;
-    }
-    
-    .header .d-flex.justify-content-between > div:last-child {
-        width: 100%;
-        justify-content: space-between;
-    }
+/* Опционально: стили для ячеек таблицы */
+:global(.ant-table-cell) {
+  padding: 8px !important;
 }

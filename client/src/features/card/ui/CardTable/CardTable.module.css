@@ -1,0 +1,40 @@
+/* CardTable.module.css */
+
+/* Стили для ячейки с просроченной датой */
+.nextCheckOverdue {
+  background-color: #dc3545 !important;
+ 
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* Стили для ячейки с предупреждением */
+.nextCheckWarning {
+  background-color: #f8d7da !important;
+ 
+  color: #721c24;
+  font-weight: 500;
+}
+
+/* Стили для строки с статусом "нет" (не в работе) */
+.notInWorkRow {
+  background-color: #fffbe6 !important; /* Светло-желтый фон */
+}
+
+.notInWorkRow:hover {
+  background-color: #fff8e1 !important; /* Немного темнее при наведении */
+}
+
+/* Убираем заливку для неактивных записей (не в работе) в ячейке даты */
+.notInWorkRow .nextCheckOverdue,
+.notInWorkRow .nextCheckWarning {
+  background-color: transparent !important;
+  border: none !important;
+  color: inherit !important;
+  opacity: 0.6;
+}
+
+/* Убеждаемся, что стили применяются правильно */
+:global(.ant-table-cell) {
+  padding: 8px !important;
+}
