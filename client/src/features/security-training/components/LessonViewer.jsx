@@ -70,6 +70,15 @@ const LessonViewer = ({ lesson, onComplete }) => {
           </Paragraph>
         </Space>
       </div>
+      <div style={{ marginTop: '32px', textAlign: 'center' }}>
+        <Button
+          type="primary"
+          size="large"
+          onClick={onComplete}
+        >
+          Завершить урок
+        </Button>
+      </div>
     </Card>
   );
 };

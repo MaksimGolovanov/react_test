@@ -3,6 +3,7 @@ const express = require('express');
 const sequelize = require('./db');
 const models = require('./models/models');
 const iususer = require('./models/IusPtModels');
+const stuser = require('./models/STModels')
 const cors = require('cors');
 const route = require('./routes/index');
 const fileUpload = require('express-fileupload');

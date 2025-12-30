@@ -10,9 +10,9 @@ import AdminPage from './pages/AdminPage';
 export const SecurityTrainingRoutes = () => (
   <Routes>
     <Route path="/" element={<CoursesPage />} />
-    <Route path="/course/:courseId" element={<CourseDetailPage />} />
+    <Route path="/admin" element={<AdminPage />} />
+    <Route path="/:courseId" element={<CourseDetailPage />} /> 
     <Route path="/test/:courseId" element={<TestPage />} />
     <Route path="/results/:courseId" element={<ResultsPage />} />
-    <Route path="/admin" element={<AdminPage />} />
   </Routes>
 );

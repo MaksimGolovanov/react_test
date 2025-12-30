@@ -16,6 +16,7 @@ import {
   GlobalOutlined,
   FolderOpenOutlined,
   BookOutlined,
+  ReconciliationOutlined
 } from "@ant-design/icons";
 import styles from "./MenuSection.module.css";
 
@@ -129,12 +130,12 @@ const MenuSection = ({
         ]
       : []),
     // JSON
-    ...(hasAccess("ST") || hasAccess("ADMIN")
+    ...(hasAccess("ST") || hasAccess("ADMIN") || hasAccess("ST-ADMIN")
       ? [
-          hasAccess("ADMIN")
+          hasAccess("ADMIN") || hasAccess("ST-ADMIN")
             ? {
                 key: "security-training-group",
-                icon: <CodeOutlined />,
+                icon: <ReconciliationOutlined />,
                 label: "Информационная безопасность",
                 children: [
                   // Пункты для обучения (видят все, включая ADMIN)
@@ -158,7 +159,7 @@ const MenuSection = ({
               }
             : {
                 key: "/security-training",
-                icon: <CodeOutlined />,
+                icon: <ReconciliationOutlined />,
                 label: (
                   <Link to="/security-training">
                     Информационная безопасность

@@ -35,7 +35,7 @@ const FirstAvailablePage = observer(() => {
           { path: '/iuspt', roles: ['ADMIN', 'IUSPT'] },
           { path: '/admin', roles: ['ADMIN'] },
           { path: '/json', roles: ['ADMIN'] },
-          { path: '/security-training', roles: ['ADMIN', 'ST'] },
+          { path: '/security-training', roles: ['ADMIN', 'ST','ST-ADMIN'] },
      ]
 
      // Находим первую доступную страницу
@@ -95,6 +95,8 @@ function App() {
                     return 'ИУС П Т'
                case location.pathname.startsWith('/json'):
                     return 'JSON Viewer'
+               case location.pathname.startsWith('/security-training'):
+                    return 'Информационная безопасность'
                default:
                     return 'ГЛАВНАЯ'
           }
@@ -132,7 +134,8 @@ function App() {
                                                   'CARD',
                                                   'NOTES',
                                                   'IUSPT',
-                                                  'ST'
+                                                  'ST',
+                                                  'ST-ADMIN'
                                              ]}
                                         >
                                              <FirstAvailablePage />
@@ -226,7 +229,7 @@ function App() {
                               <Route
                                    path="/security-training/*"
                                    element={
-                                        <PrivateRoute requiredRole={['ADMIN', 'ST']}>
+                                        <PrivateRoute requiredRole={['ADMIN', 'ST', 'ST-ADMIN']}>
                                              <SecurityTrainingRoutes />
                                         </PrivateRoute>
                                    }
@@ -247,6 +250,7 @@ function App() {
                                                   'NOTES',
                                                   'IUSPT',
                                                   'ST',
+                                                  'ST-ADMIN'
                                              ]}
                                         >
                                              <Navigate to="/" replace />
