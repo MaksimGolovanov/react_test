@@ -187,17 +187,54 @@ class UserStore {
                     this.userRolesAuth = []
                }
 
-               // ВРЕМЕННО: Используем логин как есть
-               this.tabNumber = login
-               this.userName = login
+               // КРИТИЧНОЕ ИСПРАВЛЕНИЕ: Проверяем данные пользователя из ответа сервера
+               // Используем данные из ответа сервера в приоритете
+               let tabNumberValue = ''
+               let userNameValue = login // По умолчанию используем логин
 
-               console.log('Temporary user data set:', {
+               // Проверяем tabNumber
+               if (result.user?.tabNumber) {
+                    tabNumberValue = result.user.tabNumber
+                    console.log('Got tabNumber from result.user.tabNumber:', tabNumberValue)
+               } else if (result.tabNumber) {
+                    tabNumberValue = result.tabNumber
+                    console.log('Got tabNumber from result.tabNumber:', tabNumberValue)
+               } else {
+                    // Если в ответе сервера нет tabNumber, пробуем использовать логин
+                    tabNumberValue = login
+                    console.log('Using login as tabNumber:', tabNumberValue)
+               }
+
+               // Проверяем userName/name
+               if (result.user?.name) {
+                    userNameValue = result.user.name
+                    console.log('Got userName from result.user.name:', userNameValue)
+               } else if (result.user?.userName) {
+                    userNameValue = result.user.userName
+                    console.log('Got userName from result.user.userName:', userNameValue)
+               } else if (result.name) {
+                    userNameValue = result.name
+                    console.log('Got userName from result.name:', userNameValue)
+               } else if (result.userName) {
+                    userNameValue = result.userName
+                    console.log('Got userName from result.userName:', userNameValue)
+               }
+
+               this.tabNumber = tabNumberValue
+               this.userName = userNameValue
+
+               console.log('Final user data:', {
                     tabNumber: this.tabNumber,
                     userName: this.userName,
                     userRolesAuth: this.userRolesAuth,
                })
 
                this.saveAuthState()
+
+               // Вызываем fetchUsers для получения полного списка пользователей
+               // (опционально, можно отложить до необходимости)
+               // await this.fetchUsers()
+
                return true
           } catch (error) {
                console.error('Ошибка при входе:', error)

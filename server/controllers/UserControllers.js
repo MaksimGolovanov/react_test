@@ -1,6 +1,7 @@
 const { User, Role } = require('../models/models')
+const STController = require('../controllers/ST/STControllers');
 const ApiError = require('../error/ApiError')
-const argon2 = require('argon2'); 
+const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
 
 const generateJwt = (id, login, roles) => {
@@ -14,7 +15,7 @@ class userController {
   async registration(req, res, next) {
     try {
       const { login, password, roles, description, tabNumber } = req.body;
-     
+
 
       if (!login || !password) {
         return next(ApiError.badRequest('Некорректный Логин или Пароль'));
@@ -28,7 +29,7 @@ class userController {
 
       // Хеширование пароля
       const hashPassword = await argon2.hash(password);
-      
+
 
       // Создание пользователя
       const user = await User.create({
@@ -42,16 +43,26 @@ class userController {
       // Обработка ролей
       if (roles && Array.isArray(roles)) {
         const roleIds = roles.map(id => parseInt(id)).filter(Number.isInteger);
-        console.log('Processing roles:', roleIds);
 
         if (roleIds.length > 0) {
           const dbRoles = await Role.findAll({
             where: { id: roleIds }
           });
-          console.log('Found roles:', dbRoles.map(r => r.id));
 
           await user.setRoles(dbRoles);
-          console.log('Roles assigned successfully');
+
+          // Проверяем и создаем ST пользователя, если есть соответствующие роли
+          const hasSTRole = dbRoles.some(role =>
+            role.role === 'ST' || role.role === 'ST-ADMIN'
+          );
+
+          if (hasSTRole) {
+            await STController.createOrUpdateSTUser(
+              user.id,
+              tabNumber,
+              dbRoles.map(r => r.role)
+            );
+          }
         }
       }
 
@@ -141,11 +152,11 @@ class userController {
       return res.status(400).json({ message: 'Указан неверный пароль' });
     }
     const roles = await user.getRoles();
-    
+
     const roleNames = roles.map(role => role.role);
-    
+
     const token = generateJwt(user.id, user.login, roleNames);
-    return res.json({ token , user:{roleNames}});
+    return res.json({ token, user: { roleNames } });
   }
 
   async getAll(req, res) {
@@ -203,6 +214,27 @@ class userController {
           where: { id: roleIds }
         });
         await user.setRoles(dbRoles);
+
+        // Обновляем ST пользователя
+        const hasSTRole = dbRoles.some(role =>
+          role.role === 'ST' || role.role === 'ST-ADMIN'
+        );
+
+        if (hasSTRole) {
+          await STController.createOrUpdateSTUser(
+            user.id,
+            tabNumber || user.tabNumber,
+            dbRoles.map(r => r.role)
+          );
+        } else {
+          // Если убрали ST роль, удаляем ST пользователя
+          const stUser = await STUser.findOne({
+            where: { tabNumber: tabNumber || user.tabNumber }
+          });
+          if (stUser) {
+            await stUser.destroy();
+          }
+        }
       }
 
       // Получаем обновленного пользователя с ролями

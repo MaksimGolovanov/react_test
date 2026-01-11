@@ -31,6 +31,7 @@ const PrivateRoute = observer(({ children, requiredRole }) => {
             { path: '/card', roles: ['ADMIN', 'CARD'] },
             { path: '/notes', roles: ['ADMIN', 'NOTES'] },
             { path: '/iuspt', roles: ['ADMIN', 'IUSPT'] },
+            { path: '/multiedu', roles: ['ADMIN', 'ST', 'ST-ADMIN'] },
             { path: '/admin', roles: ['ADMIN'] },
         ];
 
@@ -44,7 +45,7 @@ const PrivateRoute = observer(({ children, requiredRole }) => {
         return <Navigate to="/login" replace />;
     }
 
-    console.log('Access granted');
+    
     return children;
 });
 

@@ -1,6 +1,6 @@
-import React from "react";
-import { Menu } from "antd";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Menu } from 'antd';
+import { Link, useLocation } from 'react-router-dom';
 import {
   UserOutlined,
   PrinterOutlined,
@@ -14,28 +14,101 @@ import {
   TeamOutlined,
   SafetyOutlined,
   GlobalOutlined,
-  FolderOpenOutlined,
   BookOutlined,
-  ReconciliationOutlined
-} from "@ant-design/icons";
-import styles from "./MenuSection.module.css";
+  ReconciliationOutlined,
+} from '@ant-design/icons';
+import styles from './MenuSection.module.css';
 
-const MenuSection = ({
-  selectedKeys,
-  openKeys,
-  onOpenChange,
-  userRolesAuth,
-}) => {
+const MenuSection = ({ userRolesAuth }) => {
+  const location = useLocation();
+  const [selectedKeys, setSelectedKeys] = useState([location.pathname]);
+  const [openKeys, setOpenKeys] = useState([]);
+
   const hasAccess = (role) => {
-    return userRolesAuth.includes(role) || userRolesAuth.includes("ADMIN");
+    return userRolesAuth.includes(role) || userRolesAuth.includes('ADMIN');
   };
+
+  useEffect(() => {
+    setSelectedKeys([location.pathname]);
+    
+    // Автоматически открываем соответствующее меню
+    const path = location.pathname;
+    const newOpenKeys = [];
+    
+    if (path.startsWith('/multiedu') && (hasAccess('ADMIN') || hasAccess('ST-ADMIN'))) {
+      newOpenKeys.push('multi-edu-group');
+    } else if (
+      path.startsWith('/admin') &&
+      !path.startsWith('/multiedu/admin') &&
+      userRolesAuth.includes('ADMIN')
+    ) {
+      newOpenKeys.push('admin');
+    }
+    
+    setOpenKeys(newOpenKeys);
+  }, [location.pathname, userRolesAuth]);
+
+  const onOpenChange = (keys) => {
+    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+    
+    if (latestOpenKey) {
+      setOpenKeys([latestOpenKey]);
+    } else {
+      setOpenKeys([]);
+    }
+  };
+
+  // Функция для определения selectedKeys
+  const getActualSelectedKeys = () => {
+    const path = location.pathname;
+    
+    // 1. Админка обучения
+    if (path === '/multiedu/admin') {
+      return ['/multiedu/admin'];
+    }
+    
+    // 2. Главная страница обучения
+    if (path === '/multiedu' || path === '/multiedu/') {
+      return ['/multiedu'];
+    }
+    
+    // 3. Любые другие страницы обучения
+    if (path.startsWith('/multiedu/')) {
+      // Для обычных пользователей подсвечиваем /multiedu
+      if (hasAccess('ST') && !hasAccess('ADMIN') && !hasAccess('ST-ADMIN')) {
+        return ['/multiedu'];
+      }
+      // Для админов: если мы в подменю обучения, подсвечиваем главную
+      return ['/multiedu'];
+    }
+    
+    // 4. Для системного админ-меню
+    if (path.startsWith('/admin') && !path.startsWith('/multiedu/admin')) {
+      // Если это конкретный подпункт админ-меню, возвращаем его
+      if (path === '/admin/' || path === '/admin') {
+        return ['/admin/'];
+      }
+      if (path === '/admin/roles') {
+        return ['/admin/roles'];
+      }
+      if (path === '/admin/create') {
+        return ['/admin/create'];
+      }
+    }
+    
+    // 5. Для остальных страниц
+    const basePath = `/${path.split('/')[1]}`;
+    return [basePath];
+  };
+
+  const actualSelectedKeys = getActualSelectedKeys();
 
   const menuItems = [
     // Пользователи
-    ...(hasAccess("USER")
+    ...(hasAccess('USER')
       ? [
           {
-            key: "/staff",
+            key: '/staff',
             icon: <TeamOutlined />,
             label: <Link to="/staff">ПОЛЬЗОВАТЕЛИ</Link>,
           },
@@ -43,10 +116,10 @@ const MenuSection = ({
       : []),
 
     // Учет IP
-    ...(hasAccess("IP")
+    ...(hasAccess('IP')
       ? [
           {
-            key: "/ipaddress",
+            key: '/ipaddress',
             icon: <GlobalOutlined />,
             label: <Link to="/ipaddress">УЧЕТ IP</Link>,
           },
@@ -54,10 +127,10 @@ const MenuSection = ({
       : []),
 
     // Принтеры
-    ...(hasAccess("PRINT")
+    ...(hasAccess('PRINT')
       ? [
           {
-            key: "/prints",
+            key: '/prints',
             icon: <PrinterOutlined />,
             label: <Link to="/prints">ПРИНТЕРЫ</Link>,
           },
@@ -65,10 +138,10 @@ const MenuSection = ({
       : []),
 
     // Учет USB
-    ...(hasAccess("USB")
+    ...(hasAccess('USB')
       ? [
           {
-            key: "/usb",
+            key: '/usb',
             icon: <UsbOutlined />,
             label: <Link to="/usb">УЧЕТ USB</Link>,
           },
@@ -76,10 +149,10 @@ const MenuSection = ({
       : []),
 
     // Учет карт доступа
-    ...(hasAccess("CARD")
+    ...(hasAccess('CARD')
       ? [
           {
-            key: "/card",
+            key: '/card',
             icon: <IdcardOutlined />,
             label: <Link to="/card">УЧЕТ КАРТ ДОСТУПА</Link>,
           },
@@ -87,10 +160,10 @@ const MenuSection = ({
       : []),
 
     // Бейджики
-    ...(hasAccess("BADGES")
+    ...(hasAccess('BADGES')
       ? [
           {
-            key: "/badges",
+            key: '/badges',
             icon: <TagOutlined />,
             label: <Link to="/badges">БЕЙДЖИКИ</Link>,
           },
@@ -98,10 +171,10 @@ const MenuSection = ({
       : []),
 
     // Заметки
-    ...(hasAccess("NOTES")
+    ...(hasAccess('NOTES')
       ? [
           {
-            key: "/notes",
+            key: '/notes',
             icon: <FileTextOutlined />,
             label: <Link to="/notes">ЗАМЕТКИ</Link>,
           },
@@ -109,10 +182,10 @@ const MenuSection = ({
       : []),
 
     // ИУС П Т
-    ...(hasAccess("IUSPT")
+    ...(hasAccess('IUSPT')
       ? [
           {
-            key: "/iuspt",
+            key: '/iuspt',
             icon: <DashboardOutlined />,
             label: <Link to="/iuspt">ИУС П Т</Link>,
           },
@@ -120,75 +193,65 @@ const MenuSection = ({
       : []),
 
     // JSON
-    ...(hasAccess("JSON")
+    ...(hasAccess('JSON')
       ? [
           {
-            key: "/json",
+            key: '/json',
             icon: <CodeOutlined />,
             label: <Link to="/json">JSON</Link>,
           },
         ]
       : []),
-    // JSON
-    ...(hasAccess("ST") || hasAccess("ADMIN") || hasAccess("ST-ADMIN")
+
+    // Обучение
+    ...(hasAccess('ST') || hasAccess('ADMIN') || hasAccess('ST-ADMIN')
       ? [
-          hasAccess("ADMIN") || hasAccess("ST-ADMIN")
+          hasAccess('ADMIN') || hasAccess('ST-ADMIN')
             ? {
-                key: "security-training-group",
+                key: 'multi-edu-group',
                 icon: <ReconciliationOutlined />,
-                label: "Информационная безопасность",
+                label: 'Обучение',
                 children: [
-                  // Пункты для обучения (видят все, включая ADMIN)
                   {
-                    key: "/security-training",
-                    label: <Link to="/security-training">Обучение</Link>,
+                    key: '/multiedu',
+                    label: <Link to="/multiedu">Главная</Link>,
                     icon: <BookOutlined />,
                   },
-
-                  // Админские функции (только для ADMIN)
                   {
-                    key: "/security-training/admin",
+                    key: '/multiedu/admin',
+                    label: <Link to="/multiedu/admin">Администрирование</Link>,
                     icon: <SettingOutlined />,
-                    label: (
-                      <Link to="/security-training/admin">
-                        Администрирование
-                      </Link>
-                    ),
                   },
                 ],
               }
             : {
-                key: "/security-training",
+                key: '/multiedu',
                 icon: <ReconciliationOutlined />,
-                label: (
-                  <Link to="/security-training">
-                    Информационная безопасность
-                  </Link>
-                ),
+                label: <Link to="/multiedu">Информационная безопасность</Link>,
               },
         ]
       : []),
 
-    // Админ меню (только для ADMIN)
-    ...(userRolesAuth.includes("ADMIN")
+    // Системное админ-меню
+    ...(userRolesAuth.includes('ADMIN')
       ? [
           {
-            key: "admin",
+            key: 'admin',
             icon: <SettingOutlined />,
-            label: "АДМИН",
+            label: 'АДМИН',
             children: [
               {
-                key: "/admin/",
+                key: '/admin/',
                 icon: <TeamOutlined />,
                 label: <Link to="/admin/">Пользователи</Link>,
               },
               {
-                key: "/admin/roles",
+                key: '/admin/roles',
                 icon: <SafetyOutlined />,
                 label: <Link to="/admin/roles">Справочник ролей</Link>,
               },
               {
-                key: "/admin/create",
+                key: '/admin/create',
                 icon: <UserOutlined />,
                 label: <Link to="/admin/create">Создание пользователя</Link>,
               },
@@ -202,7 +265,7 @@ const MenuSection = ({
     <Menu
       theme="dark"
       mode="inline"
-      selectedKeys={selectedKeys}
+      selectedKeys={actualSelectedKeys}
       openKeys={openKeys}
       onOpenChange={onOpenChange}
       items={menuItems}

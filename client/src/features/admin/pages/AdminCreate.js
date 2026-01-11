@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import userStore from '../store/UserStore';
-import { 
-  Card, 
-  Form, 
-  Button, 
-  Input, 
-  Checkbox, 
-  Row, 
-  Col, 
-  message,
-  Space 
+import {
+    Card,
+    Form,
+    Button,
+    Input,
+    Checkbox,
+    Row,
+    Col,
+    message,
+    Space
 } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ const AdminCreate = observer(() => {
 
     const handleSubmit = async (values) => {
         setLoading(true);
-        
+
         const selectedRoleIds = userStore.roles
             .filter(role => values.roles?.includes(role.role))
             .map(role => role.id);
@@ -60,8 +60,8 @@ const AdminCreate = observer(() => {
     return (
         <Row justify="center" style={{ padding: '20px' }}>
             <Col xs={24} sm={20} md={16} lg={12}>
-                <Card 
-                    title="Создание пользователя" 
+                <Card
+                    title="Создание пользователя"
                     style={{ borderRadius: '8px' }}
                 >
                     <Form
@@ -80,7 +80,7 @@ const AdminCreate = observer(() => {
                                     <Input placeholder="Введите логин" />
                                 </Form.Item>
                             </Col>
-                            
+
                             <Col span={12}>
                                 <Form.Item
                                     label="Пароль"
@@ -96,9 +96,9 @@ const AdminCreate = observer(() => {
                             label="Описание"
                             name="description"
                         >
-                            <TextArea 
-                                rows={3} 
-                                placeholder="Введите описание" 
+                            <TextArea
+                                rows={3}
+                                placeholder="Введите описание"
                             />
                         </Form.Item>
 
@@ -122,8 +122,8 @@ const AdminCreate = observer(() => {
                                 <Button onClick={() => navigate('/admin')}>
                                     Отмена
                                 </Button>
-                                <Button 
-                                    type="primary" 
+                                <Button
+                                    type="primary"
                                     htmlType="submit"
                                     loading={loading}
                                 >

@@ -10,6 +10,9 @@ const usbRouter = require('./usbRouter')
 const cardRouter = require('./cardRouter')
 const departmentRouter = require('./departmentRouter') 
 const iusRouter = require('./iusRouter')
+const stRouter = require('./stRouter')
+const courseRouter = require('./courseRouter');
+
 
 
 router.use('/user', userRouter)
@@ -22,6 +25,8 @@ router.use('/usb', usbRouter)
 router.use('/card', cardRouter)
 router.use('/iuspt', iusRouter)
 router.use('/departments', departmentRouter) // Добавьте эту строку
+router.use('/st', stRouter) // Добавьте эту строку
+router.use('/courses', courseRouter);
 
 
 

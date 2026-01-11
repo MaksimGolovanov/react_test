@@ -1,0 +1,309 @@
+/* src/features/security-training/pages/CategoriesPage.css */
+.categories-container {
+  padding: 32px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* Заголовок */
+.page-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.page-title {
+  font-size: 2.25rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 12px !important;
+  line-height: 1.2 !important;
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: #666;
+  max-width: 500px;
+  margin: 0 auto 32px;
+  line-height: 1.5;
+}
+
+/* Статистика */
+.stats-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  padding: 20px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #8c8c8c;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, #e8e8e8, transparent);
+}
+
+/* Карточки */
+.categories-grid {
+  margin: 0 -12px;
+}
+
+.category-card {
+  height: 100%;
+  border-radius: 16px !important;
+  border: 1px solid #f0f0f0 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+  background: white !important;
+  cursor: default;
+}
+
+.category-card.available {
+  cursor: pointer;
+}
+
+.category-card.available:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 
+              0 0 0 1px rgba(24, 144, 255, 0.08) !important;
+}
+
+.category-card.disabled {
+  opacity: 0.7;
+}
+
+.ribbon-badge {
+  position: absolute;
+  top: 8px;
+  right: -8px;
+  z-index: 1;
+}
+
+.ribbon-badge .ant-ribbon-text {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Иконка */
+.card-icon-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+}
+
+.icon-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  opacity: 0.15;
+  filter: blur(12px);
+  animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 0.1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.2; 
+    transform: scale(1.05);
+  }
+}
+
+.category-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+  font-size: 24px;
+}
+
+.category-card.available:hover .category-icon {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Контент карточки */
+.card-content {
+  flex: 1;
+  text-align: center;
+  padding: 0 4px;
+}
+
+.card-title {
+  margin-bottom: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  font-size: 1.125rem !important;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tags-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.category-tag {
+  margin: 0 !important;
+  border-radius: 12px !important;
+  font-size: 10px !important;
+  padding: 2px 8px !important;
+  height: auto !important;
+  line-height: 1.5 !important;
+  border: none !important;
+}
+
+.card-description {
+  color: #666;
+  line-height: 1.5;
+  font-size: 0.875rem;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Футер карточки */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-top: auto;
+}
+
+.course-count {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.select-button {
+  padding: 4px 12px !important;
+  border-radius: 16px !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  height: auto !important;
+  transition: all 0.2s ease !important;
+}
+
+.category-card.available:hover .select-button {
+  background: var(--card-color) !important;
+  color: white !important;
+  transform: translateX(2px);
+}
+
+/* Градиентная линия */
+.card-bottom-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.category-card.available:hover .card-bottom-line {
+  opacity: 1;
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+  .categories-container {
+    padding: 24px 16px;
+  }
+  
+  .page-title {
+    font-size: 1.75rem !important;
+  }
+  
+  .stats-container {
+    gap: 24px;
+    padding: 16px;
+  }
+  
+  .stat-item {
+    min-width: 70px;
+  }
+  
+  .stat-number {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .stats-container {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 280px;
+  }
+  
+  .stat-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e8e8e8, transparent);
+  }
+  
+  .card-title {
+    font-size: 1rem !important;
+    min-height: 48px;
+  }
+  
+  .card-description {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .categories-grid {
+    margin: 0 -8px;
+  }
+  
+  .card-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+  }
+  
+  .category-icon {
+    font-size: 20px;
+  }
+}

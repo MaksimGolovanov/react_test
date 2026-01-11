@@ -12,7 +12,7 @@ import { IpRoutes } from '../features/ip'
 import { BadgesRoutes } from '../features/badges'
 import { UsbRoutes } from '../features/usb'
 import { CardRoutes } from '../features/card'
-import { SecurityTrainingRoutes } from '../features/security-training/routes'
+import { MultiEduRouters } from '../features/MultiEdu'
 import LoginPage from '../features/admin/pages/LoginPage'
 import Json from '../features/json/pages/JsonViewer'
 import './App.css'
@@ -35,7 +35,7 @@ const FirstAvailablePage = observer(() => {
           { path: '/iuspt', roles: ['ADMIN', 'IUSPT'] },
           { path: '/admin', roles: ['ADMIN'] },
           { path: '/json', roles: ['ADMIN'] },
-          { path: '/security-training', roles: ['ADMIN', 'ST','ST-ADMIN'] },
+          { path: '/multiedu', roles: ['ADMIN', 'ST','ST-ADMIN'] },
      ]
 
      // Находим первую доступную страницу
@@ -95,8 +95,8 @@ function App() {
                     return 'ИУС П Т'
                case location.pathname.startsWith('/json'):
                     return 'JSON Viewer'
-               case location.pathname.startsWith('/security-training'):
-                    return 'Информационная безопасность'
+               case location.pathname.startsWith('/multiedu'):
+                    return 'Обучение'
                default:
                     return 'ГЛАВНАЯ'
           }
@@ -227,10 +227,10 @@ function App() {
                                    }
                               />
                               <Route
-                                   path="/security-training/*"
+                                   path="/multiedu/*"
                                    element={
                                         <PrivateRoute requiredRole={['ADMIN', 'ST', 'ST-ADMIN']}>
-                                             <SecurityTrainingRoutes />
+                                             <MultiEduRouters />
                                         </PrivateRoute>
                                    }
                               />
