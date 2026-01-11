@@ -34,33 +34,90 @@ class CourseService {
     }
   }
 
-  static async completeLesson(userId, courseId, lessonId) {
+  static async completeLesson(userId, courseId, lessonId, timeSpent = 5) {
     try {
-      console.log('📡 API: Completing lesson', { userId, courseId, lessonId });
+      console.log('📡 API: Completing lesson', {
+        userId,
+        courseId,
+        lessonId,
+        timeSpent,
+        timestamp: new Date().toISOString(),
+      });
 
-      // Пробуем разные варианты эндпоинтов
-      const endpoints = [
+      // 1. Сначала получаем текущий прогресс из БД
+      const currentProgress = await this.getUserProgress(userId, courseId);
+      console.log('📊 Текущий прогресс из БД:', currentProgress);
+
+      // 2. Подготавливаем данные для обновления
+      let completedLessons = [];
+      let totalTimeSpent = timeSpent;
+      let testScore = 0;
+      let passedTest = false;
+
+      if (currentProgress) {
+        // Используем существующие данные
+        completedLessons = currentProgress.completed_lessons || [];
+        // СУММИРУЕМ время, а не заменяем!
+        totalTimeSpent = (currentProgress.total_time_spent || 0) + timeSpent;
+        testScore = currentProgress.test_score || 0;
+        passedTest = currentProgress.passed_test || false;
+      }
+
+      // 3. Добавляем новый урок, если его еще нет
+      if (!completedLessons.includes(lessonId)) {
+        completedLessons.push(lessonId);
+        console.log(`➕ Добавлен урок ${lessonId} в завершенные`);
+      } else {
+        console.log(`ℹ️ Урок ${lessonId} уже был завершен ранее`);
+      }
+
+      // 4. Подготавливаем данные для отправки
+      const progressData = {
+        completed_lessons: completedLessons,
+        test_score: testScore,
+        passed_test: passedTest,
+        total_time_spent: totalTimeSpent, // Уже просуммированное время
+        last_activity: new Date().toISOString(),
+        lesson_time_spent: timeSpent, // Дополнительно сохраняем время этого урока
+      };
+
+      console.log('📦 Подготовленные данные для обновления:', {
+        completedLessonsCount: completedLessons.length,
+        totalTimeSpent: totalTimeSpent,
+        previousTime: currentProgress?.total_time_spent || 0,
+        timeAdded: timeSpent,
+        progressData,
+      });
+
+      // 5. Пробуем специальный эндпоинт для завершения урока
+      const specialEndpoints = [
         {
           url: `${API_URL}api/courses/${courseId}/complete-lesson/${userId}`,
           method: 'POST',
-          data: { lesson_id: lessonId },
+          data: {
+            lesson_id: lessonId,
+            time_spent: timeSpent,
+          },
         },
         {
-          url: `${API_URL}api/courses/user-progress/complete-lesson`,
+          url: `${API_URL}api/lessons/complete`,
           method: 'POST',
-          data: { user_id: userId, course_id: courseId, lesson_id: lessonId },
-        },
-        {
-          url: `${API_URL}api/progress/complete-lesson`,
-          method: 'POST',
-          data: { userId, courseId, lessonId },
+          data: {
+            user_id: userId,
+            course_id: courseId,
+            lesson_id: lessonId,
+            time_spent: timeSpent,
+          },
         },
       ];
 
-      for (let i = 0; i < endpoints.length; i++) {
+      // Сначала пробуем специальные эндпоинты
+      for (let i = 0; i < specialEndpoints.length; i++) {
         try {
-          const endpoint = endpoints[i];
-          console.log(`Trying endpoint ${i + 1}: ${endpoint.url}`);
+          const endpoint = specialEndpoints[i];
+          console.log(
+            `🔄 Пробуем специальный эндпоинт ${i + 1}: ${endpoint.url}`
+          );
 
           const response = await axios({
             method: endpoint.method,
@@ -70,50 +127,58 @@ class CourseService {
             timeout: 5000,
           });
 
-          console.log(`✅ Success with endpoint ${i + 1}:`, response.data);
+          console.log(
+            `✅ Успех со специальным эндпоинтом ${i + 1}:`,
+            response.data
+          );
           return response.data;
         } catch (error) {
-          if (i === endpoints.length - 1) {
-            // Если это последняя попытка, пробрасываем ошибку
-            throw error;
+          console.log(
+            `❌ Специальный эндпоинт ${i + 1} не сработал:`,
+            error.message
+          );
+          if (i === specialEndpoints.length - 1) {
+            console.log(
+              '🔄 Все специальные эндпоинты не сработали, используем updateUserProgress'
+            );
           }
-          console.log(`Endpoint ${i + 1} failed, trying next...`);
         }
       }
+
+      // 6. Если специальные эндпоинты не сработали, используем основной updateUserProgress
+      console.log(
+        '🔄 Используем updateUserProgress для сохранения прогресса...'
+      );
+      const result = await this.updateUserProgress(
+        userId,
+        courseId,
+        progressData
+      );
+
+      console.log('✅ Урок успешно завершен и сохранен:', {
+        lessonId,
+        timeSpent,
+        totalTimeInDB: result.total_time_spent || 'не указано',
+        completedLessons: result.completed_lessons?.length || 0,
+      });
+
+      return result;
     } catch (error) {
-      console.error('❌ All completeLesson endpoints failed:', error);
+      console.error('❌ Ошибка в completeLesson:', {
+        message: error.message,
+        userId,
+        courseId,
+        lessonId,
+        timeSpent,
+      });
 
-      // Если все эндпоинты не работают, используем fallback через updateUserProgress
-      console.log('Using fallback method via updateUserProgress');
-
-      try {
-        // Получаем текущий прогресс
-        const currentProgress = await this.getUserProgress(userId, courseId);
-
-        let completedLessons = [];
-        if (currentProgress && currentProgress.completed_lessons) {
-          completedLessons = [...currentProgress.completed_lessons];
-        }
-
-        // Добавляем новый урок
-        if (!completedLessons.includes(lessonId)) {
-          completedLessons.push(lessonId);
-        }
-
-        // Обновляем прогресс
-        const progressData = {
-          completed_lessons: completedLessons,
-          test_score: currentProgress?.test_score || 0,
-          passed_test: currentProgress?.passed_test || false,
-          total_time_spent: (currentProgress?.total_time_spent || 0) + 5,
-          last_activity: new Date().toISOString(),
-        };
-
-        return await this.updateUserProgress(userId, courseId, progressData);
-      } catch (fallbackError) {
-        console.error('❌ Fallback also failed:', fallbackError);
-        throw new Error('Could not complete lesson: ' + fallbackError.message);
-      }
+      // Не пробрасываем ошибку дальше, чтобы не ломать UI
+      // Вместо этого возвращаем объект с ошибкой
+      return {
+        success: false,
+        error: error.message,
+        message: 'Урок завершен локально, но не сохранен в БД',
+      };
     }
   }
 

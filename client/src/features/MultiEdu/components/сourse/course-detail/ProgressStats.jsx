@@ -17,8 +17,10 @@ const ProgressStats = ({
   totalLessons,
   compact = true 
 }) => {
+  
+  // Функция форматирования времени
   const formatTime = (minutes) => {
-    if (!minutes) return '0 мин';
+    if (!minutes || minutes === 0) return '0 мин';
     if (minutes < 60) return `${minutes} мин`;
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -28,6 +30,14 @@ const ProgressStats = ({
   const isCourseCompleted = userProgress?.completed || false;
   const testScore = userProgress?.testScore || 0;
   const totalTimeSpent = userProgress?.totalTimeSpent || 0;
+
+  // Рассчитываем среднее время на урок
+  const calculateAverageTime = () => {
+    if (completedLessonsCount === 0 || totalTimeSpent === 0) return 0;
+    return Math.round(totalTimeSpent / completedLessonsCount);
+  };
+
+  const averageTimePerLesson = calculateAverageTime();
 
   if (compact) {
     return (
@@ -50,7 +60,7 @@ const ProgressStats = ({
             <StatItem
               icon={<ClockCircleOutlined style={{ color: '#1890ff', fontSize: '18px' }} />}
               value={formatTime(totalTimeSpent)}
-              label="Время"
+              label="Общее время"
               valueColor="#1890ff"
             />
           </Col>
@@ -74,6 +84,32 @@ const ProgressStats = ({
             />
           </Col>
         </Row>
+        
+        {/* Дополнительная строка с детальной статистикой времени */}
+        {completedLessonsCount > 0 && totalTimeSpent > 0 && (
+          <Row gutter={[8, 8]} style={{ marginTop: '8px', marginBottom: '4px' }}>
+            <Col span={12}>
+              <div style={{ textAlign: 'center' }}>
+                <Text type="secondary" style={{ fontSize: '10px' }}>Среднее время на урок:</Text>
+                <div>
+                  <Text strong style={{ fontSize: '11px', color: '#722ed1' }}>
+                    {formatTime(averageTimePerLesson)}
+                  </Text>
+                </div>
+              </div>
+            </Col>
+            <Col span={12}>
+              <div style={{ textAlign: 'center' }}>
+                <Text type="secondary" style={{ fontSize: '10px' }}>Всего времени:</Text>
+                <div>
+                  <Text strong style={{ fontSize: '11px', color: '#13c2c2' }}>
+                    {formatTime(totalTimeSpent)}
+                  </Text>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        )}
         
         <div style={{ marginTop: '8px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
