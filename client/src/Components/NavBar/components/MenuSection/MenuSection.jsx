@@ -214,7 +214,7 @@ const MenuSection = ({ userRolesAuth }) => {
                 children: [
                   {
                     key: '/multiedu',
-                    label: <Link to="/multiedu">Главная</Link>,
+                    label: <Link to="/multiedu">Обучение</Link>,
                     icon: <BookOutlined />,
                   },
                   {
@@ -227,7 +227,7 @@ const MenuSection = ({ userRolesAuth }) => {
             : {
                 key: '/multiedu',
                 icon: <ReconciliationOutlined />,
-                label: <Link to="/multiedu">Информационная безопасность</Link>,
+                label: <Link to="/multiedu">Обучение</Link>,
               },
         ]
       : []),

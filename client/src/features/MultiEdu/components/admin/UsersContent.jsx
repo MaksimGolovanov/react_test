@@ -1,27 +1,26 @@
 // src/features/security-training/components/admin/UsersContent.jsx
-import  { useState, } from 'react';
+import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Space, Card, Typography, Button, message } from 'antd';
-import {
-  PlusOutlined,
-  DownloadOutlined
-} from '@ant-design/icons';
+import { PlusOutlined, DownloadOutlined } from '@ant-design/icons';
 import securityTrainingStore from '../../store/SecurityTrainingStore';
 import UsersTable from './users/UsersTable';
 import UserModal from '../modals/users/UserModal';
+import UserViewModal from '../modals/users/UserViewModal'; // Добавьте этот импорт
 import DeleteConfirmModal from '../modals/users/DeleteConfirmModal';
-import StatsCards from './users/StatsCards';
 import { useUsers } from '../../hooks/useUsers';
 
 const { Title } = Typography;
 
 const UsersContent = observer(() => {
-  const { users, loading, statsData, loadUsers } = useUsers();
+  const { users, loading, loadUsers } = useUsers();
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState('create');
   const [currentUser, setCurrentUser] = useState(null);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [viewModalVisible, setViewModalVisible] = useState(false); // Новое состояние
+  const [viewingUser, setViewingUser] = useState(null); // Новое состояние
 
   const handleCreateUser = () => {
     setModalMode('create');
@@ -41,7 +40,8 @@ const UsersContent = observer(() => {
   };
 
   const handleViewUser = (user) => {
-    // Перемещено в UsersTable
+    setViewingUser(user);
+    setViewModalVisible(true);
   };
 
   const confirmDeleteUser = async () => {
@@ -66,8 +66,6 @@ const UsersContent = observer(() => {
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
-      <StatsCards statsData={statsData} />
-      
       <Card>
         <div
           style={{
@@ -114,6 +112,14 @@ const UsersContent = observer(() => {
         loading={loading}
         onCancel={() => setModalVisible(false)}
         onSubmitSuccess={handleModalSubmitSuccess}
+      />
+
+      {/* Добавьте UserViewModal */}
+      <UserViewModal
+        visible={viewModalVisible}
+        user={viewingUser}
+        loading={loading}
+        onCancel={() => setViewModalVisible(false)}
       />
 
       <DeleteConfirmModal

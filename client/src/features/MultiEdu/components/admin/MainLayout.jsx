@@ -13,7 +13,7 @@ const MainLayout = ({
   showAddCourseButton = false 
 }) => {
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "calc(100vh - 64px)" }}>
       <AdminHeader 
         selectedMenu={selectedMenu}
         onMenuSelect={onMenuSelect}
@@ -21,7 +21,11 @@ const MainLayout = ({
         showAddButton={showAddCourseButton}
       />
       
-      <Content style={{ padding: "24px", overflow: "auto" }}>
+      <Content style={{ 
+        padding: "24px", 
+        overflow: "auto" ,
+        marginTop: 64,
+        }}>
         {children}
       </Content>
     </Layout>

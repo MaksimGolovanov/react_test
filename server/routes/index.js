@@ -12,7 +12,7 @@ const departmentRouter = require('./departmentRouter')
 const iusRouter = require('./iusRouter')
 const stRouter = require('./stRouter')
 const courseRouter = require('./courseRouter');
-
+const docRoutes = require('./docRoutes');
 
 
 router.use('/user', userRouter)
@@ -27,6 +27,7 @@ router.use('/iuspt', iusRouter)
 router.use('/departments', departmentRouter) // Добавьте эту строку
 router.use('/st', stRouter) // Добавьте эту строку
 router.use('/courses', courseRouter);
+router.use('/docs', docRoutes);
 
 
 

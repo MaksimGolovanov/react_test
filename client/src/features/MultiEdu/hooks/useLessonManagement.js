@@ -1,13 +1,13 @@
 // src/features/security-training/components/hooks/useLessonManagement.js
 import { useState, useCallback } from 'react';
-import { Form, Modal, message } from 'antd';
+import { Modal, message, Form } from 'antd';
 import CourseService from '../api/CourseService';
 
 const useLessonManagement = ({ editingCourse, lessons, onLessonsChange }) => {
-  const [lessonForm] = Form.useForm();
   const [editingLesson, setEditingLesson] = useState(null);
   const [lessonModalVisible, setLessonModalVisible] = useState(false);
   const [savingLesson, setSavingLesson] = useState(false);
+  const [lessonForm] = Form.useForm(); // Добавляем форму обратно
 
   const handleAddLesson = useCallback(() => {
     setEditingLesson(null);
@@ -24,17 +24,16 @@ const useLessonManagement = ({ editingCourse, lessons, onLessonsChange }) => {
 
       console.log('Editing lesson:', lesson);
       setEditingLesson(lesson);
-
+      
+      // Устанавливаем значения формы
       lessonForm.setFieldsValue({
         title: lesson.title || '',
-        content: lesson.content || '',
         content_type: lesson.content_type || 'text',
         video_url: lesson.video_url || '',
         presentation_url: lesson.presentation_url || '',
         duration: lesson.duration || 0,
         order_index: lesson.order_index || 0,
         is_active: lesson.is_active !== undefined ? lesson.is_active : true,
-        additional_resources: lesson.additional_resources || [],
       });
 
       setLessonModalVisible(true);
@@ -83,13 +82,13 @@ const useLessonManagement = ({ editingCourse, lessons, onLessonsChange }) => {
     [editingCourse, onLessonsChange]
   );
 
-  const handleSaveLesson = useCallback(async () => {
+  // Изменяем функцию handleSaveLesson для приема данных
+  const handleSaveLesson = useCallback(async (lessonData, editingLesson) => {
     try {
       setSavingLesson(true);
-      const values = await lessonForm.validateFields();
 
       console.log('Saving lesson - editingCourse:', editingCourse);
-      console.log('Lesson values:', values);
+      console.log('Lesson data from modal:', lessonData);
 
       // Проверяем, есть ли курс
       if (!editingCourse || !editingCourse.id) {
@@ -100,14 +99,16 @@ const useLessonManagement = ({ editingCourse, lessons, onLessonsChange }) => {
       // Сохраняем урок
       let result;
       if (editingLesson && editingLesson.id) {
+        console.log('Updating lesson:', editingLesson.id);
         result = await CourseService.updateLesson(
           editingCourse.id,
           editingLesson.id,
-          values
+          lessonData
         );
         message.success('Урок успешно обновлен');
       } else {
-        result = await CourseService.createLesson(editingCourse.id, values);
+        console.log('Creating new lesson');
+        result = await CourseService.createLesson(editingCourse.id, lessonData);
         message.success('Урок успешно создан');
       }
 
@@ -139,7 +140,7 @@ const useLessonManagement = ({ editingCourse, lessons, onLessonsChange }) => {
     } finally {
       setSavingLesson(false);
     }
-  }, [lessonForm, editingCourse, editingLesson, onLessonsChange]);
+  }, [editingCourse, onLessonsChange, lessonForm]);
 
   const handleCloseLessonModal = useCallback(() => {
     setLessonModalVisible(false);

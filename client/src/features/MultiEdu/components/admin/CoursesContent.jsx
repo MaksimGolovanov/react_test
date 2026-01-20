@@ -1,5 +1,6 @@
 // src/features/security-training/components/admin/CoursesContent.jsx
-import React, { useState, useEffect, moment } from 'react';
+import React, { useState, useEffect} from 'react';
+import moment from 'moment';
 import { observer } from 'mobx-react-lite';
 import {
   Alert,
@@ -119,6 +120,7 @@ const CoursesContent = observer(() => {
       const stats = await CourseService.getCourseStats(course.id);
       setSelectedCourseStats(stats);
       setStatsModalVisible(true);
+      console.log(stats)
     } catch (error) {
       console.error('Error loading course stats:', error);
       message.error('Ошибка загрузки статистики');
@@ -701,7 +703,7 @@ const CoursesContent = observer(() => {
                     columns={[
                       {
                         title: 'Пользователь',
-                        dataIndex: ['User', 'login'],
+                        dataIndex: 'user_id',
                         key: 'user',
                       },
                       {

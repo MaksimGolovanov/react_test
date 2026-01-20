@@ -13,7 +13,7 @@ const TestButton = ({ courseId, lessons, userProgress, isCourseCompleted }) => {
 
   const handleStartTest = () => {
     if (canTakeTest || isCourseCompleted) {
-      navigate(`test/${courseId}`);
+      navigate(`/multiedu/test/${courseId}`);
     } else {
       Modal.warning({
         title: 'Доступ к тесту ограничен',

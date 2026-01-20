@@ -93,7 +93,7 @@ const UnderDevelopmentPage = () => {
         <div style={{ marginTop: 32, textAlign: 'left' }}>
           
           <Text type="secondary" style={{ textAlign: 'center', display: 'block', marginTop: 16 }}>
-            Ожидаемая дата запуска: <strong>конец 2026 года</strong>
+            Ожидаемая дата запуска: <strong>конец 2026 года. Но это не точно 😃</strong>
           </Text>
         </div>
       </Card>

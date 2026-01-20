@@ -1,0 +1,53 @@
+// src/features/security-training/components/constants/categories.js
+export const INITIAL_CATEGORIES = [
+  {
+    id: 'security',
+    title: 'Информационная безопасность',
+    description:
+      'Защита данных, кибербезопасность, шифрование и безопасность сетей',
+    iconType: 'SecurityScanOutlined',
+    color: '#4a6fa5',
+    bgColor: '#e8f4fd',
+    iconBgColor: '#d0e7ff',
+    dbCategory: 'it',
+    path: 'courses',
+    available: true,
+  },
+  // {
+  //   id: 'labor',
+  //   title: 'Охрана труда',
+  //   description:
+  //     'Безопасность на производстве, СИЗ, нормы и правила охраны труда',
+  //   iconType: 'SafetyOutlined',
+  //   color: '#5a9e6f',
+  //   bgColor: '#f0f9eb',
+  //   iconBgColor: '#d8f0d8',
+  //   dbCategory: 'ot',
+  //   path: 'under-development',
+  //   available: false,
+  // },
+  // {
+  //   id: 'fire',
+  //   title: 'Пожарная безопасность',
+  //   description: 'Противопожарные нормы, эвакуация, средства пожаротушения',
+  //   iconType: 'FireOutlined',
+  //   color: '#e67e22',
+  //   bgColor: '#fef4e6',
+  //   iconBgColor: '#ffdfb3',
+  //   dbCategory: 'pb',
+  //   path: 'under-development',
+  //   available: false,
+  // },
+  // {
+  //   id: 'medical',
+  //   title: 'Первая помощь',
+  //   description: 'Медицинская помощь, сердечно-лёгочная реанимация, травмы',
+  //   iconType: 'MedicineBoxOutlined',
+  //   color: '#d95d8c',
+  //   bgColor: '#fceef5',
+  //   iconBgColor: '#f8d7e6',
+  //   dbCategory: 'med',
+  //   path: 'under-development',
+  //   available: false,
+  // },
+];

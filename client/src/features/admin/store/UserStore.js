@@ -67,27 +67,14 @@ class UserStore {
                const responseRoles = await AdminService.fetchRole()
                const responseUserRole = await AdminService.fetchRoleUser()
 
-               console.log('=== FETCH USERS ANALYSIS ===')
-               console.log('Total users:', responseUsers.length)
-               console.log('Current user login from store:', this.userName)
 
-               // Логируем первые несколько пользователей для примера
-               if (responseUsers.length > 0) {
-                    console.log('First 3 users from API:')
-                    responseUsers.slice(0, 3).forEach((user, index) => {
-                         console.log(`User ${index + 1}:`, {
-                              login: user.login,
-                              name: user.name,
-                              tabNumber: user.tabNumber,
-                              keys: Object.keys(user),
-                         })
-                    })
-               }
-               console.log('============================')
+
+
+               
 
                // Найти текущего пользователя в списке по логину
                const currentUserLogin = this.userName || localStorage.getItem('userName') || ''
-               console.log('Searching for user with login:', currentUserLogin)
+               
 
                let currentUser = null
 
@@ -95,7 +82,7 @@ class UserStore {
                for (const user of responseUsers) {
                     if (user.login === currentUserLogin) {
                          currentUser = user
-                         console.log('Found by exact login match:', user)
+                         
                          break
                     }
                }
@@ -109,24 +96,24 @@ class UserStore {
                               (user.name && user.name.toLowerCase() === currentUserLogin.toLowerCase())
                          ) {
                               currentUser = user
-                              console.log('Found by alternative field match:', user)
+                              
                               break
                          }
                     }
                }
 
                if (currentUser) {
-                    console.log('Current user found:', currentUser)
+                    
 
                     // Обновляем данные ТОЛЬКО если они есть
                     if (currentUser.tabNumber && currentUser.tabNumber !== currentUserLogin) {
                          this.tabNumber = currentUser.tabNumber
-                         console.log('Updated tabNumber from user list:', this.tabNumber)
+                         
                     }
 
                     if (currentUser.name && currentUser.name !== currentUserLogin) {
                          this.userName = currentUser.name
-                         console.log('Updated userName from user list:', this.userName)
+                         
                     }
 
                     this.saveAuthState()
@@ -151,16 +138,9 @@ class UserStore {
           try {
                const result = await AdminService.login({ login, password })
 
-               // ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ
-               console.log('=== LOGIN RESPONSE ANALYSIS ===')
-               console.log('Full result:', result)
-               console.log('Result type:', typeof result)
-               console.log('Result keys:', Object.keys(result))
 
                if (result.user) {
-                    console.log('User object exists:', result.user)
-                    console.log('User object keys:', Object.keys(result.user))
-                    console.log('User object JSON:', JSON.stringify(result.user, null, 2))
+
 
                     // Проверяем ВСЕ поля объекта user
                     for (const [key, value] of Object.entries(result.user)) {
@@ -170,7 +150,7 @@ class UserStore {
                     console.log('No user object in response')
                     console.log('Available data:', result)
                }
-               console.log('=============================')
+
 
                this.isAuthenticated = true
 
@@ -195,39 +175,35 @@ class UserStore {
                // Проверяем tabNumber
                if (result.user?.tabNumber) {
                     tabNumberValue = result.user.tabNumber
-                    console.log('Got tabNumber from result.user.tabNumber:', tabNumberValue)
+                   
                } else if (result.tabNumber) {
                     tabNumberValue = result.tabNumber
-                    console.log('Got tabNumber from result.tabNumber:', tabNumberValue)
+                    
                } else {
                     // Если в ответе сервера нет tabNumber, пробуем использовать логин
                     tabNumberValue = login
-                    console.log('Using login as tabNumber:', tabNumberValue)
+                    
                }
 
                // Проверяем userName/name
                if (result.user?.name) {
                     userNameValue = result.user.name
-                    console.log('Got userName from result.user.name:', userNameValue)
+                   
                } else if (result.user?.userName) {
                     userNameValue = result.user.userName
-                    console.log('Got userName from result.user.userName:', userNameValue)
+                    
                } else if (result.name) {
                     userNameValue = result.name
-                    console.log('Got userName from result.name:', userNameValue)
+                   
                } else if (result.userName) {
                     userNameValue = result.userName
-                    console.log('Got userName from result.userName:', userNameValue)
+                   
                }
 
                this.tabNumber = tabNumberValue
                this.userName = userNameValue
 
-               console.log('Final user data:', {
-                    tabNumber: this.tabNumber,
-                    userName: this.userName,
-                    userRolesAuth: this.userRolesAuth,
-               })
+
 
                this.saveAuthState()
 
@@ -264,13 +240,7 @@ class UserStore {
      // Метод для создания пользователя обернут в action
      createUser = action(async (login, password, selectedRoles, description, tabNumber) => {
           try {
-               console.log('Creating user with data:', {
-                    login,
-                    password,
-                    roles: selectedRoles,
-                    description,
-                    tabNumber,
-               })
+
 
                const result = await AdminService.registration({
                     login,
@@ -280,7 +250,7 @@ class UserStore {
                     tabNumber,
                })
 
-               console.log('User created successfully:', result)
+              
                await this.fetchUsers()
                return true
           } catch (error) {

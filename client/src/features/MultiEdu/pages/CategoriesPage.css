@@ -1,78 +1,40 @@
 /* src/features/security-training/pages/CategoriesPage.css */
+:root {
+  --primary-color: #4a6fa5;
+  --text-primary: #1f1f1f;
+  --text-secondary: #666;
+  --text-muted: #8c8c8c;
+  --border-color: #f0f0f0;
+  --border-light: rgba(0, 0, 0, 0.06);
+  --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(24, 144, 255, 0.08);
+  --gradient-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ====================
+   Основные контейнеры
+   ==================== */
 .categories-container {
   padding: 32px 24px;
   max-width: 1200px;
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: calc(100vh - 64px);
 }
 
-/* Заголовок */
-.page-header {
-  text-align: center;
-  margin-bottom: 48px;
-}
-
-.page-title {
-  font-size: 2.25rem !important;
-  font-weight: 700 !important;
-  margin-bottom: 12px !important;
-  line-height: 1.2 !important;
-}
-
-.page-subtitle {
-  font-size: 1rem;
-  color: #666;
-  max-width: 500px;
-  margin: 0 auto 32px;
-  line-height: 1.5;
-}
-
-/* Статистика */
-.stats-container {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  padding: 20px;
-  border-radius: 16px;
-  display: inline-flex;
-  align-items: center;
-  gap: 32px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 80px;
-}
-
-.stat-number {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #8c8c8c;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(to bottom, transparent, #e8e8e8, transparent);
-}
-
-/* Карточки */
 .categories-grid {
   margin: 0 -12px;
 }
 
+
+/* ====================
+   Карточка категории
+   ==================== */
 .category-card {
   height: 100%;
   border-radius: 16px !important;
-  border: 1px solid #f0f0f0 !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: var(--transition-smooth) !important;
   position: relative;
   overflow: hidden;
   background: white !important;
@@ -85,14 +47,14 @@
 
 .category-card.available:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 
-              0 0 0 1px rgba(24, 144, 255, 0.08) !important;
+  box-shadow: var(--shadow-hover) !important;
 }
 
 .category-card.disabled {
   opacity: 0.7;
 }
 
+/* Бейдж */
 .ribbon-badge {
   position: absolute;
   top: 8px;
@@ -105,7 +67,9 @@
   font-weight: 500;
 }
 
-/* Иконка */
+/* ====================
+   Иконка карточки
+   ==================== */
 .card-icon-wrapper {
   position: relative;
   width: 80px;
@@ -124,12 +88,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% { 
-    opacity: 0.1; 
+  0%, 100% {
+    opacity: 0.1;
     transform: scale(1);
   }
-  50% { 
-    opacity: 0.2; 
+  50% {
+    opacity: 0.2;
     transform: scale(1.05);
   }
 }
@@ -147,7 +111,9 @@
   transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* Контент карточки */
+/* ====================
+   Контент карточки
+   ==================== */
 .card-content {
   flex: 1;
   text-align: center;
@@ -184,7 +150,7 @@
 }
 
 .card-description {
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.5;
   font-size: 0.875rem;
   margin-bottom: 20px;
@@ -194,13 +160,15 @@
   overflow: hidden;
 }
 
-/* Футер карточки */
+/* ====================
+   Футер карточки
+   ==================== */
 .card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-top: 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid var(--border-light);
   margin-top: auto;
 }
 
@@ -238,72 +206,4 @@
 
 .category-card.available:hover .card-bottom-line {
   opacity: 1;
-}
-
-/* Адаптивность */
-@media (max-width: 992px) {
-  .categories-container {
-    padding: 24px 16px;
-  }
-  
-  .page-title {
-    font-size: 1.75rem !important;
-  }
-  
-  .stats-container {
-    gap: 24px;
-    padding: 16px;
-  }
-  
-  .stat-item {
-    min-width: 70px;
-  }
-  
-  .stat-number {
-    font-size: 1.25rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .page-title {
-    font-size: 1.5rem !important;
-  }
-  
-  .stats-container {
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-    max-width: 280px;
-  }
-  
-  .stat-divider {
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(to right, transparent, #e8e8e8, transparent);
-  }
-  
-  .card-title {
-    font-size: 1rem !important;
-    min-height: 48px;
-  }
-  
-  .card-description {
-    font-size: 0.8125rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .categories-grid {
-    margin: 0 -8px;
-  }
-  
-  .card-icon-wrapper {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 16px;
-  }
-  
-  .category-icon {
-    font-size: 20px;
-  }
 }

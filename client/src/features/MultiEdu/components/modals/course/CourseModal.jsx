@@ -29,7 +29,6 @@ const CourseModal = ({
 }) => {
   const [savingCourse, setSavingCourse] = useState(false);
 
-  // Хуки для управления состоянием
   const { form, initializeForm } = useCourseForm();
   const {
     lessonForm,
@@ -69,31 +68,23 @@ const CourseModal = ({
     onQuestionsChange,
   });
 
-  // Инициализация формы
   useEffect(() => {
     if (visible && currentStep === 0) {
       initializeForm(editingCourse);
     }
   }, [visible, currentStep, editingCourse, initializeForm]);
 
-  // Обработка сохранения курса
   const handleSubmit = async () => {
     try {
       setSavingCourse(true);
       const values = await form.validateFields();
 
-      console.log('Submitting course:', values);
-      console.log('Editing course:', editingCourse);
-
       let result;
       let updatedCourse;
 
       if (editingCourse && editingCourse.id) {
-        // Редактируем существующий курс
         result = await CourseService.updateCourse(editingCourse.id, values);
-        console.log('Update result:', result);
-
-        // Проверяем, что result существует
+        
         if (!result) {
           throw new Error('Сервер не вернул результат обновления');
         }
@@ -105,28 +96,19 @@ const CourseModal = ({
         };
         message.success('Курс успешно обновлен');
       } else {
-        // Создаем новый курс
         result = await CourseService.createCourse(values);
-        console.log('Create result:', result);
-
+        
         if (!result) {
           throw new Error('Сервер не вернул результат создания');
         }
 
-        // Пробуем разные варианты извлечения данных
         const createdCourse = result.data || result;
-        console.log('Created course:', createdCourse);
-
+        
         if (!createdCourse) {
           throw new Error('Не удалось получить данные созданного курса');
         }
 
-        // Получаем ID разными способами
-        const courseId =
-          createdCourse.id ||
-          createdCourse._id ||
-          createdCourse.courseId ||
-          Date.now();
+        const courseId = createdCourse.id || createdCourse._id || createdCourse.courseId || Date.now();
 
         updatedCourse = {
           ...values,
@@ -135,29 +117,12 @@ const CourseModal = ({
         message.success('Курс успешно создан');
       }
 
-      console.log('Updated course to send:', updatedCourse);
-
-      // ✅ Проверяем, что updatedCourse определен
       if (updatedCourse && typeof onCourseSaved === 'function') {
         onCourseSaved(updatedCourse);
-      } else {
-        console.error(
-          'Updated course is undefined or onCourseSaved is not a function',
-          {
-            updatedCourse,
-            onCourseSaved: typeof onCourseSaved,
-          }
-        );
       }
-
-      // Не закрываем модальное окно
     } catch (error) {
-      console.error('Error submitting course:', error);
-      message.error(
-        'Ошибка сохранения курса: ' +
-          (error.response?.data?.message || error.message || error.toString())
-      );
-      // Не выбрасываем ошибку, чтобы не ломать интерфейс
+      const errorMessage = error.response?.data?.message || error.message || error.toString();
+      message.error('Ошибка сохранения курса: ' + errorMessage);
     } finally {
       setSavingCourse(false);
     }
@@ -205,6 +170,46 @@ const CourseModal = ({
     }
   };
 
+  const renderFooterButtons = () => {
+    const buttons = [];
+
+    if (currentStep > 0) {
+      buttons.push(
+        <Button key="back" onClick={() => onStepChange(currentStep - 1)}>
+          Назад
+        </Button>
+      );
+    }
+
+    buttons.push(
+      <Button
+        key="save"
+        type="primary"
+        onClick={handleSubmit}
+        loading={savingCourse}
+        icon={<SaveOutlined />}
+        style={{ marginLeft: '8px' }}
+      >
+        {editingCourse ? 'Сохранить изменения' : 'Создать курс'}
+      </Button>
+    );
+
+    if (currentStep < steps.length - 1) {
+      buttons.push(
+        <Button
+          key="next"
+          type="primary"
+          onClick={() => onStepChange(currentStep + 1)}
+          style={{ marginLeft: '8px' }}
+        >
+          Далее
+        </Button>
+      );
+    }
+
+    return buttons;
+  };
+
   return (
     <>
       <Modal
@@ -212,33 +217,7 @@ const CourseModal = ({
         open={visible}
         onCancel={onClose}
         width={900}
-        footer={[
-          currentStep > 0 && (
-            <Button key="back" onClick={() => onStepChange(currentStep - 1)}>
-              Назад
-            </Button>
-          ),
-          <Button
-            key="save"
-            type="primary"
-            onClick={handleSubmit}
-            loading={savingCourse}
-            icon={<SaveOutlined />}
-            style={{ marginLeft: '8px' }}
-          >
-            {editingCourse ? 'Сохранить изменения' : 'Создать курс'}
-          </Button>,
-          currentStep < steps.length - 1 && (
-            <Button
-              key="next"
-              type="primary"
-              onClick={() => onStepChange(currentStep + 1)}
-              style={{ marginLeft: '8px' }}
-            >
-              Далее
-            </Button>
-          ),
-        ]}
+        footer={renderFooterButtons()}
       >
         <Steps current={currentStep} style={{ marginBottom: '24px' }}>
           {steps.map((step) => (
@@ -246,9 +225,7 @@ const CourseModal = ({
           ))}
         </Steps>
 
-        <div
-          style={{ minHeight: '500px', maxHeight: '600px', overflowY: 'auto' }}
-        >
+        <div style={styles.contentContainer}>
           {renderStepContent()}
         </div>
       </Modal>
@@ -278,6 +255,14 @@ const CourseModal = ({
       />
     </>
   );
+};
+
+const styles = {
+  contentContainer: {
+    minHeight: '500px',
+    maxHeight: '600px',
+    overflowY: 'auto',
+  },
 };
 
 export default CourseModal;

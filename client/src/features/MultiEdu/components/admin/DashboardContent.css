@@ -1,0 +1,39 @@
+/* src/features/security-training/components/admin/DashboardContent.css */
+.dashboard-container {
+  padding: 24px;
+}
+
+.stat-card {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  border-left: 4px solid transparent;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card {
+  border-radius: 8px;
+  height: 100%;
+}
+
+.dashboard-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dashboard-card .ant-card-body {
+  padding: 16px;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+  
+  .stat-card {
+    margin-bottom: 16px;
+  }
+}

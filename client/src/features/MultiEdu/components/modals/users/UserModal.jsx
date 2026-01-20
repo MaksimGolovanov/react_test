@@ -1,18 +1,66 @@
 // src/features/security-training/components/admin/UserModal.jsx
-import React, { useState } from 'react';
-import { Modal, Form, Input, Select, InputNumber, Row, Col, Typography, message } from 'antd';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  Modal,
+  Form,
+  Input,
+  Select,
+  Row,
+  Col,
+  message,
+  AutoComplete,
+} from 'antd';
+import { observer } from 'mobx-react-lite';
 import securityTrainingStore from '../../../store/SecurityTrainingStore';
+import userStore from '../../../store/UserStore';
 
 const { Option } = Select;
 const { TextArea } = Input;
-const { Title } = Typography;
 
-const UserModal = ({ visible, mode, currentUser, loading, onCancel, onSubmitSuccess }) => {
+
+const ROLE_OPTIONS = [
+  { value: 'ST', label: 'ST (Обучающийся)' },
+  { value: 'ST-ADMIN', label: 'ST-ADMIN (Администратор обучения)' },
+];
+
+const UserModal = observer(({ 
+  visible, 
+  mode, 
+  currentUser, 
+  loading, 
+  onCancel, 
+  onSubmitSuccess 
+}) => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  React.useEffect(() => {
-    if (visible && mode === 'edit' && currentUser) {
+  // Подготовка данных для поиска сотрудников
+  const staffOptions = useMemo(() => 
+    userStore.staff
+      .filter(staff => staff.fio)
+      .map(staff => ({
+        value: staff.fio,
+        label: `${staff.fio} (${staff.tabNumber})`,
+        staffData: staff,
+      }))
+  , [userStore.staff]);
+
+  // Обработчик выбора сотрудника
+  const handleStaffSelect = useCallback((value, option) => {
+    const { staffData } = option;
+    form.setFieldsValue({
+      tabNumber: staffData.tabNumber,
+      login: staffData.login || '',
+    });
+    setSearchQuery(staffData.fio);
+  }, [form]);
+
+  // Сброс формы при открытии/закрытии модалки
+  useEffect(() => {
+    if (!visible) return;
+
+    if (mode === 'edit' && currentUser) {
       form.setFieldsValue({
         login: currentUser.login,
         tabNumber: currentUser.tabNumber,
@@ -20,15 +68,19 @@ const UserModal = ({ visible, mode, currentUser, loading, onCancel, onSubmitSucc
         roles: currentUser.roles || ['ST'],
         password: '',
         passwordConfirm: '',
-        completed_courses: currentUser.completed_courses || 0,
-        average_score: currentUser.average_score || 0,
-        total_training_time: currentUser.total_training_time || 0,
+        staffSearch: '',
       });
-    } else if (visible && mode === 'create') {
+    } else if (mode === 'create') {
       form.resetFields();
+      setSearchQuery('');
+      form.setFieldsValue({
+        roles: ['ST'],
+        staffSearch: '',
+      });
     }
   }, [visible, mode, currentUser, form]);
 
+  // Основная функция сохранения
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
@@ -39,56 +91,152 @@ const UserModal = ({ visible, mode, currentUser, loading, onCancel, onSubmitSucc
       }
 
       setSubmitting(true);
-
-      const userData = {
-        login: values.login.trim(),
-        tabNumber: values.tabNumber.trim(),
-        description: values.description?.trim() || '',
-        roles: values.roles || ['ST'],
-        completed_courses: values.completed_courses || 0,
-        average_score: values.average_score || 0,
-        total_training_time: values.total_training_time || 0,
-      };
-
-      if (mode === 'create') {
-        userData.password = values.password;
-      } else if (mode === 'edit' && values.password && values.password.trim()) {
-        userData.password = values.password;
-      }
-
-      if (mode === 'create') {
-        try {
-          await securityTrainingStore.createSTUser(userData);
-          message.success('Пользователь успешно создан/обновлен');
-        } catch (error) {
-          if (
-            error.response?.status === 400 &&
-            error.response?.data?.message?.includes('уже существует')
-          ) {
-            message.info('Пользователь был добавлен в систему обучения');
-          } else {
-            throw error;
-          }
-        }
-      } else if (mode === 'edit' && currentUser) {
-        await securityTrainingStore.updateSTUser(currentUser.id, userData);
-        message.success('Пользователь успешно обновлен');
-      }
-
+      await saveUserData(values);
       onSubmitSuccess();
     } catch (error) {
-      console.error('Ошибка при сохранении пользователя:', error);
-      if (error.response?.data?.message) {
-        message.error(error.response.data.message);
-      } else if (error.message) {
-        message.error(error.message);
-      } else {
-        message.error('Ошибка при сохранении пользователя');
-      }
+      handleSubmissionError(error);
     } finally {
       setSubmitting(false);
     }
   };
+
+  // Логика сохранения данных пользователя
+  const saveUserData = async (values) => {
+    const userData = prepareUserData(values);
+
+    if (mode === 'create') {
+      await createUser(userData);
+    } else if (mode === 'edit' && currentUser) {
+      await updateUser(userData);
+    }
+  };
+
+  // Подготовка данных пользователя
+  const prepareUserData = (values) => ({
+    login: values.login.trim(),
+    tabNumber: values.tabNumber.trim(),
+    description: values.description?.trim() || '',
+    roles: values.roles || ['ST'],
+    ...(mode === 'create' && { password: values.password }),
+    ...(mode === 'edit' && 
+      values.password?.trim() && { password: values.password }),
+  });
+
+  // Создание пользователя
+  const createUser = async (userData) => {
+    try {
+      await securityTrainingStore.createSTUser(userData);
+      message.success('Пользователь успешно создан/обновлен');
+    } catch (error) {
+      if (isUserAlreadyExistsError(error)) {
+        message.info('Пользователь был добавлен в систему обучения');
+      } else {
+        throw error;
+      }
+    }
+  };
+
+  // Обновление пользователя
+  const updateUser = async (userData) => {
+    await securityTrainingStore.updateSTUser(currentUser.id, userData);
+    message.success('Пользователь успешно обновлен');
+  };
+
+  // Проверка на ошибку существующего пользователя
+  const isUserAlreadyExistsError = (error) =>
+    error.response?.status === 400 &&
+    error.response?.data?.message?.includes('уже существует');
+
+  // Обработка ошибок
+  const handleSubmissionError = (error) => {
+    console.error('Ошибка при сохранении пользователя:', error);
+    
+    const errorMessage = 
+      error.response?.data?.message || 
+      error.message || 
+      'Ошибка при сохранении пользователя';
+    
+    message.error(errorMessage);
+  };
+
+  // Правила валидации
+  const validationRules = {
+    login: [
+      { required: true, message: 'Введите логин пользователя' },
+      { min: 3, message: 'Логин должен содержать минимум 3 символа' },
+    ],
+    tabNumber: [
+      { required: true, message: 'Введите табельный номер' },
+    ],
+    roles: [
+      { required: true, message: 'Выберите роли пользователя' },
+    ],
+    password: [
+      { required: mode === 'create', message: 'Введите пароль' },
+      { min: 6, message: 'Пароль должен содержать минимум 6 символов' },
+    ],
+    passwordConfirm: [
+      { required: mode === 'create', message: 'Подтвердите пароль' },
+    ],
+  };
+
+  // Фильтрация опций для автокомплита
+  const filterOptions = (inputValue, option) =>
+    option.value.toLowerCase().includes(inputValue.toLowerCase()) ||
+    option.staffData.tabNumber?.toString().includes(inputValue);
+
+  // Рендер поиска сотрудников
+  const renderStaffSearch = mode === 'create' && (
+    <Form.Item label="Поиск сотрудника по ФИО" name="staffSearch">
+      <AutoComplete
+        options={staffOptions}
+        value={searchQuery}
+        onChange={setSearchQuery}
+        onSelect={handleStaffSelect}
+        placeholder="Введите ФИО сотрудника"
+        style={{ width: '100%' }}
+        filterOption={filterOptions}
+      >
+        <Input placeholder="Введите ФИО сотрудника" />
+      </AutoComplete>
+    </Form.Item>
+  );
+
+  // Рендер полей с паролями
+  const renderPasswordFields = (
+    <Row gutter={16}>
+      <Col span={12}>
+        <Form.Item label="Пароль" name="password" rules={validationRules.password}>
+          <Input.Password placeholder="Введите пароль" />
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item 
+          label="Подтверждение пароля" 
+          name="passwordConfirm" 
+          rules={validationRules.passwordConfirm}
+        >
+          <Input.Password placeholder="Подтвердите пароль" />
+        </Form.Item>
+      </Col>
+    </Row>
+  );
+
+  // Рендер основных полей
+  const renderMainFields = (
+    <Row gutter={16}>
+      <Col span={12}>
+        <Form.Item label="Логин" name="login" rules={validationRules.login}>
+          <Input placeholder="Введите логин" />
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item label="Табельный номер" name="tabNumber" rules={validationRules.tabNumber}>
+          <Input placeholder="Введите табельный номер" />
+        </Form.Item>
+      </Col>
+    </Row>
+  );
 
   return (
     <Modal
@@ -106,115 +254,30 @@ const UserModal = ({ visible, mode, currentUser, loading, onCancel, onSubmitSucc
         layout="vertical"
         initialValues={{
           roles: ['ST'],
-          completed_courses: 0,
-          average_score: 0,
-          total_training_time: 0,
+          staffSearch: '',
         }}
       >
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Логин"
-              name="login"
-              rules={[
-                { required: true, message: 'Введите логин пользователя' },
-                { min: 3, message: 'Логин должен содержать минимум 3 символа' },
-              ]}
-            >
-              <Input placeholder="Введите логин" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Табельный номер"
-              name="tabNumber"
-              rules={[{ required: true, message: 'Введите табельный номер' }]}
-            >
-              <Input placeholder="Введите табельный номер" />
-            </Form.Item>
-          </Col>
-        </Row>
+        {renderStaffSearch}
+        {renderMainFields}
 
         <Form.Item label="Описание" name="description">
           <TextArea rows={2} placeholder="Введите описание пользователя" />
         </Form.Item>
 
-        <Form.Item
-          label="Роли"
-          name="roles"
-          rules={[{ required: true, message: 'Выберите роли пользователя' }]}
-        >
+        <Form.Item label="Роли" name="roles" rules={validationRules.roles}>
           <Select mode="multiple" placeholder="Выберите роли" allowClear>
-            <Option value="ST">ST (Обучающийся)</Option>
-            <Option value="ST-ADMIN">ST-ADMIN (Администратор обучения)</Option>
+            {ROLE_OPTIONS.map(option => (
+              <Option key={option.value} value={option.value}>
+                {option.label}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
 
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Пароль"
-              name="password"
-              rules={[
-                { required: mode === 'create', message: 'Введите пароль' },
-                { min: 6, message: 'Пароль должен содержать минимум 6 символов' },
-              ]}
-            >
-              <Input.Password placeholder="Введите пароль" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Подтверждение пароля"
-              name="passwordConfirm"
-              rules={[
-                { required: mode === 'create', message: 'Подтвердите пароль' },
-              ]}
-            >
-              <Input.Password placeholder="Подтвердите пароль" />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Title level={5} style={{ marginTop: 24, marginBottom: 16 }}>
-          Статистика обучения
-        </Title>
-
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item label="Пройдено курсов" name="completed_courses">
-              <InputNumber
-                min={0}
-                style={{ width: '100%' }}
-                placeholder="Количество курсов"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Средний балл" name="average_score">
-              <InputNumber
-                min={0}
-                max={100}
-                style={{ width: '100%' }}
-                placeholder="Средний балл"
-                formatter={(value) => `${value}%`}
-                parser={(value) => value.replace('%', '')}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Время обучения (мин.)" name="total_training_time">
-              <InputNumber
-                min={0}
-                style={{ width: '100%' }}
-                placeholder="Время в минутах"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+        {renderPasswordFields}
       </Form>
     </Modal>
   );
-};
+});
 
 export default UserModal;

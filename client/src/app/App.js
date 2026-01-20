@@ -96,7 +96,7 @@ function App() {
                case location.pathname.startsWith('/json'):
                     return 'JSON Viewer'
                case location.pathname.startsWith('/multiedu'):
-                    return 'Обучение'
+                    return 'ОБУЧЕНИЕ'
                default:
                     return 'ГЛАВНАЯ'
           }

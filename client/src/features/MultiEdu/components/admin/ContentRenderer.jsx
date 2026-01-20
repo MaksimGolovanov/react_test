@@ -1,7 +1,7 @@
 import React from "react";
 import DashboardContent from "./DashboardContent";
 import UsersContent from "./UsersContent";
-import AnalyticsContent from "./AnalyticsContent";
+import DocumentsContent from "./DocumentsContent";
 import CoursesContent from "./CoursesContent";
 import ErrorBoundary from "./ErrorBoundary";
 import { courses } from "../../data/coursesData";
@@ -37,8 +37,8 @@ const ContentRenderer = ({
         );
       case "users":
         return <UsersContent users={users} loading={loading} />;
-      case "analytics":
-        return <AnalyticsContent analytics={analytics} />;
+      case "documents":
+        return <DocumentsContent analytics={analytics} />;
       default:
         return (
           <DashboardContent

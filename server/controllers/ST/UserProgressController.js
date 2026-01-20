@@ -1,5 +1,6 @@
 // server/controllers/UserProgressController.js
-const { UserCourseProgress, TestResult, Course, Question, STUser } = require('../../models/courseModels');
+const { UserCourseProgress, TestResult, Course, Question,  } = require('../../models/courseModels');
+const {STUser} = require('../../models/STModels')
 const ApiError = require('../../error/ApiError');
 
 class UserProgressController {
@@ -422,12 +423,13 @@ class UserProgressController {
             });
 
             // Получаем ST пользователя
-            const stUser = await STUser.findOne({
-                where: { user_id: userId }
-            });
+            const course = await Course.findAll(); 
+            const stTest = await TestResult.findAll({
+                where: { user_id: userId } 
+            })
 
             // Рассчитываем статистику
-            const totalCourses = progresses.length;
+            const totalCourses = course.length;
             const completedCourses = progresses.filter(p => p.passed_test).length;
             const totalTime = progresses.reduce((sum, p) => sum + (p.total_time_spent || 0), 0);
             const averageScore = completedCourses > 0 
@@ -441,7 +443,8 @@ class UserProgressController {
                 completion_rate: totalCourses > 0 ? (completedCourses / totalCourses * 100).toFixed(2) : 0,
                 average_score: averageScore.toFixed(2),
                 total_time_spent: totalTime,
-                st_stats: stUser || null
+                st_stats: progresses || null,
+                st_test: stTest || null
             });
         } catch (error) {
             console.error('Error getting user stats:', error);

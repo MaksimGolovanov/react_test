@@ -1,230 +1,196 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Alert, Button, Space, message } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
-// Убедитесь, что путь правильный!
-import trainingStore from '../../../store/SecurityTrainingStore';
 
 const LessonContent = ({ selectedLesson, userProgress, onCompleteLesson }) => {
   const [timeSpent, setTimeSpent] = useState(0);
-  const [testResults, setTestResults] = useState(null);
+  const [hasStarted, setHasStarted] = useState(false);
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
 
-  // Сохраняем selectedLesson в глобальную область для отладки
-  useEffect(() => {
-    if (selectedLesson) {
-      window.selectedLesson = selectedLesson;
+  const getSavedTimeForLesson = () => {
+    if (!selectedLesson?.id) return 0;
+
+    const savedTimes = JSON.parse(localStorage.getItem('lessonTimes') || '[]');
+    const lessonTime = savedTimes.find(item => item.lessonId === selectedLesson.id);
+
+    if (userProgress?.lessonTimeSpent) {
+      const progressTime = userProgress.lessonTimeSpent[selectedLesson.id];
+      if (progressTime) return progressTime * 60;
     }
-  }, [selectedLesson]);
 
-  const isCompleted = userProgress?.completedLessons?.includes(
-    selectedLesson?.id
-  );
+    return lessonTime?.secondsSpent || 0;
+  };
 
-  // Запускаем таймер при загрузке урока
+  const isCompleted = userProgress?.completedLessons?.includes(selectedLesson?.id);
+
   useEffect(() => {
-    console.log('🎯 LessonContent mounted:', {
-      selectedLessonId: selectedLesson?.id,
-      isCompleted,
-      userProgress: userProgress?.completedLessons,
-    });
-
     if (selectedLesson && !isCompleted) {
-      startTimeRef.current = Date.now();
-      timerRef.current = setInterval(() => {
-        const secondsSpent = Math.floor(
-          (Date.now() - startTimeRef.current) / 1000
-        );
-        setTimeSpent(secondsSpent);
-      }, 1000);
+      const savedSeconds = getSavedTimeForLesson();
+      setTimeSpent(savedSeconds);
 
-      console.log('⏱️ Таймер запущен для урока:', selectedLesson.id);
+      if (savedSeconds === 0) {
+        startTimeRef.current = Date.now();
+        setHasStarted(true);
+      }
     }
 
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
-        console.log('⏱️ Таймер остановлен');
       }
     };
-  }, [selectedLesson, isCompleted]);
+  }, [selectedLesson?.id, isCompleted]);
+
+  useEffect(() => {
+    if (selectedLesson && !isCompleted && hasStarted) {
+      startTimeRef.current = Date.now() - timeSpent * 1000;
+
+      timerRef.current = setInterval(() => {
+        const secondsSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        setTimeSpent(secondsSpent);
+
+        if (secondsSpent % 30 === 0) {
+          saveTemporaryTime(secondsSpent);
+        }
+      }, 1000);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [selectedLesson?.id, isCompleted, hasStarted]);
+
+  const saveTemporaryTime = (seconds) => {
+    if (!selectedLesson?.id) return;
+
+    const lessonTimeData = {
+      lessonId: selectedLesson.id,
+      secondsSpent: seconds,
+      timestamp: new Date().toISOString(),
+      lessonTitle: selectedLesson.title,
+      isTemporary: true,
+    };
+
+    const savedTimes = JSON.parse(localStorage.getItem('lessonTimes') || '[]')
+      .filter(item => item.lessonId !== selectedLesson.id);
+    
+    savedTimes.push(lessonTimeData);
+    localStorage.setItem('lessonTimes', JSON.stringify(savedTimes));
+  };
 
   const handleCompleteLesson = () => {
-    console.log('🔄 Нажата кнопка "Завершить урок"');
-    console.log('Данные:', {
-      lessonId: selectedLesson?.id,
-      timeSpent,
-      isCompleted,
-      userProgress,
-    });
-
-    // Останавливаем таймер
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
 
-    // Вычисляем время в минутах (округляем до 1 минуты минимум)
-    const minutesSpent = Math.max(1, Math.floor(timeSpent / 60));
-    console.log('⏱️ Фактическое время изучения:', {
-      секунды: timeSpent,
-      минуты: minutesSpent,
-      форматированное: `${Math.floor(timeSpent / 60)}:${(timeSpent % 60)
-        .toString()
-        .padStart(2, '0')}`,
-    });
+    const minutesSpent = Math.max(1, Math.ceil(timeSpent / 60));
 
-    // Вызываем колбэк с временем
-    if (selectedLesson?.id && onCompleteLesson) {
-      console.log('📤 Вызываем onCompleteLesson с данными:', {
-        lessonId: selectedLesson.id,
-        minutesSpent: minutesSpent,
-        timestamp: new Date().toISOString(),
-      });
+    const lessonTimeData = {
+      lessonId: selectedLesson.id,
+      minutesSpent: minutesSpent,
+      secondsSpent: timeSpent,
+      timestamp: new Date().toISOString(),
+      lessonTitle: selectedLesson.title,
+      isTemporary: false,
+      completed: true,
+    };
 
-      const lessonTimeData = {
-        lessonId: selectedLesson.id,
-        minutesSpent: minutesSpent,
-        timestamp: new Date().toISOString(),
-        lessonTitle: selectedLesson.title,
-      };
+    const savedTimes = JSON.parse(localStorage.getItem('lessonTimes') || '[]')
+      .filter(item => item.lessonId !== selectedLesson.id);
+    
+    savedTimes.push(lessonTimeData);
+    localStorage.setItem('lessonTimes', JSON.stringify(savedTimes));
 
-      const savedTimes = JSON.parse(
-        localStorage.getItem('lessonTimes') || '[]'
-      );
-      savedTimes.push(lessonTimeData);
-      localStorage.setItem('lessonTimes', JSON.stringify(savedTimes));
-
+    if (onCompleteLesson) {
       onCompleteLesson(selectedLesson.id, minutesSpent);
-      message.info(`Время изучения: ${minutesSpent} минут`);
-    } else {
-      console.error('❌ Ошибка: нет lessonId или onCompleteLesson');
-      message.error('Ошибка: не удалось завершить урок');
+      message.success(`Урок завершен! Время изучения: ${formatTime(timeSpent)}`);
     }
 
-    // Сбрасываем время
-    setTimeSpent(0);
+    setHasStarted(false);
   };
 
-  // Если урок не выбран
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   if (!selectedLesson) {
-    return (
-      <Card
-        style={{
-          textAlign: 'center',
-          padding: '40px 20px',
-          maxWidth: '500px',
-          margin: '40px auto',
-          border: 'none',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-        }}
-      >
-        <div
-          style={{
-            fontSize: '48px',
-            color: '#1890ff',
-            marginBottom: '16px',
-            opacity: 0.8,
-          }}
-        >
-          📚
-        </div>
-        <h2 style={{ marginBottom: '8px', fontSize: '18px' }}>
-          Выберите урок для обучения
-        </h2>
-        <p style={{ color: '#666', fontSize: '14px' }}>
-          Начните с первого урока, чтобы освоить материал курса
-        </p>
-      </Card>
-    );
+    return <EmptyLessonPlaceholder />;
   }
 
   return (
     <div style={{ margin: '0 auto' }}>
-      <Card
-        style={{
-          border: '1px solid #f0f0f0',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        }}
-      >
-        <div style={{ marginBottom: '20px' }}>
-          <h2
-            style={{ marginBottom: '8px', fontSize: '18px', fontWeight: 600 }}
-          >
-            {selectedLesson.title}
-          </h2>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <div style={{ color: '#666', fontSize: '12px' }}>
-              ID урока: <strong>{selectedLesson.id}</strong>
-            </div>
-            {!isCompleted && (
-              <div style={{ color: '#1890ff', fontSize: '12px' }}>
-                ⏱️ Время изучения: {Math.floor(timeSpent / 60)}:
-                {(timeSpent % 60).toString().padStart(2, '0')}
-              </div>
-            )}
-            {isCompleted && (
-              <div style={{ color: '#52c41a', fontSize: '12px' }}>
-                ✅ Урок завершен
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div
-          style={{
-            maxHeight: 'calc(100vh - 330px)',
-            overflowY: 'auto',
-            paddingRight: '10px',
-          }}
-        >
-          {selectedLesson.content ? (
-            <div
-              dangerouslySetInnerHTML={{ __html: selectedLesson.content }}
-              style={{
-                lineHeight: '1.6',
-                fontSize: '15px',
-                color: '#333',
-              }}
-            />
-          ) : (
-            <Alert
-              message="Контент урока не загружен"
-              description="Содержание урока временно недоступно"
-              type="warning"
-              showIcon
-              size="small"
-              style={{ fontSize: '13px' }}
-            />
-          )}
-
-          <LessonResources
-            videoUrl={selectedLesson.video_url}
-            presentationUrl={selectedLesson.presentation_url}
-          />
-        </div>
+      <Card style={styles.card}>
+        <LessonHeader 
+          title={selectedLesson.title}
+          lessonId={selectedLesson.id}
+          timeSpent={formatTime(timeSpent)}
+          isCompleted={isCompleted}
+        />
+        
+        <LessonContentBody 
+          content={selectedLesson.content}
+          videoUrl={selectedLesson.video_url}
+          presentationUrl={selectedLesson.presentation_url}
+        />
       </Card>
 
       <CompleteLessonButton
         isCompleted={isCompleted}
         onComplete={handleCompleteLesson}
-        userProgress={userProgress}
-        timeSpent={timeSpent}
       />
-
-      {/* Отображение результатов теста */}
-      {testResults && (
-        <Card style={{ marginTop: '20px' }}>
-          <h3>Результаты теста сохранения:</h3>
-          <pre style={{ fontSize: '12px' }}>
-            {JSON.stringify(testResults, null, 2)}
-          </pre>
-        </Card>
-      )}
     </div>
   );
 };
+
+const EmptyLessonPlaceholder = () => (
+  <Card style={styles.emptyCard}>
+    <div style={styles.emptyIcon}>📚</div>
+    <h2 style={styles.emptyTitle}>Выберите урок для обучения</h2>
+    <p style={styles.emptyDescription}>
+      Начните с первого урока, чтобы освоить материал курса
+    </p>
+  </Card>
+);
+
+const LessonHeader = ({ title, lessonId, timeSpent, isCompleted }) => (
+  <div style={{ marginBottom: '20px' }}>
+    <h2 style={styles.lessonTitle}>{title}</h2>
+    <div style={styles.lessonMeta}>
+      
+      <div style={styles.timeSpent}>⏱️ Время изучения: {timeSpent}</div>
+      {isCompleted && (
+        <div style={styles.completedBadge}>✅ Урок завершен</div>
+      )}
+    </div>
+  </div>
+);
+
+const LessonContentBody = ({ content, videoUrl, presentationUrl }) => (
+  <div style={styles.contentContainer}>
+    {content ? (
+      <div 
+        dangerouslySetInnerHTML={{ __html: content }}
+        style={styles.contentHtml}
+      />
+    ) : (
+      <Alert
+        message="Контент урока не загружен"
+        description="Содержание урока временно недоступно"
+        type="warning"
+        showIcon
+        size="small"
+        style={{ fontSize: '13px' }}
+      />
+    )}
+    <LessonResources videoUrl={videoUrl} presentationUrl={presentationUrl} />
+  </div>
+);
 
 const LessonResources = ({ videoUrl, presentationUrl }) => {
   if (!videoUrl && !presentationUrl) return null;
@@ -235,12 +201,11 @@ const LessonResources = ({ videoUrl, presentationUrl }) => {
         {videoUrl && (
           <ResourceAlert type="video" url={videoUrl} label="Смотреть видео" />
         )}
-
         {presentationUrl && (
-          <ResourceAlert
-            type="presentation"
-            url={presentationUrl}
-            label="Открыть презентацию"
+          <ResourceAlert 
+            type="presentation" 
+            url={presentationUrl} 
+            label="Открыть презентацию" 
           />
         )}
       </Space>
@@ -249,14 +214,14 @@ const LessonResources = ({ videoUrl, presentationUrl }) => {
 };
 
 const ResourceAlert = ({ type, url, label }) => {
-  const config = {
+  const typeConfig = {
     video: { message: 'Видеоурок' },
     presentation: { message: 'Презентация' },
   };
 
   return (
     <Alert
-      message={config[type].message}
+      message={typeConfig[type].message}
       description={
         <a
           href={url}
@@ -275,34 +240,92 @@ const ResourceAlert = ({ type, url, label }) => {
   );
 };
 
-const CompleteLessonButton = ({
-  isCompleted,
-  onComplete,
-  userProgress,
-  timeSpent,
-}) => {
-  const [testResults, setTestResults] = useState(null);
+const CompleteLessonButton = ({ isCompleted, onComplete }) => (
+  <div style={styles.completeButtonContainer}>
+    <Button
+      type={isCompleted ? 'default' : 'primary'}
+      size="middle"
+      icon={<CheckCircleOutlined />}
+      onClick={onComplete}
+      disabled={isCompleted}
+      style={styles.completeButton}
+    >
+      {isCompleted ? 'Урок завершен' : 'Завершить урок'}
+    </Button>
+  </div>
+);
 
-  return (
-    <div style={{ marginTop: '20px', textAlign: 'center' }}>
-      <Button
-        type={isCompleted ? 'default' : 'primary'}
-        size="middle"
-        icon={<CheckCircleOutlined />}
-        onClick={onComplete}
-        disabled={isCompleted}
-        style={{
-          fontSize: '14px',
-          height: '40px',
-          padding: '0 24px',
-          borderRadius: '6px',
-          marginBottom: '10px',
-        }}
-      >
-        {isCompleted ? 'Урок завершен' : 'Завершить урок'}
-      </Button>
-    </div>
-  );
+const styles = {
+  card: {
+    border: '1px solid #f0f0f0',
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  },
+  emptyCard: {
+    textAlign: 'center',
+    padding: '40px 20px',
+    maxWidth: '500px',
+    margin: '40px auto',
+    border: 'none',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+  },
+  emptyIcon: {
+    fontSize: '48px',
+    color: '#1890ff',
+    marginBottom: '16px',
+    opacity: 0.8,
+  },
+  emptyTitle: {
+    marginBottom: '8px',
+    fontSize: '18px',
+  },
+  emptyDescription: {
+    color: '#666',
+    fontSize: '14px',
+  },
+  lessonTitle: {
+    marginBottom: '8px',
+    fontSize: '18px',
+    fontWeight: 600,
+  },
+  lessonMeta: {
+    display: 'flex',
+    gap: '10px',
+    alignItems: 'center',
+  },
+  lessonId: {
+    color: '#666',
+    fontSize: '12px',
+  },
+  timeSpent: {
+    color: '#1890ff',
+    fontSize: '12px',
+  },
+  completedBadge: {
+    color: '#52c41a',
+    fontSize: '12px',
+  },
+  contentContainer: {
+    maxHeight: 'calc(100vh - 250px)',
+    overflowY: 'auto',
+    paddingRight: '10px',
+  },
+  contentHtml: {
+    lineHeight: '1.6',
+    fontSize: '15px',
+    color: '#333',
+  },
+  completeButtonContainer: {
+    marginTop: '20px',
+    textAlign: 'center',
+  },
+  completeButton: {
+    fontSize: '14px',
+    height: '40px',
+    padding: '0 24px',
+    borderRadius: '6px',
+    marginBottom: '10px',
+  },
 };
 
 export default LessonContent;

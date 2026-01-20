@@ -5,8 +5,8 @@ import CourseDetailPage from './pages/CourseDetailPage';
 import TestPage from './pages/TestPage';
 import ResultsPage from './pages/ResultsPage';
 import EduAdmin from './pages/EduAdmin';
-import TestResultsPage from './pages/TestPage';
-import UnderDevelopmentPage from './pages/UnderDevelopmentPage';
+
+import UnderDevelopmentPage from './components/categories/UnderDevelopmentPage';
 
 const MultiEduRouters = () => {
   return (
