@@ -1,103 +1,124 @@
-.rich-text-editor .public-DraftEditor-content {
-    background-color: white !important;
-  }
-
-
-
-p {
-  margin-bottom: 4px;
+/* Notes.css */
+.post-content-preview {
+  line-height: 1.6;
 }
 
-pre {
-  margin: 0px;
+.post-content-preview h1,
+.post-content-preview h2,
+.post-content-preview h3 {
+  margin-top: 0.5em;
+  margin-bottom: 0.3em;
+  font-weight: 600;
 }
-span {
-  margin: 0px;
+
+.post-content-preview p {
+  margin-bottom: 0.8em;
 }
 
+.post-content-preview ul,
+.post-content-preview ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.8em;
+}
 
+.post-content-preview li {
+  margin-bottom: 0.3em;
+}
 
+.post-content-preview blockquote {
+  border-left: 3px solid #1890ff;
+  margin: 0.5em 0;
+  padding-left: 1em;
+  color: #666;
+  font-style: italic;
+}
 
-.pre-wrapper {
+.post-content-preview pre {
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 1em 0;
   position: relative;
-  margin: 0;
 }
 
-.pre-wrapper pre {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  padding: 15px;
-  padding-right: 40px;
-  margin: 0;
-  white-space: pre-wrap;
+.post-content-preview code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+  padding: 0.2em 0.4em;
+  background-color: rgba(27,31,35,0.05);
+  border-radius: 3px;
 }
-.copy-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+.post-content-preview pre code {
+  background: none;
+  padding: 0;
+}
+
+.ant-card-actions {
+  border-top: 1px solid #f0f0f0 !important;
+}
+
+.ant-card-actions > li {
+  margin: 12px 0 !important;
+}
+
+.ant-card-actions .anticon {
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.ant-card-actions .anticon:hover {
+  color: #1890ff;
+}
+
+.ant-card-actions .anticon-delete:hover {
+  color: #ff4d4f;
+}
+
+/* Анимация при наведении на карточку */
+.ant-card {
+  transition: all 0.3s ease;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+/* Стили для кнопки копирования кода */
+.copy-button {
   transition: all 0.2s ease;
 }
 
-.copy-icon:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+.copy-button:hover {
+  background-color: #e6f7ff !important;
+  border-color: #1890ff !important;
 }
 
-.copy-icon svg {
-  width: 16px;
-  height: 16px;
-}
-.card-container {
-  max-height: calc(100vh - 150px); /* Высота контейнера карточек */
-  overflow-y: auto; /* Включает вертикальную прокрутку */
-  padding-right: 15px; /* Убираем скроллбар за пределы контейнера */
+.copy-button .anticon {
+  color: #666;
 }
 
-.card-body .code-block {
-  position: relative;
-  display: block;
+.copy-button:hover .anticon {
+  color: #1890ff;
 }
 
-.copy-button {
- 
- 
-  right: 15px; /* Отступ от правого края */
-  cursor: pointer;
+/* Стили для тегов */
+.ant-tag {
+  margin-right: 0 !important;
 }
 
-.copy-button svg {
-  width: 14px; /* Размер иконки */
-  height: 14px;
-  color: #555; /* Цвет иконки */
-  vertical-align: middle; /* Центрирование иконки по вертикали */
-  margin-right: 5px; /* Отступ справа для улучшения внешнего вида */
+/* Адаптивность */
+@media (max-width: 768px) {
+  .ant-col {
+    width: 100%;
+  }
+  
+  .post-content-preview {
+    max-height: 100px;
+  }
 }
-.copy-button svg:hover {
-  color: #fa922f;
-}
-
-.edit-icon:hover {
-  color: #fa922f;
-}
-.delete-icon:hover{
-  color: #fa922f;
-}
-.edit-icon {
-  cursor: pointer;
- 
-  margin-left: 8px; /* Отступ слева */
-}
-
-.delete-icon {
-  cursor: pointer;
- 
-  margin-left: 8px; /* Отступ слева */
-}
-

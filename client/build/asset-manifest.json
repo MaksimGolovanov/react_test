@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.37c38672.css",
+    "main.js": "/static/js/main.e9b1e3f6.js",
+    "static/media/UI.jpg": "/static/media/UI.52fa37422d26490984fd.jpg",
+    "static/media/helioscondc.ttf": "/static/media/helioscondc.b1bfafe566309e409b54.ttf",
+    "static/media/logo.jpg": "/static/media/logo.e841a51ff74ccc0ce080.jpg",
+    "index.html": "/index.html",
+    "main.37c38672.css.map": "/static/css/main.37c38672.css.map",
+    "main.e9b1e3f6.js.map": "/static/js/main.e9b1e3f6.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.37c38672.css",
+    "static/js/main.e9b1e3f6.js"
+  ]
+}

@@ -110,19 +110,11 @@ const BasicInfoStep = ({ form }) => {
           </Form.Item>
         </Col>
         <Col span={8}>
-          <Form.Item
-            name="certification_available"
-            label="Сертификация"
-            valuePropName="checked"
-          >
+          <Form.Item name="is_active" label="Активен" valuePropName="checked" size="small">
             <Switch />
           </Form.Item>
         </Col>
       </Row>
-
-      <Form.Item name="is_active" label="Активен" valuePropName="checked">
-        <Switch />
-      </Form.Item>
     </Form>
   );
 };

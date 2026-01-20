@@ -148,6 +148,7 @@ const TestComponent = ({ questions, timeLimit = 30, onComplete }) => {
         timeRemaining={timeRemaining}
         submitting={submitting}
         progress={progress}
+        questionType={currentQuestionData.question_type}
       />
 
       <QuestionSection
@@ -193,12 +194,16 @@ const TestHeader = ({
   timeRemaining,
   submitting,
   progress,
+  questionType,
 }) => (
   <div style={{ marginBottom: '24px' }}>
     <Row justify="space-between" align="middle">
       <Col>
         <Text strong>
           Вопрос {currentQuestion + 1} из {questionsLength}
+          {questionType === 'single' && ' (одиночный выбор)'}
+          {questionType === 'multiple' && ' (множественный выбор)'}
+          {questionType === 'text' && ' (текстовый ответ)'}
         </Text>
       </Col>
       <Col>

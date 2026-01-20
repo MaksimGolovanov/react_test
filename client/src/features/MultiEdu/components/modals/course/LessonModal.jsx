@@ -345,6 +345,8 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
                   : '1px solid #d9d9d9',
                 borderRadius: '6px',
                 overflow: 'hidden',
+                position: 'relative',
+                height: 400, // Фиксированная высота контейнера
               }}
             >
               <ReactQuill
@@ -355,45 +357,16 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
                 modules={customModules}
                 formats={formats}
                 placeholder="Начните вводить содержание урока..."
-                style={{ height: 350 }}
+                style={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
                 preserveWhitespace={true}
               />
             </div>
 
-            <Alert
-              message="Быстрые подсказки"
-              description={
-                <div style={{ fontSize: '12px', lineHeight: 1.5 }}>
-                  <Row gutter={[16, 8]}>
-                    <Col span={12}>
-                      <p>
-                        <BoldOutlined /> <strong>Жирный текст</strong>: Ctrl+B
-                      </p>
-                      <p>
-                        <ItalicOutlined /> <em>Курсив</em>: Ctrl+I
-                      </p>
-                      <p>
-                        <LinkOutlined /> <u>Ссылка</u>: Ctrl+K
-                      </p>
-                    </Col>
-                    <Col span={12}>
-                      <p>
-                        <UnorderedListOutlined /> Список: Ctrl+Shift+8
-                      </p>
-                      <p>
-                        <OrderedListOutlined /> Нумер. список: Ctrl+Shift+7
-                      </p>
-                      <p>
-                        <PictureOutlined /> Изображение: загрузите файл
-                      </p>
-                    </Col>
-                  </Row>
-                </div>
-              }
-              type="info"
-              showIcon
-              style={{ marginTop: 16 }}
-            />
+           
           </Form.Item>
         )}
 
@@ -459,23 +432,7 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
           </Form.Item>
         )}
 
-        {contentType !== 'video' && contentType !== 'presentation' && (
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="video_url" label="URL видео (если применимо)">
-                <Input placeholder="https://youtube.com/..." />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="presentation_url"
-                label="URL презентации (если применимо)"
-              >
-                <Input placeholder="https://docs.google.com/..." />
-              </Form.Item>
-            </Col>
-          </Row>
-        )}
+
 
         <Row gutter={16}>
           <Col span={8}>
@@ -519,9 +476,10 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
           <Col span={8}>
             <Form.Item
               name="is_active"
+              size="small"
               label="Активен"
               valuePropName="checked"
-              style={{ marginTop: 30 }}
+              
             >
               <Switch />
             </Form.Item>
@@ -531,14 +489,21 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
 
       <style>
         {`
+          /* Контейнер Quill с фиксированной высотой */
           .ql-container {
             font-size: 14px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            height: calc(100% - 64px); /* Вычитаем высоту тулбара */
+            overflow-y: auto;
+            flex: 1;
           }
           
+          /* Редактируемая область с прокруткой */
           .ql-editor {
             min-height: 300px;
             line-height: 1.6;
+            overflow-y: auto;
+            height: auto;
           }
           
           .ql-editor.ql-blank::before {
@@ -547,10 +512,16 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
             left: 15px;
           }
           
+          /* Фиксированная панель инструментов */
           .ql-toolbar.ql-snow {
             border: none;
             border-bottom: 1px solid #d9d9d9;
             padding: 8px;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            flex-shrink: 0;
           }
           
           .ql-container.ql-snow {
@@ -563,6 +534,36 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
           
           .ql-toolbar.ql-snow button:hover {
             color: #1890ff;
+          }
+          
+          /* Улучшаем отображение для скролла */
+          .ql-container.ql-snow::-webkit-scrollbar {
+            width: 8px;
+          }
+          
+          .ql-container.ql-snow::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+          }
+          
+          .ql-container.ql-snow::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+          }
+          
+          .ql-container.ql-snow::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+          }
+          
+          /* Для Firefox */
+          .ql-container.ql-snow {
+            scrollbar-width: thin;
+            scrollbar-color: #c1c1c1 #f1f1f1;
+          }
+          
+          /* Гарантируем, что Quill использует flexbox */
+          .ql-toolbar.ql-snow + .ql-container.ql-snow {
+            border-top: none;
           }
         `}
       </style>

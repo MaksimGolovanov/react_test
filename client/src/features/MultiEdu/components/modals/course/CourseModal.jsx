@@ -216,7 +216,7 @@ const CourseModal = ({
         title={editingCourse ? 'Редактирование курса' : 'Создание нового курса'}
         open={visible}
         onCancel={onClose}
-        width={900}
+        width={1000}
         footer={renderFooterButtons()}
       >
         <Steps current={currentStep} style={{ marginBottom: '24px' }}>
@@ -260,8 +260,8 @@ const CourseModal = ({
 const styles = {
   contentContainer: {
     minHeight: '500px',
-    maxHeight: '600px',
-    overflowY: 'auto',
+    maxHeight: '900px',
+    
   },
 };
 

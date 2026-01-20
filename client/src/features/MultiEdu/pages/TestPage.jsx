@@ -107,12 +107,6 @@ const TestPage = observer(() => {
       const passingScore = course?.passing_score || 70;
       const passed = score >= passingScore;
 
-      console.log('=== SUBMIT TEST TO SERVER ===');
-      console.log('User ID (tabNumber):', tabNumber);
-      console.log('Course ID:', courseId);
-      console.log('Score:', score);
-      console.log('Passed:', passed);
-
       // Формируем данные для отправки
       const testData = {
         answers: answers,
@@ -515,20 +509,47 @@ const TestPage = observer(() => {
           />
         )}
 
-        <Alert
-          message="Инструкция по прохождению теста"
-          description={
-            <Space direction="vertical" size="small">
-              <Text>• Время на прохождение теста: {timeLimit} минут</Text>
-              <Text>• Минимальный проходной балл: {passingScore}%</Text>
-              <Text>• Всего вопросов: {questions.length}</Text>
-              <Text>• Внимательно читайте каждый вопрос</Text>
-              <Text>• Можно вернуться к предыдущим вопросам</Text>
-            </Space>
-          }
-          type="info"
-          showIcon
-        />
+        <Row gutter={16} style={{ marginTop: '16px' }}>
+          <Col xs={24} md={12}>
+            <Alert
+              message="Инструкция по прохождению теста"
+              description={
+                <Space direction="vertical" size="small">
+                  <Text>• Время на прохождение теста: {timeLimit} минут</Text>
+                  <Text>• Минимальный проходной балл: {passingScore}%</Text>
+                  <Text>• Всего вопросов: {questions.length}</Text>
+                  <Text>• Внимательно читайте каждый вопрос</Text>
+                  <Text>• Можно вернуться к предыдущим вопросам</Text>
+                </Space>
+              }
+              type="info"
+              showIcon
+            />
+          </Col>
+          <Col xs={24} md={12}>
+            <Alert
+              message="Важно знать:"
+              description={
+                <Space direction="vertical" size="small">
+                  <Text>• Отвечайте на вопросы внимательно и без спешки</Text>
+                  <Text>
+                    • Не переключайтесь между вкладками браузера во время теста
+                  </Text>
+                  <Text>
+                    • После завершения теста вы сможете увидеть подробные
+                    результаты
+                  </Text>
+                  <Text>
+                    • При успешной сдаче теста курс будет отмечен как пройденный
+                  </Text>
+                  <Text>-</Text>
+                </Space>
+              }
+              type="info"
+              showIcon
+            />
+          </Col>
+        </Row>
 
         {questions.length > 0 ? (
           <TestComponent
@@ -544,23 +565,6 @@ const TestPage = observer(() => {
             showIcon
           />
         )}
-
-        <Card style={{ marginTop: '16px' }}>
-          <Title level={5}>Важно знать:</Title>
-          <Paragraph type="secondary">
-            <ul>
-              <li>Отвечайте на вопросы внимательно и без спешки</li>
-              <li>Не переключайтесь между вкладками браузера во время теста</li>
-              <li>Убедитесь в стабильном интернет-соединении</li>
-              <li>
-                После завершения теста вы сможете увидеть подробные результаты
-              </li>
-              <li>
-                При успешной сдаче теста курс будет отмечен как пройденный
-              </li>
-            </ul>
-          </Paragraph>
-        </Card>
       </Space>
     </div>
   );
