@@ -148,23 +148,39 @@ const CourseDetailPage = observer(() => {
   };
 
   const saveToLocalStorage = (progressData) => {
-    const localStorageKey = `userProgress_${courseId}_${
-      tabNumber || 'anonymous'
-    }`;
+    const localStorageKey = `userProgress_${courseId}_${tabNumber || 'anonymous'}`;
     localStorage.setItem(localStorageKey, JSON.stringify(progressData));
+
+    // Очищаем временное время урока
+    const savedTimes = JSON.parse(
+      localStorage.getItem('lessonTimes') || '[]'
+    ).filter((item) => item.lessonId !== selectedLesson?.id);
+    localStorage.setItem('lessonTimes', JSON.stringify(savedTimes));
   };
 
   const saveToDatabase = async (lessonId, timeSpent) => {
     if (!tabNumber) return;
 
+    console.log('Сохранение в БД:', {
+      userId: tabNumber,
+      courseId,
+      lessonId,
+      timeSpent: `${timeSpent} минут`,
+      timestamp: new Date().toISOString(),
+    });
+
     try {
-      await CourseService.completeLesson(
+      const result = await CourseService.completeLesson(
         tabNumber,
         courseId,
         lessonId,
         timeSpent
       );
+
+      console.log('Результат сохранения:', result);
+      return result;
     } catch (dbError) {
+      console.error('Ошибка сохранения в БД:', dbError);
       throw new Error('Ошибка сохранения в БД');
     }
   };

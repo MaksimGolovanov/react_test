@@ -36,5 +36,6 @@ router.post('/:courseId/submit-test/:userId', UserProgressController.submitTestR
 router.get('/user-test-results/:userId/courses/:courseId', UserProgressController.getUserTestResults);
 router.get('/user-courses/:userId', UserProgressController.getUserCourses);
 router.get('/user-stats/:userId', UserProgressController.getUserStats);
+router.post('/by-tabnumber/:tabNumber/courses/:courseId/reset', UserProgressController.resetProgressByTabNumber);
 
 module.exports = router;

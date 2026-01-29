@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import  { useState, useEffect, useCallback, useMemo } from "react";
 import { observer } from "mobx-react-lite";
-import { Card, Button, Alert, Spin, message, Form } from "antd"; // Добавили Form
-import { DeleteOutlined } from "@ant-design/icons";
+import { Card,  Alert, Spin, message, Form } from "antd"; // Добавили Form
+
 import CardStore from "../store/CardStore";
 import CardHeader from "../ui/CardHeader/CardHeader";
 import CardTable from "../ui/CardTable/CardTable";
@@ -36,7 +36,6 @@ const CardPage = observer(() => {
 
   const {
     selectedIds,
-    setSelectedIds,
     handleCheckboxChange,
     clearSelection,
     getSelectedCardsInfo,

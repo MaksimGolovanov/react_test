@@ -1,10 +1,9 @@
-import React, { useMemo } from "react";
-import { Table, Tag, Tooltip } from "antd";
+import { useMemo } from "react";
+import { Table, Tooltip } from "antd";
 import SortableHeader from "../SortableHeader/SortableHeader";
 import {
   formatDate,
   getNextCheckDate,
-  getRowColorClass,
 } from "../../utils/utils";
 
 import styles from "./CardTable.module.css";
@@ -183,7 +182,6 @@ const CardTable = ({
         key: "nextCheckDate",
         width: 60,
         render: (_, record) => {
-          const cellColor = getCellColor(record);
           const tooltip = getDateTooltip(record);
           const nextCheckDate = record.data_prov
             ? formatDate(getNextCheckDate(record.data_prov))
@@ -212,10 +210,9 @@ const CardTable = ({
         dataIndex: "log",
         key: "log",
         width: 40,
-   
       },
     ],
-    [sortConfig, onSort, styles]
+    [sortConfig, onSort] // Убрана styles из зависимостей
   );
 
   const tableData = useMemo(

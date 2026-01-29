@@ -1,6 +1,6 @@
 // UserViewModal.js
-import React, { useState, useCallback, moment } from 'react';
-import { Modal, Spin, Space, Button, Tabs, Badge } from 'antd';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Modal, Spin, Space, Button, Tabs, Badge, message } from 'antd';
 import { BarChartOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 
@@ -18,6 +18,7 @@ import { TestAnswersTab } from './UserViewModal/tabs/TestAnswersTab';
 
 // MobX store
 import userStore from '../../../store/UserStore';
+import CourseService from '../../../api/CourseService'; // Добавьте этот импорт
 
 const { TabPane } = Tabs;
 
@@ -29,6 +30,7 @@ const UserViewModal = observer(({ visible, user, onCancel }) => {
     userStats,
     userProgress,
     loading: userDataLoading,
+    refreshData, // Добавьте эту функцию в хук useUserData если её нет
   } = useUserData(user, visible);
 
   // Получение ФИО пользователя
@@ -44,6 +46,69 @@ const UserViewModal = observer(({ visible, user, onCancel }) => {
   );
 
   const userFio = user ? getFioByTabNumber(user.tabNumber) : null;
+
+  // Функция сброса прогресса курса
+  const handleResetProgress = async (courseId) => {
+    if (!user) {
+      message.error('Пользователь не найден');
+      return;
+    }
+
+    try {
+      // Используем табельный номер для сброса
+      if (user.tabNumber) {
+        console.log('Сбрасываем прогресс курса по табельному номеру:', {
+          tabNumber: user.tabNumber,
+          courseId,
+        });
+
+        // Отправляем запрос на сброс прогресса
+        const result = await CourseService.resetProgressByTabNumber(
+          user.tabNumber,
+          courseId
+        );
+
+        message.success('Статистика курса и тестов успешно сброшена');
+
+        // Обновляем данные в модальном окне
+        if (refreshData) {
+          refreshData();
+        }
+
+        return result;
+      } else if (user.id) {
+        // Если нет табельного номера, используем ID
+        console.log('Сбрасываем прогресс курса по ID:', {
+          userId: user.id,
+          courseId,
+        });
+
+        const result = await CourseService.resetProgressByUserId(
+          user.id,
+          courseId
+        );
+
+        message.success('Статистика курса и тестов успешно сброшена');
+
+        if (refreshData) {
+          refreshData();
+        }
+
+        return result;
+      } else {
+        message.error(
+          'Невозможно сбросить прогресс: отсутствует табельный номер или ID пользователя'
+        );
+        return;
+      }
+    } catch (error) {
+      console.error('Ошибка при сбросе статистики курса:', error);
+      message.error(
+        error.response?.data?.message || 'Не удалось сбросить статистику курса'
+      );
+      throw error;
+    }
+  };
 
   // Фильтрация курсов по статусу на основе полученных данных
   const filterCourses = () => {
@@ -135,7 +200,6 @@ const UserViewModal = observer(({ visible, user, onCancel }) => {
   } = filterCourses();
 
   // Рассчет общей статистики
-  // UserViewModal.js - функция calculateOverallStats
   const calculateOverallStats = () => {
     const stats = {
       totalCourses: 0,
@@ -145,12 +209,10 @@ const UserViewModal = observer(({ visible, user, onCancel }) => {
     };
 
     if (userStats) {
-      // Используем данные из userStats с правильными именами полей
-      stats.totalCourses = userStats.total_courses || 0; // было total_courses в JSON
-      stats.completedCourses = userStats.completed_courses || 0; // было completed_courses в JSON
-      stats.totalTime = userStats.total_time_spent || 0; // было total_time_spent в JSON
+      stats.totalCourses = userStats.total_courses || 0;
+      stats.completedCourses = userStats.completed_courses || 0;
+      stats.totalTime = userStats.total_time_spent || 0;
 
-      // Находим последнюю активность среди курсов
       if (userStats.st_stats && userStats.st_stats.length > 0) {
         const lastStat = userStats.st_stats.reduce((latest, current) => {
           const currentDate = new Date(current.last_accessed || 0);
@@ -160,16 +222,13 @@ const UserViewModal = observer(({ visible, user, onCancel }) => {
         stats.lastActivity = lastStat.last_accessed;
       }
     } else {
-      // Используем данные из userProgress как запасной вариант
       stats.totalCourses = userProgress.length;
       stats.completedCourses = completedCourses.length;
 
-      // Суммируем время из всех курсов
       stats.totalTime = userProgress.reduce((sum, item) => {
         return sum + (item.progress?.time_spent || 0);
       }, 0);
 
-      // Находим последнюю активность
       if (userProgress.length > 0) {
         const lastProgress = userProgress.reduce((latest, current) => {
           const currentDate = new Date(current.progress?.updated_at || 0);
@@ -180,8 +239,6 @@ const UserViewModal = observer(({ visible, user, onCancel }) => {
       }
     }
 
-    console.log('calculateOverallStats result:', stats); // Добавьте эту строку для отладки
-
     return stats;
   };
 
@@ -189,7 +246,6 @@ const UserViewModal = observer(({ visible, user, onCancel }) => {
 
   // Рассчет среднего балла
   const calculateAverageScore = () => {
-    // Пытаемся использовать данные из userStats
     if (
       userStats &&
       userStats.average_score &&
@@ -199,7 +255,6 @@ const UserViewModal = observer(({ visible, user, onCancel }) => {
       return isNaN(avg) ? 0 : avg;
     }
 
-    // Иначе рассчитываем из completedCourses
     if (completedCourses.length === 0) return 0;
 
     const totalScore = completedCourses.reduce((sum, course) => {
@@ -246,6 +301,7 @@ const UserViewModal = observer(({ visible, user, onCancel }) => {
             failedCourses={failedCourses}
             inProgressCourses={inProgressCourses}
             notStartedCourses={notStartedCourses}
+            handleResetProgress={handleResetProgress} // Передаем функцию!
           />
         );
 

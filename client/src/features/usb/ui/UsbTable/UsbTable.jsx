@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table, Tag, Tooltip } from 'antd'
+import { Table, Tooltip } from 'antd'
 import { SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons'
 import styles from './UsbTable.module.css'
 

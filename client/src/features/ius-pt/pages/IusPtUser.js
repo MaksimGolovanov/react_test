@@ -15,13 +15,13 @@ const IusPtUser = observer(() => {
     const { tabNumber } = useParams();
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                setIsLoading(true);
+                
                 setError(null);
                 
                 // Загружаем данные о сотруднике и получаем результат
@@ -37,9 +37,7 @@ const IusPtUser = observer(() => {
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
                 setError('Ошибка при загрузке данных. Пожалуйста, попробуйте позже.');
-            } finally {
-                setIsLoading(false);
-            }
+            } 
         };
     
         fetchUser();

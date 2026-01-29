@@ -1,0 +1,46 @@
+.modal :global(.ant-modal-body) {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-top: 0;
+}
+
+.tabs :global(.ant-tabs-nav) {
+    margin-bottom: 0;
+}
+
+.editorToolbar {
+    margin-bottom: 8px;
+    padding: 8px;
+    background: #fafafa;
+    border-radius: 6px;
+    border: 1px solid #d9d9d9;
+}
+
+.contentEditor {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.tagsContainer {
+    margin-bottom: 16px;
+}
+
+.tagsContainer :global(.ant-tag) {
+    margin-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+    .modal {
+        width: 95% !important;
+        max-width: none;
+    }
+    
+    .modal :global(.ant-modal-body) {
+        max-height: 60vh;
+    }
+    
+    .editorToolbar :global(.ant-space) {
+        flex-wrap: wrap;
+    }
+}

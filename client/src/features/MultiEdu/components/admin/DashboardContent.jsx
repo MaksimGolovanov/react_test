@@ -91,46 +91,30 @@ const DashboardContent = ({
             ? coursesResponse.value?.courses || []
             : [];
 
-        console.log('Loaded users:', users);
-        console.log('Loaded courses:', courses);
-
         // Для каждого пользователя загружаем его статистику
         const usersWithProgress = await Promise.all(
           users.map(async (user) => {
             try {
-              // Пробуем разные форматы ID для совместимости с API
               let stats = null;
 
-              // Попробуем получить статистику с ID пользователя как есть
+              // Пробуем разные форматы ID для совместимости с API
               stats = await CourseService.getUserStats(user.user_id);
-              console.log(
-                `Stats for user ${user.user_id} (original ID):`,
-                stats
-              );
 
               // Если не получилось, попробуем с табельным номером
               if (!stats && user.tabNumber) {
-                console.log(
-                  `Trying with tabNumber ${user.tabNumber} for user ${user.user_id}`
-                );
                 stats = await CourseService.getUserStats(user.tabNumber);
               }
 
               // Если все еще нет, пробуем добавить ведущие нули (если ID короткий)
               if (!stats && user.id && user.id.toString().length < 8) {
                 const paddedId = user.id.toString().padStart(8, '0');
-                console.log(
-                  `Trying with padded ID ${paddedId} for user ${user.id}`
-                );
                 stats = await CourseService.getUserStats(paddedId);
               }
 
               return {
                 ...user,
-                // Используем поля из вашего API ответа
                 st_stats: stats?.st_stats || [],
                 st_test: stats?.st_test || [],
-                // Можно также сохранить другие данные из статистики
                 userStats: stats || null,
               };
             } catch (error) {
@@ -145,12 +129,6 @@ const DashboardContent = ({
           (user) =>
             (user.st_stats && user.st_stats.length > 0) ||
             (user.st_test && user.st_test.length > 0)
-        );
-
-        console.log('Users with data:', usersWithData.length);
-        console.log(
-          'Users without data:',
-          usersWithProgress.length - usersWithData.length
         );
 
         // Расчет статистики
@@ -206,13 +184,9 @@ const DashboardContent = ({
 
       // Используем данные из userStats если они есть
       if (user.userStats) {
-        // Из userStats мы можем получить completed_courses
         totalCompletedCourses += user.userStats.completed_courses || 0;
-
-        // Суммируем время из userStats
         totalTimeSpent += user.userStats.total_time_spent || 0;
 
-        // Если average_score не NaN, добавляем его
         if (
           user.userStats.average_score &&
           !isNaN(parseFloat(user.userStats.average_score))
@@ -261,22 +235,15 @@ const DashboardContent = ({
       averageScore,
       activeUsers,
       completionRate,
-      totalTimeSpent: totalTimeSpentHours, // в часах
+      totalTimeSpent: totalTimeSpentHours,
       totalTests,
       totalPossibleCompletions: totalUsers * totalCourses,
     };
   };
 
   // Получение последней активности с фильтрацией по времени
-  // Получение последней активности с фильтрацией по времени
-  // Получение последней активности с фильтрацией по времени
   const fetchRecentActivity = async (users, courses) => {
     try {
-      console.log('=== DEBUG: fetchRecentActivity called ===');
-      console.log('Users count:', users.length);
-      console.log('Courses count:', courses.length);
-
-      // Собираем реальную активность из данных пользователей
       const activityItems = [];
 
       const now = moment();
@@ -292,8 +259,6 @@ const DashboardContent = ({
         // Проверяем st_stats для информации о конкретных курсах
         if (user.st_stats && Array.isArray(user.st_stats)) {
           user.st_stats.forEach((stat) => {
-            console.log(`Processing stat for user ${user.id}:`, stat);
-
             const courseTitle = stat.course?.title || `Курс ${stat.course_id}`;
 
             // Фильтруем по времени - используем completed_at и last_accessed
@@ -354,8 +319,6 @@ const DashboardContent = ({
         // Проверяем st_test для попыток тестов
         if (user.st_test && Array.isArray(user.st_test)) {
           user.st_test.forEach((test) => {
-            console.log(`Processing test for user ${user.id}:`, test);
-
             // Находим название курса
             const course = courses.find((c) => c.id === test.course_id);
             const stat = user.st_stats?.find(
@@ -386,14 +349,10 @@ const DashboardContent = ({
         }
       });
 
-      console.log('Total activity items found:', activityItems.length);
-
       // Сортируем по дате (сначала самые новые)
       const sortedItems = activityItems
         .sort((a, b) => moment(b.date).valueOf() - moment(a.date).valueOf())
         .slice(0, 10);
-
-      console.log('Sorted activity items:', sortedItems);
 
       return sortedItems;
     } catch (error) {

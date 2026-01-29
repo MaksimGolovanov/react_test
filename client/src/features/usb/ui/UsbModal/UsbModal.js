@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import  { useState, useEffect } from 'react'
 import { Modal, Form, Input, DatePicker, Select, Button, Row, Col, Alert, AutoComplete, Typography } from 'antd'
 import { UserOutlined, MailOutlined, NumberOutlined, DatabaseOutlined, TeamOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
@@ -8,7 +8,7 @@ import locale from 'antd/es/date-picker/locale/ru_RU'
 dayjs.locale('ru')
 
 const { Option } = Select
-const { TextArea } = Input
+
 const { Text } = Typography
 
 const UsbModal = ({ show, onHide, onSubmit, formData, onInputChange, currentUsb, staff, getFioSuggestions }) => {

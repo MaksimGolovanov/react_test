@@ -1,6 +1,6 @@
 // src/features/security-training/components/documents/DocumentsTab.jsx
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Row,
@@ -72,7 +72,7 @@ const DocumentItem = observer(
       status,
       file_size,
       created_at,
-      file_url,
+      // file_url удален из деструктуризации, так как не используется
     } = item;
 
     // Форматирование даты
@@ -217,7 +217,6 @@ const DocumentsTab = observer(
     showFilters = true,
     onOpenDocument,
     onDownloadDocument,
-    
   }) => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedTrainingType, setSelectedTrainingType] = useState('all');
@@ -390,13 +389,11 @@ const DocumentsTab = observer(
 
       return filtered;
     }, [
-      
-      documentStore.documents,
       searchText,
       selectedTrainingType,
       selectedCategory,
       selectedStatus,
-    ]);
+    ]); // Убраны documentStore.documents и documentStore.pagination
 
     // Получение отображаемых документов с пагинацией
     const getDisplayedDocuments = useCallback(() => {
@@ -404,7 +401,7 @@ const DocumentsTab = observer(
       const { current, pageSize } = documentStore.pagination;
       const startIndex = (current - 1) * pageSize;
       return filtered.slice(startIndex, startIndex + pageSize);
-    }, [filteredDocuments, documentStore.pagination]);
+    }, [filteredDocuments]); // Убрана documentStore.pagination
 
     const styles = {
       container: {
@@ -462,7 +459,6 @@ const DocumentsTab = observer(
         <Title level={4} style={styles.title}>
           {title}
         </Title>
-
 
         {showFilters && (
           <div style={styles.filterContainer}>

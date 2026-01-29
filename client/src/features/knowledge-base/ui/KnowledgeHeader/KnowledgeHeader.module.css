@@ -1,0 +1,15 @@
+.header {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+    gap: 10px;
+}
+
+.header :global(.ant-space) {
+    width: 100%;
+    
+}
+

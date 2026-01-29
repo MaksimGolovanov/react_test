@@ -180,6 +180,16 @@ const MenuSection = ({ userRolesAuth }) => {
           },
         ]
       : []),
+      // Заметки
+    ...(hasAccess('NOTES')
+      ? [
+          {
+            key: '/knowledge',
+            icon: <FileTextOutlined />,
+            label: <Link to="/knowledge">PING</Link>,
+          },
+        ]
+      : []),
 
     // ИУС П Т
     ...(hasAccess('IUSPT')

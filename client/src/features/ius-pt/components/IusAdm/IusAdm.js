@@ -5,40 +5,44 @@ import { Button, Table, Form, Card, CardHeader, CardBody } from 'react-bootstrap
 import IusPtStore from '../../store/IusPtStore';
 
 const IusAdm = observer(() => {
-    const [newAdm, setNewAdm] = useState({ iusadm: '', description: '', email: '', cod:'' });
-    const [editingAdm, setEditingAdm] = useState(null);
+    const [newSignature, setNewSignature] = useState({ iusadm: '', description: '', email: '', cod: '' });
+    const [editingSignature, setEditingSignature] = useState(null);
 
     useEffect(() => {
-        IusPtStore.fetchAdmins();
+        // Используем правильный метод для загрузки подписей
+        IusPtStore.fetchSignatures();
     }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        if (editingAdm) {
-            setEditingAdm(prevState => ({ ...prevState, [name]: value }));
+        if (editingSignature) {
+            setEditingSignature(prevState => ({ ...prevState, [name]: value }));
         } else {
-            setNewAdm(prevState => ({ ...prevState, [name]: value }));
+            setNewSignature(prevState => ({ ...prevState, [name]: value }));
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (editingAdm) {
-            await IusPtStore.updateAdmin(editingAdm);
-            setEditingAdm(null);
+        if (editingSignature) {
+            await IusPtStore.updateSignature(editingSignature);
+            setEditingSignature(null);
         } else {
-            await IusPtStore.createAdmin(newAdm);
-            setNewAdm({ iusadm: '', description: '', email: '', cod:''  });
+            await IusPtStore.createSignature(newSignature);
+            setNewSignature({ iusadm: '', description: '', email: '', cod: '' });
         }
     };
 
-    const handleEdit = (adm) => {
-        setEditingAdm(adm);
+    const handleEdit = (signature) => {
+        setEditingSignature(signature);
     };
 
     const handleDelete = async (id) => {
-        await IusPtStore.deleteAdmin(id);
+        await IusPtStore.deleteSignature(id);
     };
+
+    // Получаем подписи из стора
+    const signatures = IusPtStore.signatures || [];
 
     return (
         <>
@@ -58,18 +62,17 @@ const IusAdm = observer(() => {
                             </tr>
                         </thead>
                         <tbody>
-                            {IusPtStore.admins.map(adm => (
-                                <tr key={adm.id}>
-                                    
-                                    <td>{adm.iusadm}</td>
-                                    <td>{adm.description}</td>
-                                    <td>{adm.email}</td>
-                                    <td>{adm.cod}</td>
+                            {signatures.map(signature => (
+                                <tr key={signature.id}>
+                                    <td>{signature.iusadm}</td>
+                                    <td>{signature.description}</td>
+                                    <td>{signature.email}</td>
+                                    <td>{signature.cod}</td>
                                     <td>
-                                        <Button variant="warning" onClick={() => handleEdit(adm)}>
+                                        <Button variant="warning" onClick={() => handleEdit(signature)}>
                                             <VscEdit size={10} />
                                         </Button>
-                                        <Button variant="danger" onClick={() => handleDelete(adm.id)} style={{ marginLeft: '8px' }}>
+                                        <Button variant="danger" onClick={() => handleDelete(signature.id)} style={{ marginLeft: '8px' }}>
                                             <VscTrash size={10} />
                                         </Button>
                                     </td>
@@ -81,7 +84,7 @@ const IusAdm = observer(() => {
 
                 <Card style={{ width: '500px', height: '450px', padding: '10px' }}>
                     <CardHeader>
-                        <h3>{editingAdm ? 'Редактирование подписанта' : 'Создание подписанта'}</h3>
+                        <h3>{editingSignature ? 'Редактирование подписанта' : 'Создание подписанта'}</h3>
                     </CardHeader>
                     <CardBody>
                         <Form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '500px' }}>
@@ -90,9 +93,10 @@ const IusAdm = observer(() => {
                                 <Form.Control
                                     type="text"
                                     name="iusadm"
-                                    value={editingAdm ? editingAdm.iusadm : newAdm.iusadm}
+                                    value={editingSignature ? editingSignature.iusadm : newSignature.iusadm}
                                     onChange={handleInputChange}
                                     placeholder="Введите И.О. Фамилия"
+                                    required
                                 />
                             </Form.Group>
                             <Form.Group>
@@ -100,19 +104,21 @@ const IusAdm = observer(() => {
                                 <Form.Control
                                     type="text"
                                     name="description"
-                                    value={editingAdm ? editingAdm.description : newAdm.description}
+                                    value={editingSignature ? editingSignature.description : newSignature.description}
                                     onChange={handleInputChange}
                                     placeholder="Введите должность"
+                                    required
                                 />
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label className='textModal'>E-mail*</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="email"
                                     name="email"
-                                    value={editingAdm ? editingAdm.email : newAdm.email}
+                                    value={editingSignature ? editingSignature.email : newSignature.email}
                                     onChange={handleInputChange}
                                     placeholder="Введите Email"
+                                    required
                                 />
                             </Form.Group>
                             <Form.Group>
@@ -120,19 +126,31 @@ const IusAdm = observer(() => {
                                 <Form.Control
                                     type="text"
                                     name="cod"
-                                    value={editingAdm ? editingAdm.cod : newAdm.cod}
+                                    value={editingSignature ? editingSignature.cod : newSignature.cod}
                                     onChange={handleInputChange}
                                     placeholder="Введите Cod"
+                                    required
                                 />
                             </Form.Group>
 
                             <Button
                                 type="submit"
                                 className='button-next w-100 mt-2'
+                                disabled={!newSignature.iusadm && !editingSignature}
                             >
                                 <VscSaveAs className={'icon-staff'} size={20} style={{ marginRight: '8px' }} />
-                                {editingAdm ? 'ОБНОВИТЬ' : 'СОХРАНИТЬ'}
+                                {editingSignature ? 'ОБНОВИТЬ' : 'СОХРАНИТЬ'}
                             </Button>
+                            
+                            {editingSignature && (
+                                <Button
+                                    variant="secondary"
+                                    className='w-100 mt-2'
+                                    onClick={() => setEditingSignature(null)}
+                                >
+                                    ОТМЕНИТЬ РЕДАКТИРОВАНИЕ
+                                </Button>
+                            )}
                         </Form>
                     </CardBody>
                 </Card>

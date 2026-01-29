@@ -11,19 +11,12 @@ import {
   Col,
   InputNumber,
   Button,
-  Alert,
   Tooltip,
   message,
 } from 'antd';
 import {
   SaveOutlined,
   QuestionCircleOutlined,
-  BoldOutlined,
-  ItalicOutlined,
-  OrderedListOutlined,
-  UnorderedListOutlined,
-  LinkOutlined,
-  PictureOutlined,
   VideoCameraOutlined,
 } from '@ant-design/icons';
 
@@ -76,17 +69,19 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
   const [contentType, setContentType] = useState('text');
   const [nonTextContent, setNonTextContent] = useState('');
   const [isContentValid, setIsContentValid] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+  const [quillKey, setQuillKey] = useState(Date.now());
 
   // Валидация контента
   const validateContent = useCallback(() => {
     let isValid = false;
 
     if (contentType === 'text') {
-      isValid =
-        editorContent &&
-        editorContent !== '<p><br></p>' &&
-        editorContent.trim() !== '';
+      // Проверяем, что контент не пустой и не состоит только из пустых тегов
+      const strippedContent = editorContent
+        ? editorContent.replace(/<[^>]*>/g, '').trim()
+        : '';
+      isValid = strippedContent.length > 0;
     } else {
       isValid = nonTextContent && nonTextContent.trim() !== '';
     }
@@ -95,15 +90,17 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
     return isValid;
   }, [contentType, editorContent, nonTextContent]);
 
-  // Инициализация формы
+  // Инициализация формы при открытии модального окна
   useEffect(() => {
-    if (visible && !isInitialized) {
+    if (visible) {
+      let isMounted = true;
+      
       if (editingLesson) {
         const contentValue = editingLesson.content || '';
         const contentTypeValue = editingLesson.content_type || 'text';
 
         // Устанавливаем все значения формы
-        form.setFieldsValue({
+        const formValues = {
           title: editingLesson.title,
           content_type: contentTypeValue,
           video_url: editingLesson.video_url || '',
@@ -114,17 +111,23 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
             editingLesson.is_active !== undefined
               ? editingLesson.is_active
               : true,
-        });
+        };
 
-        // Устанавливаем контент
-        if (contentTypeValue === 'text') {
-          setEditorContent(contentValue);
-        } else {
-          setNonTextContent(contentValue);
-        }
+        form.setFieldsValue(formValues);
 
-        setContentType(contentTypeValue);
-        validateContent();
+        // Устанавливаем контент с небольшой задержкой для стабильности
+        setTimeout(() => {
+          if (isMounted) {
+            if (contentTypeValue === 'text') {
+              setEditorContent(contentValue);
+            } else {
+              setNonTextContent(contentValue);
+            }
+            setContentType(contentTypeValue);
+            setInitialized(true);
+            setQuillKey(Date.now()); // Обновляем ключ для Quill
+          }
+        }, 50);
       } else {
         // Сбрасываем форму для нового урока
         form.resetFields();
@@ -138,34 +141,61 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
         setEditorContent('');
         setNonTextContent('');
         setContentType('text');
-        setIsContentValid(false);
+        setInitialized(true);
+        setQuillKey(Date.now()); // Обновляем ключ для Quill
       }
-      setIsInitialized(true);
-    }
 
-    if (!visible) {
-      setIsInitialized(false);
+      // Валидируем контент с задержкой
+      setTimeout(() => {
+        if (isMounted) {
+          validateContent();
+        }
+      }, 100);
+
+      return () => {
+        isMounted = false;
+      };
+    } else {
+      setInitialized(false);
     }
-  }, [visible, editingLesson, form, validateContent, isInitialized]);
+  }, [visible, editingLesson, form]);
 
   // Обработчик изменения типа контента
   const handleContentTypeChange = (value) => {
     setContentType(value);
     form.setFieldsValue({ content_type: value });
-    validateContent();
+    
+    // Сбрасываем контент при смене типа
+    if (value !== 'text') {
+      setEditorContent('');
+    } else {
+      setNonTextContent('');
+    }
   };
 
   // Обработчик изменения контента в Quill
-  const handleEditorChange = (content) => {
-    setEditorContent(content);
-    validateContent();
+  const handleEditorChange = (content, delta, source, editor) => {
+    // Обновляем состояние только если изменение исходит от пользователя
+    if (source === 'user') {
+      setEditorContent(content);
+      // Откладываем валидацию на следующий цикл событий
+      setTimeout(() => validateContent(), 0);
+    }
   };
 
   // Обработчик изменения текста для не-текстовых типов
   const handleNonTextContentChange = (e) => {
     setNonTextContent(e.target.value);
-    validateContent();
+    // Откладываем валидацию на следующий цикл событий
+    setTimeout(() => validateContent(), 0);
   };
+
+  // Валидируем контент при изменении
+  useEffect(() => {
+    if (initialized) {
+      validateContent();
+    }
+  }, [editorContent, nonTextContent, validateContent, initialized]);
 
   // Функция для загрузки изображений
   const imageHandler = () => {
@@ -206,7 +236,6 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
   const handleSave = () => {
     console.log('Saving lesson...');
 
-    // Получаем значения формы
     form
       .validateFields()
       .then((values) => {
@@ -219,9 +248,18 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
         }
 
         // Получаем контент в зависимости от типа
-        const content = contentType === 'text' ? editorContent : nonTextContent;
+        let content = '';
+        if (contentType === 'text') {
+          content = editorContent;
+          // Очищаем контент от пустых тегов
+          if (content === '<p><br></p>' || content === '<p></p>') {
+            content = '';
+          }
+        } else {
+          content = nonTextContent.trim();
+        }
 
-        // Формируем финальные данные - ВАЖНО: убедитесь, что структура соответствует ожидаемой API
+        // Формируем финальные данные
         const finalValues = {
           title: values.title || '',
           content_type: values.content_type || 'text',
@@ -251,7 +289,7 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
     setNonTextContent('');
     setContentType('text');
     setIsContentValid(false);
-    setIsInitialized(false);
+    setInitialized(false);
     onClose();
   };
 
@@ -279,7 +317,7 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
       destroyOnClose={true}
       afterClose={handleClose}
     >
-      <Form form={form} layout="vertical" onFinish={handleSave}>
+      <Form form={form} layout="vertical">
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -346,27 +384,27 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
                 borderRadius: '6px',
                 overflow: 'hidden',
                 position: 'relative',
-                height: 400, // Фиксированная высота контейнера
+                height: 400,
               }}
             >
-              <ReactQuill
-                ref={quillRef}
-                theme="snow"
-                value={editorContent}
-                onChange={handleEditorChange}
-                modules={customModules}
-                formats={formats}
-                placeholder="Начните вводить содержание урока..."
-                style={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-                preserveWhitespace={true}
-              />
+              {initialized && (
+                <ReactQuill
+                  key={`quill-${quillKey}`}
+                  ref={quillRef}
+                  theme="snow"
+                  value={editorContent}
+                  onChange={handleEditorChange}
+                  modules={customModules}
+                  formats={formats}
+                  placeholder="Начните вводить содержание урока..."
+                  style={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                />
+              )}
             </div>
-
-           
           </Form.Item>
         )}
 
@@ -432,8 +470,6 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
           </Form.Item>
         )}
 
-
-
         <Row gutter={16}>
           <Col span={8}>
             <Form.Item
@@ -479,7 +515,6 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
               size="small"
               label="Активен"
               valuePropName="checked"
-              
             >
               <Switch />
             </Form.Item>
@@ -493,7 +528,7 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
           .ql-container {
             font-size: 14px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-            height: calc(100% - 64px); /* Вычитаем высоту тулбара */
+            height: calc(100% - 64px);
             overflow-y: auto;
             flex: 1;
           }
@@ -534,36 +569,6 @@ const LessonModal = ({ visible, editingLesson, onClose, onSave, saving }) => {
           
           .ql-toolbar.ql-snow button:hover {
             color: #1890ff;
-          }
-          
-          /* Улучшаем отображение для скролла */
-          .ql-container.ql-snow::-webkit-scrollbar {
-            width: 8px;
-          }
-          
-          .ql-container.ql-snow::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-          }
-          
-          .ql-container.ql-snow::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
-          }
-          
-          .ql-container.ql-snow::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-          }
-          
-          /* Для Firefox */
-          .ql-container.ql-snow {
-            scrollbar-width: thin;
-            scrollbar-color: #c1c1c1 #f1f1f1;
-          }
-          
-          /* Гарантируем, что Quill использует flexbox */
-          .ql-toolbar.ql-snow + .ql-container.ql-snow {
-            border-top: none;
           }
         `}
       </style>

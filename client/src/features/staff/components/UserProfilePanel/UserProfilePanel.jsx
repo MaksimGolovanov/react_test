@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import {
   Card,
   Row,
@@ -8,16 +8,12 @@ import {
   Form,
   Upload,
   Badge,
-  Tag,
-  Spin,
   Alert,
   Typography,
   message,
   Skeleton,
   Tabs,
   Popconfirm,
-  Dropdown,
-  Menu,
 } from "antd";
 import {
   PhoneOutlined,
@@ -31,7 +27,6 @@ import {
   ContactsOutlined,
   EditOutlined,
   DeleteOutlined,
-  MoreOutlined,
 } from "@ant-design/icons";
 import StaffService from "../../services/StaffService";
 import styles from "./style.module.css";
@@ -48,17 +43,14 @@ function UserProfilePanel({ user, departments, onUpdate, onEdit, onDelete }) {
   const [usbDevices, setUsbDevices] = useState([]);
   const [loadingCards, setLoadingCards] = useState(false);
   const [loadingUsb, setLoadingUsb] = useState(false);
-  const [avatarKey, setAvatarKey] = useState(0);
   const [avatarTimestamp, setAvatarTimestamp] = useState(Date.now());
   const [copyLoading, setCopyLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("cards");
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
 
   useEffect(() => {
-    console.log("UserProfilePanel: user изменился", user);
     if (user) {
       setAvatarTimestamp(Date.now());
-      setAvatarKey((prev) => prev + 1);
       setAccessCards([]);
       setUsbDevices([]);
 
@@ -67,7 +59,6 @@ function UserProfilePanel({ user, departments, onUpdate, onEdit, onDelete }) {
           try {
             setLoadingCards(true);
             const cards = await StaffService.fetchCardsByFio(user.fio);
-            console.log("Загружены карты:", cards);
             setAccessCards(cards);
           } catch (error) {
             console.error("Ошибка при загрузке карт:", error);
@@ -78,7 +69,6 @@ function UserProfilePanel({ user, departments, onUpdate, onEdit, onDelete }) {
           try {
             setLoadingUsb(true);
             const usb = await StaffService.fetchUsbByFio(user.fio);
-            console.log("Загружены USB:", usb);
             setUsbDevices(usb);
           } catch (error) {
             console.error("Ошибка при загрузке USB:", error);
@@ -165,7 +155,7 @@ function UserProfilePanel({ user, departments, onUpdate, onEdit, onDelete }) {
 
       // Сильно обновляем аватар
       setAvatarTimestamp(Date.now());
-      setAvatarKey((prev) => prev + 1);
+     
 
       // Если есть onUpdate, вызываем его
       if (onUpdate) {
@@ -222,30 +212,7 @@ function UserProfilePanel({ user, departments, onUpdate, onEdit, onDelete }) {
       onDelete();
     }
   };
-
-  // Меню для Dropdown (если нужно скрыть кнопки)
-  const moreMenu = (
-    <Menu>
-      <Menu.Item
-        key="edit"
-        icon={<EditOutlined />}
-        onClick={handleEdit}
-        disabled={!user} // Только проверяем наличие пользователя
-      >
-        Редактировать
-      </Menu.Item>
-      <Menu.Item
-        key="delete"
-        icon={<DeleteOutlined />}
-        danger
-        onClick={() => setDeleteConfirmVisible(true)}
-        disabled={!user} // Только проверяем наличие пользователя
-      >
-        {user?.isDeleted ? "Окончательно удалить" : "Удалить"}
-      </Menu.Item>
-    </Menu>
-  );
-
+ 
   // Если пользователь не выбран, показываем Skeleton
   if (!user) {
     return (

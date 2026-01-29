@@ -19,19 +19,19 @@ class IusPtService {
      }
 
      // Методы для работы с администраторами (IusSpravAdm)
-     static fetchAdmins = async () => {
+     static fetchSignatures = async () => {
           return this.request('get', '/iuspt/adm')
      }
 
-     static createAdmin = async (admin) => {
-          return this.request('post', '/iuspt/adm', admin)
+     static createSignatures = async (signatures) => {
+          return this.request('post', '/iuspt/adm', signatures)
      }
 
-     static updateAdmin = async (admin) => {
-          return this.request('put', '/iuspt/adm', admin)
+     static updateSignatures = async (signatures) => {
+          return this.request('put', '/iuspt/adm', signatures)
      }
 
-     static deleteAdmin = async (id) => {
+     static deleteSignatures = async (id) => {
           return this.request('delete', `/iuspt/adm/${id}`)
      }
 

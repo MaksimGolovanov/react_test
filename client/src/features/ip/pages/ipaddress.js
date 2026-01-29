@@ -113,7 +113,7 @@ const IpAddress = observer(() => {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container}> 
             <IpHeader
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}

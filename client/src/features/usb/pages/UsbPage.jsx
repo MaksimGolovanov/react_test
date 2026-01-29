@@ -93,6 +93,7 @@ const UsbPage = observer(() => {
     }),
     [
       searchTerm,
+      setSearchTerm, // Добавлено
       handleAddNew,
       handleEditUsb,
       selectedIds,
