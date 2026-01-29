@@ -1,9 +1,7 @@
-// src/features/security-training/components/PageHeader.jsx
-import React from 'react';
 import { Typography, Space, Button } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const PageHeader = ({ loading, onRefresh }) => {
   return (

@@ -12,7 +12,9 @@ const LessonContent = ({ selectedLesson, userProgress, onCompleteLesson }) => {
     if (!selectedLesson?.id) return 0;
 
     const savedTimes = JSON.parse(localStorage.getItem('lessonTimes') || '[]');
-    const lessonTime = savedTimes.find(item => item.lessonId === selectedLesson.id);
+    const lessonTime = savedTimes.find(
+      (item) => item.lessonId === selectedLesson.id
+    );
 
     if (userProgress?.lessonTimeSpent) {
       const progressTime = userProgress.lessonTimeSpent[selectedLesson.id];
@@ -22,7 +24,9 @@ const LessonContent = ({ selectedLesson, userProgress, onCompleteLesson }) => {
     return lessonTime?.secondsSpent || 0;
   };
 
-  const isCompleted = userProgress?.completedLessons?.includes(selectedLesson?.id);
+  const isCompleted = userProgress?.completedLessons?.includes(
+    selectedLesson?.id
+  );
 
   useEffect(() => {
     if (selectedLesson && !isCompleted) {
@@ -47,7 +51,9 @@ const LessonContent = ({ selectedLesson, userProgress, onCompleteLesson }) => {
       startTimeRef.current = Date.now() - timeSpent * 1000;
 
       timerRef.current = setInterval(() => {
-        const secondsSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        const secondsSpent = Math.floor(
+          (Date.now() - startTimeRef.current) / 1000
+        );
         setTimeSpent(secondsSpent);
 
         if (secondsSpent % 30 === 0) {
@@ -74,43 +80,37 @@ const LessonContent = ({ selectedLesson, userProgress, onCompleteLesson }) => {
       isTemporary: true,
     };
 
-    const savedTimes = JSON.parse(localStorage.getItem('lessonTimes') || '[]')
-      .filter(item => item.lessonId !== selectedLesson.id);
-    
+    const savedTimes = JSON.parse(
+      localStorage.getItem('lessonTimes') || '[]'
+    ).filter((item) => item.lessonId !== selectedLesson.id);
+
     savedTimes.push(lessonTimeData);
     localStorage.setItem('lessonTimes', JSON.stringify(savedTimes));
   };
 
   const handleCompleteLesson = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+    // Проверяем, был ли урок уже завершен
+    const isAlreadyCompleted = userProgress?.completedLessons?.includes(
+      selectedLesson.id
+    );
+
+    if (isAlreadyCompleted) {
+      message.warning('Этот урок уже был завершен ранее');
+      return;
     }
 
+    // Округляем секунды до минут, но не менее 1 минуты
     const minutesSpent = Math.max(1, Math.ceil(timeSpent / 60));
 
-    const lessonTimeData = {
-      lessonId: selectedLesson.id,
-      minutesSpent: minutesSpent,
-      secondsSpent: timeSpent,
-      timestamp: new Date().toISOString(),
-      lessonTitle: selectedLesson.title,
-      isTemporary: false,
-      completed: true,
-    };
-
-    const savedTimes = JSON.parse(localStorage.getItem('lessonTimes') || '[]')
-      .filter(item => item.lessonId !== selectedLesson.id);
-    
-    savedTimes.push(lessonTimeData);
-    localStorage.setItem('lessonTimes', JSON.stringify(savedTimes));
+    console.log('Время урока:', {
+      секунды: timeSpent,
+      минуты: minutesSpent,
+      форматированное: formatTime(timeSpent),
+    });
 
     if (onCompleteLesson) {
       onCompleteLesson(selectedLesson.id, minutesSpent);
-      message.success(`Урок завершен! Время изучения: ${formatTime(timeSpent)}`);
     }
-
-    setHasStarted(false);
   };
 
   const formatTime = (seconds) => {
@@ -126,14 +126,14 @@ const LessonContent = ({ selectedLesson, userProgress, onCompleteLesson }) => {
   return (
     <div style={{ margin: '0 auto' }}>
       <Card style={styles.card}>
-        <LessonHeader 
+        <LessonHeader
           title={selectedLesson.title}
           lessonId={selectedLesson.id}
           timeSpent={formatTime(timeSpent)}
           isCompleted={isCompleted}
         />
-        
-        <LessonContentBody 
+
+        <LessonContentBody
           content={selectedLesson.content}
           videoUrl={selectedLesson.video_url}
           presentationUrl={selectedLesson.presentation_url}
@@ -162,11 +162,8 @@ const LessonHeader = ({ title, lessonId, timeSpent, isCompleted }) => (
   <div style={{ marginBottom: '20px' }}>
     <h2 style={styles.lessonTitle}>{title}</h2>
     <div style={styles.lessonMeta}>
-      
       <div style={styles.timeSpent}>⏱️ Время изучения: {timeSpent}</div>
-      {isCompleted && (
-        <div style={styles.completedBadge}>✅ Урок завершен</div>
-      )}
+      {isCompleted && <div style={styles.completedBadge}>✅ Урок завершен</div>}
     </div>
   </div>
 );
@@ -174,7 +171,7 @@ const LessonHeader = ({ title, lessonId, timeSpent, isCompleted }) => (
 const LessonContentBody = ({ content, videoUrl, presentationUrl }) => (
   <div style={styles.contentContainer}>
     {content ? (
-      <div 
+      <div
         dangerouslySetInnerHTML={{ __html: content }}
         style={styles.contentHtml}
       />
@@ -202,10 +199,10 @@ const LessonResources = ({ videoUrl, presentationUrl }) => {
           <ResourceAlert type="video" url={videoUrl} label="Смотреть видео" />
         )}
         {presentationUrl && (
-          <ResourceAlert 
-            type="presentation" 
-            url={presentationUrl} 
-            label="Открыть презентацию" 
+          <ResourceAlert
+            type="presentation"
+            url={presentationUrl}
+            label="Открыть презентацию"
           />
         )}
       </Space>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   Typography,
@@ -31,47 +31,7 @@ const TestComponent = ({ questions, timeLimit = 30, onComplete }) => {
   const [timeUp, setTimeUp] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setTimeUp(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (timeUp) {
-      handleSubmit();
-    }
-  }, [timeUp]);
-
-  const handleAnswerChange = (questionId, value) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
-  };
-
-  const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
-    }
-  };
-
-  const calculateScore = () => {
+const calculateScore = useCallback(() => {
     let score = 0;
     let maxScore = 0;
 
@@ -105,6 +65,10 @@ const TestComponent = ({ questions, timeLimit = 30, onComplete }) => {
             question.correct_answer.toLowerCase() ===
               userAnswer.toLowerCase().trim();
           break;
+
+        default:
+          console.warn(`Unknown question type: ${question.question_type}`);
+          break;
       }
 
       if (isCorrect) {
@@ -113,13 +77,13 @@ const TestComponent = ({ questions, timeLimit = 30, onComplete }) => {
     });
 
     return maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
-  };
+  }, [answers, questions]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     try {
       setSubmitting(true);
 
-      const score = calculateScore();
+      const score = calculateScore(); // Используется calculateScore
       const timeSpent = timeLimit * 60 - timeRemaining;
 
       if (onComplete) {
@@ -129,6 +93,51 @@ const TestComponent = ({ questions, timeLimit = 30, onComplete }) => {
       message.error('Ошибка при отправке теста');
     } finally {
       setSubmitting(false);
+    }
+  }, [answers, timeRemaining, timeLimit, onComplete, calculateScore ]);
+
+  // Функция расчета баллов
+  
+
+  // Таймер обратного отсчета
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setTimeUp(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Автоматическая отправка при истечении времени
+  useEffect(() => {
+    if (timeUp) {
+      handleSubmit();
+    }
+  }, [timeUp, handleSubmit]); // Добавлен handleSubmit в зависимости
+
+  const handleAnswerChange = (questionId, value) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }));
+  };
+
+  const handleNext = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
     }
   };
 
@@ -259,11 +268,7 @@ const SingleChoiceQuestion = ({ options, value, onChange }) => (
   >
     <Space direction="vertical" style={{ width: '100%' }}>
       {options?.map((option) => (
-        <Radio
-          key={option.id}
-          value={option.id}
-          style={{ display: 'block' }}
-        >
+        <Radio key={option.id} value={option.id} style={{ display: 'block' }}>
           {option.text}
         </Radio>
       ))}
