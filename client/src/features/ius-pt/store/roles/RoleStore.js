@@ -1,6 +1,6 @@
 import { makeObservable, observable, action, runInAction, computed } from 'mobx'
 import { BaseStore } from '../base/BaseStore'
-import IusPtService from '../../services/IusPtService'
+import { IusPtService } from '../../services'
 
 export class RoleStore extends BaseStore {
     roles = []

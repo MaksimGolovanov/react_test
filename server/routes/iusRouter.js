@@ -41,6 +41,7 @@ router.post('/user-roles/bulk', IusUserRolesController.addRolesToUser)
 
 // Маршрут для получения данных из Staff и IusUser
 router.get('/staff-with-iususer', StaffController.getStaffWithIusUser)
+router.get('/staff-with-user', StaffController.getStaffWithUserIUS)
 
 router.get('/staff-with-iususer-simple', StaffController.getStaffWithIusUserSimple)
 router.get('/staff-with-iususer-simple-over', StaffController.getStaffWithIusUserSimpleOver)

@@ -1,6 +1,6 @@
 import { makeObservable, observable, action, runInAction } from 'mobx'
 import { BaseStore } from '../base/BaseStore'
-import IusPtService from '../../services/IusPtService'
+import { IusPtService } from '../../services'
 
 export class SignatureStore extends BaseStore {
     signatures = []
