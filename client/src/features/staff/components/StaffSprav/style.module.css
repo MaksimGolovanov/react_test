@@ -26,7 +26,6 @@
 .spravContent {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -227,4 +226,15 @@
 .tableWrapper :global(.ant-table-thead > tr > th) {
   padding: 16px;
   font-weight: 600;
+}
+
+:global(.ant-card-hoverable:hover) {
+  box-shadow: none !important; /* Убирает тень при наведении */
+  transform: none !important; /* Убирает поднятие/трансформацию */
+  transition: none !important; /* Убирает анимацию */
+  border-color: #f0f0f0 !important; /* Возвращает обычный цвет границы */
+}
+
+:global(.ant-card-hoverable) {
+  transition: none !important; /* Отключаем анимацию для всех карточек */
 }

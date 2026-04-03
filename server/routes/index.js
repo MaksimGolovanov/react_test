@@ -13,7 +13,7 @@ const iusRouter = require('./iusRouter')
 const stRouter = require('./stRouter')
 const courseRouter = require('./courseRouter');
 const docRoutes = require('./docRoutes');
-
+const transportRouter = require('./TransportRouter')
 
 router.use('/user', userRouter)
 router.use('/staff', staffRouter)
@@ -28,7 +28,7 @@ router.use('/departments', departmentRouter) // Добавьте эту стро
 router.use('/st', stRouter) // Добавьте эту строку
 router.use('/courses', courseRouter);
 router.use('/docs', docRoutes);
-
+router.use('/transport', transportRouter)
 
 
 module.exports = router;  

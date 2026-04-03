@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { Button, Flex, Tooltip, Switch, Input, Space, Badge } from "antd";
 import {
   PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
   ImportOutlined,
   ExportOutlined,
   SettingOutlined,
@@ -18,15 +16,14 @@ import styles from "./TopActionsPanel.module.css";
 
 const TopActionsPanel = ({
   onCreate,
-  onEdit,
-  onDelete,
+
   onImport,
   onExport,
   onSprav,
-  onPsw,
+ 
   onToggleDeleted,
   onToggleNoPhoto,
-  selectedUser,
+  
   showDeleted,
   showNoPhoto,
   exportLoading,

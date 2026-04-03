@@ -1,10 +1,18 @@
 require('dotenv').config()
 const express = require('express')
 const sequelize = require('./db')
+
 const models = require('./models/models')
 const iususer = require('./models/IusPtModels')
 const stuser = require('./models/STModels')
 const doc = require('./models/documentModels')
+const Booking = require('./models/Booking')
+const Department = require('./models/Department')
+const Vehicle = require('./models/Vehicle')
+const TimeSlot = require('./models/TimeSlot')
+const VehicleType = require('./models/VehicleType')
+const VehicleSubtype = require('./models/VehicleSubtype')
+
 const cors = require('cors')
 const route = require('./routes/index')
 const fileUpload = require('express-fileupload')

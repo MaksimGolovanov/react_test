@@ -84,6 +84,7 @@ function StaffListPanel({
         },
       }}
       variant={false}
+      hoverable={false}
     >
       <div className={styles.panelHeader}>
         <div className={styles.headerTop}>

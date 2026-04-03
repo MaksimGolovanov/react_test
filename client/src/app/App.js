@@ -13,6 +13,7 @@ import { BadgesRoutes } from '../features/badges';
 import { UsbRoutes } from '../features/usb';
 import { CardRoutes } from '../features/card';
 import { MultiEduRouters } from '../features/MultiEdu';
+import { TransportRoutes } from '../features/transport';
 import { KnowledgeRoutes } from '../features/knowledge-base';
 import LoginPage from '../features/admin/pages/LoginPage';
 import Json from '../features/json/pages/JsonViewer';
@@ -37,6 +38,7 @@ const FirstAvailablePage = observer(() => {
     { path: '/admin', roles: ['ADMIN'] },
     { path: '/json', roles: ['ADMIN'] },
     { path: '/multiedu', roles: ['ADMIN', 'ST', 'ST-ADMIN'] },
+    { path: '/transport', roles: ['ADMIN', 'TRANSPORT'] },
     { path: '/knowledge', roles: ['ADMIN'] },
   ];
 
@@ -91,6 +93,8 @@ function App() {
         return 'ЗАПИСНАЯ КНИЖКА';
       case location.pathname.startsWith('/knowledge'):
         return 'БАЗА ЗНАНИЙ';
+      case location.pathname.startsWith('/transport'):
+        return 'ЗАЯВКА НА ТРАНСПОРТ';
       case location.pathname.startsWith('/create-post'):
         return 'СОЗДАНИЕ ЗАПИСИ';
       case location.pathname.startsWith('/edit-post/'):
@@ -142,6 +146,7 @@ function App() {
                     'IUSPT',
                     'ST',
                     'ST-ADMIN',
+                    'TRANSPORT'
                   ]}
                 >
                   <FirstAvailablePage />
@@ -216,6 +221,14 @@ function App() {
               }
             />
             <Route
+              path="/transport/*"
+              element={
+                <PrivateRoute requiredRole={['ADMIN', 'TRANSPORT']}>
+                  <TransportRoutes />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/admin/*"
               element={
                 <PrivateRoute requiredRole={['ADMIN']}>
@@ -265,6 +278,7 @@ function App() {
                     'IUSPT',
                     'ST',
                     'ST-ADMIN',
+                    'TRANSPORT'
                   ]}
                 >
                   <Navigate to="/" replace />

@@ -48,7 +48,7 @@ const StopRoles = observer(() => {
                     (stoproles.Approvers && stoproles.Approvers.toLowerCase().includes(searchLower))
                )
           })
-     }, [searchQuery]) // Убрана зависимость iusPtStore.stopRoles
+     }, [searchQuery, iusPtStore.stopRoles])
 
      const sortedStopRoles = useMemo(() => {
           return [...filteredStopRoles].sort((a, b) => {
@@ -298,7 +298,7 @@ const StopRoles = observer(() => {
                                         )}
                                    </tr>
                               ))}
-                         </tbody> 
+                         </tbody>
                     </table>
                </div>
           </>

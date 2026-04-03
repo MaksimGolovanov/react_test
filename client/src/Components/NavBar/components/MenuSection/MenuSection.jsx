@@ -16,6 +16,7 @@ import {
   GlobalOutlined,
   BookOutlined,
   ReconciliationOutlined,
+  CarOutlined
 } from '@ant-design/icons';
 import styles from './MenuSection.module.css';
 
@@ -180,6 +181,17 @@ const MenuSection = ({ userRolesAuth }) => {
           },
         ]
       : []),
+      // Заметки
+    ...(hasAccess('TRANSPORT')
+      ? [
+          {
+            key: '/transport',
+            icon: <CarOutlined />,
+            label: <Link to="/transport">ЗАЯВКА НА ТРАНСПОРТ</Link>,
+          },
+        ]
+      : []),
+
       // Заметки
     ...(hasAccess('NOTES')
       ? [

@@ -6,6 +6,9 @@ import SearchInput from '../SearchInput/SearchInput';
 import iusPtStore from '../../store/IusPtStore';
 import RoleSelectionModal from './RoleSelectionModal';
 
+// Оптимизированная функция нормализации
+
+
 const AddOverRoleModal = React.memo(({ show, onHide, role }) => {
     const normalizeString = useCallback((str) => (str || '').toLowerCase().trim(), []);
     const [searchQuery, setSearchQuery] = useState('');
@@ -74,7 +77,7 @@ const AddOverRoleModal = React.memo(({ show, onHide, role }) => {
         }
         
         return results;
-    }, [users, searchQuery, searchIndex, normalizeString]); // Добавлена normalizeString
+    }, [users, searchQuery, searchIndex]);
 
     // Оптимизированные обработчики
     const handleUserClick = useCallback((tabNumber) => {
@@ -141,6 +144,7 @@ const AddOverRoleModal = React.memo(({ show, onHide, role }) => {
                             itemCount={filteredUsers.length}
                             itemSize={38}
                             width="100%"
+                            
                         >
                             {Row}
                         </List>
