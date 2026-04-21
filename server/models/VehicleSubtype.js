@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('../db')
-const VehicleType = require('./VehicleType')
 
 const VehicleSubtype = sequelize.define('vehicle_subtypes', {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -29,8 +28,8 @@ const VehicleSubtype = sequelize.define('vehicle_subtypes', {
     ]
 })
 
-// Устанавливаем связи
-VehicleSubtype.belongsTo(VehicleType, { foreignKey: 'vehicle_type_id', as: 'vehicleType' })
-VehicleType.hasMany(VehicleSubtype, { foreignKey: 'vehicle_type_id', as: 'subtypes' })
+// ⚠️ УДАЛИТЕ эти строки (перенесите их в associations.js):
+// VehicleSubtype.belongsTo(VehicleType, { foreignKey: 'vehicle_type_id', as: 'vehicleType' })
+// VehicleType.hasMany(VehicleSubtype, { foreignKey: 'vehicle_type_id', as: 'subtypes' })
 
 module.exports = VehicleSubtype

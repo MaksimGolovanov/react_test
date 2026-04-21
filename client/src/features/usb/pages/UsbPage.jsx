@@ -152,7 +152,7 @@ const UsbPage = observer(() => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container}> 
       <UsbHeader {...usbHeaderProps} />
       <NotificationStatusBar
         sendingState={sendingState}

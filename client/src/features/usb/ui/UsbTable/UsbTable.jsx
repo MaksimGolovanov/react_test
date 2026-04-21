@@ -1,18 +1,20 @@
-import React from 'react'
-import { Table, Tooltip } from 'antd'
-import { SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons'
-import styles from './UsbTable.module.css'
+import React from 'react';
+import { Table, Tooltip } from 'antd';
+import {
+  SortAscendingOutlined,
+  SortDescendingOutlined,
+} from '@ant-design/icons';
+import styles from './UsbTable.module.css';
 
-const UsbTable = ({ 
-  data, 
-  sortConfig, 
-  onSort, 
-  selectedIds, 
+const UsbTable = ({
+  data,
+  sortConfig,
+  onSort,
+  selectedIds,
   onSelectionChange,
   formatDate,
-  getNextCheckDate
+  getNextCheckDate,
 }) => {
-  
   // Функция для определения класса для ячейки с датой следующей проверки
   const getDateCellColor = (record) => {
     if (!record.data_prov || record.log?.toLowerCase()?.trim() === 'нет') {
@@ -24,59 +26,58 @@ const UsbTable = ({
 
     const now = new Date();
     const nextCheck = new Date(nextCheckDate);
-    
+
     // Если дата просрочена
     if (nextCheck < now) {
       return styles.nextCheckOverdue;
     }
-    
+
     // Вычисляем разницу в днях
     const diffTime = nextCheck - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     // Если осталось 7 дней или меньше
     if (diffDays <= 7 && diffDays >= 0) {
       return styles.nextCheckWarning;
     }
-    
+
     return '';
-  }
+  };
 
   // Функция для получения подсказки
   const getDateTooltip = (record) => {
     if (!record.data_prov) return 'Дата проверки не указана';
-    
+
     const nextCheckDate = getNextCheckDate(record.data_prov);
     const now = new Date();
     const nextCheck = new Date(nextCheckDate);
-    
+
     if (nextCheck < now) {
       const diffTime = now - nextCheck;
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       return `Просрочено на ${diffDays} дней`;
     }
-    
+
     const diffTime = nextCheck - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays <= 7) {
       return `Осталось ${diffDays} дней`;
     }
-    
+
     return `Осталось ${diffDays} дней`;
-  }
+  };
 
   const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return null
+    if (sortConfig.key !== key) return null;
     return sortConfig.direction === 'ascending' ? (
       <SortAscendingOutlined style={{ marginLeft: 5 }} />
     ) : (
       <SortDescendingOutlined style={{ marginLeft: 5 }} />
-    )
-  }
+    );
+  };
 
   const columns = [
-    
     {
       title: (
         <span onClick={() => onSort('num_form')} style={{ cursor: 'pointer' }}>
@@ -145,7 +146,10 @@ const UsbTable = ({
     },
     {
       title: (
-        <span onClick={() => onSort('department')} style={{ cursor: 'pointer' }}>
+        <span
+          onClick={() => onSort('department')}
+          style={{ cursor: 'pointer' }}
+        >
           Служба {getSortIcon('department')}
         </span>
       ),
@@ -172,7 +176,7 @@ const UsbTable = ({
       render: (_, record) => {
         const nextCheckDate = getNextCheckDate(record.data_prov);
         const tooltip = getDateTooltip(record);
-        
+
         return (
           <Tooltip title={tooltip}>
             <span>{record.data_prov ? formatDate(nextCheckDate) : '-'}</span>
@@ -181,7 +185,7 @@ const UsbTable = ({
       },
       // Важно: добавляем className на уровне колонки
       onCell: (record) => ({
-        className: getDateCellColor(record)
+        className: getDateCellColor(record),
       }),
     },
     {
@@ -193,48 +197,49 @@ const UsbTable = ({
       dataIndex: 'log',
       key: 'log',
       width: 60,
-
     },
-  ]
+  ];
 
   const rowSelection = {
     selectedRowKeys: selectedIds,
     onChange: (selectedKeys) => {
       const newSelectedIds = data
-        .filter(item => selectedKeys.includes(item.key || item.id))
-        .map(item => item.id)
-      
+        .filter((item) => selectedKeys.includes(item.key || item.id))
+        .map((item) => item.id);
+
       if (newSelectedIds.length > 0) {
-        onSelectionChange(newSelectedIds[0])
+        onSelectionChange(newSelectedIds[0]);
       } else {
-        onSelectionChange([])
+        onSelectionChange([]);
       }
     },
     type: 'radio',
     columnWidth: 60,
-  }
+  };
 
-  const dataWithKeys = data.map(item => ({
+  const dataWithKeys = data.map((item) => ({
     ...item,
     key: item.id || item.key,
-  }))
+  }));
 
   return (
-    <Table
-      size="small"
-      rowSelection={rowSelection}
-      columns={columns}
-      dataSource={dataWithKeys}
-      rowKey="id"
-      pagination={false}
-      scroll={{ x: 'max-content' }}
-      style={{ width: '100%', fontSize: '12px' }} 
-      rowClassName={(record) => {
-        const isNotInWork = record.log?.toLowerCase()?.trim() === 'нет'
-        return isNotInWork ? styles.notInWorkRow : ''
-      }}
-    />
-  )
-}
+    <div style={{ overflowX: 'auto', width: '100%' }}> 
+      <Table
+        size="small"
+        rowSelection={rowSelection}
+        columns={columns}
+        dataSource={dataWithKeys}
+        rowKey="id"
+        pagination={false}
+        
+        
+        rowClassName={(record) => {
+          const isNotInWork = record.log?.toLowerCase()?.trim() === 'нет';
+          return isNotInWork ? styles.notInWorkRow : '';
+        }}
+      />
+    </div>
+  );
+};
 
-export default UsbTable
+export default UsbTable;

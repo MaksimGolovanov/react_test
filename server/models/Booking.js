@@ -5,8 +5,9 @@ const Booking = sequelize.define('bookings', {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     vehicle_id: { type: DataTypes.UUID, allowNull: false },
     department_id: { type: DataTypes.UUID, allowNull: false },
-    time_slot_id: { type: DataTypes.STRING, allowNull: false },
+    time_slot_id: { type: DataTypes.UUID, allowNull: false },
     booking_date: { type: DataTypes.DATEONLY, allowNull: false },
+    driver_full_name: { type: DataTypes.STRING },
     purpose: { type: DataTypes.TEXT, allowNull: false },
     status: { 
         type: DataTypes.ENUM('active', 'cancelled', 'completed'),
@@ -17,6 +18,11 @@ const Booking = sequelize.define('bookings', {
     cancelled_at: { type: DataTypes.DATE },
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+}, {
+    timestamps: true,
+    updatedAt: 'updated_at',
+    createdAt: 'created_at'
+    // Убираем indexes полностью или оставляем без unique: true
 })
 
-module.exports = Booking
+module.exports = Booking;

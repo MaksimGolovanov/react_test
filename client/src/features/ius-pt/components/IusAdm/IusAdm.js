@@ -1,143 +1,152 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { VscSaveAs, VscEdit, VscTrash } from "react-icons/vsc";
-import { Button, Table, Form, Card, CardHeader, CardBody } from 'react-bootstrap';
+import { Table, Form, Input, Button, Card, Row, Col, Space, message, Popconfirm } from 'antd';
+import { SaveOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import IusPtStore from '../../store/IusPtStore';
 
 const IusAdm = observer(() => {
-    const [newAdm, setNewAdm] = useState({ iusadm: '', description: '', email: '', cod:'' });
-    const [editingAdm, setEditingAdm] = useState(null);
+    const [form] = Form.useForm();
+    const [editingId, setEditingId] = React.useState(null);
 
     useEffect(() => {
         IusPtStore.fetchAdmins();
     }, []);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        if (editingAdm) {
-            setEditingAdm(prevState => ({ ...prevState, [name]: value }));
-        } else {
-            setNewAdm(prevState => ({ ...prevState, [name]: value }));
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (editingAdm) {
-            await IusPtStore.updateAdmin(editingAdm);
-            setEditingAdm(null);
-        } else {
-            await IusPtStore.createAdmin(newAdm);
-            setNewAdm({ iusadm: '', description: '', email: '', cod:''  });
-        }
-    };
-
-    const handleEdit = (adm) => {
-        setEditingAdm(adm);
+    const handleEdit = (record) => {
+        setEditingId(record.id);
+        form.setFieldsValue({
+            iusadm: record.iusadm,
+            description: record.description,
+            email: record.email,
+            cod: record.cod,
+        });
     };
 
     const handleDelete = async (id) => {
-        await IusPtStore.deleteAdmin(id);
+        try {
+            await IusPtStore.deleteAdmin(id);
+            message.success('Подписант удалён');
+        } catch (error) {
+            message.error('Ошибка при удалении');
+            console.error(error);
+        }
     };
 
+    const handleSubmit = async (values) => {
+        try {
+            if (editingId) {
+                await IusPtStore.updateAdmin({ id: editingId, ...values });
+                message.success('Подписант обновлён');
+                setEditingId(null);
+            } else {
+                await IusPtStore.createAdmin(values);
+                message.success('Подписант создан');
+            }
+            form.resetFields();
+        } catch (error) {
+            message.error(editingId ? 'Ошибка обновления' : 'Ошибка создания');
+            console.error(error);
+        }
+    };
+
+    const handleCancel = () => {
+        setEditingId(null);
+        form.resetFields();
+    };
+
+    const columns = [
+        { title: 'И.О. Фамилия', dataIndex: 'iusadm', key: 'iusadm', width: 150 },
+        { title: 'Должность', dataIndex: 'description', key: 'description' },
+        { title: 'Email', dataIndex: 'email', key: 'email' },
+        { title: 'Cod', dataIndex: 'cod', key: 'cod', width: 100 },
+        {
+            title: 'Действия',
+            key: 'action',
+            width: 100,
+            render: (_, record) => (
+                <Space>
+                    <Button
+                        type="link"
+                        icon={<EditOutlined />}
+                        onClick={() => handleEdit(record)}
+                    />
+                    <Popconfirm
+                        title="Удалить подписанта?"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="Да"
+                        cancelText="Нет"
+                    >
+                        <Button type="link" danger icon={<DeleteOutlined />} />
+                    </Popconfirm>
+                </Space>
+            ),
+        },
+    ];
+
     return (
-        <>
-            <div style={{ display: 'flex', gap: '20px' }}>
-                <Card style={{ width: '600px', padding: '10px' }}>
-                    <CardHeader>
-                        <h3>Список подписантов</h3>
-                    </CardHeader>
-                    <Table striped bordered hover variant="white" className='table-staff'>
-                        <thead>
-                            <tr>
-                                <th style={{ width: '100px' }}>И.О. Фамилия</th>
-                                <th>Должность</th>
-                                <th>Email</th>
-                                <th>Cod</th>
-                                <th style={{ width: '100px' }}>Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {IusPtStore.admins.map(adm => (
-                                <tr key={adm.id}>
-                                    
-                                    <td>{adm.iusadm}</td>
-                                    <td>{adm.description}</td>
-                                    <td>{adm.email}</td>
-                                    <td>{adm.cod}</td>
-                                    <td>
-                                        <Button variant="warning" onClick={() => handleEdit(adm)}>
-                                            <VscEdit size={10} />
-                                        </Button>
-                                        <Button variant="danger" onClick={() => handleDelete(adm.id)} style={{ marginLeft: '8px' }}>
-                                            <VscTrash size={10} />
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+        <Row gutter={24}>
+            <Col xs={24} lg={14}>
+                <Card title="Список подписантов">
+                    <Table
+                        dataSource={IusPtStore.admins}
+                        columns={columns}
+                        rowKey="id"
+                        pagination={{ pageSize: 5 }}
+                        bordered
+                    />
                 </Card>
-
-                <Card style={{ width: '500px', height: '450px', padding: '10px' }}>
-                    <CardHeader>
-                        <h3>{editingAdm ? 'Редактирование подписанта' : 'Создание подписанта'}</h3>
-                    </CardHeader>
-                    <CardBody>
-                        <Form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '500px' }}>
-                            <Form.Group>
-                                <Form.Label className='textModal'>И.О. Фамилия*</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="iusadm"
-                                    value={editingAdm ? editingAdm.iusadm : newAdm.iusadm}
-                                    onChange={handleInputChange}
-                                    placeholder="Введите И.О. Фамилия"
-                                />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label className='textModal'>Должность*</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="description"
-                                    value={editingAdm ? editingAdm.description : newAdm.description}
-                                    onChange={handleInputChange}
-                                    placeholder="Введите должность"
-                                />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label className='textModal'>E-mail*</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="email"
-                                    value={editingAdm ? editingAdm.email : newAdm.email}
-                                    onChange={handleInputChange}
-                                    placeholder="Введите Email"
-                                />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label className='textModal'>Cod*</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="cod"
-                                    value={editingAdm ? editingAdm.cod : newAdm.cod}
-                                    onChange={handleInputChange}
-                                    placeholder="Введите Cod"
-                                />
-                            </Form.Group>
-
-                            <Button
-                                type="submit"
-                                className='button-next w-100 mt-2'
-                            >
-                                <VscSaveAs className={'icon-staff'} size={20} style={{ marginRight: '8px' }} />
-                                {editingAdm ? 'ОБНОВИТЬ' : 'СОХРАНИТЬ'}
-                            </Button>
-                        </Form>
-                    </CardBody>
+            </Col>
+            <Col xs={24} lg={10}>
+                <Card title={editingId ? 'Редактирование подписанта' : 'Создание подписанта'}>
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={handleSubmit}
+                    >
+                        <Form.Item
+                            name="iusadm"
+                            label="И.О. Фамилия"
+                            rules={[{ required: true, message: 'Введите ФИО' }]}
+                        >
+                            <Input placeholder="Введите И.О. Фамилия" />
+                        </Form.Item>
+                        <Form.Item
+                            name="description"
+                            label="Должность"
+                            rules={[{ required: true, message: 'Введите должность' }]}
+                        >
+                            <Input placeholder="Введите должность" />
+                        </Form.Item>
+                        <Form.Item
+                            name="email"
+                            label="E-mail"
+                            rules={[{ required: true, type: 'email', message: 'Введите корректный email' }]}
+                        >
+                            <Input placeholder="Введите Email" />
+                        </Form.Item>
+                        <Form.Item
+                            name="cod"
+                            label="Cod"
+                            rules={[{ required: true, message: 'Введите код' }]}
+                        >
+                            <Input placeholder="Введите Cod" />
+                        </Form.Item>
+                        <Form.Item>
+                            <Space>
+                                <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
+                                    {editingId ? 'Обновить' : 'Сохранить'}
+                                </Button>
+                                {editingId && (
+                                    <Button onClick={handleCancel}>
+                                        Отмена
+                                    </Button>
+                                )}
+                            </Space>
+                        </Form.Item>
+                    </Form>
                 </Card>
-            </div>
-        </>
+            </Col>
+        </Row>
     );
 });
 

@@ -1,96 +1,151 @@
 import React, { useEffect, useState } from 'react';
-import { Tabs, Tab } from 'react-bootstrap';
+import { Tabs, Button, Spin, Alert, Avatar, Space } from 'antd';
+import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useParams, useNavigate } from 'react-router-dom';
-import { IoArrowBack, IoCreateOutline } from 'react-icons/io5';
-import ButtonAll from '../components/ButtonAll/ButtonAll';
 import iusPtStore from '../store/IusPtStore';
-import Circle from '../../../Components/circle/Circle';
-import styles from './style.module.css';
 import UserTable from '../components/UserTable/UserTable';
 import UserRoles from '../components/UserRoles/UserRoles';
 import UserRolesPage from '../components/UserRolesPage/UserRolesPage';
+import AvatarWithFallback from '../components/AvatarWithFallback/AvatarWithFallback';
+import styles from './style.module.css'; // для сохранения кастомных стилей (если нужны)
 
 const IusPtUser = observer(() => {
-    const { tabNumber } = useParams();
-    const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const { tabNumber } = useParams();
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-                
-                // Загружаем данные о сотруднике и получаем результат
-                const userData = await iusPtStore.fetchStaffByTabNumber(tabNumber);
-                
-                
-                // Проверяем, что данные получены
-                if (userData && typeof userData === 'object' && !Array.isArray(userData)) {
-                    setUser(userData);
-                } else {
-                    setError('Пользователь не найден');
-                }
-            } catch (error) {
-                console.error('Ошибка при загрузке данных:', error);
-                setError('Ошибка при загрузке данных. Пожалуйста, попробуйте позже.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-    
-        fetchUser();
-    }, [tabNumber]);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const userData = await iusPtStore.fetchStaffByTabNumber(tabNumber);
+        if (
+          userData &&
+          typeof userData === 'object' &&
+          !Array.isArray(userData)
+        ) {
+          setUser(userData);
+        } else {
+          setError('Пользователь не найден');
+        }
+      } catch (err) {
+        console.error('Ошибка при загрузке данных:', err);
+        setError('Ошибка при загрузке данных. Пожалуйста, попробуйте позже.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUser();
+  }, [tabNumber]);
 
-   
-
-    if (error) {
-        return <div className={styles.error}>{error}</div>;
-    }
-
-    if (!user) {
-        return <div>Данные пользователя не загружены</div>;
-    }
-    
+  if (isLoading) {
     return (
-        <>
-            <div style={{display: 'flex'}}>
-                <ButtonAll icon={IoArrowBack} text="Назад" onClick={() => navigate('/iuspt')} />
-                <ButtonAll icon={IoCreateOutline} text="Создать заявку" 
-                    onClick={() => navigate(`/iuspt/user-application/${tabNumber}`)}/>
-            </div>
-
-            <div className={styles.userContainer}>
-                <div>
-                    <Circle fullName={user.fio} employeeId={user.tabNumber} size={80} />
-                </div>
-                <div className={styles.userDetails}>
-                    <p className={styles.fio}>{user.fio}</p>
-                    <p className={styles.name}>{user.IusUser?.name || '-'}</p>
-                    <p className={styles.department}>
-                        {user.department?.length > 13 
-                            ? user.department.slice(13) 
-                            : user.department || '-'}
-                    </p>
-                </div>
-            </div>
-
-            <Tabs defaultActiveKey="home" id="user-tabs" className={styles.customtabs}>
-                <Tab eventKey="home" title="Карточка пользователя">
-                    <UserTable info={user} />
-                </Tab>
-                <Tab eventKey="role" title="Роли">
-                    <UserRoles info={user} />
-                </Tab>
-                <Tab eventKey="contact" title="Добавление ролей">
-                    <UserRolesPage info={user} />
-                </Tab>
-            </Tabs>
-        </>
+      <Spin
+        tip="Загрузка..."
+        style={{ display: 'block', margin: '50px auto' }}
+      />
     );
+  }
+
+  if (error) {
+    return (
+      <Alert
+        message="Ошибка"
+        description={error}
+        type="error"
+        showIcon
+        style={{ margin: 16 }}
+      />
+    );
+  }
+
+  if (!user) {
+    return (
+      <Alert
+        message="Данные пользователя не загружены"
+        type="warning"
+        showIcon
+        style={{ margin: 16 }}
+      />
+    );
+  }
+
+  const getInitials = (fio) => {
+    if (!fio) return '?';
+    const parts = fio.split(' ');
+    return parts
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase();
+  };
+
+  const items = [
+    {
+      key: 'home',
+      label: 'Карточка пользователя',
+      children: <UserTable info={user} />,
+    },
+    {
+      key: 'role',
+      label: 'Роли',
+      children: <UserRoles info={user} />,
+    },
+    {
+      key: 'contact',
+      label: 'Добавление ролей',
+      children: <UserRolesPage info={user} />,
+    },
+  ];
+
+  return (
+    <div style={{ padding: '16px' }}>
+      <Space style={{ marginBottom: 16 }}>
+        <Button type="primary" icon={<ArrowLeftOutlined />} onClick={() => navigate('/iuspt')}>
+          Назад
+        </Button>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => navigate(`/iuspt/user-application/${tabNumber}`)}
+        >
+          Создать заявку
+        </Button>
+      </Space>
+
+      <div
+        className={styles.userContainer}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
+        <div className={styles.itemAvatar}>
+          <AvatarWithFallback
+            tabNumber={user.tabNumber}
+            size={100}
+            className={styles.userAvatar}
+          />
+        </div>
+        <div>
+          <div style={{ fontSize: 24, fontWeight: 500 }}>{user.fio}</div>
+          <div style={{ color: 'gray' }}>{user.IusUser?.name || '-'}</div>
+          <div>
+            {user.department?.length > 13
+              ? user.department.slice(13)
+              : user.department || '-'}
+          </div>
+        </div>
+      </div>
+
+      <Tabs defaultActiveKey="home" items={items} size="large" />
+    </div>
+  );
 });
 
 export default IusPtUser;

@@ -7,7 +7,7 @@ const Vehicle = sequelize.define('vehicles', {
     vehicle_brand: { type: DataTypes.STRING(200), allowNull: false },
     vehicle_type: { type: DataTypes.STRING(100), allowNull: false },
     vehicle_subtype: { type: DataTypes.STRING(100) },
-    driver_full_name: { type: DataTypes.STRING(200), allowNull: false },
+    driver_full_name: { type: DataTypes.STRING},
     state_number: { type: DataTypes.STRING(20), unique: true, allowNull: false },
     repair_type: { type: DataTypes.STRING(100) },
     repair_waiting_time: { type: DataTypes.STRING(100) },
@@ -23,4 +23,4 @@ const Vehicle = sequelize.define('vehicles', {
     updated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 })
 
-module.exports = Vehicle
+module.exports = Vehicle 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Modal,
@@ -36,6 +36,18 @@ const DirectoryEditor = observer(({ visible, onClose }) => {
   const [newVehicleType, setNewVehicleType] = useState(null);
   const [newVehicleSubtype, setNewVehicleSubtype] = useState(null);
 
+  const [editingTimeSlot, setEditingTimeSlot] = useState(null);
+  const [newTimeSlot, setNewTimeSlot] = useState(null);
+  const [timeSlotForm] = Form.useForm();
+
+  // ========== ВОДИТЕЛИ ==========
+  const [editingDriver, setEditingDriver] = useState(null);
+  const [newDriver, setNewDriver] = useState(null);
+  const [driverForm] = Form.useForm();
+  const [isCustomDepartment, setIsCustomDepartment] = useState(false);
+  const [customDepartment, setCustomDepartment] = useState('');
+  const [showInactiveDrivers, setShowInactiveDrivers] = useState(true);
+
   // ========== ОТДЕЛЫ ==========
   const handleAddDepartment = () => {
     // Создаем временную запись для новой службы
@@ -59,27 +71,27 @@ const DirectoryEditor = observer(({ visible, onClose }) => {
 
   const handleSaveDepartment = async () => {
     try {
-        const values = await departmentForm.validateFields()
-        if (editingDepartment) {
-            if (editingDepartment.id.toString().startsWith('new_')) {
-                // Добавление нового отдела
-                await transportStore.createDepartment(values)
-                message.success('Служба добавлена')
-                // Очищаем временную запись
-                setNewDepartment(null)
-            } else {
-                // Обновление существующего
-                await transportStore.updateDepartment(editingDepartment.id, values)
-                message.success('Служба обновлена')
-            }
-            setEditingDepartment(null)
-            departmentForm.resetFields()
+      const values = await departmentForm.validateFields();
+      if (editingDepartment) {
+        if (editingDepartment.id.toString().startsWith('new_')) {
+          // Добавление нового отдела
+          await transportStore.createDepartment(values);
+          message.success('Служба добавлена');
+          // Очищаем временную запись
+          setNewDepartment(null);
+        } else {
+          // Обновление существующего
+          await transportStore.updateDepartment(editingDepartment.id, values);
+          message.success('Служба обновлена');
         }
+        setEditingDepartment(null);
+        departmentForm.resetFields();
+      }
     } catch (error) {
-        console.error('Validation failed:', error)
-        message.error('Ошибка при сохранении')
+      console.error('Validation failed:', error);
+      message.error('Ошибка при сохранении');
     }
-}
+  };
 
   const handleCancelEdit = () => {
     setEditingDepartment(null);
@@ -97,6 +109,88 @@ const DirectoryEditor = observer(({ visible, onClose }) => {
     const data = [...transportStore.departments];
     if (newDepartment) {
       data.unshift(newDepartment); // Добавляем новую запись в начало
+    }
+    return data;
+  };
+
+  // ========== ВРЕМЕННЫЕ СЛОТЫ ==========
+  const handleAddTimeSlot = () => {
+    const tempId = `new_${Date.now()}`;
+    const tempRecord = {
+      id: tempId,
+      slot_key: '',
+      label: '',
+      start_time: '',
+      end_time: '',
+      sort_order: 0,
+    };
+    setNewTimeSlot(tempRecord);
+    setEditingTimeSlot(tempRecord);
+    timeSlotForm.setFieldsValue(tempRecord);
+  };
+
+  const handleEditTimeSlot = (record) => {
+    setEditingTimeSlot(record);
+    timeSlotForm.setFieldsValue({
+      slot_key: record.slot_key,
+      label: record.label,
+      start_time: record.start_time,
+      end_time: record.end_time,
+      sort_order: record.sort_order,
+    });
+  };
+
+  const handleSaveTimeSlot = async () => {
+    try {
+      const values = await timeSlotForm.validateFields();
+      if (editingTimeSlot) {
+        if (editingTimeSlot.id.toString().startsWith('new_')) {
+          // Добавление нового временного слота
+          await transportStore.createTimeSlot(values);
+          message.success('Временной слот добавлен');
+          setNewTimeSlot(null);
+        } else {
+          // Обновление существующего
+          await transportStore.updateTimeSlot(editingTimeSlot.id, values);
+          message.success('Временной слот обновлен');
+        }
+        setEditingTimeSlot(null);
+        timeSlotForm.resetFields();
+      }
+    } catch (error) {
+      console.error('Validation failed:', error);
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Ошибка при сохранении');
+      }
+    }
+  };
+
+  const handleCancelTimeSlotEdit = () => {
+    setEditingTimeSlot(null);
+    setNewTimeSlot(null);
+    timeSlotForm.resetFields();
+  };
+
+  const handleDeleteTimeSlot = async (id) => {
+    try {
+      await transportStore.deleteTimeSlot(id);
+      message.success('Временной слот удален');
+    } catch (error) {
+      console.error('Delete error:', error);
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Ошибка при удалении');
+      }
+    }
+  };
+
+  const getTimeSlotsDataSource = () => {
+    const data = [...transportStore.timeSlots];
+    if (newTimeSlot) {
+      data.unshift(newTimeSlot);
     }
     return data;
   };
@@ -239,24 +333,24 @@ const DirectoryEditor = observer(({ visible, onClose }) => {
 
   const handleSaveVehicleType = async () => {
     try {
-        const values = await vehicleTypeForm.validateFields()
-        if (editingVehicleType) {
-            if (editingVehicleType.id.toString().startsWith('new_')) {
-                await transportStore.createVehicleType(values)
-                message.success('Тип транспорта добавлен')
-                setNewVehicleType(null)
-            } else {
-                await transportStore.updateVehicleType(editingVehicleType.id, values)
-                message.success('Тип транспорта обновлен')
-            }
-            setEditingVehicleType(null)
-            vehicleTypeForm.resetFields()
+      const values = await vehicleTypeForm.validateFields();
+      if (editingVehicleType) {
+        if (editingVehicleType.id.toString().startsWith('new_')) {
+          await transportStore.createVehicleType(values);
+          message.success('Тип транспорта добавлен');
+          setNewVehicleType(null);
+        } else {
+          await transportStore.updateVehicleType(editingVehicleType.id, values);
+          message.success('Тип транспорта обновлен');
         }
+        setEditingVehicleType(null);
+        vehicleTypeForm.resetFields();
+      }
     } catch (error) {
-        console.error('Validation failed:', error)
-        message.error('Ошибка при сохранении')
+      console.error('Validation failed:', error);
+      message.error('Ошибка при сохранении');
     }
-}
+  };
 
   const handleCancelVehicleTypeEdit = () => {
     setEditingVehicleType(null);
@@ -360,6 +454,297 @@ const DirectoryEditor = observer(({ visible, onClose }) => {
     },
   ];
 
+  // ========== ВОДИТЕЛИ ==========
+  const handleAddDriver = () => {
+    const tempId = `new_${Date.now()}`;
+    const tempRecord = {
+      id: tempId,
+      fio: '',
+      post: 'Водитель',
+      department: '',
+      sort_order: 0,
+    };
+    setNewDriver(tempRecord);
+    setEditingDriver(tempRecord);
+    driverForm.setFieldsValue(tempRecord);
+  };
+
+  const handleEditDriver = (record) => {
+    setEditingDriver(record);
+    driverForm.setFieldsValue({
+      fio: record.fio,
+      post: record.post,
+      department: record.department,
+      sort_order: record.sort_order,
+    });
+  };
+
+  const handleSaveDriver = async () => {
+    try {
+      const values = await driverForm.validateFields();
+      if (editingDriver) {
+        if (editingDriver.id.toString().startsWith('new_')) {
+          // Добавление нового водителя
+          await transportStore.createDriver(values);
+          message.success('Водитель добавлен');
+          setNewDriver(null);
+        } else {
+          // Обновление существующего
+          await transportStore.updateDriver(editingDriver.id, values);
+          message.success('Водитель обновлен');
+        }
+        setEditingDriver(null);
+        driverForm.resetFields();
+      }
+    } catch (error) {
+      console.error('Validation failed:', error);
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Ошибка при сохранении');
+      }
+    }
+  };
+
+  const handleCancelDriverEdit = () => {
+    setEditingDriver(null);
+    setNewDriver(null);
+    driverForm.resetFields();
+  };
+
+  const handleDeleteDriver = async (id) => {
+    try {
+      await transportStore.deleteDriver(id);
+      message.success('Водитель удален');
+    } catch (error) {
+      console.error('Delete error:', error);
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Ошибка при удалении');
+      }
+    }
+  };
+
+  const handleToggleDriverStatus = async (record) => {
+    try {
+      const newStatus = !record.is_active;
+      await transportStore.updateDriver(record.id, {
+        ...record,
+        is_active: newStatus,
+      });
+      message.success(
+        `Водитель ${newStatus ? 'активирован' : 'деактивирован'}`
+      );
+    } catch (error) {
+      console.error('Status toggle error:', error);
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Ошибка при изменении статуса');
+      }
+    }
+  };
+
+  const getDriversDataSource = () => {
+    let data = [...transportStore.drivers];
+
+    // Фильтруем по статусу
+    if (!showInactiveDrivers) {
+      data = data.filter((driver) => driver.is_active !== false);
+    }
+
+    if (newDriver) {
+      data.unshift(newDriver);
+    }
+    return data;
+  };
+
+  // Колонки для водителей
+  const driverColumns = [
+    {
+      title: 'ФИО',
+      dataIndex: 'fio',
+      key: 'fio',
+      width: 200,
+      sorter: (a, b) => a.fio?.localeCompare(b.fio),
+      render: (text, record) => {
+        if (editingDriver?.id === record.id) {
+          return (
+            <Form.Item
+              name="fio"
+              rules={[{ required: true, message: 'Введите ФИО' }]}
+              style={{ margin: 0 }}
+            >
+              <Input autoFocus placeholder="Иванов Иван Иванович" />
+            </Form.Item>
+          );
+        }
+        return text || '—';
+      },
+    },
+    {
+      title: 'Должность',
+      dataIndex: 'post',
+      key: 'post',
+      width: 150,
+      render: (text, record) => {
+        if (editingDriver?.id === record.id) {
+          return (
+            <Form.Item
+              name="post"
+              rules={[{ required: true, message: 'Введите должность' }]}
+              style={{ margin: 0 }}
+            >
+              <Input placeholder="Водитель" />
+            </Form.Item>
+          );
+        }
+        return text || '—';
+      },
+    },
+    {
+      title: 'Принадлежность',
+      dataIndex: 'department',
+      key: 'department',
+      width: 200,
+      render: (text, record) => {
+        if (editingDriver?.id === record.id) {
+          return (
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Form.Item
+                name="department"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Выберите или введите принадлежность',
+                  },
+                ]}
+                style={{ margin: 0 }}
+              >
+                <Select
+                  placeholder="Выберите принадлежность"
+                  allowClear
+                  showSearch
+                  onChange={(value) => {
+                    if (value === 'other') {
+                      setIsCustomDepartment(true);
+                    } else {
+                      setIsCustomDepartment(false);
+                      setCustomDepartment('');
+                    }
+                  }}
+                  options={[
+                    { label: 'Вуктыльское ЛПУМГ', value: 'Вуктыльское ЛПУМГ' },
+                    { label: 'УТТиСТ', value: 'УТТиСТ' },
+                    { label: 'УАВР', value: 'УАВР' },
+                    { label: '✏️ Другое (ручной ввод)', value: 'other' },
+                  ]}
+                />
+              </Form.Item>
+              {isCustomDepartment && (
+                <Form.Item
+                  name="customDepartment"
+                  rules={[
+                    { required: true, message: 'Введите принадлежность' },
+                  ]}
+                  style={{ margin: 0 }}
+                >
+                  <Input
+                    placeholder="Введите название подразделения"
+                    onChange={(e) => setCustomDepartment(e.target.value)}
+                    onBlur={() => {
+                      if (customDepartment) {
+                        driverForm.setFieldsValue({
+                          department: customDepartment,
+                        });
+                      }
+                    }}
+                  />
+                </Form.Item>
+              )}
+            </Space>
+          );
+        }
+        return text || '—';
+      },
+    },
+    {
+      title: 'Порядок сортировки',
+      dataIndex: 'sort_order',
+      key: 'sort_order',
+      width: 120,
+      render: (text, record) => {
+        if (editingDriver?.id === record.id) {
+          return (
+            <Form.Item name="sort_order" style={{ margin: 0 }}>
+              <Input type="number" placeholder="0" />
+            </Form.Item>
+          );
+        }
+        return text || 0;
+      },
+    },
+    {
+      title: 'Статус',
+      dataIndex: 'is_active',
+      key: 'is_active',
+      width: 80,
+      render: (is_active) => (
+        <span style={{ color: is_active ? '#52c41a' : '#ff4d4f' }}>
+          {is_active ? 'Активен' : 'Неактивен'}
+        </span>
+      ),
+    },
+    {
+      title: 'Действия',
+      key: 'action',
+      width: 180,
+      fixed: 'right',
+      render: (_, record) => (
+        <Space>
+          {editingDriver?.id === record.id ? (
+            <>
+              <Button
+                type="primary"
+                icon={<SaveOutlined />}
+                size="small"
+                onClick={handleSaveDriver}
+              />
+              <Button
+                icon={<CloseOutlined />}
+                size="small"
+                onClick={handleCancelDriverEdit}
+              />
+            </>
+          ) : (
+            <>
+              <Button
+                icon={<EditOutlined />}
+                size="small"
+                onClick={() => handleEditDriver(record)}
+                disabled={record.id?.toString().startsWith('new_')}
+              />
+              <Button
+                size="small"
+                onClick={() => handleToggleDriverStatus(record)}
+                disabled={record.id?.toString().startsWith('new_')}
+                style={{
+                  backgroundColor: record.is_active ? '#52c41a' : '#ff4d4f',
+                  color: 'white',
+                  border: 'none',
+                }}
+              >
+                {record.is_active ? 'Активен' : 'Неактивен'}
+              </Button>
+              
+            </>
+          )}
+        </Space>
+      ),
+    },
+  ];
+
   // ========== ПОДТИПЫ ТРАНСПОРТА ==========
   const handleAddVehicleSubtype = () => {
     const tempId = `new_${Date.now()}`;
@@ -386,24 +771,27 @@ const DirectoryEditor = observer(({ visible, onClose }) => {
 
   const handleSaveVehicleSubtype = async () => {
     try {
-        const values = await vehicleSubtypeForm.validateFields()
-        if (editingVehicleSubtype) {
-            if (editingVehicleSubtype.id.toString().startsWith('new_')) {
-                await transportStore.createVehicleSubtype(values)
-                message.success('Подтип транспорта добавлен')
-                setNewVehicleSubtype(null)
-            } else {
-                await transportStore.updateVehicleSubtype(editingVehicleSubtype.id, values)
-                message.success('Подтип транспорта обновлен')
-            }
-            setEditingVehicleSubtype(null)
-            vehicleSubtypeForm.resetFields()
+      const values = await vehicleSubtypeForm.validateFields();
+      if (editingVehicleSubtype) {
+        if (editingVehicleSubtype.id.toString().startsWith('new_')) {
+          await transportStore.createVehicleSubtype(values);
+          message.success('Подтип транспорта добавлен');
+          setNewVehicleSubtype(null);
+        } else {
+          await transportStore.updateVehicleSubtype(
+            editingVehicleSubtype.id,
+            values
+          );
+          message.success('Подтип транспорта обновлен');
         }
+        setEditingVehicleSubtype(null);
+        vehicleSubtypeForm.resetFields();
+      }
     } catch (error) {
-        console.error('Validation failed:', error)
-        message.error('Ошибка при сохранении')
+      console.error('Validation failed:', error);
+      message.error('Ошибка при сохранении');
     }
-}
+  };
 
   const handleCancelVehicleSubtypeEdit = () => {
     setEditingVehicleSubtype(null);
@@ -447,10 +835,11 @@ const DirectoryEditor = observer(({ visible, onClose }) => {
             </Form.Item>
           );
         }
+        // Используем vehicle_type_name если есть, иначе ищем в списке типов
         const vehicleType = transportStore.vehicleTypes.find(
-          (t) => t.id === text
+          (t) => t.id === text || t.id === record.vehicle_type_id
         );
-        return vehicleType?.name || '—';
+        return vehicleType?.name || record.vehicle_type_name || '—';
       },
     },
     {
@@ -537,10 +926,151 @@ const DirectoryEditor = observer(({ visible, onClose }) => {
 
   // Данные для временных слотов
   const timeSlotColumns = [
-    { title: 'Ключ', dataIndex: 'slot_key', key: 'slot_key' },
-    { title: 'Интервал', dataIndex: 'label', key: 'label' },
-    { title: 'Начало', dataIndex: 'start_time', key: 'start_time' },
-    { title: 'Конец', dataIndex: 'end_time', key: 'end_time' },
+    {
+      title: 'Ключ',
+      dataIndex: 'slot_key',
+      key: 'slot_key',
+      render: (text, record) => {
+        if (editingTimeSlot?.id === record.id) {
+          return (
+            <Form.Item
+              name="slot_key"
+              rules={[
+                { required: true, message: 'Введите ключ' },
+                {
+                  pattern: /^[A-Z0-9_]+$/,
+                  message: 'Только заглавные буквы, цифры и underscore',
+                },
+              ]}
+              style={{ margin: 0 }}
+            >
+              <Input autoFocus placeholder="Например: MORNING" />
+            </Form.Item>
+          );
+        }
+        return text || '—';
+      },
+    },
+    {
+      title: 'Интервал',
+      dataIndex: 'label',
+      key: 'label',
+      render: (text, record) => {
+        if (editingTimeSlot?.id === record.id) {
+          return (
+            <Form.Item
+              name="label"
+              rules={[
+                { required: true, message: 'Введите название интервала' },
+              ]}
+              style={{ margin: 0 }}
+            >
+              <Input placeholder="Например: Утро (09:00-12:00)" />
+            </Form.Item>
+          );
+        }
+        return text || '—';
+      },
+    },
+    {
+      title: 'Начало',
+      dataIndex: 'start_time',
+      key: 'start_time',
+      render: (text, record) => {
+        if (editingTimeSlot?.id === record.id) {
+          return (
+            <Form.Item
+              name="start_time"
+              rules={[{ required: true, message: 'Введите время начала' }]}
+              style={{ margin: 0 }}
+            >
+              <Input type="time" placeholder="09:00" />
+            </Form.Item>
+          );
+        }
+        return text || '—';
+      },
+    },
+    {
+      title: 'Конец',
+      dataIndex: 'end_time',
+      key: 'end_time',
+      render: (text, record) => {
+        if (editingTimeSlot?.id === record.id) {
+          return (
+            <Form.Item
+              name="end_time"
+              rules={[{ required: true, message: 'Введите время окончания' }]}
+              style={{ margin: 0 }}
+            >
+              <Input type="time" placeholder="12:00" />
+            </Form.Item>
+          );
+        }
+        return text || '—';
+      },
+    },
+    {
+      title: 'Порядок сортировки',
+      dataIndex: 'sort_order',
+      key: 'sort_order',
+      render: (text, record) => {
+        if (editingTimeSlot?.id === record.id) {
+          return (
+            <Form.Item name="sort_order" style={{ margin: 0 }}>
+              <Input type="number" placeholder="0" />
+            </Form.Item>
+          );
+        }
+        return text || 0;
+      },
+    },
+    {
+      title: 'Действия',
+      key: 'action',
+      width: 120,
+      render: (_, record) => (
+        <Space>
+          {editingTimeSlot?.id === record.id ? (
+            <>
+              <Button
+                type="primary"
+                icon={<SaveOutlined />}
+                size="small"
+                onClick={handleSaveTimeSlot}
+              />
+              <Button
+                icon={<CloseOutlined />}
+                size="small"
+                onClick={handleCancelTimeSlotEdit}
+              />
+            </>
+          ) : (
+            <>
+              <Button
+                icon={<EditOutlined />}
+                size="small"
+                onClick={() => handleEditTimeSlot(record)}
+                disabled={record.id?.toString().startsWith('new_')}
+              />
+              <Popconfirm
+                title="Удалить временной слот?"
+                onConfirm={() => handleDeleteTimeSlot(record.id)}
+                okText="Да"
+                cancelText="Нет"
+              >
+                <Button
+                  icon={<DeleteOutlined />}
+                  size="small"
+                  danger
+                  disabled={record.id?.toString().startsWith('new_')}
+                />
+              </Popconfirm>
+            </>
+          )}
+        </Space>
+      ),
+    },
   ];
 
   return (
@@ -614,13 +1144,77 @@ const DirectoryEditor = observer(({ visible, onClose }) => {
         </Tabs.TabPane>
 
         <Tabs.TabPane tab="Временные слоты" key="timeSlots">
-          <Table
-            columns={timeSlotColumns}
-            dataSource={transportStore.timeSlots}
-            rowKey="id"
-            pagination={false}
-            bordered
-          />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleAddTimeSlot}
+            style={{ marginBottom: 16 }}
+          >
+            Добавить временной слот
+          </Button>
+          <Form form={timeSlotForm} component={false}>
+            <Table
+              columns={timeSlotColumns}
+              dataSource={getTimeSlotsDataSource()}
+              rowKey="id"
+              pagination={false}
+              bordered
+            />
+          </Form>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Водители" key="drivers">
+          <div
+            style={{
+              marginBottom: 16,
+              display: 'flex',
+              gap: '8px',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddDriver}
+            >
+              Добавить водителя
+            </Button>
+            <Button
+              onClick={() => setShowInactiveDrivers(!showInactiveDrivers)}
+              style={{
+                backgroundColor: showInactiveDrivers ? '#ff4d4f' : '#52c41a',
+                color: 'white',
+                border: 'none',
+              }}
+            >
+              {showInactiveDrivers
+                ? 'Скрыть неактивных'
+                : 'Показать неактивных'}
+            </Button>
+          </div>
+          <Form form={driverForm} component={false}>
+            <Table
+              columns={driverColumns}
+              dataSource={getDriversDataSource()}
+              rowKey="id"
+              pagination={{ pageSize: 10, showSizeChanger: true }}
+              bordered
+              scroll={{ x: 1000 }}
+              rowClassName={(record) =>
+                record.is_active === false ? 'inactive-row' : ''
+              }
+            />
+          </Form>
+          <style>
+            {`
+      .inactive-row {
+        background-color: #fff1f0;
+        opacity: 0.7;
+      }
+      .inactive-row:hover {
+        background-color: #ffe7e5 !important;
+      }
+    `}
+          </style>
         </Tabs.TabPane>
       </Tabs>
     </Modal>

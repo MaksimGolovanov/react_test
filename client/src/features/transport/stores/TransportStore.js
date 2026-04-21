@@ -40,6 +40,7 @@ class TransportStore {
       this.fetchVehicleTypes(),
       this.fetchVehicleSubtypes(),
       this.fetchTimeSlots(),
+      this.fetchDrivers(),
       this.fetchStatistics(),
     ]);
   });
@@ -140,20 +141,39 @@ class TransportStore {
 
   cancelBooking = action(async (bookingId, cancelledBy) => {
     try {
+      // Отменяем бронирование на сервере
       const cancelled = await TransportService.cancelBooking(
         bookingId,
         cancelledBy
       );
+
+      // Вариант 1: Обновляем конкретное бронирование в массиве
       const index = this.bookings.findIndex((b) => b.id === bookingId);
       if (index !== -1) {
-        this.bookings[index] = cancelled;
+        this.bookings[index] = cancelled; // Статус теперь 'cancelled'
       }
+
+      // Вариант 2: Полностью перезагружаем список бронирований (НАДЕЖНЕЕ)
+      await this.fetchBookings();
+
+      // Вариант 3: Обновляем только активные бронирования
+      // this.bookings = this.bookings.filter(b => b.status === 'active');
+      // await this.fetchBookings();
+
       return cancelled;
     } catch (error) {
       this.error = error;
       console.error('Ошибка при отмене бронирования:', error);
       throw error;
     }
+  });
+
+  refreshData = action(async () => {
+    await Promise.all([
+      this.fetchBookings(),
+      this.fetchVehicles(),
+      this.fetchDepartments(),
+    ]);
   });
 
   deleteBooking = action(async (bookingId) => {
@@ -331,18 +351,6 @@ class TransportStore {
     }
   });
 
-  // ========== ВРЕМЕННЫЕ СЛОТЫ ==========
-
-  fetchTimeSlots = action(async () => {
-    try {
-      const response = await TransportService.fetchTimeSlots();
-      this.timeSlots = response;
-    } catch (error) {
-      this.error = error;
-      console.error('Ошибка при загрузке временных слотов:', error);
-    }
-  });
-
   // ========== СТАТИСТИКА ==========
 
   fetchStatistics = action(async () => {
@@ -373,8 +381,31 @@ class TransportStore {
   };
 
   isTimeSlotAvailable = (vehicleId, date, timeSlotId) => {
-    const vehicleBookings = this.getVehicleBookingsForDate(vehicleId, date);
-    return !vehicleBookings.some((b) => b.time_slot_id === timeSlotId);
+    // Проверяем только активные бронирования
+    const vehicleBookings = this.bookings.filter(
+      (b) =>
+        b.vehicle_id === vehicleId &&
+        b.booking_date === date &&
+        b.status === 'active' // Важно! Только активные
+    );
+
+    const isAvailable = !vehicleBookings.some(
+      (b) => b.time_slot_id === timeSlotId
+    );
+
+    console.log('Check availability:', {
+      vehicleId,
+      date,
+      timeSlotId,
+      vehicleBookings: vehicleBookings.map((b) => ({
+        id: b.id,
+        time_slot_id: b.time_slot_id,
+        status: b.status,
+      })),
+      isAvailable,
+    });
+
+    return isAvailable;
   };
 
   get uniqueVehicleTypes() {
@@ -393,6 +424,129 @@ class TransportStore {
     const booked = this.bookings.filter((b) => b.status === 'active').length;
     return { total, available, unavailable, booked };
   }
+  // ========== ВРЕМЕННЫЕ СЛОТЫ ==========
+  fetchTimeSlots = action(async () => {
+    try {
+      const response = await TransportService.fetchTimeSlots();
+      this.timeSlots = response;
+    } catch (error) {
+      this.error = error;
+      console.error('Ошибка при загрузке временных слотов:', error);
+    }
+  });
+
+  createTimeSlot = action(async (timeSlotData) => {
+    try {
+      const newTimeSlot = await TransportService.createTimeSlot(timeSlotData);
+      this.timeSlots.push(newTimeSlot);
+      return newTimeSlot;
+    } catch (error) {
+      this.error = error;
+      console.error('Ошибка при создании временного слота:', error);
+      throw error;
+    }
+  });
+
+  updateTimeSlot = action(async (id, updatedData) => {
+    try {
+      const updated = await TransportService.updateTimeSlot(id, updatedData);
+      const index = this.timeSlots.findIndex((t) => t.id === id);
+      if (index !== -1) {
+        this.timeSlots[index] = updated;
+      }
+      return updated;
+    } catch (error) {
+      this.error = error;
+      console.error('Ошибка при обновлении временного слота:', error);
+      throw error;
+    }
+  });
+
+  deleteTimeSlot = action(async (id) => {
+    try {
+      await TransportService.deleteTimeSlot(id);
+      this.timeSlots = this.timeSlots.filter((t) => t.id !== id);
+      return true;
+    } catch (error) {
+      this.error = error;
+      console.error('Ошибка при удалении временного слота:', error);
+      throw error;
+    }
+  });
+
+  // ========== ВОДИТЕЛИ ==========
+
+  drivers = [];
+  driversLoading = true;
+
+  fetchDrivers = action(async () => {
+    try {
+      this.driversLoading = true;
+      const response = await TransportService.fetchDrivers();
+      this.drivers = response;
+      this.error = null;
+      return response; // Добавьте возврат данных
+    } catch (error) {
+      this.error = error;
+      console.error('Ошибка при загрузке водителей:', error);
+      throw error;
+    } finally {
+      this.driversLoading = false;
+    }
+  });
+
+  createDriver = action(async (driverData) => {
+    try {
+      const newDriver = await TransportService.createDriver(driverData);
+      this.drivers.push(newDriver);
+      return newDriver;
+    } catch (error) {
+      this.error = error;
+      console.error('Ошибка при создании водителя:', error);
+      throw error;
+    }
+  });
+
+  updateDriver = action(async (id, updatedData) => {
+    try {
+      const updated = await TransportService.updateDriver(id, updatedData);
+      const index = this.drivers.findIndex((d) => d.id === id);
+      if (index !== -1) {
+        this.drivers[index] = updated;
+      }
+      // Также обновляем водителя в списке автомобилей, если он там есть
+      this.vehicles.forEach((vehicle) => {
+        if (vehicle.driver_id === id) {
+          vehicle.driver_full_name = updated.fio;
+        }
+      });
+      return updated;
+    } catch (error) {
+      this.error = error;
+      console.error('Ошибка при обновлении водителя:', error);
+      throw error;
+    }
+  });
+
+  deleteDriver = action(async (id) => {
+    try {
+      await TransportService.deleteDriver(id);
+      this.drivers = this.drivers.filter((d) => d.id !== id);
+      return true;
+    } catch (error) {
+      this.error = error;
+      console.error('Ошибка при удалении водителя:', error);
+      throw error;
+    }
+  });
+
+  getDriverById = (id) => {
+    return this.drivers.find((d) => d.id === id);
+  };
+
+  getDriversByDepartment = (department) => {
+    return this.drivers.filter((d) => d.department === department);
+  };
 }
 
 const transportStore = new TransportStore();

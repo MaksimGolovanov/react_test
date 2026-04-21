@@ -1,5 +1,7 @@
 import axios from 'axios';
-const API_URL = process.env.REACT_APP_API_URL;
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/';
+
 class NoteService {
   static async fetchPosts() {
     try {
@@ -12,49 +14,42 @@ class NoteService {
   }
 
   static async fetchPost(id) {
-    
     try {
-      const response = await axios.get(`${API_URL}api/notes/${id}`)
-     
-      return response.data
+      const response = await axios.get(`${API_URL}api/notes/${id}`);
+      return response.data;
     } catch (error) {
       throw error;
     }
   }
 
-
-
   static async updatePost(id, updatedPost) {
     try {
-      await axios.put(`${API_URL}api/notes/${id}`, updatedPost);
-      
+      const response = await axios.put(`${API_URL}api/notes/${id}`, updatedPost);
+      return response.data;
     } catch (error) {
       console.error("Ошибка при изменении данных:", error);
       throw error;
     }
   }
 
-
   static async createPost(post) {
     try {
-      await axios.post(`${API_URL}api/notes`, post);
+      const response = await axios.post(`${API_URL}api/notes`, post);
+      return response.data;
     } catch (error) {
-      console.error("Ошибка при создании пользователя:", error);
+      console.error("Ошибка при создании заметки:", error);
       throw error;
     }
   }
+
   static async deletePost(id) {
     try {
       await axios.delete(`${API_URL}api/notes/${id}`);
     } catch (error) {
-      console.error("Ошибка при удалении пользователя:", error);
+      console.error("Ошибка при удалении заметки:", error);
       throw error;
     }
   }
-
-
-
-
 }
 
 export default NoteService;

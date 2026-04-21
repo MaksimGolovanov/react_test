@@ -1,124 +1,162 @@
-// Импортируем необходимые модули
 import React, { useEffect, useState } from 'react';
 import { Editor } from 'react-draft-wysiwyg';
-import { EditorState,  convertFromRaw, convertToRaw   } from 'draft-js';
-
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import { Button, Form, FormControl, Spinner } from 'react-bootstrap';
-import './Notes.css'
+import { Button, Form, Input, message, Spin, Card, Space } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
+import { useParams, useNavigate } from 'react-router-dom';
 import NoteService from '../services/NoteService';
-import { useParams, useNavigate } from 'react-router-dom'; 
+import './Notes.css';
 
 export default function NotesEdit() {
-    // Используем useParams для получения параметра id из URL
-    const { id } = useParams();
-    const navigate = useNavigate(); 
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+  const [title, setTitle] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [form] = Form.useForm();
 
-    // Сохраняем состояние редактора и заголовок
-    const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
-    const [title, setTitle] = useState('');
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
-
-    // Загружаем запись при монтировании компонента
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const response = await NoteService.fetchPost(id);
-                
-                setTitle(response.title);
-                const contentState = convertFromRaw(JSON.parse(response.body));
-                setEditorState(EditorState.createWithContent(contentState));
-            } catch (err) {
-                if (err instanceof Error) {
-                    if (err.message.includes('Network')) {
-                        setError('Ошибка сети. Попробуйте позже.');
-                    } else {
-                        setError(err.message);
-                    }
-                } else {
-                    setError('Неизвестная ошибка. Пожалуйста, попробуйте снова.');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setInitialLoading(true);
+        const response = await NoteService.fetchPost(id);
         
-        fetchData();
-    }, [id]);
-
-    // Получаем содержимое редактора в формате JSON
-    const getContentAsString = () => {
+        setTitle(response.title);
+        form.setFieldsValue({ title: response.title });
+        
+        let contentState;
         try {
-            const contentState = editorState.getCurrentContent();
-            const rawContent = convertToRaw(contentState);
-            return JSON.stringify(rawContent); // Преобразуем JSON в строку
-        } catch (error) {
-            console.error('Error converting content:', error);
-            return '';
-        }
-    };
-
-    // Обработчик изменения состояния редактора
-    const onEditorStateChange = (newState) => {
-        setEditorState(newState);
-    };
-
-    // Отправка формы
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-    
-        try {
-            setLoading(true);
-            const content = getContentAsString(); // Получаем содержимое в формате строки
-    
-            if (content !== '') {
-                await NoteService.updatePost(id, { title, body: content });
-                console.log(`Обновлено: ${title}`);
-                console.log(`Содержание:`, content);
-                navigate('/notes'); // Перенаправляем на список заметок
+          if (response.body && typeof response.body === 'string' && response.body.trim() !== '') {
+            const parsedBody = JSON.parse(response.body);
+            if (parsedBody && parsedBody.blocks && Array.isArray(parsedBody.blocks)) {
+              contentState = convertFromRaw(parsedBody);
             } else {
-                throw new Error('Пожалуйста, заполните содержание.');
+              contentState = convertFromRaw({ blocks: [], entityMap: {} });
             }
-        } catch (err) {
-            if (err instanceof Error) {
-                if (err.message.includes('Network')) {
-                    setError('Ошибка сети. Попробуйте позже.');
-                } else {
-                    setError(err.message);
-                }
-            } else {
-                setError('Неизвестная ошибка. Пожалуйста, попробуйте снова.');
-            }
-        } finally {
-            setLoading(false);
+          } else {
+            contentState = convertFromRaw({ blocks: [], entityMap: {} });
+          }
+        } catch (parseError) {
+          console.error('Error parsing content:', parseError);
+          contentState = convertFromRaw({ blocks: [], entityMap: {} });
         }
+        
+        setEditorState(EditorState.createWithContent(contentState));
+      } catch (err) {
+        console.error('Error fetching post:', err);
+        message.error(err.message || 'Ошибка при загрузке заметки');
+        navigate('/notes');
+      } finally {
+        setInitialLoading(false);
+      }
     };
+    
+    fetchData();
+  }, [id, navigate, form]);
 
-    return (
-        <div>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {loading ? <Spinner animation="border" /> : null}
-            <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="postTitle" className='mb-3'>
-                    <Form.Label>Название поста</Form.Label>
-                    <FormControl
-                        type="text"
-                        placeholder="Введите название поста"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                    />
-                </Form.Group>
-                <Editor
-                    editorState={editorState}
-                    wrapperClassName="rich-text-editor"
-                    editorClassName="rich-text-editor__content"
-                    toolbarClassName="rich-text-editor__toolbar"
-                    onEditorStateChange={onEditorStateChange}
-                />
-                <Button type="submit">Сохранить изменения</Button>
-            </Form>
-        </div>
-    );
-};
+  const getContentAsString = () => {
+    try {
+      const contentState = editorState.getCurrentContent();
+      const rawContent = convertToRaw(contentState);
+      if (!rawContent || !rawContent.blocks || rawContent.blocks.length === 0) {
+        return JSON.stringify({ blocks: [], entityMap: {} });
+      }
+      return JSON.stringify(rawContent);
+    } catch (error) {
+      console.error('Error converting content:', error);
+      return JSON.stringify({ blocks: [], entityMap: {} });
+    }
+  };
+
+  const onEditorStateChange = (newState) => {
+    setEditorState(newState);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+
+      if (!title.trim()) {
+        message.error('Пожалуйста, введите заголовок');
+        return;
+      }
+
+      const content = getContentAsString();
+      
+      await NoteService.updatePost(id, { title, body: content });
+      message.success('Заметка успешно обновлена');
+      navigate('/notes');
+    } catch (err) {
+      console.error('Error updating post:', err);
+      message.error(err.message || 'Ошибка при обновлении заметки');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ padding: '24px' }}>
+      <Spin spinning={initialLoading}>
+        <Card 
+          title="Редактирование заметки"
+          extra={
+            <Space>
+              <Button onClick={() => navigate('/notes')}>
+                Отмена
+              </Button>
+              <Button 
+                type="primary" 
+                onClick={handleSubmit}
+                loading={loading}
+                icon={<SaveOutlined />}
+              >
+                Сохранить изменения
+              </Button>
+            </Space>
+          }
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item 
+              label="Название поста" 
+              required
+              rules={[{ required: true, message: 'Введите название поста' }]}
+            >
+              <Input
+                placeholder="Введите название поста"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                size="large"
+              />
+            </Form.Item>
+
+            <Form.Item label="Содержание">
+              <Editor
+                editorState={editorState}
+                wrapperClassName="rich-text-editor"
+                editorClassName="rich-text-editor__content"
+                toolbarClassName="rich-text-editor__toolbar"
+                onEditorStateChange={onEditorStateChange}
+                toolbar={{
+                  options: ['inline', 'blockType', 'fontSize', 'list', 'textAlign', 'colorPicker', 'link', 'embedded', 'emoji', 'image'],
+                  inline: { inDropdown: true },
+                  list: { inDropdown: true },
+                  textAlign: { inDropdown: true },
+                  link: { inDropdown: true },
+                  history: { inDropdown: true },
+                  image: { uploadCallback: (file) => new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve({ data: { link: reader.result } });
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                  })},
+                }}
+              />
+            </Form.Item>
+          </Form>
+        </Card>
+      </Spin>
+    </div>
+  );
+}

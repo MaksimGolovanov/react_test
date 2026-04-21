@@ -1,18 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Table, Button } from 'antd';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import PrintsService from '../services/PrintsService';
-import {  Table } from 'react-bootstrap';
-
-import { MdDeleteForever } from "react-icons/md";
-import Button from 'react-bootstrap/Button';
-import { IoIosCreate } from "react-icons/io";
 import PrintEditLocationModal from './PrinteEditLocationModal';
 
 const PrintLocation = () => {
     const [locations, setLocations] = useState([]);
     const [modalIsOpen, setModalIsOpen] = useState(false);
-    
 
-    // Используем useCallback для создания функции открытия модального окна
     const openModal = useCallback(() => {
         if (!modalIsOpen) {
             setModalIsOpen(true);
@@ -51,41 +46,67 @@ const PrintLocation = () => {
         fetchData();
     }, [fetchData]);
 
+    const columns = [
+        {
+            title: 'Расположение',
+            dataIndex: 'location',
+            key: 'location',
+            render: (text) => <span style={{ fontSize: '13px' }}>{text}</span>,
+        },
+        {
+            title: '',
+            key: 'action',
+            width: 40,
+            render: (_, record) => (
+                <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => deleteLocation(record.id)}
+                    style={{ padding: 0, fontSize: '14px' }}
+                    size="small"
+                />
+            ),
+        },
+    ];
+
     return (
         <div>
-            <Button
-                className='button-next float-end ms-auto mb-1'
-                onClick={handleCreateClick}>
-                <IoIosCreate
-                    className={'icon-staff'}
-                    size={20}
-                    style={{ marginRight: '8px' }}
-                />
-                Создать
-            </Button>
-            <Table style={{ width: '300px' }} striped bordered hover className='table-prints'>
-                <thead className="fixed-header">
-                    <tr>
-                        
-                        <th>Расположение</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {locations.map((location) => (
-                        <tr key={location.id}>
-                            
-                            <td>{location.location}</td>
-                            <td style={{ width: '30px' }}>
-                               
-                                <button className="delete-button" onClick={() => deleteLocation(location.id)}>
-                                    <MdDeleteForever size={18} />
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+            <div style={{ marginBottom: 12, textAlign: 'left' }}>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={handleCreateClick}
+                    size="small"
+                >
+                    Создать
+                </Button>
+            </div>
+
+            <Table
+                columns={columns}
+                dataSource={locations}
+                rowKey="id"
+                bordered
+                size="small"
+                style={{ width: '300px' }}
+                pagination={false}
+                className="compact-table"
+            />
+            <style jsx>{`
+                .compact-table .ant-table-cell {
+                    padding: 4px 8px !important;
+                    font-size: 13px;
+                }
+                .compact-table .ant-table-thead > tr > th {
+                    padding: 6px 8px !important;
+                    font-size: 13px;
+                }
+                .compact-table .ant-table-tbody > tr > td {
+                    padding: 4px 8px !important;
+                }
+            `}</style>
+
             <PrintEditLocationModal
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}

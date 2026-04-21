@@ -1,94 +1,154 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Table } from 'react-bootstrap';
+import { Table, Button, Image, Modal, Space } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import PrintsService from '../services/PrintsService';
-import { RiFileEditLine } from "react-icons/ri";
-import { MdDeleteForever } from "react-icons/md";
-import Button from 'react-bootstrap/Button';
-import { IoIosCreate } from "react-icons/io";
-import PrintModelCreateModal from './PrintModelCreateModal'
+import PrintModelCreateModal from './PrintModelCreateModal';
 
 function PrintModel() {
     const [printsModels, setPrintsModels] = useState([]);
-    const [modalIsOpen, setModalIsOpen] = useState(false); // Состояние для открытия/закрытия модального окна
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
+    const openModal = () => setModalIsOpen(true);
+    const closeModal = () => setModalIsOpen(false);
 
-    const openModal = () => {
-        setModalIsOpen(true);
-    };
-
-    const closeModal = () => {
-        setModalIsOpen(false);
-    };
-
-    const handleCreateClick = () => {
-        openModal(); // Открываем модальное окно
-    };
+    const handleCreateClick = () => openModal();
 
     const fetchData = async () => {
+        setLoading(true);
         try {
-            const response = await PrintsService.fetchPrintModel(); // Добавлены скобки для вызова функции
+            const response = await PrintsService.fetchPrintModel();
             if (!Array.isArray(response)) throw new Error('Ответ сервера не является массивом');
-
             setPrintsModels(response);
         } catch (error) {
             console.error(error);
+            alert('Ошибка загрузки данных');
+        } finally {
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         fetchData();
-    }, []); // Если fetchData зависит от других состояний, добавьте их сюда
+    }, []);
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Вы уверены, что хотите удалить эту модель?')) {
-            try {
-                await PrintsService.deletePrintModel(id);
-                fetchData(); // Обновляем список после удаления
-            } catch (error) {
-                alert('Ошибка при удалении модели принтера');
-            }
-        }
+    const handleDelete = (id) => {
+        Modal.confirm({
+            title: 'Подтверждение удаления',
+            content: 'Вы уверены, что хотите удалить эту модель?',
+            okText: 'Да',
+            cancelText: 'Нет',
+            onOk: async () => {
+                try {
+                    await PrintsService.deletePrintModel(id);
+                    fetchData();
+                } catch (error) {
+                    alert('Ошибка при удалении модели принтера');
+                }
+            },
+        });
     };
+
+    const columns = [
+        {
+            title: 'Модель принтера',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'Тип картриджа',
+            dataIndex: 'cartridge',
+            key: 'cartridge',
+        },
+        {
+            title: 'Формат печати максимальный',
+            dataIndex: 'paper_size',
+            key: 'paper_size',
+        },
+        {
+            title: 'Сканирование цв/чб',
+            dataIndex: 'scanner',
+            key: 'scanner',
+        },
+        {
+            title: 'Внешний вид',
+            key: 'img1',
+            render: (_, record) => (
+                <Image
+                    width={100}
+                    height={100}
+                    src={`${process.env.REACT_APP_API_URL}static/${record.img1}`}
+                    preview={{ mask: false }}
+                />
+            ),
+        },
+        {
+            title: 'Вид тонера/картриджа',
+            key: 'img2',
+            render: (_, record) => (
+                <Image
+                    width={151}
+                    height={100}
+                    src={`${process.env.REACT_APP_API_URL}static/${record.img2}`}
+                    preview={{ mask: false }}
+                />
+            ),
+        },
+        {
+            title: 'Вид блока',
+            key: 'img3',
+            render: (_, record) => (
+                <Image
+                    width={151}
+                    height={100}
+                    src={`${process.env.REACT_APP_API_URL}static/${record.img3}`}
+                    preview={{ mask: false }}
+                />
+            ),
+        },
+        {
+            title: 'Действие',
+            key: 'action',
+            render: (_, record) => (
+                <Space>
+                    <Button
+                        type="text"
+                        icon={<EditOutlined />}
+                        onClick={() => {/* добавить логику редактирования */}}
+                    />
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDelete(record.id)}
+                    />
+                </Space>
+            ),
+        },
+    ];
 
     return (
         <>
-            <div style={{ maxHeight: '760px', overflowY: 'auto' }}>
-                <Button className='button-next float-end ms-auto mb-1' onClick={() => handleCreateClick()} ><IoIosCreate className={'icon-staff'} size={20} style={{ marginRight: '8px' }} />Создать</Button>
-
-                <Table striped bordered hover className='text-center' >
-                    <thead>
-                        <tr>
-                            <th>Модель принтера</th>
-                            <th>Тип картриджа</th>
-                            <th>Формат печати максимальный</th>
-                            <th>Сканирование цв/чб</th>
-                            <th>Внешний вид</th>
-                            <th>Вид тонера/картриджа</th>
-                            <th>Вид блока</th>
-                            <th>Действие</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            printsModels.map((printModel) => (
-                                <tr key={printModel.id} >
-                                    <td>{printModel.name}</td>
-                                    <td>{printModel.cartridge}</td>
-                                    <td>{printModel.paper_size}</td>
-                                    <td>{printModel.scanner}</td>
-                                    <td ><Image width={100} height={100} src={`${process.env.REACT_APP_API_URL}static/${printModel.img1}`}></Image></td>
-                                    <td><Image width={151} height={100} src={`${process.env.REACT_APP_API_URL}static/${printModel.img2}`}></Image></td>
-                                    <td><Image width={151} height={100} src={`${process.env.REACT_APP_API_URL}static/${printModel.img3}`}></Image></td>
-                                    <td>
-                                        <button className="edit-button"><RiFileEditLine size={20} /></button>
-                                        <button className="delete-button" onClick={() => handleDelete(printModel.id)} ><MdDeleteForever size={24} style={{ marginLeft: '8px' }} /></button>
-                                    </td>
-                                </tr>
-                            ))
-                        }
-                    </tbody>
-                </Table>
+            <div style={{ marginBottom: 16, textAlign: 'left' }}>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={handleCreateClick}
+                >
+                    Создать
+                </Button>
             </div>
+
+            <Table
+                columns={columns}
+                dataSource={printsModels}
+                rowKey="id"
+                loading={loading}
+                bordered
+                scroll={{ y: 760 }}
+                pagination={false}
+            />
+
             <PrintModelCreateModal
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}

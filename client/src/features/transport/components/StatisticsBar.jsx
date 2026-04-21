@@ -1,9 +1,19 @@
 import React from 'react'
 import { Space, Divider } from 'antd'
 
-const StatisticsBar = ({ statistics }) => {
+
+const StatisticsBar = ({ statistics, selectedDate }) => {
     return (
         <Space size="middle" wrap>
+            <div>
+                <span style={{ fontSize: '12px', color: '#8c8c8c', marginRight: 8 }}>
+                    Дата:
+                </span>
+                <span style={{ fontSize: '14px', fontWeight: 500 }}>
+                    {selectedDate?.format('DD.MM.YYYY')}
+                </span>
+            </div>
+            <Divider type="vertical" style={{ height: 24, margin: 0 }} />
             <div>
                 <span style={{ fontSize: '12px', color: '#8c8c8c', marginRight: 8 }}>
                     Всего:

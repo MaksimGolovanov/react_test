@@ -14,4 +14,7 @@ const VehicleType = sequelize.define('vehicle_types', {
     createdAt: 'created_at'
 })
 
+// ⚠️ УДАЛИТЕ эти строки (перенесите в associations.js):
+// VehicleType.hasMany(VehicleSubtype, { foreignKey: 'vehicle_type_id', as: 'subtypes' })
+
 module.exports = VehicleType

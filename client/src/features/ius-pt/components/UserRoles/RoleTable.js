@@ -20,7 +20,7 @@ const RoleTable = observer(({ info }) => {
 
      useEffect(() => {
           fetchUserRoles(info.tabNumber)
-     }, [fetchUserRoles, info.tabNumber])
+     }, [fetchUserRoles, info.tabNumber]) 
 
      const toggleGroup = useCallback((key) => {
           setExpandedGroups((prev) => ({

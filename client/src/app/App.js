@@ -212,14 +212,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route
-              path="/knowledge/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'NOTES']}>
-                  <KnowledgeRoutes />
-                </PrivateRoute>
-              }
-            />
+            
             <Route
               path="/transport/*"
               element={

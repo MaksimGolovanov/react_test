@@ -37,6 +37,16 @@ router.delete('/vehicle-subtypes/:id', transportController.deleteVehicleSubtype)
 
 // ========== ВРЕМЕННЫЕ СЛОТЫ ==========
 router.get('/time-slots', transportController.getAllTimeSlots)
+router.post('/time-slots', transportController.createTimeSlot)  
+router.put('/time-slots/:id', transportController.updateTimeSlot) 
+router.delete('/time-slots/:id', transportController.deleteTimeSlot) 
+
+// ========== ВОДИТЕЛИ ==========
+router.get('/drivers', transportController.getAllDrivers)
+router.get('/drivers/:id', transportController.getDriverById)
+router.post('/drivers', transportController.createDriver)
+router.put('/drivers/:id', transportController.updateDriver)
+router.delete('/drivers/:id', transportController.deleteDriver)
 
 // ========== СТАТИСТИКА ==========
 router.get('/statistics', transportController.getStatistics)
