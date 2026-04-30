@@ -1,50 +1,48 @@
-import React, { useState, useMemo,  } from 'react';
+import React, { useState, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Alert, Spin, Card, Layout, Tabs,  } from 'antd';
-import {
-  LoadingOutlined,
-
-} from '@ant-design/icons';
-import KnowledgeStore from '../store/MockKnowledgeStore';
+import { useNavigate } from 'react-router-dom';
+import { Alert, Spin, Layout } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+import KnowledgeStore from '../store/KnowledgeStore';
 import styles from './KnowledgeBase.module.css';
 
 import KnowledgeHeader from '../ui/KnowledgeHeader/KnowledgeHeader';
 import KnowledgeTable from '../ui/KnowledgeTable/KnowledgeTable';
-import KnowledgeModal from '../ui/KnowledgeModal/KnowledgeModal';
-import KnowledgeViewer from '../ui/KnowledgeViewer/KnowledgeViewer';
 import KnowledgeCategoryTree from '../ui/KnowledgeCategoryTree/KnowledgeCategoryTree';
 
 const { Content, Sider } = Layout;
 
 const KnowledgeBase = observer(() => {
+  const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({
     key: 'created_at',
     direction: 'descending',
   });
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isViewerVisible, setIsViewerVisible] = useState(false);
-  const [currentArticle, setCurrentArticle] = useState(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [activeTab, setActiveTab] = useState('all');
-  const [currentArticleIndex, setCurrentArticleIndex] = useState(0);
+  const [selectedTag, setSelectedTag] = useState(null);
 
-  // Фильтрация статей
+  // Список всех уникальных тегов из статей
+  const allTags = useMemo(() => {
+    if (!KnowledgeStore.articles) return [];
+    const tagsSet = new Set();
+    KnowledgeStore.articles.forEach((article) => {
+      article.tags?.forEach((tag) => tagsSet.add(tag));
+    });
+    return Array.from(tagsSet).sort();
+  }, [KnowledgeStore.articles]);
+
   const filteredArticles = useMemo(() => {
     if (!KnowledgeStore.articles) return [];
-
     let filtered = KnowledgeStore.articles;
-
-    // Фильтр по категории
     if (selectedCategory) {
       filtered = filtered.filter(
         (article) => article.category_id === selectedCategory
       );
     }
-
-    // Фильтр по поисковому запросу
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -57,69 +55,37 @@ const KnowledgeBase = observer(() => {
             article.tags.some((tag) => tag.toLowerCase().includes(term)))
       );
     }
-
-    // Фильтр по табу
-    switch (activeTab) {
-      case 'draft':
-        filtered = filtered.filter((article) => article.status === 'draft');
-        break;
-      case 'published':
-        filtered = filtered.filter((article) => article.status === 'published');
-        break;
-      case 'archived':
-        filtered = filtered.filter((article) => article.status === 'archived');
-        break;
-      case 'featured':
-        filtered = filtered.filter((article) => article.featured);
-        break;
+    if (selectedTag) {
+      filtered = filtered.filter((article) =>
+        article.tags?.includes(selectedTag)
+      );
     }
-
     return filtered;
-  }, [searchTerm, KnowledgeStore.articles, selectedCategory, activeTab]);
+  }, [searchTerm, KnowledgeStore.articles, selectedCategory, selectedTag]);
 
-  // Сортировка статей
   const sortedArticles = useMemo(() => {
     if (!filteredArticles) return [];
-
     let sortableItems = [...filteredArticles];
-
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
-
-        // Для дат
-        if (sortConfig.key.includes('_at') || sortConfig.key === 'updated_at') {
+        if (sortConfig.key.includes('_at')) {
           aValue = new Date(aValue || 0);
           bValue = new Date(bValue || 0);
         }
-
-        // Для числовых значений
-        if (sortConfig.key === 'views' || sortConfig.key === 'rating') {
-          aValue = aValue || 0;
-          bValue = bValue || 0;
-        }
-
-        if (aValue < bValue) {
+        if (aValue < bValue)
           return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (aValue > bValue) {
+        if (aValue > bValue)
           return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
         return 0;
       });
     }
-
     return sortableItems;
   }, [filteredArticles, sortConfig]);
 
   const handleRowClick = (article) => {
-    setCurrentArticle(article);
-    setIsViewerVisible(true);
-
-    // Находим индекс статьи в отсортированном списке
-    const index = sortedArticles.findIndex((a) => a.id === article.id);
-    setCurrentArticleIndex(index);
+    navigate(`/knowledge/article/${article.id}`);
   };
 
   const requestSort = (key) => {
@@ -130,55 +96,11 @@ const KnowledgeBase = observer(() => {
     setSortConfig({ key, direction });
   };
 
-  const handleAddNew = () => {
-    setCurrentArticle(null);
-    setIsModalVisible(true);
-  };
-
-  const handleEdit = (article) => {
-    setCurrentArticle(article);
-    setIsModalVisible(true);
-  };
-
-  const handleViewerClose = () => {
-    setIsViewerVisible(false);
-    setCurrentArticle(null);
-  };
-  const handleNextArticle = () => {
-    if (currentArticleIndex < sortedArticles.length - 1) {
-      const nextArticle = sortedArticles[currentArticleIndex + 1];
-      setCurrentArticle(nextArticle);
-      setCurrentArticleIndex(currentArticleIndex + 1);
-    }
-  };
-
-  const handlePreviousArticle = () => {
-    if (currentArticleIndex > 0) {
-      const prevArticle = sortedArticles[currentArticleIndex - 1];
-      setCurrentArticle(prevArticle);
-      setCurrentArticleIndex(currentArticleIndex - 1);
-    }
-  };
-
-  const handleEditFromViewer = (article) => {
-    setIsViewerVisible(false);
-    setCurrentArticle(article);
-    setIsModalVisible(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-    setCurrentArticle(null);
-  };
+  const handleAddNew = () => navigate('/knowledge/new');
+  const handleEdit = (article) => navigate(`/knowledge/edit/${article.id}`);
 
   const handleCategorySelect = (categoryId) => {
     setSelectedCategory(categoryId);
-    setSelectedRowKeys([]);
-    setSelectedRow(null);
-  };
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
     setSelectedRowKeys([]);
     setSelectedRow(null);
   };
@@ -201,9 +123,8 @@ const KnowledgeBase = observer(() => {
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
           justifyContent: 'center',
+          alignItems: 'center',
           height: '200px',
         }}
       >
@@ -229,20 +150,10 @@ const KnowledgeBase = observer(() => {
             setSelectedRowKeys([]);
             setSelectedRow(null);
           }}
+          selectedTag={selectedTag}
+          onTagChange={setSelectedTag}
+          allTags={allTags}
         />
-
-        
-
-        {/* Табы */}
-        <Card className={styles.tabsCard}>
-          <Tabs activeKey={activeTab} onChange={handleTabChange}>
-            <Tabs.TabPane tab="Все статьи" key="all" />
-            <Tabs.TabPane tab="Избранные" key="published" />
-
-          </Tabs>
-        </Card>
-
-        {/* Основной контент */}
         <Layout className={styles.contentLayout}>
           <Sider width={250} className={styles.sider}>
             <KnowledgeCategoryTree
@@ -251,9 +162,8 @@ const KnowledgeBase = observer(() => {
               onSelect={handleCategorySelect}
             />
           </Sider>
-
           <Content className={styles.tableContent}>
-            <Card className={styles.tableCard}>
+            <div className={styles.tableCard}>
               <div className={styles.articleListScroll}>
                 <KnowledgeTable
                   data={sortedArticles}
@@ -268,32 +178,10 @@ const KnowledgeBase = observer(() => {
                   loading={KnowledgeStore.isLoading}
                 />
               </div>
-            </Card>
+            </div>
           </Content>
         </Layout>
       </Content>
-
-      <KnowledgeModal
-        visible={isModalVisible}
-        currentArticle={currentArticle}
-        categories={KnowledgeStore.categories || []}
-        onCancel={handleModalClose}
-        onSuccess={() => {
-          handleModalClose();
-          setSelectedRowKeys([]);
-          setSelectedRow(null);
-        }}
-      />
-      <KnowledgeViewer
-        article={currentArticle}
-        visible={isViewerVisible}
-        onClose={handleViewerClose}
-        onEdit={handleEditFromViewer}
-        onPrevious={handlePreviousArticle}
-        onNext={handleNextArticle}
-        hasPrevious={currentArticleIndex > 0}
-        hasNext={currentArticleIndex < sortedArticles.length - 1}
-      />
     </Layout>
   );
 });

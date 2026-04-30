@@ -52,4 +52,17 @@ router.delete('/drivers/:id', transportController.deleteDriver)
 router.get('/statistics', transportController.getStatistics)
 router.get('/statistics/date/:date', transportController.getStatisticsByDate)
 
+// Заявки
+router.get('/requests', transportController.getAllRequests);
+router.get('/requests/:id', transportController.getRequestById);
+router.post('/requests', transportController.createRequest);
+router.put('/requests/:id', transportController.updateRequest);
+router.put('/requests/:id/assign', transportController.assignVehicleAndDriver);
+router.put('/requests/:id/confirm', transportController.confirmRequest);
+router.put('/requests/:id/cancel', transportController.cancelRequest);
+router.put('/requests/:id/reschedule', transportController.rescheduleRequest);
+router.delete('/requests/:id', transportController.deleteRequest);
+router.put('/requests/:requestId/update-booking', transportController.updateBooking);
+
+
 module.exports = router

@@ -23,10 +23,12 @@ import 'dayjs/locale/ru';
 import { generateTransportPDF } from '../components/PdfGenerator';
 import DirectoryEditor from '../components/DirectoryEditor/DirectoryEditor';
 import VehicleManager from '../components/VehicleManager/VehicleManager';
+import VehicleWeek from '../components/VehicleWeek/VehicleWeekAvailabilityManager';
 import { BookingTableTab } from '../components/BookingTableTab/BookingTableTab';
 import StatisticsBar from '../components/StatisticsBar';
 import { useRootStore } from '../hooks/useStores';
 import styles from './VehicleBooking.module.css';
+import TransportService from '../services/TransportService';
 
 const { Header, Content } = Layout;
 const { TabPane } = Tabs;
@@ -44,6 +46,90 @@ const VehicleBookingPage = observer(() => {
   const [loadingDrivers, setLoadingDrivers] = useState(false);
   const [drivers, setDrivers] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [requests, setRequests] = useState([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+
+  const loadRequests = async () => {
+    setRequestsLoading(true);
+    try {
+      const data = await TransportService.fetchRequests();
+      setRequests(data);
+    } catch (error) {
+      message.error('Ошибка загрузки заявок');
+    } finally {
+      setRequestsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRequests();
+  }, []);
+
+  const handleAssignVehicleAndDriver = async (
+    requestId,
+    vehicleId,
+    driverId
+  ) => {
+    try {
+      await transportStore.assignVehicleAndDriver(
+        requestId,
+        vehicleId,
+        driverId
+      );
+      await loadRequests(); // перезагружаем для синхронизации
+      message.success('Назначено');
+    } catch (error) {
+      message.error('Ошибка назначения');
+    }
+  };
+
+  const handleConfirmRequest = async (requestId) => {
+    try {
+      await transportStore.confirmRequest(requestId);
+      await loadRequests();
+      await transportStore.fetchBookings();
+      message.success('Бронирование подтверждено');
+    } catch (error) {
+      message.error('Ошибка подтверждения');
+    }
+  };
+
+  const handleCancelRequest = async (requestId) => {
+    Modal.confirm({
+      title: 'Отмена заявки',
+      content: 'Вы уверены?',
+      onOk: async () => {
+        try {
+          await transportStore.cancelRequest(
+            requestId,
+            'Отменено диспетчером',
+            userStore.card?.tabNumber
+          );
+          await loadRequests();
+          message.success('Заявка отменена');
+        } catch (error) {
+          message.error('Ошибка отмены');
+        }
+      },
+    });
+  };
+
+  const handleRescheduleRequest = async (
+    requestId,
+    newDate,
+    newStart,
+    newEnd,
+    notes
+  ) => {
+    await transportStore.rescheduleRequest(
+      requestId,
+      newDate,
+      newStart,
+      newEnd,
+      notes
+    );
+    await loadRequests();
+  };
 
   useEffect(() => {
     if (isBookingModalVisible) {
@@ -213,6 +299,7 @@ const VehicleBookingPage = observer(() => {
       transportStore.fetchVehicles(),
       transportStore.fetchBookings(),
       transportStore.fetchDepartments(),
+      loadRequests(),
     ]);
     message.success('Данные обновлены');
   };
@@ -258,6 +345,18 @@ const VehicleBookingPage = observer(() => {
     const total = vehicles.length;
 
     return { total, available, unavailable, booked };
+  };
+
+  const handleUpdateBooking = async (requestId, vehicleId, driverId) => {
+    try {
+      await transportStore.updateBooking(requestId, vehicleId, driverId);
+      await loadRequests(); // обновить список заявок
+      await transportStore.fetchBookings(); // обновить бронирования
+      message.success('Назначение обновлено');
+    } catch (error) {
+      console.error('Update booking error:', error);
+      message.error('Ошибка обновления назначения');
+    }
   };
 
   return (
@@ -318,12 +417,13 @@ const VehicleBookingPage = observer(() => {
             key="1"
           >
             <BookingTableTab
-              key={forceUpdate}
+              requests={requests}
               vehicles={transportStore.vehicles}
-              bookings={transportStore.bookings}
+              drivers={transportStore.drivers}
               departments={transportStore.departments}
               selectedDate={filterStore.selectedDate}
               setSelectedDate={filterStore.setSelectedDate.bind(filterStore)}
+              handleUpdateBooking={handleUpdateBooking}
               filters={{
                 filterStatus: filterStore.filterStatus,
                 filterType: filterStore.filterType,
@@ -335,24 +435,16 @@ const VehicleBookingPage = observer(() => {
                 filterStore
               )}
               handleRefreshData={handleRefreshData}
-              handleResetTypeFilter={filterStore.resetTypeFilter.bind(
-                filterStore
-              )}
-              handleResetDepartmentFilter={filterStore.resetDepartmentFilter.bind(
-                filterStore
-              )}
               handleResetAllFilters={filterStore.resetAllFilters.bind(
                 filterStore
               )}
-              handleBookVehicle={handleBookVehicle}
-              handleCancelBooking={handleCancelBooking}
-              getVehicleBookingsForDate={transportStore.getVehicleBookingsForDate.bind(
-                transportStore
-              )}
-              getCellColor={getCellColor}
-              uniqueTypes={transportStore.uniqueVehicleTypes}
-              filteredVehicles={filterStore.filteredVehicles}
+              handleAssignVehicleAndDriver={handleAssignVehicleAndDriver}
+              handleConfirmRequest={handleConfirmRequest}
+              handleCancelRequest={handleCancelRequest}
+              handleRescheduleRequest={handleRescheduleRequest}
+              uniqueTypes={transportStore.vehicleTypes}
               timeSlots={transportStore.timeSlots}
+              loading={requestsLoading}
             />
           </TabPane>
 
@@ -366,6 +458,18 @@ const VehicleBookingPage = observer(() => {
             key="2"
           >
             <VehicleManager />
+          </TabPane>
+
+          <TabPane
+            tab={
+              <span>
+                <CarOutlined style={{ marginRight: 8 }} />
+                Заказ
+              </span>
+            }
+            key="3"
+          >
+            <VehicleWeek />
           </TabPane>
         </Tabs>
       </Content>

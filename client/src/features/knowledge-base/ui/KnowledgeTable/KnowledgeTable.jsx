@@ -1,8 +1,8 @@
 import React from 'react';
-import { Table, Tag, Tooltip, Avatar, Badge, Skeleton } from 'antd';
+import { Table, Tag, Tooltip, Avatar, Skeleton } from 'antd';
 import { 
     SortAscendingOutlined, SortDescendingOutlined,
-    EyeOutlined, StarOutlined, ClockCircleOutlined 
+    ClockCircleOutlined 
 } from '@ant-design/icons';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -24,17 +24,6 @@ const KnowledgeTable = ({
         ) : (
             <SortDescendingOutlined style={{ marginLeft: 5 }} />
         );
-    };
-
-    const renderStatus = (status) => {
-        const statusConfig = {
-            draft: { text: 'Черновик', color: 'orange' },
-            published: { text: 'Опубликовано', color: 'green' },
-            archived: { text: 'Архив', color: 'gray' }
-        };
-        
-        const config = statusConfig[status] || { text: 'Неизвестно', color: 'default' };
-        return <Tag color={config.color}>{config.text}</Tag>;
     };
 
     const renderTags = (tags) => {
@@ -71,13 +60,6 @@ const KnowledgeTable = ({
 
     const columns = [
         {
-            title: 'Статус',
-            dataIndex: 'status',
-            key: 'status',
-            width: 100,
-            render: renderStatus,
-        },
-        {
             title: (
                 <span onClick={() => onSort('title')} style={{ cursor: 'pointer' }}>
                     Заголовок {getSortIcon('title')}
@@ -90,29 +72,12 @@ const KnowledgeTable = ({
                 <div className={styles.titleCell}>
                     <div className={styles.titleRow}>
                         <span className={styles.titleText}>{text}</span>
-                        {record.featured && (
-                            <StarOutlined style={{ color: '#faad14', marginLeft: 8 }} />
-                        )}
                     </div>
                     {record.category && (
                         <div className={styles.category}>
                             {record.category.name}
                         </div>
                     )}
-                </div>
-            ),
-        },
-        {
-            title: 'Автор',
-            dataIndex: 'author',
-            key: 'author',
-            width: 150,
-            render: (author) => (
-                <div className={styles.authorCell}>
-                    <Avatar size="small" style={{ marginRight: 8 }}>
-                        {author?.charAt(0) || '?'}
-                    </Avatar>
-                    {author || 'Неизвестен'}
                 </div>
             ),
         },
@@ -128,24 +93,6 @@ const KnowledgeTable = ({
             dataIndex: 'content',
             key: 'content',
             render: renderContent,
-        },
-        {
-            title: (
-                <span onClick={() => onSort('views')} style={{ cursor: 'pointer' }}>
-                    <EyeOutlined /> {getSortIcon('views')}
-                </span>
-            ),
-            dataIndex: 'views',
-            key: 'views',
-            width: 80,
-            align: 'center',
-            render: (views) => (
-                <Badge 
-                    count={views || 0} 
-                    style={{ backgroundColor: '#52c41a' }}
-                    showZero 
-                />
-            ),
         },
         {
             title: (
@@ -195,7 +142,7 @@ const KnowledgeTable = ({
             className={styles.table}
             rowClassName={styles.tableRow}
             onRow={(record) => ({
-                onClick: () => onRowClick && onRowClick(record), // Добавляем обработчик клика
+                onClick: () => onRowClick && onRowClick(record),
             })}
         />
     );

@@ -1,14 +1,17 @@
 import React from 'react';
-import { Button, Input, Space, message, Modal } from 'antd';
+import { Button, Input, Space, message, Modal, Select } from 'antd'; // добавлен Select
+import { useNavigate } from 'react-router-dom';
 import {
   SearchOutlined,
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  StarOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
-import KnowledgeStore from '../../store/MockKnowledgeStore';
+import KnowledgeStore from '../../store/KnowledgeStore';
 import styles from './KnowledgeHeader.module.css';
+
+const { Option } = Select;
 
 const KnowledgeHeader = ({
   searchTerm,
@@ -17,8 +20,14 @@ const KnowledgeHeader = ({
   selectedRow,
   onEdit,
   onDelete,
+  selectedTag, // текущий выбранный тег
+  onTagChange, // колбэк при смене тега
+  allTags,
+  
 }) => {
+  const navigate = useNavigate();
   const handleDelete = async () => {
+    
     if (selectedRow) {
       Modal.confirm({
         title: 'Удаление статьи',
@@ -41,29 +50,14 @@ const KnowledgeHeader = ({
     }
   };
 
-  const handleToggleFeatured = async () => {
-    if (selectedRow) {
-      try {
-        await KnowledgeStore.updateArticle(selectedRow.id, {
-          ...selectedRow,
-          featured: !selectedRow.featured,
-        });
-        message.success(
-          `Статья ${selectedRow.featured ? 'убрана из ' : 'добавлена в'} избранные`
-        );
-      } catch (error) {
-        message.error('Ошибка при обновлении статьи');
-      }
-    }
-  };
-
   return (
     <div className={styles.header}>
-      <Space>
+      <Space wrap>
+        {' '}
+        {/* wrap для переноса на маленьких экранах */}
         <Button type="primary" icon={<PlusOutlined />} onClick={onAddNew}>
           Добавить статью
         </Button>
-
         <Button
           icon={<EditOutlined />}
           onClick={() => {
@@ -78,7 +72,6 @@ const KnowledgeHeader = ({
         >
           Редактировать
         </Button>
-
         <Button
           type="primary"
           danger
@@ -88,24 +81,33 @@ const KnowledgeHeader = ({
         >
           Удалить
         </Button>
-
         <Button
-          icon={<StarOutlined />}
-          onClick={handleToggleFeatured}
-          disabled={!selectedRow}
-          type={selectedRow?.featured ? 'primary' : 'default'}
+          icon={<SettingOutlined />}
+          onClick={() => navigate('/knowledge/categories')}
         >
-          {selectedRow?.featured ? 'Убрать из избранного' : 'В избранное'}
+          Категории
         </Button>
-
         <Input
           placeholder="Поиск по статьям..."
           prefix={<SearchOutlined />}
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          style={{ width: 300 }}
+          style={{ width: 250 }}
           allowClear
         />
+        <Select
+          placeholder="Фильтр по тегу"
+          allowClear
+          style={{ width: 180 }}
+          value={selectedTag}
+          onChange={onTagChange}
+        >
+          {allTags.map((tag) => (
+            <Option key={tag} value={tag}>
+              {tag}
+            </Option>
+          ))}
+        </Select>
       </Space>
     </div>
   );

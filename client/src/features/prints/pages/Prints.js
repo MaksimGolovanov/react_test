@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs, Card } from 'antd';
+import { Tabs } from 'antd';
 import { PrinterOutlined, DatabaseOutlined, EnvironmentOutlined, BarChartOutlined } from '@ant-design/icons';
 import './Prints.css';
 import PrintModel from '../components/PrintModel';
@@ -52,14 +52,15 @@ function Print() {
     ];
 
     return (
-        <div style={{ padding: 16,  minHeight: 'calc(100vh-250px)' }}>
-            <Card
-                style={{ 
+        <div style={{ padding: 16, minHeight: 'calc(100vh - 250px)' }}>
+            <div
+                style={{
                     borderRadius: 16,
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                     overflow: 'hidden',
+                    padding: '20px 24px',
+                    background: '#fff',
                 }}
-                bodyStyle={{ padding: '20px 24px' }}
             >
                 <Tabs
                     defaultActiveKey="Prints"
@@ -70,7 +71,7 @@ function Print() {
                         borderBottom: '1px solid #f0f0f0',
                     }}
                 />
-            </Card>
+            </div>
         </div>
     );
 }

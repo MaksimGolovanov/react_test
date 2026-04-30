@@ -6,6 +6,8 @@ const Department = require('../models/Department')
 const TimeSlot = require('../models/TimeSlot')
 const Drivers = require('../models/Drivers')
 const ApiError = require('../error/ApiError')
+const Request = require('../models/Request')
+
 const { Op } = require('sequelize')
 const sequelize = require('../db')
 
@@ -30,7 +32,7 @@ class TransportController {
                     where[Op.or] = [
                          { vehicle_brand: { [Op.iLike]: `%${search}%` } },
                          { state_number: { [Op.iLike]: `%${search}%` } },
-                         
+
                          { company_affiliation: { [Op.iLike]: `%${search}%` } },
                     ]
                }
@@ -68,7 +70,7 @@ class TransportController {
                     vehicle_brand,
                     vehicle_type_id,
                     vehicle_subtype_id,
-                    
+
                     state_number,
                     repair_type,
                     repair_waiting_time,
@@ -124,7 +126,7 @@ class TransportController {
                     vehicle_brand,
                     vehicle_type,
                     vehicle_subtype,
-                    
+
                     state_number,
                     repair_type: repair_type || null,
                     repair_waiting_time: repair_waiting_time || null,
@@ -250,12 +252,12 @@ class TransportController {
 
      async getAllDrivers(req, res, next) {
           try {
-               const { search, is_active } = req.query
+               const { search, status } = req.query // вместо is_active используем status
 
                let where = {}
 
-               if (is_active !== undefined) {
-                    where.is_active = is_active === 'true'
+               if (status) {
+                    where.is_active = status // теперь фильтруем по строковому статусу
                }
 
                if (search) {
@@ -298,7 +300,7 @@ class TransportController {
 
      async createDriver(req, res, next) {
           try {
-               const { fio, post, department, sort_order } = req.body
+               const { fio, post, department, sort_order, is_active } = req.body
 
                // Проверка обязательных полей
                if (!fio || !post || !department) {
@@ -313,11 +315,15 @@ class TransportController {
                     return next(ApiError.badRequest('Водитель с таким ФИО уже существует'))
                }
 
+               // Устанавливаем статус: если передан, то берём его, иначе 'at_work'
+               const driverStatus = is_active || 'at_work'
+
                const driver = await Drivers.create({
                     fio,
                     post,
                     department,
                     sort_order: sort_order || 0,
+                    is_active: driverStatus,
                })
 
                return res.status(201).json(driver)
@@ -370,10 +376,10 @@ class TransportController {
                     return next(ApiError.notFound('Водитель не найден'))
                }
 
-               // Мягкое удаление - просто деактивируем
-               await driver.update({ is_active: false })
+               // Мягкое удаление - устанавливаем статус 'deactivated' (или можно просто is_active = 'deactivated')
+               await driver.update({ is_active: 'deactivated' })
 
-               return res.json({ message: 'Водитель успешно удален' })
+               return res.json({ message: 'Водитель успешно деактивирован' })
           } catch (error) {
                return next(ApiError.internal('Ошибка при удалении водителя: ' + error.message))
           }
@@ -418,7 +424,7 @@ class TransportController {
                          {
                               model: Vehicle,
                               as: 'vehicle',
-                              attributes: ['vehicle_brand', 'state_number',  'technical_condition'],
+                              attributes: ['vehicle_brand', 'state_number', 'technical_condition'],
                          },
                          { model: Department, as: 'department', attributes: ['name', 'head_name'] },
                          { model: TimeSlot, as: 'timeSlot', attributes: ['label', 'start_time', 'end_time'] },
@@ -457,9 +463,10 @@ class TransportController {
 
      async createBooking(req, res, next) {
           try {
-               const { vehicle_id, department_id, time_slot_id, driver_full_name, booking_date, purpose, created_by } = req.body
+               const { vehicle_id, department_id, time_slot_id, driver_full_name, booking_date, purpose, created_by } =
+                    req.body
 
-               console.log('Creating booking with data:', req.body) 
+               console.log('Creating booking with data:', req.body)
 
                // Проверка на существование автомобиля
                const vehicle = await Vehicle.findByPk(vehicle_id)
@@ -1018,6 +1025,264 @@ class TransportController {
                })
           } catch (error) {
                return next(ApiError.internal('Ошибка при получении статистики по дате: ' + error.message))
+          }
+     }
+
+     // ========== ЗАЯВКИ ==========
+
+     async getAllRequests(req, res, next) {
+          try {
+               const { date, status, department_id } = req.query
+               let where = {}
+               if (date) where.request_date = date
+               if (status) where.status = status
+               if (department_id) where.department_id = department_id
+
+               const requests = await Request.findAll({
+                    where,
+                    include: [
+                         //{ model: Department, as: 'department' },
+                         { model: VehicleType, as: 'vehicleType' },
+                         { model: Vehicle, as: 'assignedVehicle' },
+                         { model: Drivers, as: 'assignedDriver' },
+                    ],
+                    order: [
+                         ['request_date', 'ASC'],
+                         ['start_time', 'ASC'],
+                    ],
+               })
+               return res.json(requests)
+          } catch (error) {
+               return next(ApiError.internal('Ошибка получения заявок: ' + error.message))
+          }
+     }
+
+     async getRequestById(req, res, next) {
+          try {
+               const { id } = req.params
+               const request = await Request.findByPk(id, {
+                    include: [
+                         { model: Department, as: 'department' },
+                         { model: VehicleType, as: 'vehicleType' },
+                         { model: Vehicle, as: 'assignedVehicle' },
+                         { model: Drivers, as: 'assignedDriver' },
+                    ],
+               })
+               if (!request) return next(ApiError.notFound('Заявка не найдена'))
+               return res.json(request)
+          } catch (error) {
+               return next(ApiError.internal(error.message))
+          }
+     }
+
+     async createRequest(req, res, next) {
+          try {
+               const {
+                    department_id,
+                    vehicle_type_id,
+                    start_time,
+                    end_time,
+                    request_date,
+                    work_place,
+                    purpose,
+                    created_by,
+               } = req.body
+
+               // Валидация обязательных полей
+               if (!department_id || !start_time || !end_time || !request_date || !work_place) {
+                    return next(ApiError.badRequest('Не все обязательные поля заполнены'))
+               }
+
+               const request = await Request.create({
+                    department_id,
+                    vehicle_type_id: vehicle_type_id || null,
+                    start_time,
+                    end_time,
+                    request_date,
+                    work_place,
+                    purpose: purpose || null,
+                    created_by: created_by || 'system',
+                    status: 'pending',
+               })
+
+               return res.status(201).json(request)
+          } catch (error) {
+               console.error('Create request error:', error)
+               return next(ApiError.internal('Ошибка создания заявки: ' + error.message))
+          }
+     }
+
+     async updateRequest(req, res, next) {
+          try {
+               const { id } = req.params
+               const request = await Request.findByPk(id)
+               if (!request) return next(ApiError.notFound('Заявка не найдена'))
+               await request.update(req.body)
+               return res.json(request)
+          } catch (error) {
+               return next(ApiError.internal(error.message))
+          }
+     }
+
+     async assignVehicleAndDriver(req, res, next) {
+          try {
+               const { id } = req.params
+               const { assigned_vehicle_id, assigned_driver_id } = req.body
+               const request = await Request.findByPk(id)
+               if (!request) return next(ApiError.notFound('Заявка не найдена'))
+               // временно убираем проверку статуса и конфликтов
+               await request.update({ assigned_vehicle_id, assigned_driver_id })
+               return res.json(request)
+          } catch (error) {
+               console.error('Assign error:', error)
+               return next(ApiError.internal(error.message))
+          }
+     }
+
+     async confirmRequest(req, res, next) {
+          try {
+               const { id } = req.params
+               const request = await Request.findByPk(id)
+
+               if (!request) {
+                    return next(ApiError.notFound('Заявка не найдена'))
+               }
+
+               if (request.status !== 'pending') {
+                    return next(ApiError.badRequest('Подтвердить можно только заявку в статусе ожидания'))
+               }
+
+               if (!request.assigned_vehicle_id || !request.assigned_driver_id) {
+                    return next(ApiError.badRequest('Не назначен автомобиль или водитель'))
+               }
+
+               // Создаём бронирование (адаптируйте под свои поля Booking)
+               const booking = await Booking.create({
+                    request_id: request.id,
+                    vehicle_id: request.assigned_vehicle_id,
+                    driver_id: request.assigned_driver_id,
+                    department_id: request.department_id,
+                    booking_date: request.request_date,
+                    start_time: request.start_time,
+                    end_time: request.end_time,
+                    purpose: request.purpose,
+                    status: 'active',
+                    created_by: req.body.created_by || 'system',
+               })
+
+               // Обновляем статус заявки
+               await request.update({ status: 'confirmed' })
+
+               return res.json({ request, booking })
+          } catch (error) {
+               console.error('Confirm request error:', error)
+               return next(ApiError.internal('Ошибка подтверждения заявки: ' + error.message))
+          }
+     }
+
+     async updateBooking(req, res, next) {
+          try {
+               const { requestId } = req.params
+               const { assigned_vehicle_id, assigned_driver_id } = req.body
+
+               const request = await Request.findByPk(requestId)
+               if (!request) return next(ApiError.notFound('Заявка не найдена'))
+               if (request.status !== 'confirmed')
+                    return next(ApiError.badRequest('Редактирование доступно только для подтверждённых заявок'))
+
+               // Проверка конфликта, если автомобиль меняется
+               if (assigned_vehicle_id && assigned_vehicle_id !== request.assigned_vehicle_id) {
+                    const conflicting = await Booking.findOne({
+                         where: {
+                              vehicle_id: assigned_vehicle_id,
+                              booking_date: request.request_date,
+                              status: 'active',
+                              request_id: { [Op.ne]: requestId },
+                              [Op.or]: [
+                                   { start_time: { [Op.between]: [request.start_time, request.end_time] } },
+                                   { end_time: { [Op.between]: [request.start_time, request.end_time] } },
+                              ],
+                         },
+                    })
+                    if (conflicting) return next(ApiError.badRequest('Автомобиль уже занят в указанное время'))
+               }
+
+               await request.update({ assigned_vehicle_id, assigned_driver_id })
+
+               const booking = await Booking.findOne({ where: { request_id: requestId, status: 'active' } })
+               if (booking) {
+                    await booking.update({ vehicle_id: assigned_vehicle_id, driver_id: assigned_driver_id })
+               }
+
+               return res.json({ request, booking })
+          } catch (error) {
+               return next(ApiError.internal(error.message))
+          }
+     }
+
+     async cancelRequest(req, res, next) {
+          try {
+               const { id } = req.params
+               const { notes, cancelled_by } = req.body
+               const request = await Request.findByPk(id)
+               if (!request) return next(ApiError.notFound('Заявка не найдена'))
+
+               if (request.status === 'confirmed') {
+                    const booking = await Booking.findOne({ where: { request_id: id, status: 'active' } })
+                    if (booking) {
+                         await booking.update({
+                              status: 'cancelled',
+                              cancelled_by: cancelled_by || 'system',
+                              cancelled_at: new Date(),
+                         })
+                    }
+               }
+               await request.update({
+                    status: 'cancelled',
+                    notes: notes || 'Отменено диспетчером',
+                    updated_by: cancelled_by,
+               })
+               return res.json(request)
+          } catch (error) {
+               return next(ApiError.internal(error.message))
+          }
+     }
+
+     async rescheduleRequest(req, res, next) {
+          try {
+               const { id } = req.params
+               const { new_date, new_start_time, new_end_time, notes } = req.body
+               const request = await Request.findByPk(id)
+               if (!request) return next(ApiError.notFound('Заявка не найдена'))
+
+               await request.update({
+                    status: 'rescheduled',
+                    rescheduled_to_date: new_date,
+                    start_time: new_start_time || request.start_time,
+                    end_time: new_end_time || request.end_time,
+                    assigned_vehicle_id: null,
+                    assigned_driver_id: null,
+                    notes: notes || `Перенесена с ${request.request_date} на ${new_date}`,
+                    request_date: new_date, // обновляем дату заявки на новую
+               })
+               return res.json(request)
+          } catch (error) {
+               return next(ApiError.internal(error.message))
+          }
+     }
+
+     async deleteRequest(req, res, next) {
+          try {
+               const { id } = req.params
+               const request = await Request.findByPk(id)
+               if (!request) return next(ApiError.notFound('Заявка не найдена'))
+               if (request.status === 'confirmed') {
+                    return next(ApiError.badRequest('Нельзя удалить подтверждённую заявку'))
+               }
+               await request.destroy()
+               return res.json({ message: 'Заявка удалена' })
+          } catch (error) {
+               return next(ApiError.internal(error.message))
           }
      }
 }

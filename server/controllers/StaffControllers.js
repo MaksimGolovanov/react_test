@@ -9,6 +9,8 @@ class StaffController {
           return res.json(staff)
      }
 
+     
+
      async getAllDepartment(req, res) {
           const department = await Department.findAll()
           return res.json(department)
@@ -41,6 +43,13 @@ class StaffController {
                })
           }
      }
+
+     async getOne(req, res) {
+          const { tabNumber } = req.params
+          const staffone = await Staff.findOne({ where: { tabNumber } })
+          return res.json(staffone)
+     }
+
      async updateStaff(req, res) {
           try {
                const { tabNumber } = req.params // Изменено на tabNumber

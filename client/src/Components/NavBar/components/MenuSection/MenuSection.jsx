@@ -171,17 +171,19 @@ const MenuSection = ({ userRolesAuth }) => {
         ]
       : []),
 
-    // Заметки
-    ...(hasAccess('NOTES')
+
+      // Заметки
+         ...(hasAccess('NOTES')
       ? [
           {
-            key: '/notes',
+            key: '/knowledge',
             icon: <FileTextOutlined />,
-            label: <Link to="/notes">ЗАМЕТКИ</Link>,
+            label: <Link to="/knowledge">ЗАМЕТКИ</Link>,
           },
         ]
       : []),
       // Заметки
+
     ...(hasAccess('TRANSPORT')
       ? [
           {

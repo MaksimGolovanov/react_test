@@ -3,6 +3,36 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL;
 
 class TransportService {
+  static async fetchAllDepartments() {
+    try {
+      const response = await axios.get(`${API_URL}api/departments`);
+      return response.data;
+    } catch (error) {
+      console.error('Department fetch error:', error.response || error);
+      throw error;
+    }
+  }
+
+  static async fetchDepartmentById(id) {
+    try {
+      const response = await axios.get(`${API_URL}api/departments/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Ошибка при получении отдела:', error);
+      throw error;
+    }
+  }
+
+  static async fetchStaffOne(id) {
+    try {
+      const response = await axios.get(`${API_URL}api/staff/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Staff fetch error:', error);
+      throw error;
+    }
+  }
+
   // ========== АВТОМОБИЛИ ==========
 
   static async fetchVehicles() {
@@ -440,6 +470,74 @@ class TransportService {
       );
       throw error;
     }
+  }
+
+  // ========== ЗАЯВКИ ==========
+
+  static async updateBooking(requestId, data) {
+    const response = await axios.put(
+      `${API_URL}api/transport/requests/${requestId}/update-booking`,
+      data
+    );
+    return response.data;
+  }
+
+  static async fetchRequests(params = '') {
+    const response = await axios.get(
+      `${API_URL}api/transport/requests${params ? '?' + params : ''}`
+    );
+    return response.data;
+  }
+
+  static async createRequest(data) {
+    const response = await axios.post(`${API_URL}api/transport/requests`, data);
+    return response.data;
+  }
+
+  static async updateRequest(id, data) {
+    const response = await axios.put(
+      `${API_URL}api/transport/requests/${id}`,
+      data
+    );
+    return response.data;
+  }
+
+  static async assignVehicleAndDriver(id, assignment) {
+    const response = await axios.put(
+      `${API_URL}api/transport/requests/${id}/assign`,
+      assignment
+    );
+    return response.data;
+  }
+
+  static async confirmRequest(id) {
+    const response = await axios.put(
+      `${API_URL}api/transport/requests/${id}/confirm`
+    );
+    return response.data;
+  }
+
+  static async cancelRequest(id, notes, cancelledBy) {
+    const response = await axios.put(
+      `${API_URL}api/transport/requests/${id}/cancel`,
+      { notes, cancelled_by: cancelledBy }
+    );
+    return response.data;
+  }
+
+  static async rescheduleRequest(id, data) {
+    const response = await axios.put(
+      `${API_URL}api/transport/requests/${id}/reschedule`,
+      data
+    );
+    return response.data;
+  }
+
+  static async deleteRequest(id) {
+    const response = await axios.delete(
+      `${API_URL}api/transport/requests/${id}`
+    );
+    return response.data;
   }
 
   // ========== ВОДИТЕЛИ ==========

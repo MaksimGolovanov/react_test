@@ -11,21 +11,21 @@ class SNMPPoller {
      }
 
      async start() {
-          console.log('SNMPPoller инициализирован')
+          //console.log('SNMPPoller инициализирован')
           try {
                await this.pollAllPrinters()
-               console.log('Первый опрос принтеров завершен')
+               //console.log('Первый опрос принтеров завершен')
                setInterval(() => {
-                    console.log('Запуск периодического опроса принтеров')
-                    this.pollAllPrinters().catch((e) => console.error('Ошибка в периодическом опросе:', e))
+                    //console.log('Запуск периодического опроса принтеров')
+                    //this.pollAllPrinters().catch((e) => console.error('Ошибка в периодическом опросе:', e))
                }, this.pollInterval)
           } catch (e) {
-               console.error('Ошибка при старте SNMPPoller:', e)
+              // console.error('Ошибка при старте SNMPPoller:', e)
           }
      }
      async pollAllPrinters() {
           try {
-               console.log('Начало опроса принтеров...')
+              // console.log('Начало опроса принтеров...')
                const printers = await Prints.findAll({
                     where: { ip: { [Op.not]: null } },
                })
@@ -36,11 +36,11 @@ class SNMPPoller {
                          await this.savePrinterStats(printer.serial_number, pageCount)
                          console.log(`Принтер ${printer.ip} (${printer.serial_number}): ${pageCount} страниц`)
                     } catch (error) {
-                         console.error(`Ошибка при опросе принтера ${printer.ip}:`, error)
+                         //console.error(`Ошибка при опросе принтера ${printer.ip}:`, error)
                     }
                }
           } catch (error) {
-               console.error('Ошибка в pollAllPrinters:', error)
+               //console.error('Ошибка в pollAllPrinters:', error)
           }
      }
 
@@ -74,7 +74,7 @@ class SNMPPoller {
                     clock: Math.floor(Date.now() / 1000),
                })
           } catch (error) {
-               console.error('Ошибка при сохранении статистики:', error)
+               //console.error('Ошибка при сохранении статистики:', error)
           }
      }
 }

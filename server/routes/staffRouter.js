@@ -6,6 +6,7 @@ const dolgnostController = require('../controllers/DolgnostController');
 
 // Маршруты для работы с сотрудниками
 router.get('/', staffController.getAll);
+router.get('/:tabNumber', staffController.getOne);
 router.get('/department', staffController.getAllDepartment);
 router.put('/:tabNumber', staffController.updateStaff);
 router.delete('/:tabNumber', staffController.deleteStaff);

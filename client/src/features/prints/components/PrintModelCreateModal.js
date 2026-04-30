@@ -1,194 +1,134 @@
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal'; // Импортируем библиотеку для создания модальных окон
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import { VscSaveAs } from "react-icons/vsc";
-import { CgCloseO } from "react-icons/cg";
-import { Image } from 'react-bootstrap';
-import plug from '../../../shared/assets/Image/plug1.jpg'
-import plug2 from '../../../shared/assets/Image/plug2.jpg'
+import { Modal, Form, Input, Button, Upload, message } from 'antd';
+import { SaveOutlined, CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import PrintsService from '../services/PrintsService';
 
-const customStyles = {
-    content: {
-        width: '640px', // Ширина окна
-        height: '585px', // Высота окна
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-
-        padding: '20px',
-        borderLeft: '4px solid #fa922f',
-        borderTop: '6px solid #2F3436',
-        borderRight: '6px solid #2F3436',
-        borderBottom: '6px solid #2F3436',
-        backgroundColor: '#fff',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
-    },
-    overlay: {
-        zIndex: 1000,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)', // Прозрачность фона
-    },
-};
-Modal.setAppElement('#root');
-
 export default function PrintCreateModal({ isOpen, onRequestClose, onSuccess }) {
-    const [selectedFiles, setSelectedFiles] = useState({ externalView: null, cartridgeView: null, blockView: null });
-    const [previewsUrls, setPreviewsUrls] = useState({ externalView: plug, cartridgeView: plug2, blockView: plug2 });
-    const [formData, setFormData] = useState({ model: '', cartridge: '', paperFormat: '', scannerType: '' });
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [fileList, setFileList] = useState({
+    externalView: [],
+    cartridgeView: [],
+    blockView: [],
+  });
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+  // Сброс формы и файлов при закрытии
+  useEffect(() => {
+    if (!isOpen) {
+      form.resetFields();
+      setFileList({
+        externalView: [],
+        cartridgeView: [],
+        blockView: [],
+      });
+    }
+  }, [isOpen, form]);
 
-    const handleFileInputChange = (field, event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setSelectedFiles(prevState => ({
-                ...prevState,
-                [field]: file,
-            }));
-            setPreviewsUrls(prevState => ({
-                ...prevState,
-                [field]: URL.createObjectURL(file),
-            }));
-        }
-    };
+  const handleFileChange = (field, info) => {
+    const newFileList = info.fileList.slice(-1); // максимум 1 файл
+    setFileList(prev => ({ ...prev, [field]: newFileList }));
+  };
 
-    // Этот эффект выполнится при каждом изменении состояния isOpen
-    useEffect(() => {
-        if (!isOpen) {
-            setSelectedFiles({
-                externalView: null,
-                cartridgeView: null,
-                blockView: null,
-            });
-            setPreviewsUrls({
-                externalView: plug,
-                cartridgeView: plug,
-                blockView: plug,
-            });
-        }
-    }, [isOpen]);
+  const handleSubmit = async (values) => {
+    const { model, cartridge, paperFormat, scannerType } = values;
+    const externalFile = fileList.externalView[0]?.originFileObj;
+    const cartridgeFile = fileList.cartridgeView[0]?.originFileObj;
+    const blockFile = fileList.blockView[0]?.originFileObj;
 
-    const handleCreate = async (event) => {
-        event.preventDefault()
-        try {
-            if (!formData.model || !formData.cartridge || !formData.paperFormat || !formData.scannerType) {
-                throw new Error('Заполните все обязательные поля');
-            }
-
-            if (!selectedFiles.externalView || !selectedFiles.cartridgeView || !selectedFiles.blockView) {
-                throw new Error('Загрузите все необходимые изображения');
-            }
-            // Создаем объект FormData для отправки файлов
-            const formDataToSend = new FormData();
-            formDataToSend.append('name', formData.model);
-            formDataToSend.append('cartridge', formData.cartridge);
-            formDataToSend.append('paper_size', formData.paperFormat);
-            formDataToSend.append('scanner', formData.scannerType);
-            formDataToSend.append('img1', selectedFiles.externalView);
-            formDataToSend.append('img2', selectedFiles.cartridgeView);
-            formDataToSend.append('img3', selectedFiles.blockView);
-
-            // Отправляем запрос на сервер
-            await PrintsService.createPrintModel(formDataToSend);
-            if (onSuccess) {
-                onSuccess();
-            }
-            
-            onRequestClose();
-        } catch (error) {
-            console.error('Ошибка при создании модели принтера:', error);
-            alert('Произошла ошибка при создании модели принтера');
-        }
+    if (!model || !cartridge || !paperFormat || !scannerType) {
+      message.error('Заполните все обязательные поля');
+      return;
+    }
+    if (!externalFile || !cartridgeFile || !blockFile) {
+      message.error('Загрузите все необходимые изображения');
+      return;
     }
 
-    return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={customStyles} contentLabel="Пример модального окна">
-            <CgCloseO className="close-icon" size={28} onClick={onRequestClose} style={{ position: 'absolute', top: '16px', right: '16px', cursor: 'pointer' }} />
-            <h3>Добавление модели принтера</h3>
-            <Form onSubmit={handleCreate}>
-                <label htmlFor="model" className='textModal' >Модель принтера</label>
-                <Form.Control
-                    type="text"
-                    name="model"
-                    value={formData.model}
-                    onChange={handleInputChange}
-                    placeholder="Модель принтера"
-                    style={{ width: '500px' }}
-                />
-                <label htmlFor="cartridge" className='textModal' >Тип картриджа/тонера</label>
-                <Form.Control
-                    type="text"
-                    name="cartridge"
-                    value={formData.cartridge}
-                    onChange={handleInputChange}
-                    placeholder="Тип картриджа/тонера"
-                    style={{ width: '500px' }}
-                />
-                <label htmlFor="paperFormat" className='textModal' >Максимальный формат печати</label>
-                <Form.Control
-                    type="text"
-                    name="paperFormat"
-                    value={formData.paperFormat}
-                    onChange={handleInputChange}
-                    placeholder="Максимальный формат печати"
-                    style={{ width: '500px' }}
-                />
-                <label htmlFor="scannerType" className='textModal' >Сканирование чб/цв</label>
-                <Form.Control 
-                  type="text"
-                  name="scannerType"
-                  value={formData.scannerType}
-                  onChange={handleInputChange}
-                  placeholder="Сканирование чб/цв"
-                  style={{ width: '500px' }}
-                />
-                <label htmlFor="data-input" className='textModal' >Внешний вид</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Form.Control type="file" placeholder="Внешний вид" style={{ width: '500px' }} onChange={(e) => handleFileInputChange('externalView', e)} />
-                    {previewsUrls.externalView && (
-                        <Image src={previewsUrls.externalView} alt="External View Preview" style={{ height: '40px' }}></Image>
-                    )}
-                </div>
-                <label htmlFor="data-input" className='textModal' >Вид тонера/картриджа</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Form.Control type="file" placeholder="Вид тонера/картриджа" style={{ width: '500px' }} onChange={(e) => handleFileInputChange('cartridgeView', e)} />
-                    {previewsUrls.cartridgeView && (
-                        <Image src={previewsUrls.cartridgeView} alt="Cartridge View Preview" style={{ height: '40px' }}></Image>
-                    )}
-                </div>
-                <label htmlFor="data-input" className='textModal' >Вид блока</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Form.Control type="file" placeholder="Вид блока" style={{ width: '500px' }} onChange={(e) => handleFileInputChange('blockView', e)} />
-                    {previewsUrls.blockView && (
-                        <Image src={previewsUrls.blockView} alt="Block View Preview" style={{ height: '40px' }}></Image>
-                    )}
-                </div>
-                <Button
-                    type="submit"
-                    className='button-next ml-2'
-                    style={{ width: '500px', marginTop: '10px' }}
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', model);
+      formData.append('cartridge', cartridge);
+      formData.append('paper_size', paperFormat);
+      formData.append('scanner', scannerType);
+      formData.append('img1', externalFile);
+      formData.append('img2', cartridgeFile);
+      formData.append('img3', blockFile);
 
-                >
-                    <VscSaveAs
-                        className={'icon-staff'}
-                        size={20}
-                        style={{ marginRight: '8px' }}
-                    />
-                    СОХРАНИТЬ
-                </Button>
+      await PrintsService.createPrintModel(formData);
+      message.success('Модель принтера успешно создана');
+      onSuccess?.();
+      onRequestClose();
+    } catch (error) {
+      console.error('Ошибка при создании модели принтера:', error);
+      message.error('Произошла ошибка при создании модели принтера');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            </Form>
-        </Modal>
-    );
+  // Поля формы с метками и именами
+  const formFields = [
+    { name: 'model', label: 'Модель принтера', placeholder: 'Модель принтера', required: true },
+    { name: 'cartridge', label: 'Тип картриджа/тонера', placeholder: 'Тип картриджа/тонера', required: true },
+    { name: 'paperFormat', label: 'Максимальный формат печати', placeholder: 'Максимальный формат печати', required: true },
+    { name: 'scannerType', label: 'Сканирование чб/цв', placeholder: 'Сканирование чб/цв', required: true },
+  ];
+
+  // Блоки загрузки файлов
+  const uploadFields = [
+    { field: 'externalView', label: 'Внешний вид' },
+    { field: 'cartridgeView', label: 'Вид тонера/картриджа' },
+    { field: 'blockView', label: 'Вид блока' },
+  ];
+
+  return (
+    <Modal
+      title="Добавление модели принтера"
+      open={isOpen}
+      onCancel={onRequestClose}
+      footer={null}
+      width={560}
+      closeIcon={<CloseOutlined />}
+      style={{ top: 20 }}
+    >
+      <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle">
+        {formFields.map(({ name, label, placeholder, required }) => (
+          <Form.Item
+            key={name}
+            name={name}
+            label={label}
+            rules={required ? [{ required: true, message: `Введите ${label.toLowerCase()}` }] : []}
+          >
+            <Input placeholder={placeholder} />
+          </Form.Item>
+        ))}
+
+        {uploadFields.map(({ field, label }) => (
+          <Form.Item key={field} label={label} required>
+            <Upload
+              listType="picture"
+              maxCount={1}
+              beforeUpload={() => false}
+              fileList={fileList[field]}
+              onChange={(info) => handleFileChange(field, info)}
+              accept="image/*"
+            >
+              <Button icon={<PlusOutlined />} size="small">Загрузить</Button>
+            </Upload>
+            {fileList[field].length === 0 && (
+              <div style={{ marginTop: 4, color: '#ff4d4f', fontSize: 12 }}>Обязательное поле</div>
+            )}
+          </Form.Item>
+        ))}
+
+        <Form.Item style={{ marginBottom: 0, marginTop: 16 }}>
+          <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={loading}>
+            СОХРАНИТЬ
+          </Button>
+          <Button onClick={onRequestClose} style={{ marginLeft: 8 }}>Отмена</Button>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
 }

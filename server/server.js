@@ -13,6 +13,7 @@ const TimeSlot = require('./models/TimeSlot')
 const VehicleType = require('./models/VehicleType')
 const VehicleSubtype = require('./models/VehicleSubtype')
 const Drivers = require('./models/Drivers')
+const knowledgeModels = require('./models/knowledgeModels')
 require('./models/associations')
 const cors = require('cors')
 const route = require('./routes/index')
@@ -21,6 +22,7 @@ const path = require('path')
 const fs = require('fs')
 const PORT = process.env.PORT || 5000
 const snmpPoller = require('./snmpPoller')
+const ApiError = require('./error/ApiError');
 
 const app = express()
 
@@ -57,10 +59,10 @@ const createDirectories = () => {
     
     dirs.forEach(dir => {
         if (!fs.existsSync(dir.path)) {
-            console.log(`Создаю папку ${dir.name}:`, dir.path)
+          //  console.log(`Создаю папку ${dir.name}:`, dir.path)
             fs.mkdirSync(dir.path, { recursive: true })
         } else {
-            console.log(`Папка ${dir.name} уже существует:`, dir.path)
+           // console.log(`Папка ${dir.name} уже существует:`, dir.path)
             
         }
     })
@@ -121,15 +123,23 @@ app.get('/api/debug/files', (req, res) => {
 // Роуты API
 app.use('/api', route)
 
+app.use((err, req, res, next) => {
+    if (err instanceof ApiError) {
+        return res.status(err.status).json({ message: err.message });
+    }
+    console.error(err);
+    return res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+});
+
 // Запуск сервера
 const start = async () => {
      try {
           await sequelize.authenticate()
           await sequelize.sync()
-          console.log('База данных подключена')
+          //console.log('База данных подключена')
 
           snmpPoller.start()
-          console.log('SNMP поллер запущен')
+          //console.log('SNMP поллер запущен')
 
           app.listen(PORT, () => {
               

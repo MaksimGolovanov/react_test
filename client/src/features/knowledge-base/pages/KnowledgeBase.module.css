@@ -7,6 +7,17 @@
     overflow: hidden;
 }
 
+.tableRow {
+    transition: none !important;
+}
+
+.tableRow:hover {
+    background-color: #fafafa;
+    /* не меняем размеры, тени, границы */
+}
+
+
+
 .statsRow {
     margin-bottom: 16px;
 }
@@ -53,6 +64,7 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
+    
 }
 
 .tableCard {
@@ -61,23 +73,25 @@
     flex-direction: column;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
-                0 1px 6px -1px rgba(0, 0, 0, 0.02),
-                0 2px 4px 0 rgba(0, 0, 0, 0.02);
+
     min-height: 0;
     overflow: hidden;
+    transition: none !important;
+    
 }
 
-.tableCard :global(.ant-card-body) {
-    padding: 0 !important;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+.tableCard:hover {
+    box-shadow: none !important;
+    border-color: transparent !important;
+    border-radius: 8px;
+    transition: none !important;
 }
+
+
 
 .articleListScroll {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
     padding: 8px;
     max-height: calc(100vh - 150px);

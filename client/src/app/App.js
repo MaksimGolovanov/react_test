@@ -146,7 +146,7 @@ function App() {
                     'IUSPT',
                     'ST',
                     'ST-ADMIN',
-                    'TRANSPORT'
+                    'TRANSPORT',
                   ]}
                 >
                   <FirstAvailablePage />
@@ -204,17 +204,20 @@ function App() {
                 </PrivateRoute>
               }
             />
+
+
             <Route
-              path="/notes/*"
+              path="/knowledge/*"
               element={
                 <PrivateRoute requiredRole={['ADMIN', 'NOTES']}>
-                  <NotesRoutes />
+                  <KnowledgeRoutes />
                 </PrivateRoute>
               }
             />
-            
+
             <Route
               path="/transport/*"
+              
               element={
                 <PrivateRoute requiredRole={['ADMIN', 'TRANSPORT']}>
                   <TransportRoutes />
@@ -271,7 +274,7 @@ function App() {
                     'IUSPT',
                     'ST',
                     'ST-ADMIN',
-                    'TRANSPORT'
+                    'TRANSPORT',
                   ]}
                 >
                   <Navigate to="/" replace />

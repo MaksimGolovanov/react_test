@@ -474,6 +474,145 @@ class TransportStore {
     }
   });
 
+  // ========== ЗАЯВКИ ==========
+  requests = [];
+  requestsLoading = true;
+
+  updateBooking = action(async (requestId, vehicleId, driverId) => {
+    try {
+      const response = await TransportService.updateBooking(requestId, {
+        assigned_vehicle_id: vehicleId,
+        assigned_driver_id: driverId,
+      });
+      // Обновляем заявку в массиве requests
+      const requestIndex = this.requests.findIndex((r) => r.id === requestId);
+      if (requestIndex !== -1) this.requests[requestIndex] = response.request;
+      // Обновляем бронирование, если оно есть
+      const bookingIndex = this.bookings.findIndex(
+        (b) => b.request_id === requestId
+      );
+      if (bookingIndex !== -1 && response.booking)
+        this.bookings[bookingIndex] = response.booking;
+      return response;
+    } catch (error) {
+      this.error = error;
+      throw error;
+    }
+  });
+
+  fetchRequests = action(async (params = {}) => {
+    try {
+      this.requestsLoading = true;
+      const query = new URLSearchParams(params).toString();
+      const response = await TransportService.fetchRequests(query);
+      this.requests = response;
+      this.error = null;
+    } catch (error) {
+      this.error = error;
+      console.error('Ошибка при загрузке заявок:', error);
+    } finally {
+      this.requestsLoading = false;
+    }
+  });
+
+  createRequest = action(async (requestData) => {
+    try {
+      const newRequest = await TransportService.createRequest(requestData);
+      this.requests.push(newRequest);
+      return newRequest;
+    } catch (error) {
+      this.error = error;
+      throw error;
+    }
+  });
+
+  updateRequest = action(async (id, data) => {
+    try {
+      const updated = await TransportService.updateRequest(id, data);
+      const index = this.requests.findIndex((r) => r.id === id);
+      if (index !== -1) this.requests[index] = updated;
+      return updated;
+    } catch (error) {
+      this.error = error;
+      throw error;
+    }
+  });
+
+  assignVehicleAndDriver = action(async (id, vehicleId, driverId) => {
+    try {
+      const updated = await TransportService.assignVehicleAndDriver(id, {
+        assigned_vehicle_id: vehicleId,
+        assigned_driver_id: driverId,
+      });
+      const index = this.requests.findIndex((r) => r.id === id);
+      if (index !== -1) this.requests[index] = updated;
+      return updated;
+    } catch (error) {
+      this.error = error;
+      throw error;
+    }
+  });
+
+  confirmRequest = action(async (id) => {
+    try {
+      const result = await TransportService.confirmRequest(id);
+      // Обновляем заявку и бронирование в сторах
+      const requestIndex = this.requests.findIndex((r) => r.id === id);
+      if (requestIndex !== -1) this.requests[requestIndex] = result.request;
+      if (result.booking) this.bookings.push(result.booking);
+      return result;
+    } catch (error) {
+      this.error = error;
+      throw error;
+    }
+  });
+
+  cancelRequest = action(async (id, notes, cancelledBy) => {
+    try {
+      const updated = await TransportService.cancelRequest(
+        id,
+        notes,
+        cancelledBy
+      );
+      const index = this.requests.findIndex((r) => r.id === id);
+      if (index !== -1) this.requests[index] = updated;
+      return updated;
+    } catch (error) {
+      this.error = error;
+      throw error;
+    }
+  });
+
+  rescheduleRequest = action(
+    async (id, newDate, newStartTime, newEndTime, notes) => {
+      try {
+        const updated = await TransportService.rescheduleRequest(id, {
+          new_date: newDate,
+          new_start_time: newStartTime,
+          new_end_time: newEndTime,
+          notes,
+        });
+        const index = this.requests.findIndex((r) => r.id === id);
+        if (index !== -1) this.requests[index] = updated;
+        return updated;
+      } catch (error) {
+        this.error = error;
+        throw error;
+      }
+    }
+  );
+
+  deleteRequest = action(async (id) => {
+    try {
+      await TransportService.deleteRequest(id);
+      this.requests = this.requests.filter((r) => r.id !== id);
+      return true;
+    } catch (error) {
+      this.error = error;
+      throw error;
+    }
+  });
+
   // ========== ВОДИТЕЛИ ==========
 
   drivers = [];

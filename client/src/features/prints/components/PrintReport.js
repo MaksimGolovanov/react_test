@@ -13,334 +13,350 @@ Chart.register(ChartDataLabels)
 moment.locale('ru')
 
 const PrintReport = () => {
-     const [printers, setPrinters] = useState([])
-     const [loading, setLoading] = useState(true)
-     const [error, setError] = useState(null)
-     const [timeRange, setTimeRange] = useState('year')
-     const [selectedDate, setSelectedDate] = useState(moment().format('YYYY')) // Изменено на текущий год
-     const [chartData, setChartData] = useState({
-          labels: [],
-          datasets: [
-               {
-                    label: 'Количество копий',
-                    data: [],
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    barThickness: 20,
-               },
-          ],
-     })
-     const [sortDirection, setSortDirection] = useState('desc')
-     const [printerStats, setPrinterStats] = useState([])
+    const [printers, setPrinters] = useState([])
+    const [printModels, setPrintModels] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const [timeRange, setTimeRange] = useState('year')
+    const [selectedDate, setSelectedDate] = useState(moment().format('YYYY'))
+    const [chartData, setChartData] = useState({
+        labels: [],
+        datasets: [
+            {
+                label: 'Количество копий',
+                data: [],
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                borderRadius: 4,
+                barThickness: 20,
+            },
+        ],
+    })
+    const [sortDirection, setSortDirection] = useState('desc')
+    const [printerStats, setPrinterStats] = useState([])
 
-     // Загрузка списка принтеров
-     useEffect(() => {
-          async function fetchPrinters() {
-               try {
-                    setLoading(true)
-                    const data = await PrintsService.fetchPrints()
-                    if (!data || data.length === 0) {
-                         setError('Нет данных о принтерах')
-                         return
-                    }
-                    setPrinters(data)
-               } catch (error) {
-                    console.error('Ошибка при получении списка принтеров:', error)
-                    setError('Ошибка загрузки списка принтеров')
-               } finally {
-                    setLoading(false)
-               }
-          }
-          fetchPrinters()
-     }, [])
+    // Загрузка списка принтеров и моделей
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                setLoading(true)
+                const [printersData, modelsData] = await Promise.all([
+                    PrintsService.fetchPrints(),
+                    PrintsService.fetchPrintModel()
+                ])
+                if (!printersData || printersData.length === 0) {
+                    setError('Нет данных о принтерах')
+                    return
+                }
+                setPrinters(printersData)
+                setPrintModels(modelsData || [])
+            } catch (error) {
+                console.error('Ошибка при загрузке данных:', error)
+                setError('Ошибка загрузки данных')
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [])
 
-     // Загрузка статистики при изменении параметров
-     useEffect(() => {
-          if (printers.length === 0) return
+    // Загрузка статистики при изменении параметров
+    useEffect(() => {
+        if (printers.length === 0) return
 
-          async function fetchStatistics() {
-               setLoading(true)
-               setError(null)
-               try {
-                    const statsPromises = printers.map((printer) => {
-                         if (!printer.serial_number) return Promise.resolve([])
-                         return PrintsService.fetchPrintStatistic(printer.serial_number).catch((err) => {
-                              console.error(`Error fetching stats for printer ${printer.serial_number}:`, err)
-                              return []
-                         })
+        async function fetchStatistics() {
+            setLoading(true)
+            setError(null)
+            try {
+                const statsPromises = printers.map((printer) => {
+                    if (!printer.serial_number) return Promise.resolve([])
+                    return PrintsService.fetchPrintStatistic(printer.serial_number).catch((err) => {
+                        console.error(`Error fetching stats for printer ${printer.serial_number}:`, err)
+                        return []
                     })
+                })
 
-                    const allStats = await Promise.all(statsPromises)
-                    processAndSaveStats(allStats)
-               } catch (error) {
-                    console.error('Statistics fetch error:', error)
-                    setError('Ошибка при загрузке статистики')
-               } finally {
-                    setLoading(false)
-               }
-          }
+                const allStats = await Promise.all(statsPromises)
+                processAndSaveStats(allStats)
+            } catch (error) {
+                console.error('Statistics fetch error:', error)
+                setError('Ошибка при загрузке статистики')
+            } finally {
+                setLoading(false)
+            }
+        }
 
-          fetchStatistics()
-     }, [printers, timeRange, selectedDate])
+        fetchStatistics()
+    }, [printers, timeRange, selectedDate])
 
-     // Обработка и сохранение статистики
-     const processAndSaveStats = useCallback(
-          (allStats) => {
-               const date = timeRange === 'year' ? moment(selectedDate, 'YYYY') : moment(selectedDate, 'YYYY-MM')
-               const start = timeRange === 'year' ? date.clone().startOf('year') : date.clone().startOf('month')
-               const end = timeRange === 'year' ? date.clone().endOf('year') : date.clone().endOf('month')
+    // Получение названия модели по id
+    const getModelNameById = useCallback((modelId) => {
+        const model = printModels.find(m => m.id === Number(modelId))
+        return model ? model.name : null
+    }, [printModels])
 
-               const stats = printers.map((printer, index) => {
-                    const printerStats = allStats[index] || []
-                    let copies = 0
+    // Обработка и сохранение статистики
+    const processAndSaveStats = useCallback(
+        (allStats) => {
+            const date = timeRange === 'year' ? moment(selectedDate, 'YYYY') : moment(selectedDate, 'YYYY-MM')
+            const start = timeRange === 'year' ? date.clone().startOf('year') : date.clone().startOf('month')
+            const end = timeRange === 'year' ? date.clone().endOf('year') : date.clone().endOf('month')
 
-                    if (printerStats.length > 0) {
-                         const periodData = printerStats
-                              .map((item) => ({
-                                   ...item,
-                                   date: moment(item.clock * 1000),
-                              }))
-                              .filter((item) => item.date.isBetween(start, end, null, '[]'))
-                              .sort((a, b) => a.date - b.date)
+            const stats = printers.map((printer, index) => {
+                const printerStats = allStats[index] || []
+                let copies = 0
 
-                         if (periodData.length >= 2) {
-                              copies = periodData[periodData.length - 1].value - periodData[0].value
-                         }
+                if (printerStats.length > 0) {
+                    const periodData = printerStats
+                        .map((item) => ({
+                            ...item,
+                            date: moment(item.clock * 1000),
+                        }))
+                        .filter((item) => item.date.isBetween(start, end, null, '[]'))
+                        .sort((a, b) => a.date - b.date)
+
+                    if (periodData.length >= 2) {
+                        copies = periodData[periodData.length - 1].value - periodData[0].value
                     }
+                }
 
-                    return {
-                         id: printer.id,
-                         name: printer.logical_name || `Принтер ${printer.serial_number}`,
-                         copies: Math.max(0, copies),
-                         printerData: printer,
-                    }
-               })
+                // Формируем метку: "Модель принтера (Отдел) — Примечание"
+                const modelName = getModelNameById(printer.print_model) || 'Неизвестная модель'
+                const department = printer.department ? ` (${printer.department})` : ''
+                const description = printer.description ? ` — ${printer.description}` : ''
+                const fullName = `${modelName}${department}${description}`
 
-               setPrinterStats(stats)
-               updateChartData(stats, sortDirection)
-          },
-          [printers, selectedDate, timeRange, sortDirection]
-     )
+                return {
+                    id: printer.id,
+                    name: fullName,
+                    copies: Math.max(0, copies),
+                    printerData: printer,
+                }
+            })
 
-     // Обновление данных графика
-     const updateChartData = useCallback(
-          (stats, direction) => {
-               const sortedStats = [...stats].sort((a, b) => {
-                    return direction === 'desc' ? b.copies - a.copies : a.copies - b.copies
-               })
+            setPrinterStats(stats)
+            updateChartData(stats, sortDirection)
+        },
+        [printers, selectedDate, timeRange, sortDirection, getModelNameById]
+    )
 
-               const labels = sortedStats.map((item) => item.name)
-               const data = sortedStats.map((item) => item.copies)
-               const backgroundColors = data.map((_, i) => `hsl(${(i * 360) / printers.length}, 70%, 60%, 0.7)`)
+    // Обновление данных графика
+    const updateChartData = useCallback(
+        (stats, direction) => {
+            const sortedStats = [...stats].sort((a, b) => {
+                return direction === 'desc' ? b.copies - a.copies : a.copies - b.copies
+            })
 
-               setChartData({
-                    labels,
-                    datasets: [
-                         {
-                              label: `Количество копий за ${timeRange === 'year' ? 'год' : 'месяц'}`,
-                              data,
-                              backgroundColor: backgroundColors,
-                              borderColor: backgroundColors.map((color) => color.replace('0.7', '1')),
-                              borderWidth: 1,
-                              borderRadius: 4,
-                              barThickness: 20,
-                         },
-                    ],
-               })
-          },
-          [printers.length, timeRange]
-     )
+            const labels = sortedStats.map((item) => item.name)
+            const data = sortedStats.map((item) => item.copies)
+            const backgroundColors = data.map((_, i) => `hsl(${(i * 360) / printers.length}, 70%, 60%, 0.7)`)
 
-     // Обработчик изменения направления сортировки
-     const toggleSortDirection = useCallback(() => {
-          const newDirection = sortDirection === 'desc' ? 'asc' : 'desc'
-          setSortDirection(newDirection)
-          updateChartData(printerStats, newDirection)
-     }, [printerStats, sortDirection, updateChartData])
+            setChartData({
+                labels,
+                datasets: [
+                    {
+                        label: `Количество копий за ${timeRange === 'year' ? 'год' : 'месяц'}`,
+                        data,
+                        backgroundColor: backgroundColors,
+                        borderColor: backgroundColors.map((color) => color.replace('0.7', '1')),
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barThickness: 20,
+                    },
+                ],
+            })
+        },
+        [printers.length, timeRange]
+    )
 
-     const handleTimeRangeChange = (e) => {
-          setTimeRange(e.target.value)
-          // Устанавливаем текущий год или месяц при изменении типа периода
-          setSelectedDate(e.target.value === 'year' ? moment().format('YYYY') : moment().format('YYYY-MM'))
-     }
+    // Обработчик изменения направления сортировки
+    const toggleSortDirection = useCallback(() => {
+        const newDirection = sortDirection === 'desc' ? 'asc' : 'desc'
+        setSortDirection(newDirection)
+        updateChartData(printerStats, newDirection)
+    }, [printerStats, sortDirection, updateChartData])
 
-     const handleDateChange = (e) => {
-          setSelectedDate(e.target.value)
-     }
+    const handleTimeRangeChange = (e) => {
+        setTimeRange(e.target.value)
+        setSelectedDate(e.target.value === 'year' ? moment().format('YYYY') : moment().format('YYYY-MM'))
+    }
 
-     const generateDateOptions = () => {
-          const options = []
-          const current = moment()
-          const start = moment('2024-01-01')
+    const handleDateChange = (e) => {
+        setSelectedDate(e.target.value)
+    }
 
-          if (timeRange === 'year') {
-               for (let year = start.year(); year <= current.year(); year++) {
-                    options.push(
-                         <option key={year} value={year}>
-                              {year}
-                         </option>
-                    )
-               }
-          } else {
-               for (let m = moment(start); m.isBefore(current); m.add(1, 'month')) {
-                    options.push(
-                         <option key={m.format('YYYY-MM')} value={m.format('YYYY-MM')}>
-                              {m.format('MMMM YYYY')}
-                         </option>
-                    )
-               }
-          }
+    const generateDateOptions = () => {
+        const options = []
+        const current = moment()
+        const start = moment('2024-01-01')
 
-          return options
-     }
+        if (timeRange === 'year') {
+            for (let year = start.year(); year <= current.year(); year++) {
+                options.push(
+                    <option key={year} value={year}>
+                        {year}
+                    </option>
+                )
+            }
+        } else {
+            for (let m = moment(start); m.isBefore(current); m.add(1, 'month')) {
+                options.push(
+                    <option key={m.format('YYYY-MM')} value={m.format('YYYY-MM')}>
+                        {m.format('MMMM YYYY')}
+                    </option>
+                )
+            }
+        }
 
-     return (
-          <Container className="py-4">
-               <h2 className="mb-4">Отчет по принтерам</h2>
+        return options
+    }
 
-               {error && (
-                    <Alert variant="danger" onClose={() => setError(null)} dismissible>
-                         {error}
-                    </Alert>
-               )}
+    return (
+        <Container className="py-4">
+            <h2 className="mb-4">Отчет по принтерам</h2>
 
-               <Card className="mb-4">
+            {error && (
+                <Alert variant="danger" onClose={() => setError(null)} dismissible>
+                    {error}
+                </Alert>
+            )}
+
+            <Card className="mb-4">
+                <Card.Body>
+                    <Row className="g-3 align-items-center">
+                        <Col md={3}>
+                            <Form.Group className="h-100 d-flex flex-column">
+                                <Form.Select
+                                    value={timeRange}
+                                    onChange={handleTimeRangeChange}
+                                    disabled={loading}
+                                    className="flex-grow-0"
+                                >
+                                    <option value="year">Год</option>
+                                    <option value="month">Месяц</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                        <Col md={3}>
+                            <Form.Group className="h-100 d-flex flex-column">
+                                <Form.Select
+                                    value={selectedDate}
+                                    onChange={handleDateChange}
+                                    disabled={loading}
+                                    className="flex-grow-0"
+                                >
+                                    {generateDateOptions()}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                        <Col md={3}>
+                            <div className="h-100 d-flex flex-column justify-content-end">
+                                <Button
+                                    variant={sortDirection === 'desc' ? 'primary' : 'outline-primary'}
+                                    onClick={toggleSortDirection}
+                                    disabled={loading || printerStats.length === 0}
+                                    style={{
+                                        height: '38px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    {sortDirection === 'desc' ? 'По убыванию ▼' : 'По возрастанию ▲'}
+                                </Button>
+                            </div>
+                        </Col>
+                    </Row>
+                </Card.Body>
+            </Card>
+
+            {loading ? (
+                <div className="text-center py-5">
+                    <Spinner animation="border" variant="primary" />
+                    <p className="mt-2">Загрузка данных...</p>
+                </div>
+            ) : (
+                <Card>
                     <Card.Body>
-                         <Row className="g-3 align-items-center">
-                              <Col md={3}>
-                                   <Form.Group className="h-100 d-flex flex-column">
-                                        <Form.Select
-                                             value={timeRange}
-                                             onChange={handleTimeRangeChange}
-                                             disabled={loading}
-                                             className="flex-grow-0"
-                                        >
-                                             <option value="year">Год</option>
-                                             <option value="month">Месяц</option>
-                                        </Form.Select>
-                                   </Form.Group>
-                              </Col>
-                              <Col md={3}>
-                                   <Form.Group className="h-100 d-flex flex-column">
-                                        <Form.Select
-                                             value={timeRange === 'year' ? selectedDate : selectedDate}
-                                             onChange={handleDateChange}
-                                             disabled={loading}
-                                             className="flex-grow-0"
-                                        >
-                                             {generateDateOptions()}
-                                        </Form.Select>
-                                   </Form.Group>
-                              </Col>
-                              <Col md={3}>
-                                   <div className="h-100 d-flex flex-column justify-content-end">
-                                        <Button
-                                             variant={sortDirection === 'desc' ? 'primary' : 'outline-primary'}
-                                             onClick={toggleSortDirection}
-                                             disabled={loading || printerStats.length === 0}
-                                             style={{
-                                                  height: '38px',
-                                                  display: 'flex',
-                                                  alignItems: 'center',
-                                                  justifyContent: 'center',
-                                             }}
-                                        >
-                                             {sortDirection === 'desc' ? 'По убыванию ▼' : 'По возрастанию ▲'}
-                                        </Button>
-                                   </div>
-                              </Col>
-                         </Row>
+                        <div
+                            style={{
+                                height: `${Math.max(printers.length * 40 + 100, 300)}px`,
+                                minHeight: '300px',
+                            }}
+                        >
+                            {chartData.labels.length > 0 ? (
+                                <Bar
+                                    data={chartData}
+                                    options={{
+                                        indexAxis: 'y',
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                display: false,
+                                            },
+                                            datalabels: {
+                                                display: true,
+                                                color: '#000',
+                                                anchor: 'end',
+                                                align: 'right',
+                                                formatter: (value) => value.toLocaleString(),
+                                                font: {
+                                                    weight: 'bold',
+                                                },
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: (context) => {
+                                                        const label = context.dataset.label || ''
+                                                        return `${label}: ${context.raw.toLocaleString()}`
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        maintainAspectRatio: false,
+                                        scales: {
+                                            x: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Количество копий',
+                                                    font: {
+                                                        weight: 'bold',
+                                                        size: 14,
+                                                    },
+                                                },
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    callback: (value) => value.toLocaleString(),
+                                                },
+                                            },
+                                            y: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Принтеры',
+                                                    font: {
+                                                        weight: 'bold',
+                                                        size: 14,
+                                                    },
+                                                },
+                                                grid: {
+                                                    display: false,
+                                                },
+                                            },
+                                        },
+                                    }}
+                                />
+                            ) : (
+                                <Alert variant="info" className="text-center">
+                                    Нет данных для отображения
+                                </Alert>
+                            )}
+                        </div>
                     </Card.Body>
-               </Card>
-
-               {loading ? (
-                    <div className="text-center py-5">
-                         <Spinner animation="border" variant="primary" />
-                         <p className="mt-2">Загрузка данных...</p>
-                    </div>
-               ) : (
-                    <Card>
-                         <Card.Body>
-                              <div
-                                   style={{
-                                        height: `${Math.max(printers.length * 40 + 100, 300)}px`,
-                                        minHeight: '300px',
-                                   }}
-                              >
-                                   {chartData.labels.length > 0 ? (
-                                        <Bar
-                                             data={chartData}
-                                             options={{
-                                                  indexAxis: 'y',
-                                                  responsive: true,
-                                                  plugins: {
-                                                       legend: {
-                                                            display: false,
-                                                       },
-                                                       datalabels: {
-                                                            display: true,
-                                                            color: '#000',
-                                                            anchor: 'end',
-                                                            align: 'right',
-                                                            formatter: (value) => value.toLocaleString(),
-                                                            font: {
-                                                                 weight: 'bold',
-                                                            },
-                                                       },
-                                                       tooltip: {
-                                                            callbacks: {
-                                                                 label: (context) => {
-                                                                      const label = context.dataset.label || ''
-                                                                      return `${label}: ${context.raw.toLocaleString()}`
-                                                                 },
-                                                            },
-                                                       },
-                                                  },
-                                                  maintainAspectRatio: false,
-                                                  scales: {
-                                                       x: {
-                                                            title: {
-                                                                 display: true,
-                                                                 text: 'Количество копий',
-                                                                 font: {
-                                                                      weight: 'bold',
-                                                                      size: 14,
-                                                                 },
-                                                            },
-                                                            beginAtZero: true,
-                                                            ticks: {
-                                                                 callback: (value) => value.toLocaleString(),
-                                                            },
-                                                       },
-                                                       y: {
-                                                            title: {
-                                                                 display: true,
-                                                                 text: 'Принтеры',
-                                                                 font: {
-                                                                      weight: 'bold',
-                                                                      size: 14,
-                                                                 },
-                                                            },
-                                                            grid: {
-                                                                 display: false,
-                                                            },
-                                                       },
-                                                  },
-                                             }}
-                                        />
-                                   ) : (
-                                        <Alert variant="info" className="text-center">
-                                             Нет данных для отображения
-                                        </Alert>
-                                   )}
-                              </div>
-                         </Card.Body>
-                    </Card>
-               )}
-          </Container>
-     )
+                </Card>
+            )}
+        </Container>
+    )
 }
 
 export default PrintReport
