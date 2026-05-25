@@ -15,6 +15,9 @@ import { CardRoutes } from '../features/card';
 import { MultiEduRouters } from '../features/MultiEdu';
 import { TransportRoutes } from '../features/transport';
 import { KnowledgeRoutes } from '../features/knowledge-base';
+import { MapRoutes } from '../features/map';
+
+
 import LoginPage from '../features/admin/pages/LoginPage';
 import Json from '../features/json/pages/JsonViewer';
 import './App.css';
@@ -38,8 +41,9 @@ const FirstAvailablePage = observer(() => {
     { path: '/admin', roles: ['ADMIN'] },
     { path: '/json', roles: ['ADMIN'] },
     { path: '/multiedu', roles: ['ADMIN', 'ST', 'ST-ADMIN'] },
-    { path: '/transport', roles: ['ADMIN', 'TRANSPORT'] },
+    { path: '/transport', roles: ['ADMIN', 'TRANSPORT', 'TRANSPORT-ORDER'] },
     { path: '/knowledge', roles: ['ADMIN'] },
+    { path: '/map', roles: ['ADMIN', 'MAP'] },
   ];
 
   // Находим первую доступную страницу
@@ -101,6 +105,8 @@ function App() {
         return 'РЕДАКТИРОВАНИЕ ЗАПИСИ';
       case location.pathname.startsWith('/admin'):
         return 'АДМИНИСТРИРОВАНИЕ';
+      case location.pathname.startsWith('/map'):
+        return 'КАРТА';
       case location.pathname.startsWith('/iuspt'):
         return 'ИУС П Т';
       case location.pathname.startsWith('/json'):
@@ -147,6 +153,8 @@ function App() {
                     'ST',
                     'ST-ADMIN',
                     'TRANSPORT',
+                    'TRANSPORT-ORDER',
+                    'MAP'
                   ]}
                 >
                   <FirstAvailablePage />
@@ -219,11 +227,21 @@ function App() {
               path="/transport/*"
               
               element={
-                <PrivateRoute requiredRole={['ADMIN', 'TRANSPORT']}>
+                <PrivateRoute requiredRole={['ADMIN', 'TRANSPORT', 'TRANSPORT-ORDER']}>
                   <TransportRoutes />
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/map/*"
+              
+              element={
+                <PrivateRoute requiredRole={['ADMIN', 'MAP']}>
+                  <MapRoutes />
+                </PrivateRoute>
+              }
+            />
+
             <Route
               path="/admin/*"
               element={
@@ -275,6 +293,8 @@ function App() {
                     'ST',
                     'ST-ADMIN',
                     'TRANSPORT',
+                    'TRANSPORT-ORDER',
+                    'MAP'
                   ]}
                 >
                   <Navigate to="/" replace />

@@ -482,9 +482,10 @@ class TransportService {
     return response.data;
   }
 
-  static async fetchRequests(params = '') {
+  static async fetchRequests(params = {}) {
+    const query = new URLSearchParams(params).toString();
     const response = await axios.get(
-      `${API_URL}api/transport/requests${params ? '?' + params : ''}`
+      `${API_URL}api/transport/requests${query ? '?' + query : ''}`
     );
     return response.data;
   }

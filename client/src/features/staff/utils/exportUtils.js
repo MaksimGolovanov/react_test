@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx'
  * @param {Array} excludedDepartments - Массив исключенных отделов (опционально)
  * @returns {Object} Объект с workbook и именем файла
  */
-export const exportStaffToExcel = (staff, excludedDepartments = []) => {
+export const exportStaffToExcel = (staff, excludedDepartments = [], getUsbList = () => '') => {
      // Подготовка данных для экспорта
      const dataToExport = staff.map((staffMember) => ({
           ID: '',
@@ -24,6 +24,7 @@ export const exportStaffToExcel = (staff, excludedDepartments = []) => {
           'Есть фото': staffMember.hasPhoto ? 'Да' : 'Нет',
           'Тип пользователя': staffMember.isExcludedDepartment ? 'Сторонний' : 'Основной',
           Примечание: excludedDepartments.includes(staffMember.departmentName) ? 'Исключенный отдел' : '',
+          'USB накопители': getUsbList(staffMember),
      }))
 
      // Создание книги Excel
@@ -47,6 +48,7 @@ export const exportStaffToExcel = (staff, excludedDepartments = []) => {
           { wch: 15 }, // Есть фото
           { wch: 15 }, // Тип пользователя
           { wch: 20 }, // Примечание
+          { wch: 30 },
      ]
      ws['!cols'] = columnWidths
 

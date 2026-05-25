@@ -1,68 +1,63 @@
-/* IpAddress.module.css */
-.container {
-  height: calc(100vh - 60px);
-  display: flex;
-  flex-direction: column;
-  background: #f0f2f5;
-  padding: 16px;
-  overflow: hidden; 
-  min-width: 0; /* добавляем */ 
+/* IpAddress.module.css – современный редизайн */
+:root {
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --border-radius: 20px;
+  --transition: all 0.2s ease;
 }
- 
-.tableCard {
-  flex: 1;
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg-page) 0%, #eef2ff 100%);
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
-    0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
-  min-height: 0;
+  gap: 20px;
+}
+
+/* Карточка таблицы – стеклянная морфинг-эстетика */
+.tableCard {
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(2px);
+  transition: var(--transition);
   overflow: hidden;
-  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.tableCard:hover {
+  box-shadow: 0 20px 25px -12px rgb(0 0 0 / 0.1);
 }
 
 .tableCard :global(.ant-card-body) {
   padding: 0 !important;
 }
 
+/* Контейнер с прокруткой – плавный скролл */
 .userListScroll {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 8px;
-  max-height: calc(100vh - 195px);
-max-width: 100%; /* добавляем */
-  width: 100%; /* добавляем */
-  /* Стили для скроллбара */
+  overflow: auto;
   scrollbar-width: thin;
-  scrollbar-color: #d9d9d9 #f5f5f5;
-  min-width: 0;
+  scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
 .userListScroll::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
+  height: 6px;
 }
 
 .userListScroll::-webkit-scrollbar-track {
-  background: #f5f5f5;
-  border-radius: 2px;
+  background: #f1f5f9;
+  border-radius: 10px;
 }
 
 .userListScroll::-webkit-scrollbar-thumb {
-  background: #d9d9d9;
-  border-radius: 2px;
+  background: #cbd5e1;
+  border-radius: 10px;
 }
 
 .userListScroll::-webkit-scrollbar-thumb:hover {
-  background: #bfbfbf;
-}
-
-.tableRow :global(.ant-table-cell) {
-  cursor: pointer;
-  max-width: 400px;
-}
-
-.tableRow:hover :global(.ant-table-cell) {
-  background-color: #fafafa !important;
+  background: #94a3b8;
 }

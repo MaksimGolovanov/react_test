@@ -393,17 +393,7 @@ class TransportStore {
       (b) => b.time_slot_id === timeSlotId
     );
 
-    console.log('Check availability:', {
-      vehicleId,
-      date,
-      timeSlotId,
-      vehicleBookings: vehicleBookings.map((b) => ({
-        id: b.id,
-        time_slot_id: b.time_slot_id,
-        status: b.status,
-      })),
-      isAvailable,
-    });
+
 
     return isAvailable;
   };

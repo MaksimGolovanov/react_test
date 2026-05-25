@@ -300,7 +300,7 @@ class TransportController {
 
      async createDriver(req, res, next) {
           try {
-               const { fio, post, department, sort_order, is_active } = req.body
+               const { fio, post, department, sort_order, is_active, date_from, date_to } = req.body
 
                // Проверка обязательных полей
                if (!fio || !post || !department) {
@@ -324,6 +324,9 @@ class TransportController {
                     department,
                     sort_order: sort_order || 0,
                     is_active: driverStatus,
+                    date_from,
+                    date_to,
+
                })
 
                return res.status(201).json(driver)
@@ -336,7 +339,7 @@ class TransportController {
      async updateDriver(req, res, next) {
           try {
                const { id } = req.params
-               const { fio, post, department, sort_order, is_active } = req.body
+               const { fio, post, department, sort_order, is_active, date_from, date_to } = req.body
 
                const driver = await Drivers.findByPk(id)
                if (!driver) {
@@ -359,6 +362,8 @@ class TransportController {
                     department: department || driver.department,
                     sort_order: sort_order !== undefined ? sort_order : driver.sort_order,
                     is_active: is_active !== undefined ? is_active : driver.is_active,
+                    date_from: date_from,
+                    date_to: date_to,
                })
 
                return res.json(driver)
@@ -395,7 +400,7 @@ class TransportController {
                               as: 'vehicle',
                               attributes: ['vehicle_brand', 'state_number'],
                          },
-                         { model: Department, as: 'department', attributes: ['name'] },
+                         //{ model: Department, as: 'department', attributes: ['name'] },
                          { model: TimeSlot, as: 'timeSlot', attributes: ['label', 'start_time', 'end_time'] },
                     ],
                     order: [
@@ -426,7 +431,7 @@ class TransportController {
                               as: 'vehicle',
                               attributes: ['vehicle_brand', 'state_number', 'technical_condition'],
                          },
-                         { model: Department, as: 'department', attributes: ['name', 'head_name'] },
+                         //{ model: Department, as: 'department', attributes: ['name', 'head_name'] },
                          { model: TimeSlot, as: 'timeSlot', attributes: ['label', 'start_time', 'end_time'] },
                     ],
                     order: [['time_slot_id', 'ASC']],
@@ -451,7 +456,7 @@ class TransportController {
 
                const bookings = await Booking.findAll({
                     where,
-                    include: [{ model: Department, attributes: ['name'] }],
+                   // include: [{ model: Department, attributes: ['name'] }],
                     order: [['booking_date', 'DESC']],
                })
 
@@ -1080,6 +1085,7 @@ class TransportController {
                const {
                     department_id,
                     vehicle_type_id,
+                    assigned_vehicle_id,
                     start_time,
                     end_time,
                     request_date,
@@ -1096,6 +1102,7 @@ class TransportController {
                const request = await Request.create({
                     department_id,
                     vehicle_type_id: vehicle_type_id || null,
+                    assigned_vehicle_id: assigned_vehicle_id || null,
                     start_time,
                     end_time,
                     request_date,
@@ -1148,7 +1155,7 @@ class TransportController {
                     return next(ApiError.notFound('Заявка не найдена'))
                }
 
-               if (request.status !== 'pending') {
+               if (request.status !== 'pending'&& request.status !== 'rescheduled') {
                     return next(ApiError.badRequest('Подтвердить можно только заявку в статусе ожидания'))
                }
 

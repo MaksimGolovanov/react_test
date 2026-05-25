@@ -207,7 +207,7 @@ export const VehicleModal = ({ visible, editingVehicle, onSave, onCancel }) => {
           label="Тип транспорта"
           rules={[{ required: true, message: 'Выберите тип транспорта' }]}
         >
-          <Select placeholder="Выберите тип" loading={loading} allowClear>
+          <Select placeholder="Выберите тип" loading={loading}>
             {vehicleTypes.map((type) => (
               <Option key={type.id} value={type.id}>
                 {type.name}
@@ -223,7 +223,7 @@ export const VehicleModal = ({ visible, editingVehicle, onSave, onCancel }) => {
             }
             disabled={!watchVehicleType}
             loading={loading}
-            allowClear
+            
           >
             {availableSubtypes.map((subtype) => (
               <Option key={subtype.id} value={subtype.id}>
@@ -260,7 +260,7 @@ export const VehicleModal = ({ visible, editingVehicle, onSave, onCancel }) => {
             filterOption={(inputValue, option) =>
               option?.value?.toLowerCase().includes(inputValue.toLowerCase())
             }
-            allowClear
+            
           />
         </Form.Item>
 

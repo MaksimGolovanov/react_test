@@ -15,6 +15,7 @@ const courseRouter = require('./courseRouter');
 const docRoutes = require('./docRoutes');
 const transportRouter = require('./TransportRouter')
 const knowledgeRouter = require('./knowledgeRoutes')
+const mapRouter = require('./mapRouter');
 
 router.use('/user', userRouter)
 router.use('/staff', staffRouter)
@@ -31,6 +32,7 @@ router.use('/courses', courseRouter);
 router.use('/docs', docRoutes);
 router.use('/transport', transportRouter)
 router.use('/knowledge', knowledgeRouter)
+router.use('/map', mapRouter);
 
 
 module.exports = router;  

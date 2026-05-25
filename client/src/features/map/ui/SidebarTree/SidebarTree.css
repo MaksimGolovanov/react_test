@@ -1,0 +1,77 @@
+.sidebar-tree {
+  width: 240px;
+  background: white;
+  border-right: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+ 
+}
+
+.sidebar-search {
+  padding: 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.tree-layer-title {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.layer-name {
+  flex: 1;
+  cursor: pointer;
+}
+
+.layer-count {
+  font-size: 10px;
+  color: #6c757d;
+  margin-left: 4px;
+}
+
+.tree-marker-title {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.marker-description {
+  font-size: 10px;
+  color: #6c757d;
+  margin-left: 4px;
+}
+
+.ant-tree .ant-tree-node-content-wrapper {
+  display: flex;
+  align-items: center;
+  font-size: inherit !important;
+  padding: 0 !important;
+}
+
+.ant-tree-treenode {
+  width: 100%;
+}
+
+.sidebar-all-checkbox {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #fafbfc;
+}
+
+.sidebar-all-checkbox .ant-checkbox-wrapper {
+  font-weight: 500;
+}
+.sidebar-tree .ant-tree,
+.sidebar-tree .ant-tree .ant-tree-node-content-wrapper,
+.sidebar-tree .ant-tree .ant-tree-title {
+  font-size: 11px !important;
+}

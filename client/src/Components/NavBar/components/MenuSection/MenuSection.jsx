@@ -16,7 +16,7 @@ import {
   GlobalOutlined,
   BookOutlined,
   ReconciliationOutlined,
-  CarOutlined
+  CarOutlined,
 } from '@ant-design/icons';
 import styles from './MenuSection.module.css';
 
@@ -31,12 +31,15 @@ const MenuSection = ({ userRolesAuth }) => {
 
   useEffect(() => {
     setSelectedKeys([location.pathname]);
-    
+
     // Автоматически открываем соответствующее меню
     const path = location.pathname;
     const newOpenKeys = [];
-    
-    if (path.startsWith('/multiedu') && (hasAccess('ADMIN') || hasAccess('ST-ADMIN'))) {
+
+    if (
+      path.startsWith('/multiedu') &&
+      (hasAccess('ADMIN') || hasAccess('ST-ADMIN'))
+    ) {
       newOpenKeys.push('multi-edu-group');
     } else if (
       path.startsWith('/admin') &&
@@ -45,13 +48,13 @@ const MenuSection = ({ userRolesAuth }) => {
     ) {
       newOpenKeys.push('admin');
     }
-    
+
     setOpenKeys(newOpenKeys);
   }, [location.pathname, userRolesAuth]);
 
   const onOpenChange = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
-    
+
     if (latestOpenKey) {
       setOpenKeys([latestOpenKey]);
     } else {
@@ -62,17 +65,17 @@ const MenuSection = ({ userRolesAuth }) => {
   // Функция для определения selectedKeys
   const getActualSelectedKeys = () => {
     const path = location.pathname;
-    
+
     // 1. Админка обучения
     if (path === '/multiedu/admin') {
       return ['/multiedu/admin'];
     }
-    
+
     // 2. Главная страница обучения
     if (path === '/multiedu' || path === '/multiedu/') {
       return ['/multiedu'];
     }
-    
+
     // 3. Любые другие страницы обучения
     if (path.startsWith('/multiedu/')) {
       // Для обычных пользователей подсвечиваем /multiedu
@@ -82,7 +85,7 @@ const MenuSection = ({ userRolesAuth }) => {
       // Для админов: если мы в подменю обучения, подсвечиваем главную
       return ['/multiedu'];
     }
-    
+
     // 4. Для системного админ-меню
     if (path.startsWith('/admin') && !path.startsWith('/multiedu/admin')) {
       // Если это конкретный подпункт админ-меню, возвращаем его
@@ -96,7 +99,7 @@ const MenuSection = ({ userRolesAuth }) => {
         return ['/admin/create'];
       }
     }
-    
+
     // 5. Для остальных страниц
     const basePath = `/${path.split('/')[1]}`;
     return [basePath];
@@ -171,9 +174,8 @@ const MenuSection = ({ userRolesAuth }) => {
         ]
       : []),
 
-
-      // Заметки
-         ...(hasAccess('NOTES')
+    // Заметки
+    ...(hasAccess('NOTES')
       ? [
           {
             key: '/knowledge',
@@ -182,9 +184,9 @@ const MenuSection = ({ userRolesAuth }) => {
           },
         ]
       : []),
-      // Заметки
+    // Заметки
 
-    ...(hasAccess('TRANSPORT')
+    ...(hasAccess('TRANSPORT') || hasAccess('TRANSPORT-ORDER')
       ? [
           {
             key: '/transport',
@@ -194,7 +196,16 @@ const MenuSection = ({ userRolesAuth }) => {
         ]
       : []),
 
-
+    // Карта
+    ...(hasAccess('MAP')
+      ? [
+          {
+            key: '/map',
+            icon: <DashboardOutlined />,
+            label: <Link to="/map">КАРТА</Link>,
+          },
+        ]
+      : []),
     // ИУС П Т
     ...(hasAccess('IUSPT')
       ? [

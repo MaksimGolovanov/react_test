@@ -167,9 +167,7 @@ function Staff() {
       const deleted = mainStaff.filter((user) => user.isDeleted);
 
       // Пользователи без фото
-      const noPhoto = staff.filter(
-        (user) => !user.hasPhoto && !user.isDeleted
-      );
+      const noPhoto = staff.filter((user) => !user.hasPhoto && !user.isDeleted);
 
       // Исключенные пользователи (сторонние)
       const excluded = staff.filter((user) => user.isExcludedDepartment);
@@ -286,15 +284,42 @@ function Staff() {
   const handleExportClick = useCallback(async () => {
     setExportLoading(true);
     try {
-      // Используем функцию экспорта из утилит
+      // Загружаем все USB устройства
+      const allUsb = await StaffService.fetchAllUsb();
+
+      // Группируем USB по ФИО (как в StaffService.fetchUsbByFio)
+      const usbByFio = new Map();
+      allUsb.forEach((usb) => {
+        if (usb.fio) {
+          const fioLower = usb.fio.toLowerCase();
+          if (!usbByFio.has(fioLower)) {
+            usbByFio.set(fioLower, []);
+          }
+          usbByFio.get(fioLower).push(usb);
+        }
+      });
+
+      // Функция для получения списка USB для сотрудника
+      const getUsbList = (staffMember) => {
+        const fioLower = (staffMember.fio || '').toLowerCase().trim();
+        const devices = usbByFio.get(fioLower) || [];
+        // Фильтруем только активные (log === "Да")
+        const activeDevices = devices.filter((d) => d.log === 'Да');
+        // Возвращаем номера форм через запятую
+        return activeDevices
+          .map((d) => d.num_form || '')
+          .filter(Boolean)
+          .join(', ');
+      };
+
+      // Используем функцию экспорта из утилит, передавая getUsbList
       const exportResult = exportStaffToExcel(
         filteredStaff,
-        EXCLUDED_DEPARTMENTS
+        EXCLUDED_DEPARTMENTS,
+        getUsbList // новый параметр
       );
 
-      // Скачиваем файл
       downloadExcelFile(exportResult.workbook, exportResult.fileName);
-
       message.success('Экспорт успешно завершен');
     } catch (error) {
       console.error('Ошибка при экспорте:', error);

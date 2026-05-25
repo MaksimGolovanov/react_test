@@ -11,7 +11,7 @@ export const VehicleSearch = ({ value, onChange }) => {
             onChange={(e) => onChange(e.target.value)}
             style={{ width: '500px' }}
             size="middle"
-            allowClear
+            
         />
     )
 }

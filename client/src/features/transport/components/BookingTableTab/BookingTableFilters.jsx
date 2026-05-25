@@ -1,165 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Space, Button, Select, Tooltip, Input } from 'antd';
+import React from 'react';
+import { Space, Button, Select, Input } from 'antd';
 import {
   ReloadOutlined,
   FilterOutlined,
-  LeftOutlined,
-  RightOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
+import WeekDayPicker from './../VehicleWeek/WeekDayPicker';
 
 dayjs.locale('ru');
 
 const { Option } = Select;
-
-// Компонент выбора дня недели - текущий день всегда по центру
-const WeekDayPicker = ({ selectedDate, setSelectedDate }) => {
-  const today = dayjs().startOf('day');
-  const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
-  const containerRef = useRef(null);
-
-  // Генерируем дни относительно сегодняшнего дня
-  // Всегда 7 дней: 3 дня до сегодня, сегодня, 3 дня после
-  const getDaysRelativeToToday = () => {
-    const days = [];
-    const baseDate = today.add(currentWeekOffset, 'week');
-    for (let i = -3; i <= 3; i++) {
-      days.push(baseDate.add(i, 'day'));
-    }
-    return days;
-  };
-
-  const weekDays = getDaysRelativeToToday();
-
-  // Прокрутка к сегодняшнему дню (всегда индекс 3)
-  useEffect(() => {
-    if (containerRef.current) {
-      const todayIndex = 3; // сегодня всегда на позиции 3 (центр)
-      const scrollAmount =
-        todayIndex * 56 - containerRef.current.clientWidth / 2 + 28;
-      containerRef.current.scrollTo({ left: scrollAmount, behavior: 'auto' });
-    }
-  }, [currentWeekOffset]);
-
-  // Предыдущая неделя
-  const goToPrevWeek = () => {
-    setCurrentWeekOffset(currentWeekOffset - 1);
-  };
-
-  // Следующая неделя
-  const goToNextWeek = () => {
-    setCurrentWeekOffset(currentWeekOffset + 1);
-  };
-
-  // Текущая неделя
-  const goToCurrentWeek = () => {
-    setCurrentWeekOffset(0);
-    setSelectedDate(today);
-  };
-
-  const isPast = (day) => day.isBefore(today, 'day');
-  const isToday = (day) => day.isSame(today, 'day');
-  const isSelected = (day) => day.isSame(selectedDate, 'day');
-
-  const isCurrentWeek = currentWeekOffset === 0;
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-      <Tooltip title="Предыдущая неделя">
-        <Button
-          size="small"
-          icon={<LeftOutlined />}
-          onClick={goToPrevWeek}
-          type="text"
-        />
-      </Tooltip>
-
-      <div
-        ref={containerRef}
-        style={{
-          display: 'flex',
-          gap: '4px',
-          overflowX: 'auto',
-          scrollbarWidth: 'thin',
-          flex: 1,
-        }}
-      >
-        {weekDays.map((day) => {
-          const isPastDay = isPast(day);
-          const isTodayDay = isToday(day);
-          const isSelectedDay = isSelected(day);
-
-          return (
-            <Tooltip
-              key={day.format('DD.MM.YYYY')}
-              title={isPastDay ? 'Нельзя бронировать (прошедшая дата)' : ''}
-            >
-              <Button
-                size="small"
-                style={{
-                  minWidth: '52px',
-                  padding: '2px 4px',
-                  height: 'auto',
-                  textAlign: 'center',
-                  backgroundColor: isSelectedDay
-                    ? '#faad14'
-                    : isTodayDay
-                      ? '#52c41a'
-                      : isPastDay
-                        ? '#f5f5f5'
-                        : '#fff',
-                  borderColor:
-                    isSelectedDay || isTodayDay ? 'transparent' : '#d9d9d9',
-                  color:
-                    isSelectedDay || isTodayDay
-                      ? '#fff'
-                      : isPastDay
-                        ? '#bfbfbf'
-                        : '#666',
-                  cursor: 'pointer',
-                  opacity: isPastDay ? 0.6 : 1,
-                }}
-                onClick={() => setSelectedDate(day.startOf('day'))}
-              >
-                <div
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: isSelectedDay ? 600 : 400,
-                  }}
-                >
-                  {day.format('ddd').toUpperCase().slice(0, 2)}
-                </div>
-                <div style={{ fontSize: '10px' }}>{day.format('DD')}</div>
-              </Button>
-            </Tooltip>
-          );
-        })}
-      </div>
-
-      <Tooltip title="Следующая неделя">
-        <Button
-          size="small"
-          icon={<RightOutlined />}
-          onClick={goToNextWeek}
-          type="text"
-        />
-      </Tooltip>
-
-      {!isCurrentWeek && (
-        <Button
-          size="small"
-          onClick={goToCurrentWeek}
-          type="link"
-          style={{ fontSize: '11px', padding: '0 4px' }}
-        >
-          Текущая
-        </Button>
-      )}
-    </div>
-  );
-};
 
 export const BookingTableFilters = ({
   selectedDate,
@@ -173,9 +25,10 @@ export const BookingTableFilters = ({
   handleResetDepartmentFilter,
   handleResetAllFilters,
   uniqueTypes,
-  departments,
-  searchText, // новый пропс
-  setSearchText, // новый пропс
+  departmentsList, // массив отделов { id, name }
+  searchText,
+  setSearchText,
+  showStatusFilter = false,
 }) => {
   const hasActiveFilters =
     filters.filterStatus !== 'all' ||
@@ -244,18 +97,6 @@ export const BookingTableFilters = ({
           <FilterOutlined style={{ color: '#1890ff', fontSize: 12 }} />
 
           <Select
-            value={filters.filterStatus}
-            onChange={setFilterStatus}
-            style={{ width: 110 }}
-            size="small"
-            placeholder="Состояние"
-          >
-            <Option value="all">Все авто</Option>
-            <Option value="available">Исправные</Option>
-            <Option value="unavailable">Неисправные</Option>
-          </Select>
-
-          <Select
             value={filters.filterType}
             onChange={setFilterType}
             style={{ width: 120 }}
@@ -271,36 +112,39 @@ export const BookingTableFilters = ({
             ))}
           </Select>
 
+          {/* Исправленный Select для отделов – отображаем названия, значение = id (UUID) */}
           <Select
             value={filters.filterDepartment}
             onChange={setFilterDepartment}
-            style={{ width: 130 }}
+            style={{ width: 180 }}
             size="small"
-            onClear={handleResetDepartmentFilter}
             placeholder="Служба"
+            allowClear
           >
             <Option value="all">Все службы</Option>
-            {departments.map((dept) => (
-              <Option key={dept.id} value={dept.short_name}>
-                {dept.name}
+            {departmentsList.map((dept) => (
+              <Option key={dept.id} value={dept.short_name || dept.name}>
+                {dept.short_name || dept.name}
               </Option>
             ))}
           </Select>
 
-          <Select
-            value={filters.filterStatus}
-            onChange={setFilterStatus}
-            style={{ width: 130 }}
-            size="small"
-            placeholder="Статус заявки"
-            allowClear
-          >
-            <Option value="all">Все статусы</Option>
-            <Option value="pending">Ожидает</Option>
-            <Option value="confirmed">Подтверждено</Option>
-            <Option value="cancelled">Отменено</Option>
-            <Option value="rescheduled">Перенесено</Option>
-          </Select>
+          {showStatusFilter && (
+            <Select
+              value={filters.filterStatus}
+              onChange={setFilterStatus}
+              style={{ width: 130 }}
+              size="small"
+              placeholder="Статус заявки"
+              allowClear
+            >
+              <Option value="all">Все статусы</Option>
+              <Option value="pending">Ожидает</Option>
+              <Option value="confirmed">Подтверждено</Option>
+              <Option value="cancelled">Отменено</Option>
+              <Option value="rescheduled">Перенесено</Option>
+            </Select>
+          )}
 
           {hasActiveFilters && (
             <Button size="small" onClick={handleResetAllFilters} type="link">

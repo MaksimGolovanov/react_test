@@ -1,0 +1,77 @@
+/* src/modules/Map/ui/UnifiedControls/UnifiedControls.css */
+
+.unified-controls {
+  position: absolute;
+  top: 20px;
+
+  z-index: 1000;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  width: 40px;
+}
+
+.control-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: white;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #222;
+}
+
+.control-btn:hover {
+  background: #f1f3f4;
+}
+
+.control-btn.active {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+
+.zoom-value {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #222;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+  background: white;
+  cursor: default;
+}
+
+/* Блок расстояния теперь слева от панели (прижатый к правому краю) */
+.measure-distance {
+  position: absolute;
+  right: 100%; /* левый край блока привязан к левому краю панели? Нет: right:100% означает, что правый край блока совпадает с левым краем родителя, т.е. блок будет слева */
+  margin-right: 8px; /* отступ от панели */
+  top: 0;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 1001;
+}
+
+/* Плавное вращение контейнера карты */
+.leaflet-container {
+  transition: transform 0.1s linear;
+}

@@ -17,6 +17,9 @@ import {
   FilePdfOutlined,
   SettingOutlined,
   UserOutlined,
+  TruckOutlined,
+  IdcardOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
@@ -24,11 +27,13 @@ import { generateTransportPDF } from '../components/PdfGenerator';
 import DirectoryEditor from '../components/DirectoryEditor/DirectoryEditor';
 import VehicleManager from '../components/VehicleManager/VehicleManager';
 import VehicleWeek from '../components/VehicleWeek/VehicleWeekAvailabilityManager';
+import ReportsTab from '../components/ReportsTab/ReportsTab'
 import { BookingTableTab } from '../components/BookingTableTab/BookingTableTab';
+import DriversManager from '../components/DriversManager/DriversManager';
 import StatisticsBar from '../components/StatisticsBar';
 import { useRootStore } from '../hooks/useStores';
 import styles from './VehicleBooking.module.css';
-import TransportService from '../services/TransportService';
+import usersStore from '../../admin/store/UserStore';
 
 const { Header, Content } = Layout;
 const { TabPane } = Tabs;
@@ -46,25 +51,31 @@ const VehicleBookingPage = observer(() => {
   const [loadingDrivers, setLoadingDrivers] = useState(false);
   const [drivers, setDrivers] = useState([]);
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [requests, setRequests] = useState([]);
-  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [activeTabKey, setActiveTabKey] = useState('1');
 
-  const loadRequests = async () => {
-    setRequestsLoading(true);
-    try {
-      const data = await TransportService.fetchRequests();
-      setRequests(data);
-    } catch (error) {
-      message.error('Ошибка загрузки заявок');
-    } finally {
-      setRequestsLoading(false);
-    }
+  const hasAccess = (role) => {
+    return (
+      usersStore.userRolesAuth.includes(role) ||
+      usersStore.userRolesAuth.includes('ADMIN')
+    );
+  };
+
+  // Обновление всех данных
+  const handleRefreshData = async () => {
+    await Promise.all([
+      transportStore.fetchVehicles(),
+      transportStore.fetchBookings(),
+      transportStore.fetchDepartments(),
+      transportStore.fetchRequests(),
+    ]);
+    message.success('Данные обновлены');
   };
 
   useEffect(() => {
-    loadRequests();
+    handleRefreshData();
   }, []);
 
+  // Обработчики заявок
   const handleAssignVehicleAndDriver = async (
     requestId,
     vehicleId,
@@ -76,7 +87,7 @@ const VehicleBookingPage = observer(() => {
         vehicleId,
         driverId
       );
-      await loadRequests(); // перезагружаем для синхронизации
+      await transportStore.fetchRequests();
       message.success('Назначено');
     } catch (error) {
       message.error('Ошибка назначения');
@@ -86,7 +97,7 @@ const VehicleBookingPage = observer(() => {
   const handleConfirmRequest = async (requestId) => {
     try {
       await transportStore.confirmRequest(requestId);
-      await loadRequests();
+      await transportStore.fetchRequests();
       await transportStore.fetchBookings();
       message.success('Бронирование подтверждено');
     } catch (error) {
@@ -105,7 +116,7 @@ const VehicleBookingPage = observer(() => {
             'Отменено диспетчером',
             userStore.card?.tabNumber
           );
-          await loadRequests();
+          await transportStore.fetchRequests();
           message.success('Заявка отменена');
         } catch (error) {
           message.error('Ошибка отмены');
@@ -121,23 +132,48 @@ const VehicleBookingPage = observer(() => {
     newEnd,
     notes
   ) => {
-    await transportStore.rescheduleRequest(
-      requestId,
-      newDate,
-      newStart,
-      newEnd,
-      notes
-    );
-    await loadRequests();
+    try {
+      await transportStore.rescheduleRequest(
+        requestId,
+        newDate,
+        newStart,
+        newEnd,
+        notes
+      );
+      await transportStore.fetchRequests();
+      message.success('Заявка перенесена');
+    } catch (error) {
+      message.error('Ошибка переноса');
+    }
   };
 
-  useEffect(() => {
-    if (isBookingModalVisible) {
-      loadDrivers();
+  const handleUpdateBooking = async (requestId, vehicleId, driverId) => {
+    try {
+      await transportStore.updateBooking(requestId, vehicleId, driverId);
+      await transportStore.fetchRequests();
+      await transportStore.fetchBookings();
+      message.success('Назначение обновлено');
+    } catch (error) {
+      console.error('Update booking error:', error);
+      message.error('Ошибка обновления назначения');
     }
-  }, [isBookingModalVisible]);
+  };
 
-  // Функция загрузки водителей
+  // Новая функция для создания заявки диспетчером
+  const handleCreateRequestForDispatcher = async (requestData) => {
+    try {
+      await transportStore.createRequest(requestData);
+      await transportStore.fetchRequests();
+      message.success('Заявка успешно создана');
+    } catch (error) {
+      console.error('Create request error:', error);
+      message.error(
+        error.response?.data?.message || 'Ошибка при создании заявки'
+      );
+    }
+  };
+
+  // Загрузка водителей для прямого бронирования (старый функционал)
   const loadDrivers = async () => {
     setLoadingDrivers(true);
     try {
@@ -153,31 +189,27 @@ const VehicleBookingPage = observer(() => {
       setLoadingDrivers(false);
     }
   };
-  // Инициализация даты
+
+  useEffect(() => {
+    if (isBookingModalVisible) {
+      loadDrivers();
+    }
+  }, [isBookingModalVisible]);
+
   useEffect(() => {
     if (!filterStore.selectedDate) {
       filterStore.setSelectedDate(dayjs().startOf('day'));
     }
   }, []);
 
-  useEffect(() => {
-    // Статистика пересчитается автоматически при изменении зависимостей
-  }, [
-    filterStore.selectedDate,
-    transportStore.vehicles,
-    transportStore.bookings,
-  ]);
-
+  // Прямое бронирование автомобиля (старый функционал)
   const handleBookVehicle = (vehicle) => {
     const today = dayjs().startOf('day');
     const selectedDate = filterStore.selectedDate;
-
-    // Проверяем, что выбранная дата не прошедшая
     if (selectedDate && selectedDate.isBefore(today, 'day')) {
       message.warning('Нельзя бронировать автомобиль на прошедшую дату');
       return;
     }
-
     setSelectedVehicle(vehicle);
     setIsBookingModalVisible(true);
     form.resetFields();
@@ -185,31 +217,23 @@ const VehicleBookingPage = observer(() => {
 
   const handleBookingSubmit = async (values) => {
     if (!selectedVehicle) return;
-
     const date = filterStore.selectedDate.format('YYYY-MM-DD');
-
-    // Находим выбранного водителя
     const selectedDriver = drivers.find((d) => d.id === values.driver_id);
-
     if (!selectedDriver) {
       message.error('Пожалуйста, выберите водителя');
       return;
     }
-
-    // Двойная проверка доступности слота
     const isAvailable = transportStore.isTimeSlotAvailable(
       selectedVehicle.id,
       date,
       values.timeSlotId
     );
-
     if (!isAvailable) {
       message.error(
         'Этот временной слот уже занят. Пожалуйста, выберите другой слот.'
       );
       return;
     }
-
     const bookingData = {
       vehicle_id: selectedVehicle.id,
       department_id: values.departmentId,
@@ -219,16 +243,12 @@ const VehicleBookingPage = observer(() => {
       driver_full_name: selectedDriver.fio,
       created_by: userStore.card?.tabNumber,
     };
-
-    console.log('Creating booking with data:', bookingData);
-
     try {
       await transportStore.createBooking(bookingData);
       setIsBookingModalVisible(false);
       form.resetFields();
       setDrivers([]);
       message.success('Автомобиль успешно забронирован');
-      // Обновляем данные после бронирования
       await transportStore.fetchBookings();
     } catch (error) {
       console.error('Booking error:', error);
@@ -246,21 +266,13 @@ const VehicleBookingPage = observer(() => {
       content: 'Вы уверены, что хотите отменить это бронирование?',
       onOk: async () => {
         try {
-          // Отменяем бронирование
           await transportStore.cancelBooking(
             bookingId,
             userStore.card?.tabNumber
           );
-
-          // Принудительно обновляем список бронирований
           await transportStore.fetchBookings();
-
-          // Обновляем также список автомобилей (на всякий случай)
           await transportStore.fetchVehicles();
-
           message.success('Бронирование успешно отменено');
-
-          // Принудительно обновляем компонент
           setForceUpdate((prev) => prev + 1);
         } catch (error) {
           console.error('Error canceling booking:', error);
@@ -270,56 +282,48 @@ const VehicleBookingPage = observer(() => {
     });
   };
 
+  // PDF
   const handleGeneratePDF = () => {
     const dateStr = filterStore.selectedDate.format('DD.MM.YYYY');
     const date = filterStore.selectedDate.format('YYYY-MM-DD');
 
-    const bookingsWithVehiclesAndSlots = transportStore
+    const bookingsWithDetails = transportStore
       .getBookingsForDate(date)
-      .map((booking) => ({
-        ...booking,
-        vehicle: transportStore.vehicles.find(
-          (v) => v.id === booking.vehicle_id
-        ),
-        time_slot_label:
-          transportStore.timeSlots.find(
-            (slot) => slot.id === booking.time_slot_id
-          )?.label || booking.time_slot_id,
-      }));
+      .map((booking) => {
+        // Поиск отдела: совпадение по id, short_name или name
+        const dept = transportStore.departments.find(
+          (d) =>
+            d.id === booking.department_id ||
+            d.short_name === booking.department_id ||
+            d.name === booking.department_id
+        );
+        const timeSlot = transportStore.timeSlots.find(
+          (slot) => slot.id === booking.time_slot_id
+        );
+        const driver = transportStore.drivers.find(
+          (d) => d.id === booking.driver_id
+        );
 
-    generateTransportPDF(
-      bookingsWithVehiclesAndSlots,
-      transportStore.departments,
-      dateStr
-    );
-  };
+        // Формируем метку времени
+        let timeLabel = timeSlot?.label;
+        if (!timeLabel && booking.start_time && booking.end_time) {
+          timeLabel = `${booking.start_time} – ${booking.end_time}`;
+        }
+        if (!timeLabel) timeLabel = booking.time_slot_id || '—';
 
-  const handleRefreshData = async () => {
-    await Promise.all([
-      transportStore.fetchVehicles(),
-      transportStore.fetchBookings(),
-      transportStore.fetchDepartments(),
-      loadRequests(),
-    ]);
-    message.success('Данные обновлены');
-  };
+        return {
+          ...booking,
+          vehicle: transportStore.vehicles.find(
+            (v) => v.id === booking.vehicle_id
+          ),
+          time_slot_label: timeLabel,
+          driver_full_name: driver?.fio || booking.driver_full_name || '—',
+          department_name: dept?.name || booking.department_id,
+          department_head: dept?.head_name || 'Не указан', // ← берём из справочника
+        };
+      });
 
-  const getCellColor = (record, columnKey) => {
-    const date = filterStore.selectedDate.format('YYYY-MM-DD');
-    const hasBooking = transportStore.bookings.some(
-      (b) =>
-        b.vehicle_id === record.id &&
-        b.booking_date === date &&
-        b.status === 'active'
-    );
-
-    if (record.technical_condition !== 'исправен') {
-      return styles.cellOverdue;
-    }
-    if (hasBooking) {
-      return styles.cellBooked;
-    }
-    return styles.cellAvailable;
+    generateTransportPDF(bookingsWithDetails, dateStr);
   };
 
   const getStatisticsForDate = () => {
@@ -330,12 +334,8 @@ const VehicleBookingPage = observer(() => {
     const bookings = transportStore.bookings.filter(
       (b) => b.booking_date === date && b.status === 'active'
     );
-
-    // Количество забронированных уникальных автомобилей
     const bookedVehicleIds = new Set(bookings.map((b) => b.vehicle_id));
     const booked = bookedVehicleIds.size;
-
-    // Статистика по состоянию автомобилей
     const available = vehicles.filter(
       (v) => v.technical_condition === 'исправен'
     ).length;
@@ -343,20 +343,7 @@ const VehicleBookingPage = observer(() => {
       (v) => v.technical_condition !== 'исправен'
     ).length;
     const total = vehicles.length;
-
     return { total, available, unavailable, booked };
-  };
-
-  const handleUpdateBooking = async (requestId, vehicleId, driverId) => {
-    try {
-      await transportStore.updateBooking(requestId, vehicleId, driverId);
-      await loadRequests(); // обновить список заявок
-      await transportStore.fetchBookings(); // обновить бронирования
-      message.success('Назначение обновлено');
-    } catch (error) {
-      console.error('Update booking error:', error);
-      message.error('Ошибка обновления назначения');
-    }
   };
 
   return (
@@ -376,23 +363,24 @@ const VehicleBookingPage = observer(() => {
           statistics={getStatisticsForDate()}
           selectedDate={filterStore.selectedDate}
         />
-
-        <Space size="small">
-          <Button
-            size="small"
-            icon={<FilePdfOutlined />}
-            onClick={handleGeneratePDF}
-          >
-            PDF
-          </Button>
-          <Button
-            size="small"
-            icon={<SettingOutlined />}
-            onClick={() => setIsDirectoryEditorVisible(true)}
-          >
-            Справочники
-          </Button>
-        </Space>
+        {hasAccess('TRANSPORT') && (
+          <Space size="small">
+            <Button
+              size="small"
+              icon={<FilePdfOutlined />}
+              onClick={handleGeneratePDF}
+            >
+              PDF
+            </Button>
+            <Button
+              size="small"
+              icon={<SettingOutlined />}
+              onClick={() => setIsDirectoryEditorVisible(true)}
+            >
+              Справочники
+            </Button>
+          </Space>
+        )}
       </Header>
 
       <Content
@@ -405,76 +393,114 @@ const VehicleBookingPage = observer(() => {
       >
         <Tabs
           defaultActiveKey="1"
+          onChange={(key) => {
+            if (key !== '4') {
+              // 4 – ключ вкладки "Заказ"
+              handleRefreshData();
+            }
+          }}
           style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
         >
-          <TabPane
-            tab={
-              <span>
-                <CalendarOutlined style={{ marginRight: 8 }} />
-                Таблица бронирования
-              </span>
-            }
-            key="1"
-          >
-            <BookingTableTab
-              requests={requests}
-              vehicles={transportStore.vehicles}
-              drivers={transportStore.drivers}
-              departments={transportStore.departments}
-              selectedDate={filterStore.selectedDate}
-              setSelectedDate={filterStore.setSelectedDate.bind(filterStore)}
-              handleUpdateBooking={handleUpdateBooking}
-              filters={{
-                filterStatus: filterStore.filterStatus,
-                filterType: filterStore.filterType,
-                filterDepartment: filterStore.filterDepartment,
-              }}
-              setFilterStatus={filterStore.setFilterStatus.bind(filterStore)}
-              setFilterType={filterStore.setFilterType.bind(filterStore)}
-              setFilterDepartment={filterStore.setFilterDepartment.bind(
-                filterStore
-              )}
-              handleRefreshData={handleRefreshData}
-              handleResetAllFilters={filterStore.resetAllFilters.bind(
-                filterStore
-              )}
-              handleAssignVehicleAndDriver={handleAssignVehicleAndDriver}
-              handleConfirmRequest={handleConfirmRequest}
-              handleCancelRequest={handleCancelRequest}
-              handleRescheduleRequest={handleRescheduleRequest}
-              uniqueTypes={transportStore.vehicleTypes}
-              timeSlots={transportStore.timeSlots}
-              loading={requestsLoading}
-            />
-          </TabPane>
+          {hasAccess('TRANSPORT') && (
+            <TabPane
+              tab={
+                <span>
+                  <CalendarOutlined style={{ marginRight: 8 }} />
+                  Таблица бронирования
+                </span>
+              }
+              key="1"
+            >
+              <BookingTableTab
+                requests={transportStore.requests}
+                vehicles={transportStore.vehicles}
+                drivers={transportStore.drivers}
+                departments={transportStore.departments}
+                selectedDate={filterStore.selectedDate}
+                setSelectedDate={filterStore.setSelectedDate.bind(filterStore)}
+                filters={{
+                  filterStatus: filterStore.filterStatus,
+                  filterType: filterStore.filterType,
+                  filterDepartment: filterStore.filterDepartment,
+                }}
+                setFilterStatus={filterStore.setFilterStatus.bind(filterStore)}
+                setFilterType={filterStore.setFilterType.bind(filterStore)}
+                setFilterDepartment={filterStore.setFilterDepartment.bind(
+                  filterStore
+                )}
+                handleRefreshData={handleRefreshData}
+                handleResetAllFilters={filterStore.resetAllFilters.bind(
+                  filterStore
+                )}
+                handleAssignVehicleAndDriver={handleAssignVehicleAndDriver}
+                handleConfirmRequest={handleConfirmRequest}
+                handleCancelRequest={handleCancelRequest}
+                handleRescheduleRequest={handleRescheduleRequest}
+                handleUpdateBooking={handleUpdateBooking}
+                uniqueTypes={transportStore.uniqueVehicleTypes}
+                vehicleTypes={transportStore.vehicleTypes}
+                timeSlots={transportStore.timeSlots}
+                loading={transportStore.requestsLoading}
+                onCreateRequest={handleCreateRequestForDispatcher}
+                currentUserTabNumber={userStore.card?.tabNumber}
+              />
+            </TabPane>
+          )}
+
+          {hasAccess('TRANSPORT') && (
+            <TabPane
+              tab={
+                <span>
+                  <CarOutlined style={{ marginRight: 8 }} />
+                  Автотранспорт
+                </span>
+              }
+              key="2"
+            >
+              <VehicleManager />
+            </TabPane>
+          )}
+
+          {hasAccess('TRANSPORT') && (
+            <TabPane
+              tab={
+                <span>
+                  <IdcardOutlined style={{ marginRight: 8 }} />
+                  Водители
+                </span>
+              }
+              key="3"
+            >
+              <DriversManager />
+            </TabPane>
+          )}
 
           <TabPane
             tab={
               <span>
-                <CarOutlined style={{ marginRight: 8 }} />
-                Автотранспорт
-              </span>
-            }
-            key="2"
-          >
-            <VehicleManager />
-          </TabPane>
-
-          <TabPane
-            tab={
-              <span>
-                <CarOutlined style={{ marginRight: 8 }} />
+                <TruckOutlined style={{ marginRight: 8 }} />
                 Заказ
               </span>
             }
-            key="3"
+            key="4"
           >
             <VehicleWeek />
+          </TabPane>
+          <TabPane
+            tab={
+              <span>
+                <FileTextOutlined style={{ marginRight: 8 }} />
+                Отчёт
+              </span>
+            }
+            key="5"
+          >
+            <ReportsTab />
           </TabPane>
         </Tabs>
       </Content>
 
-      {/* Модальное окно бронирования */}
+      {/* Модальное окно прямого бронирования (старый функционал) */}
       <Modal
         title={`Бронирование: ${selectedVehicle?.vehicle_brand} (${selectedVehicle?.state_number})`}
         open={isBookingModalVisible}
@@ -493,13 +519,11 @@ const VehicleBookingPage = observer(() => {
           >
             <Select>
               {transportStore.timeSlots.map((slot) => {
-                const isAvailable =
-                  selectedVehicle &&
-                  transportStore.isTimeSlotAvailable(
-                    selectedVehicle.id,
-                    filterStore.selectedDate?.format('YYYY-MM-DD'),
-                    slot.id
-                  );
+                const isAvailable = transportStore.isTimeSlotAvailable(
+                  selectedVehicle?.id,
+                  filterStore.selectedDate?.format('YYYY-MM-DD'),
+                  slot.id
+                );
                 return (
                   <Option key={slot.id} value={slot.id} disabled={!isAvailable}>
                     {slot.label} {!isAvailable && '(занято)'}

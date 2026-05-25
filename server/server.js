@@ -13,6 +13,7 @@ const TimeSlot = require('./models/TimeSlot')
 const VehicleType = require('./models/VehicleType')
 const VehicleSubtype = require('./models/VehicleSubtype')
 const Drivers = require('./models/Drivers')
+require('./models/map');
 const knowledgeModels = require('./models/knowledgeModels')
 require('./models/associations')
 const cors = require('cors')
@@ -22,6 +23,7 @@ const path = require('path')
 const fs = require('fs')
 const PORT = process.env.PORT || 5000
 const snmpPoller = require('./snmpPoller')
+const initTileServer = require('./mapserver');
 const ApiError = require('./error/ApiError');
 
 const app = express()
@@ -139,6 +141,7 @@ const start = async () => {
           //console.log('База данных подключена')
 
           snmpPoller.start()
+          initTileServer(app);
           //console.log('SNMP поллер запущен')
 
           app.listen(PORT, () => {

@@ -1,0 +1,14 @@
+.driver-row-at-work { background-color: #ffffff !important; }
+.driver-row-at-work:hover > td { background-color: #d9f7be !important; }
+
+.driver-row-on-vacation { background-color: #fff7e6 !important; }
+.driver-row-on-vacation:hover > td { background-color: #ffe7ba !important; }
+
+.driver-row-on-sick-leave { background-color: #fff1f0 !important; }
+.driver-row-on-sick-leave:hover > td { background-color: #ffccc7 !important; }
+
+.driver-row-on-study { background-color: #e6f7ff !important; }
+.driver-row-on-study:hover > td { background-color: #bae7ff !important; }
+
+.driver-row-deactivated { background-color: #fafafa !important; color: #bfbfbf !important; }
+.driver-row-deactivated:hover > td { background-color: #f0f0f0 !important; }

@@ -7,6 +7,8 @@ const Drivers = sequelize.define('tdrivers', {
     department: { type: DataTypes.STRING(50), allowNull: false },
     sort_order: { type: DataTypes.INTEGER, defaultValue: 0 },
     is_active: { type: DataTypes.STRING(50) },
+    date_from: { type: DataTypes.DATEONLY, allowNull: true },
+  date_to: { type: DataTypes.DATEONLY, allowNull: true },
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 })
 

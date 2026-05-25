@@ -181,8 +181,8 @@ const CardPage = observer(() => {
         stats={cardStatistics}
       />
 
-      <Card className={styles.tableCard}>
-        <div className={styles.userListScroll}>
+      <div className={styles.tableCard}>
+        <div className={styles.userListScroll}> 
           <CardTable
             data={sortedItems}
             selectedIds={selectedIds}
@@ -191,7 +191,7 @@ const CardPage = observer(() => {
             onSort={handleRequestSort}
           />
         </div>
-      </Card>
+      </div>
 
       <CardModal
         show={showModal}

@@ -18,6 +18,7 @@ const MultiEduRouters = () => {
       <Route path="course/:courseId" element={<CourseDetailPage />} />
       <Route path="test/:courseId" element={<TestPage />} />
       <Route path="results/:courseId" element={<ResultsPage />} />
+      <Route path="*" element={<div>Страница не найдена</div>} />
     </Routes>
   );
 };

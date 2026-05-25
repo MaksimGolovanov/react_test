@@ -8,7 +8,7 @@ const TransportRoutes = () => {
                <Route
                     path="/"
                     element={
-                         <PrivateRoute requiredRole={['ADMIN', 'TRANSPORT']}>
+                         <PrivateRoute requiredRole={['ADMIN', 'TRANSPORT','TRANSPORT-ORDER']}>
                               <TransportPage />
                          </PrivateRoute>
                     }

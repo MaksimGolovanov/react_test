@@ -220,7 +220,7 @@ const JsonViewer = () => {
         />
       )}
 
-      <Card className={styles.jsonCard}>
+      <div className={styles.jsonCard}>
         <div className={styles.jsonContainer} ref={containerRef}>
           {jsonData ? (
             <div className={styles.jsonTree}>
@@ -239,7 +239,7 @@ const JsonViewer = () => {
             </div>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
