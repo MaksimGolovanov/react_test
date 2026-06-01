@@ -52,16 +52,8 @@ function Print() {
     ];
 
     return (
-        <div style={{ padding: 16, minHeight: 'calc(100vh - 250px)' }}>
-            <div
-                style={{
-                    borderRadius: 16,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                    overflow: 'hidden',
-                    padding: '20px 24px',
-                    background: '#fff',
-                }}
-            >
+        <div className="prints-container">
+            <div className="prints-card">
                 <Tabs
                     defaultActiveKey="Prints"
                     items={items}

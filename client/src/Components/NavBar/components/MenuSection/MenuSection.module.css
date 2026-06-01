@@ -1,51 +1,80 @@
 .menu {
-     background: transparent;
-     border-right: 0;
-     margin-top: 8px;
+  background: transparent;
+  border-right: 0;
+  margin-top: 8px;
+  font-size: 14px;
 }
 
-.menu :global(.ant-menu-item) {
-     height: 48px;
-     line-height: 48px;
-     margin: 0;
-     border-radius: 0;
-     margin-bottom: 2px;
+/* Убираем внутренние отступы у корневого меню */
+.menu :global(.ant-menu) {
+  padding: 0 !important;
 }
 
-.menu :global(.ant-menu-item:hover) {
-     background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.menu :global(.ant-menu-item-selected) {
-     background-color: #1890ff !important;
-     border-left: 3px solid #FA922F;
-}
-
+/* Пункты меню и заголовки подменю – общие правила (развёрнутое состояние) */
+.menu :global(.ant-menu-item),
 .menu :global(.ant-menu-submenu-title) {
-     height: 48px;
-     line-height: 48px;
-     margin: 0;
-     border-radius: 0;
-     margin-bottom: 2px;
+  height: 40px !important;
+  line-height: 40px !important;
+  margin: 0 !important;
+  width: 100%;
+  padding-left: 24px !important;
+  padding-right: 0 !important;
+  font-size: 14px !important;
 }
 
+/* Свёрнутое состояние – центрируем иконки */
+.menu :global(.ant-menu-inline-collapsed .ant-menu-item),
+.menu :global(.ant-menu-inline-collapsed .ant-menu-submenu-title) {
+  padding-left: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.menu :global(.ant-menu-inline-collapsed .ant-menu-item) .ant-menu-item-icon,
+.menu :global(.ant-menu-inline-collapsed .ant-menu-submenu-title) .ant-menu-item-icon {
+  margin-right: 0 !important;
+}
+
+/* Hover */
+.menu :global(.ant-menu-item:hover),
 .menu :global(.ant-menu-submenu-title:hover) {
-     background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Выделенный пункт */
+.menu :global(.ant-menu-item-selected) {
+  background-color: #1890ff !important;
+  border-left: 3px solid #fa922f;
 }
 
 .menu :global(.ant-menu-submenu-selected > .ant-menu-submenu-title) {
-     color: #FA922F !important;
+  color: #fa922f !important;
 }
 
 .menu :global(.ant-menu-submenu-arrow) {
-     color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .menu :global(.ant-menu-item a) {
-     color: inherit;
-     text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 .menu :global(.ant-menu-item a:hover) {
-     color: inherit;
+  color: inherit;
+}
+
+/* Убираем скругления */
+.menu :global(.ant-menu-item),
+.menu :global(.ant-menu-submenu),
+.menu :global(.ant-menu-submenu-title) {
+  border-radius: 0 !important;
+}
+
+/* Перебиваем возможные глобальные стили */
+:where(.css-dev-only-do-not-override-mncuj7).ant-menu .ant-menu-item,
+:where(.css-dev-only-do-not-override-mncuj7).ant-menu .ant-menu-submenu,
+:where(.css-dev-only-do-not-override-mncuj7).ant-menu .ant-menu-submenu-title {
+  border-radius: 0 !important;
 }

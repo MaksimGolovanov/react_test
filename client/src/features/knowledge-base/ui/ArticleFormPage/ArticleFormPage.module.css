@@ -1,6 +1,6 @@
 .container {
   padding: 0;
-  background: #f0f2f5;
+
   height: calc(100vh - 61px);
 }
 
@@ -31,7 +31,6 @@
   margin: 0;
 }
 
-/* Горизонтальная форма – уменьшаем отступы */
 .horizontalForm {
   flex: 1;
   overflow-y: auto;
@@ -51,7 +50,6 @@
   line-height: normal;
 }
 
-/* Для полей, которые мы объединили (Категория/Тип) – убираем лишние отступы */
 .horizontalForm :global(.ant-form-item-with-help) {
   margin-bottom: 0;
 }
@@ -61,4 +59,22 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* ===== ТЁМНАЯ ТЕМА ===== */
+:global(body.dark-theme) .container {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+}
+
+:global(body.dark-theme) .card,
+:global(body.dark-theme) .cardHeader {
+  background: rgba(20, 25, 35, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+:global(body.dark-theme) .cardTitle {
+  color: #f0f0f0;
 }

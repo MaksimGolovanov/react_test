@@ -1,151 +1,191 @@
-/* style.module.css */
+/* style.module.css – обновлённый с поддержкой тёмной темы */
 
-/* Main container styles */
 .container {
-    padding: 1rem;
+  padding: 24px;
+  min-height: calc(100vh - 60px);
+  
 }
 
-/* Search section styles */
-.searchContainer {
-    background-color: #f8f9fa;
-    border-radius: 0.3rem;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
+/* Карточка-секция (аналог Card) */
+.sectionCard {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  transition: all 0.2s ease;
 }
 
-/* Scrollable containers */
+/* Заголовок секции */
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #262626;
+}
+
+/* Контейнер с прокруткой для таблиц */
 .scrollableContainer {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.selectedStaffContainer {
-    max-height: 300px;
-    overflow-y: auto;
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 .previewContainer {
-    max-height: 800px;
-    overflow-y: auto;
+  max-height: 700px;
+  overflow-y: auto;
+  
+  
 }
 
-/* Table styles */
-.staffTable {
-    width: 100%;
-}
-
-.staffTable tr {
-    vertical-align: middle;
-}
-
-/* Badge preview styles */
-.badgePreviewContainer {
-    width: 180mm;
+/* Стили для бейджей (предпросмотр) */
+.badgePair {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+  
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 4px;
 }
 
 .badge {
-    width: 90mm;
-    height: 57mm;
-    text-align: center;
+  width: 90mm;
+  height: 57mm;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .badgeHeader {
-    width: 100%;
-    height: 15mm;
-    background-color: #003366;
-    color: white;
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  height: 15mm;
+  background-color: #003366;
+  color: white;
+  
 }
 
 .badgeLogo {
-    height: 15mm;
+  height: 15mm;
+  width: auto;
+  margin-right: 4px;
 }
 
 .badgeCompanyName {
-    text-align: center;
-    width: 100%;
-    margin: 0;
+  flex: 1;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  color: white;
 }
 
 .badgeNameSection {
-    width: 100%;
-    height: 27mm;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 27mm;
+  padding: 4px;
 }
 
 .badgeFullName {
-    font-weight: bold;
-    padding: 0.25rem;
-    margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  word-break: break-word;
 }
 
 .badgeFooter {
-    width: 100%;
-    height: 15mm;
-    background-color: #0079C2;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  background-color: #0079C2;
+  color: white;
+  text-align: center;
+  padding: 4px;
+  font-size: 10px;
+  height: 15mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.badgePosition {
-    padding: 0.25rem;
-    margin: 0;
+.safetyOfficer {
+  font-size: 9px;
+  color: #FFD700;
+  margin-top: 2px;
 }
 
-/* Utility classes */
-.flexWrap {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
+/* Фото превью */
+.photoItem {
+  width: 30mm;
+  height: 40mm;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fafafa;
 }
 
-.alignmiddle {
-    vertical-align: middle;
-    font-size: 12px;
-    padding: 0;
-    margin: 0;
-    width: 220px;
+.photoImage {
+  width: 100%;
+  height: 85%;
+  object-fit: cover;
 }
 
-.textCenter {
-    text-align: center;
+.photoCaption {
+  font-size: 10px;
+  text-align: center;
+  padding: 2px;
+  background: #f5f5f5;
 }
 
-/* Button styles */
-.removeButton {
-    padding: 0;
-    color: #dc3545;
+/* ===== ТЁМНАЯ ТЕМА ===== */
+body.dark-theme .container {
+  background: rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(12px);
 }
 
-.removeButton:hover {
-    color: #bb2d3b;
-}
-.tabl {
-    font-size: 12px;
-}
-
-.select {
-    margin: 16px 0px 16px 8px;
-    padding: 4px 8px;
-    color: #0973a1;
-    fill: #0973a1;
-    border: 1px solid #acd5e6;
-    border-radius: 3px;
-    font-size: 14px;
-    background-color: white;
+:global(body.dark-theme) .sectionCard {
+  background: rgba(20, 25, 35, 0.75) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
-.selectopt {
-    width: 250px;
-    padding: 0px;
-    font-size: 14px;
-    border: 0;
-    color: #0973a1;
-    border-radius: 0;
-
+body.dark-theme .sectionTitle {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  color: #f0f0f0;
 }
+
+body.dark-theme .badge {
+  background: rgba(30, 35, 45, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #e0e0e0;
+}
+
+/* Исправлено: используем :global для правильного селектора */
+:global(body.dark-theme) .badge .badgeFullName {
+  color: #333 !important;
+}
+
+body.dark-theme .badgeFooter,
+body.dark-theme .badgeHeader {
+  background-color: #001a33;
+}
+body.dark-theme .badgeFooter {
+  background-color: #005c8a;
+}
+body.dark-theme .safetyOfficer {
+  color: #ffc107;
+}
+body.dark-theme .photoItem {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+body.dark-theme .photoCaption {
+  background: rgba(0, 0, 0, 0.5);
+  color: #ccc;
+}
+body.dark-theme .badgePair {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+

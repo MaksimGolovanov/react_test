@@ -1,11 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Input, Table, Row, Col, Image, Space, Skeleton, Card } from 'antd';
+import {
+  Button,
+  Input,
+  Table,
+  Row,
+  Col,
+  Image,
+  Space,
+  Skeleton,
+  Card,
+  Typography 
+} from 'antd';
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   ChromeOutlined,
-  PrinterOutlined
+  PrinterOutlined,
 } from '@ant-design/icons';
 import PrintsService from '../services/PrintsService';
 import PrintCreateModal from './PrintCreateModal';
@@ -14,6 +25,8 @@ import PrintChart from './PrintChart';
 import '../pages/Prints.css';
 
 const { Search } = Input;
+
+const { Text } = Typography;
 
 function PrintAll() {
   const [prints, setPrints] = useState([]);
@@ -202,106 +215,100 @@ function PrintAll() {
 
   // Улучшенный скелетон, точно соответствующий структуре реального контента
   const SkeletonPanel = () => (
-    <div style={{ marginTop: 16 }}>
-      <Card
-        style={{
-          borderRadius: 24,
-          border: '1px solid #f0f0f0',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-          background: '#fafafa',
-        }}
-        bodyStyle={{ padding: '24px' }}
-      >
-        <Row gutter={[24, 24]}>
-          <Col span={8}>
-            <div style={{ textAlign: 'center' }}>
-              <Skeleton.Avatar
-                active
-                size={150}
-                shape="square"
-                style={{
-                  borderRadius: 16,
-                  marginBottom: 16,
-                  background:
-                    'linear-gradient(145deg, #e6e9f0 0%, #f2f5fa 100%)',
-                }}
-              />
-            </div>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <Skeleton.Avatar
-                active
-                size={100}
-                shape="square"
-                style={{ borderRadius: 12 }}
-              />
-              <Skeleton.Avatar
-                active
-                size={100}
-                shape="square"
-                style={{ borderRadius: 12 }}
-              />
-            </div>
-          </Col>
-          <Col span={16}>
-            <div style={{ marginBottom: 24 }}>
-              <Skeleton.Input
-                active
-                block
-                size="large"
-                style={{ width: '60%', marginBottom: 16 }}
-              />
-              <Row gutter={16}>
-                <Col span={12}>
-                  {Array(10)
-                    .fill()
-                    .map((_, i) => (
-                      <Skeleton.Input
-                        key={i}
-                        active
-                        size="small"
-                        style={{ width: '70%', marginBottom: 12 }}
-                      />
-                    ))}
-                </Col>
-                <Col span={12}>
-                  {Array(10)
-                    .fill()
-                    .map((_, i) => (
-                      <Skeleton.Input
-                        key={i}
-                        active
-                        size="small"
-                        style={{ width: '85%', marginBottom: 12 }}
-                      />
-                    ))}
-                </Col>
-              </Row>
-            </div>
-            <Skeleton.Button
+    <Card
+      style={{
+        borderRadius: 24,
+        border: '1px solid #f0f0f0',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+        background: '#fafafa',
+      }}
+      bodyStyle={{ padding: '24px' }}
+    >
+      <Row gutter={[24, 24]}>
+        <Col span={8}>
+          <div style={{ textAlign: 'center' }}>
+            <Skeleton.Avatar
               active
-              size="large"
-              block
-              style={{ height: 40, borderRadius: 8 }}
+              size={150}
+              shape="square"
+              style={{ borderRadius: 16, marginBottom: 16 }}
             />
-          </Col>
-        </Row>
-        <div
-          style={{
-            marginTop: 32,
-            textAlign: 'center',
-            color: '#bfbfbf',
-            fontSize: 14,
-            borderTop: '1px solid #f0f0f0',
-            paddingTop: 24,
-          }}
-        >
-          <PrinterOutlined
-            style={{ fontSize: 32, marginBottom: 8, opacity: 0.5 }}
+          </div>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+            <Skeleton.Avatar
+              active
+              size={100}
+              shape="square"
+              style={{ borderRadius: 12 }}
+            />
+            <Skeleton.Avatar
+              active
+              size={100}
+              shape="square"
+              style={{ borderRadius: 12 }}
+            />
+          </div>
+        </Col>
+        <Col span={16}>
+          <div style={{ marginBottom: 24 }}>
+            <Skeleton.Input
+              active
+              block
+              size="large"
+              style={{ width: '60%', marginBottom: 16 }}
+            />
+            <Row gutter={16}>
+              <Col span={12}>
+                {Array(10)
+                  .fill()
+                  .map((_, i) => (
+                    <Skeleton.Input
+                      key={i}
+                      active
+                      size="small"
+                      style={{ width: '70%', marginBottom: 12 }}
+                    />
+                  ))}
+              </Col>
+              <Col span={12}>
+                {Array(10)
+                  .fill()
+                  .map((_, i) => (
+                    <Skeleton.Input
+                      key={i}
+                      active
+                      size="small"
+                      style={{ width: '85%', marginBottom: 12 }}
+                    />
+                  ))}
+              </Col>
+            </Row>
+          </div>
+          <Skeleton.Button
+            active
+            size="large"
+            block
+            style={{ height: 40, borderRadius: 8 }}
           />
-          <p>Выберите принтер из списка, чтобы увидеть детали</p>
-        </div>
-      </Card>
-    </div>
+        </Col>
+      </Row>
+      <div
+        style={{
+          marginTop: 32,
+          textAlign: 'center',
+          fontSize: 14,
+          borderTop: '1px solid #f0f0f0',
+          paddingTop: 24,
+        }}
+      >
+        <PrinterOutlined
+          style={{ fontSize: 32, marginBottom: 8, opacity: 0.5 }}
+        />
+        <Text type="secondary">
+          Выберите принтер из списка, чтобы увидеть детали
+        </Text>
+      </div>
+    </Card>
   );
 
   return (

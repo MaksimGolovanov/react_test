@@ -177,9 +177,7 @@ export default function StaffImportModal({ isOpen, onRequestClose }) {
                title={
                     <Space>
                          <span>Импорт сотрудников</span>
-                         <Tag color="blue" icon={<FileExcelOutlined />}>
-                              Excel
-                         </Tag>
+                         
                     </Space>
                }
           >

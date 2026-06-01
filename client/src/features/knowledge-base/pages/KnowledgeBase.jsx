@@ -10,7 +10,7 @@ import KnowledgeHeader from '../ui/KnowledgeHeader/KnowledgeHeader';
 import KnowledgeTable from '../ui/KnowledgeTable/KnowledgeTable';
 import KnowledgeCategoryTree from '../ui/KnowledgeCategoryTree/KnowledgeCategoryTree';
 
-const { Content, Sider } = Layout;
+const { Content } = Layout;
 
 const KnowledgeBase = observer(() => {
   const navigate = useNavigate();
@@ -25,7 +25,6 @@ const KnowledgeBase = observer(() => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedTag, setSelectedTag] = useState(null);
 
-  // Список всех уникальных тегов из статей
   const allTags = useMemo(() => {
     if (!KnowledgeStore.articles) return [];
     const tagsSet = new Set();
@@ -120,69 +119,64 @@ const KnowledgeBase = observer(() => {
 
   if (KnowledgeStore.isLoading && !KnowledgeStore.articles) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '200px',
-        }}
-      >
+      <div className={styles.spinnerContainer}>
         <Spin
           indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
           size="large"
         />
-        <p style={{ marginTop: 16 }}>Загрузка базы знаний...</p>
+        <p>Загрузка базы знаний...</p>
       </div>
     );
   }
 
   return (
-    <Layout className={styles.container}>
-      <Content>
-        <KnowledgeHeader
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onAddNew={handleAddNew}
-          selectedRow={selectedRow}
-          onEdit={handleEdit}
-          onDelete={() => {
-            setSelectedRowKeys([]);
-            setSelectedRow(null);
-          }}
-          selectedTag={selectedTag}
-          onTagChange={setSelectedTag}
-          allTags={allTags}
-        />
-        <Layout className={styles.contentLayout}>
-          <Sider width={250} className={styles.sider}>
-            <KnowledgeCategoryTree
-              categories={KnowledgeStore.categories || []}
-              selectedCategory={selectedCategory}
-              onSelect={handleCategorySelect}
-            />
-          </Sider>
-          <Content className={styles.tableContent}>
-            <div className={styles.tableCard}>
-              <div className={styles.articleListScroll}>
-                <KnowledgeTable
-                  data={sortedArticles}
-                  sortConfig={sortConfig}
-                  onSort={requestSort}
-                  selectedRowKeys={selectedRowKeys}
-                  onSelectionChange={(keys, rows) => {
-                    setSelectedRowKeys(keys);
-                    setSelectedRow(rows[0] || null);
-                  }}
-                  onRowClick={handleRowClick}
-                  loading={KnowledgeStore.isLoading}
-                />
-              </div>
+    <div className={styles.container}>
+      <KnowledgeHeader
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onAddNew={handleAddNew}
+        selectedRow={selectedRow}
+        onEdit={handleEdit}
+        onDelete={() => {
+          setSelectedRowKeys([]);
+          setSelectedRow(null);
+        }}
+        selectedTag={selectedTag}
+        onTagChange={setSelectedTag}
+        allTags={allTags}
+      />
+
+      <div className={styles.contentLayout}>
+        {/* Панель категорий слева */}
+        <div className={styles.sider}>
+          <KnowledgeCategoryTree
+            categories={KnowledgeStore.categories || []}
+            selectedCategory={selectedCategory}
+            onSelect={handleCategorySelect}
+          />
+        </div>
+
+        {/* Таблица справа */}
+        <div className={styles.tableContent}>
+          <div className={styles.tableCard}>
+            <div className={styles.articleListScroll}>
+              <KnowledgeTable
+                data={sortedArticles}
+                sortConfig={sortConfig}
+                onSort={requestSort}
+                selectedRowKeys={selectedRowKeys}
+                onSelectionChange={(keys, rows) => {
+                  setSelectedRowKeys(keys);
+                  setSelectedRow(rows[0] || null);
+                }}
+                onRowClick={handleRowClick}
+                loading={KnowledgeStore.isLoading}
+              />
             </div>
-          </Content>
-        </Layout>
-      </Content>
-    </Layout>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 });
 

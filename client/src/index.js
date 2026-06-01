@@ -8,12 +8,13 @@ import 'antd/dist/reset.css'
 import './app/App.css';
 import App from './app/App';
 import LoginPage from './features/admin/pages/LoginPage';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Создаем обёртку для компонентов, которые должны отслеживать изменения
 const Root = observer(() => {
   return (
     <Router>
-      {userStore.isAuthenticated ? <App /> : <LoginPage />}
+      {userStore.isAuthenticated ? <ThemeProvider> <App /> </ThemeProvider> : <LoginPage />}
     </Router>
   );
 });

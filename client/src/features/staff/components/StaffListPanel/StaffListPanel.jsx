@@ -72,7 +72,7 @@ function StaffListPanel({
   };
 
   return (
-    <Card
+    <div
       className={styles.userListCard}
       styles={{
         body: {
@@ -89,7 +89,7 @@ function StaffListPanel({
       <div className={styles.panelHeader}>
         <div className={styles.headerTop}>
           <div className={styles.titleSection}>
-            <TeamOutlined className={styles.titleIcon} />
+            
             <div className={styles.titleWrapper}>
               <div className={styles.titleRow}>
                 <Text strong className={styles.panelTitle}>
@@ -191,7 +191,7 @@ function StaffListPanel({
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
 

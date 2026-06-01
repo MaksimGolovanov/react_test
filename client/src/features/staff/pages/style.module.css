@@ -11,7 +11,7 @@
   height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
-  background: #f0f2f5;
+  
   padding: 16px;
   overflow: hidden;
 }
@@ -46,29 +46,4 @@
   min-height: 0;
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-  .staffContainer {
-    padding: 12px;
-  }
-  
-  .mainContent {
-    flex-direction: column;
-  }
-  
-  .userListPanel,
-  .profilePanel {
-    width: 100%;
-    max-width: 100%;
-  }
-}
 
-@media (max-width: 576px) {
-  .staffContainer {
-    padding: 8px;
-  }
-  
-  .topPanel {
-    padding: 12px;
-  }
-}

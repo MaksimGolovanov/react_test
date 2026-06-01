@@ -4,6 +4,7 @@ import Clock from '../Components/Clock';
 import NavBar from '../Components/NavBar/NavBar';
 import PrivateRoute from '../shared/PrivateRoute';
 import { Prints } from '../features/prints';
+import { useTheme } from '../context/ThemeContext';
 import { NotesRoutes } from '../features/notes';
 import { IusPtRoutes } from '../features/ius-pt';
 import { StaffRoutes } from '../features/staff';
@@ -16,19 +17,21 @@ import { MultiEduRouters } from '../features/MultiEdu';
 import { TransportRoutes } from '../features/transport';
 import { KnowledgeRoutes } from '../features/knowledge-base';
 import { MapRoutes } from '../features/map';
-
-
+import { Switch, Space } from 'antd';
+import { BulbOutlined, BulbFilled } from '@ant-design/icons';
 import LoginPage from '../features/admin/pages/LoginPage';
 import Json from '../features/json/pages/JsonViewer';
 import './App.css';
 import userStore from '../features/admin/store/UserStore';
 import { observer } from 'mobx-react-lite';
 
+// Ключ для localStorage
+const SIDEBAR_STORAGE_KEY = 'sidebarCollapsed';
+
 // Компонент для определения первой доступной страницы
 const FirstAvailablePage = observer(() => {
   const userRoles = userStore.userRolesAuth || [];
 
-  // Порядок проверки маршрутов (от более приоритетных к менее)
   const routesPriority = [
     { path: '/staff', roles: ['ADMIN', 'USER'] },
     { path: '/ipaddress', roles: ['ADMIN', 'IP'] },
@@ -46,37 +49,37 @@ const FirstAvailablePage = observer(() => {
     { path: '/map', roles: ['ADMIN', 'MAP'] },
   ];
 
-  // Находим первую доступную страницу
   const getFirstAvailablePath = () => {
-    console.log('Available roles:', userRoles);
-
     for (const route of routesPriority) {
-      console.log(
-        `Checking route: ${route.path}, required roles: ${route.roles}`
-      );
       if (route.roles.some((role) => userRoles.includes(role))) {
-        console.log(`First available page: ${route.path}`);
         return route.path;
       }
     }
-    console.log('No available pages found');
     return '/login';
   };
 
   const firstPath = getFirstAvailablePath();
-
   return <Navigate to={firstPath} replace />;
 });
 
 function App() {
   const location = useLocation();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // ✅ Синхронное чтение из localStorage при инициализации (без прыжков)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    return saved === 'true';
+  });
+  const { isDark, toggleTheme } = useTheme();
+  // Сохраняем изменения в localStorage
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebarCollapsed));
+  }, [sidebarCollapsed]);
 
   useEffect(() => {
     userStore.fetchUsers();
   }, []);
 
-  // Определяем заголовок страницы
   const getPageTitle = () => {
     switch (true) {
       case location.pathname === '/' || location.pathname === '/staff':
@@ -120,22 +123,31 @@ function App() {
 
   return (
     <div className="app-container">
-      <NavBar onCollapseChange={setSidebarCollapsed} />
+      {/* Передаём состояние и функцию изменения в NavBar */}
+      <NavBar
+        collapsed={sidebarCollapsed}
+        onCollapseChange={setSidebarCollapsed}
+      />
       <div className={`main-content ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        {/* Шапка с заголовком и часами */}
         <div className="page-header sticky-header">
           <div className="header-content">
             <h1 className="page-title">{getPageTitle()}</h1>
-            <div className="header-clock">
-              <Clock />
-            </div>
+            <Space size="middle" className="header-actions">
+              <div className="header-clock">
+                <Clock />
+              </div>
+              <Switch
+                checkedChildren={<BulbFilled />}
+                unCheckedChildren={<BulbOutlined />}
+                checked={isDark}
+                onChange={toggleTheme}
+              />
+            </Space>
           </div>
         </div>
 
-        {/* Основное содержимое страницы */}
         <div className="content-container">
           <Routes>
-            {/* Основной маршрут / - всегда редиректит на первую доступную страницу */}
             <Route
               path="/"
               element={
@@ -154,15 +166,13 @@ function App() {
                     'ST-ADMIN',
                     'TRANSPORT',
                     'TRANSPORT-ORDER',
-                    'MAP'
+                    'MAP',
                   ]}
                 >
                   <FirstAvailablePage />
                 </PrivateRoute>
               }
             />
-
-            {/* Маршрут /staff должен быть доступен только для ADMIN и USER */}
             <Route
               path="/staff/*"
               element={
@@ -171,7 +181,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/ipaddress/*"
               element={
@@ -212,8 +221,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-
-
             <Route
               path="/knowledge/*"
               element={
@@ -222,26 +229,24 @@ function App() {
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/transport/*"
-              
               element={
-                <PrivateRoute requiredRole={['ADMIN', 'TRANSPORT', 'TRANSPORT-ORDER']}>
+                <PrivateRoute
+                  requiredRole={['ADMIN', 'TRANSPORT', 'TRANSPORT-ORDER']}
+                >
                   <TransportRoutes />
                 </PrivateRoute>
               }
             />
             <Route
               path="/map/*"
-              
               element={
                 <PrivateRoute requiredRole={['ADMIN', 'MAP']}>
                   <MapRoutes />
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/admin/*"
               element={
@@ -275,7 +280,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            {/* Редирект для несуществующих маршрутов */}
             <Route
               path="*"
               element={
@@ -294,7 +298,7 @@ function App() {
                     'ST-ADMIN',
                     'TRANSPORT',
                     'TRANSPORT-ORDER',
-                    'MAP'
+                    'MAP',
                   ]}
                 >
                   <Navigate to="/" replace />

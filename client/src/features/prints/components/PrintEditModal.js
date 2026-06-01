@@ -1,334 +1,165 @@
-import React, { useState, useEffect } from 'react'
-import Modal from 'react-modal'
-import Form from 'react-bootstrap/Form'
-import Button from 'react-bootstrap/Button'
-import { VscSaveAs } from 'react-icons/vsc'
-import { CgCloseO } from 'react-icons/cg'
-import PrintsService from '../services/PrintsService'
-
-const customStyles = {
-     content: {
-          width: '600px',
-          height: '760px',
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-
-          padding: '20px',
-          borderLeft: '4px solid #fa922f',
-          borderTop: '6px solid #2F3436',
-          borderRight: '6px solid #2F3436',
-          borderBottom: '6px solid #2F3436',
-          backgroundColor: '#fff',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
-     },
-     overlay: {
-          zIndex: 1000,
-          backgroundColor: 'rgba(0, 0, 0, 0.6)',
-     },
-}
-
-Modal.setAppElement('#root')
+import React, { useState, useEffect } from 'react';
+import { Modal, Form, Input, Select, Button, message, Row, Col } from 'antd';
+import { SaveOutlined, CloseOutlined } from '@ant-design/icons';
+import PrintsService from '../services/PrintsService';
 
 export default function PrintEditModal({ isOpen, onRequestClose, onSuccess, PrintsId }) {
-     const [formData, setFormData] = useState({
-          name: '',
-          logical_name: '',
-          ip: '',
-          url: '',
-          department: '',
-          location: '',
-          serial_number: '',
-          model_id: '',
-          status: '',
-          description: '', // ID выбранной модели принтера
-     })
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
+    const [printModels, setPrintModels] = useState([]);
+    const [departments, setDepartments] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const [initialLoading, setInitialLoading] = useState(true);
 
-     const [printModels, setPrintModels] = useState([])
-     const [departmens, setDepartmens] = useState([])
-     const [locations, setLocations] = useState([])
-     const [isLoading, setIsLoading] = useState(false)
-     const [error, setError] = useState(null)
-     const [print, setPrint] = useState([])
-
-     // Загрузка списка моделей принтеров при открытии модального окна
-     useEffect(() => {
-          if (isOpen) {
-               fetchPrintModels()
-               fetchDepartmens()
-               fetchLocations()
-               fetchPrint()
-          }
-     }, [isOpen])
-
-     const fetchPrint = async () => {
-          try {
-               const print = await PrintsService.fetchPrint(PrintsId)
-
-               setPrint(print)
-               setFormData({
-                    name: '',
+    useEffect(() => {
+        if (isOpen) {
+            Promise.all([
+                PrintsService.fetchPrintModel(),
+                PrintsService.fetchDepartmens(),
+                PrintsService.fetchLocation(),
+                PrintsService.fetchPrint(PrintsId)
+            ]).then(([models, depts, locs, print]) => {
+                setPrintModels(models);
+                setDepartments(depts);
+                setLocations(locs);
+                form.setFieldsValue({
+                    model_id: print.print_model,
                     logical_name: print.logical_name,
                     ip: print.ip,
                     url: print.url,
                     department: print.department,
                     location: print.location,
                     serial_number: print.serial_number,
-                    model_id: print.print_model,
-                    status: print.status,
                     description: print.description,
-               })
-          } catch (error) {
-               console.error('Ошибка при загрузке принтеров:', error)
-               setError('Не удалось загрузить список  принтеров')
-          }
-     }
+                    status: print.status,
+                });
+                setInitialLoading(false);
+            }).catch(err => {
+                console.error(err);
+                message.error('Ошибка загрузки данных');
+                setInitialLoading(false);
+            });
+        }
+    }, [isOpen, PrintsId, form]);
 
-     const fetchPrintModels = async () => {
-          try {
-               const models = await PrintsService.fetchPrintModel()
-               setPrintModels(models)
-          } catch (error) {
-               console.error('Ошибка при загрузке моделей принтеров:', error)
-               setError('Не удалось загрузить список моделей принтеров')
-          }
-     }
-     const fetchDepartmens = async () => {
-          try {
-               const deparmensAll = await PrintsService.fetchDepartmens()
-               setDepartmens(deparmensAll)
-          } catch (error) {
-               console.error('Ошибка при загрузке моделей принтеров:', error)
-               setError('Не удалось загрузить список моделей принтеров')
-          }
-     }
+    const handleSubmit = async (values) => {
+        setLoading(true);
+        try {
+            await PrintsService.updatePrint({
+                id: PrintsId,
+                print_model: parseInt(values.model_id),
+                logical_name: values.logical_name,
+                ip: values.ip,
+                url: values.url,
+                department: values.department,
+                location: values.location,
+                serial_number: values.serial_number,
+                description: values.description,
+                status: values.status,
+            });
+            message.success('Принтер обновлён');
+            onSuccess?.();
+            onRequestClose();
+        } catch (error) {
+            console.error('Ошибка:', error);
+            message.error('Ошибка при обновлении');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-     const fetchLocations = async () => {
-          try {
-               const locationsAll = await PrintsService.fetchLocation()
-               setLocations(locationsAll)
-          } catch (error) {
-               console.error('Ошибка при загрузке моделей принтеров:', error)
-               setError('Не удалось загрузить список моделей принтеров')
-          }
-     }
+    const handleCancel = () => {
+        form.resetFields();
+        onRequestClose();
+    };
 
-     const handleInputChange = (e) => {
-          const { name, value } = e.target
-          setFormData((prev) => ({
-               ...prev,
-               [name]: value,
-          }))
+    return (
+        <Modal
+            title="Редактирование принтера"
+            open={isOpen}
+            onCancel={handleCancel}
+            footer={null}
+            width={600}
+            closeIcon={<CloseOutlined />}
+            confirmLoading={initialLoading}
+        >
+            <Form form={form} layout="vertical" onFinish={handleSubmit}>
+                <Form.Item name="model_id" label="Модель принтера" rules={[{ required: true }]}>
+                    <Select placeholder="Выберите модель" allowClear>
+                        {printModels.map(model => (
+                            <Select.Option key={model.id} value={model.id}>{model.name}</Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
 
-          // Если изменилась модель принтера, устанавливаем имя
-          if (name === 'model_id') {
-               const selectedModel = printModels.find((model) => model.id === parseInt(value))
-               if (selectedModel) {
-                    setFormData((prev) => ({
-                         ...prev,
-                         model_id: value,
-                         name: selectedModel.name, // Устанавливаем имя из выбранной модели
-                    }))
-               }
-          }
-     }
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item name="logical_name" label="Логическое имя">
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="ip" label="IP-адрес" rules={[{ required: true }]}>
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                </Row>
 
-     const handleSubmit = async (e) => {
-          e.preventDefault()
-          setIsLoading(true)
-          setError(null)
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item name="url" label="URL">
+                            <Select allowClear>
+                                <Select.Option value="http://">http://</Select.Option>
+                                <Select.Option value="https://">https://</Select.Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="department" label="Отдел" rules={[{ required: true }]}>
+                            <Select allowClear>
+                                {departments.map(dept => (
+                                    <Select.Option key={dept.id} value={dept.short_name}>{dept.short_name}</Select.Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                </Row>
 
-          try {
-               console.log('Отправляемые данные:', formData) // Логируем данные перед отправкой
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item name="location" label="Расположение">
+                            <Select allowClear>
+                                {locations.map(loc => (
+                                    <Select.Option key={loc.id} value={loc.location}>{loc.location}</Select.Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="status" label="Статус" rules={[{ required: true }]}>
+                            <Select>
+                                <Select.Option value={1}>В работе</Select.Option>
+                                <Select.Option value={0}>В ремонте</Select.Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                </Row>
 
-               if (!formData.model_id || !formData.ip || !formData.department) {
-                    throw new Error('Заполните все обязательные поля')
-               }
+                <Form.Item name="serial_number" label="Серийный номер">
+                    <Input />
+                </Form.Item>
 
-               await PrintsService.updatePrint({
-                    print_model: parseInt(formData.model_id), // Убедитесь, что ID передается как число
-                    logical_name: formData.logical_name,
-                    ip: formData.ip,
-                    url: formData.url,
-                    department: formData.department,
-                    location: formData.location,
-                    serial_number: formData.serial_number,
-                    id: PrintsId,
-                    status: formData.status,
-                    description: formData.description,
-               })
+                <Form.Item name="description" label="Примечание">
+                    <Input.TextArea rows={3} />
+                </Form.Item>
 
-               onSuccess?.()
-               onRequestClose()
-
-               resetForm()
-          } catch (error) {
-               console.error('Ошибка при создании принтера:', error)
-               setError(error.response?.data?.message || error.message || 'Произошла ошибка при создании принтера')
-          } finally {
-               setIsLoading(false)
-          }
-     }
-
-     const resetForm = () => {
-          setFormData({
-               name: '',
-               logical_name: '',
-               ip: '',
-               url: '',
-               department: '',
-               location: '',
-               serial_number: '',
-               model_id: '',
-               status: '',
-               description: '',
-          })
-          setError(null)
-     }
-
-     // Очищаем форму при закрытии
-     useEffect(() => {
-          if (!isOpen) {
-               resetForm()
-          }
-     }, [isOpen])
-
-     return (
-          <Modal
-               isOpen={isOpen}
-               onRequestClose={onRequestClose}
-               style={customStyles}
-               contentLabel="Редактирование принтера"
-          >
-               <CgCloseO
-                    className="close-icon"
-                    size={28}
-                    onClick={onRequestClose}
-                    style={{ position: 'absolute', top: '16px', right: '16px', cursor: 'pointer' }}
-               />
-               <h3>Добавление принтера</h3>
-
-               {error && <div className="error-message mt-2">{error}</div>}
-
-               <Form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '500px' }}>
-                    <Form.Group>
-                         <Form.Label className="textModal">Модель принтера*</Form.Label>
-                         <Form.Select name="model_id" value={formData.model_id} onChange={handleInputChange} required>
-                              <option value="">Выберите модель</option>
-                              {printModels.map((model) => (
-                                   <option key={model.id} value={model.id}>
-                                        {model.name}
-                                   </option>
-                              ))}
-                         </Form.Select>
-                    </Form.Group>
-
-                    <Form.Group>
-                         <Form.Label className="textModal">Логическое имя</Form.Label>
-                         <Form.Control
-                              type="text"
-                              name="logical_name"
-                              value={formData.logical_name}
-                              onChange={handleInputChange}
-                              placeholder="Введите логическое имя"
-                         />
-                    </Form.Group>
-
-                    <Form.Group>
-                         <Form.Label className="textModal">IP-адрес*</Form.Label>
-                         <Form.Control
-                              type="text"
-                              name="ip"
-                              value={formData.ip}
-                              onChange={handleInputChange}
-                              placeholder="Введите IP-адрес"
-                              required
-                         />
-                    </Form.Group>
-
-                    <Form.Group>
-                         <Form.Label className="textModal">URL</Form.Label>
-                         <Form.Select name="url" value={formData.url} onChange={handleInputChange} required>
-                              <option value="">Выберите URL</option>
-                              <option>http://</option>
-                              <option>https://</option>
-                         </Form.Select>
-                    </Form.Group>
-
-                    <Form.Group>
-                         <Form.Label className="textModal">Отдел*</Form.Label>
-                         <Form.Select
-                              name="department"
-                              value={formData.department}
-                              onChange={handleInputChange}
-                              required
-                         >
-                              <option value="">Выберите Отдел</option>
-                              {departmens.map((model) => (
-                                   <option key={model.id} value={model.short_name}>
-                                        {model.short_name}
-                                   </option>
-                              ))}
-                         </Form.Select>
-                    </Form.Group>
-
-                    <Form.Group>
-                         <Form.Label className="textModal">Расположение</Form.Label>
-                         <Form.Select
-                              type="text"
-                              name="location"
-                              value={formData.location}
-                              onChange={handleInputChange}
-                              required
-                         >
-                              <option value="">Выберите расположение</option>
-                              {locations.map((model) => (
-                                   <option key={model.id} value={model.location}>
-                                        {model.location}
-                                   </option>
-                              ))}
-                         </Form.Select>
-                    </Form.Group>
-
-                    <Form.Group>
-                         <Form.Label className="textModal">Примечание</Form.Label>
-                         <Form.Control
-                              type="text"
-                              name="description"
-                              value={formData.description}
-                              onChange={handleInputChange}
-                              placeholder="Введите примечание"
-                         />
-                    </Form.Group>
-
-                    <Form.Group>
-                         <Form.Label className="textModal">Серийный номер</Form.Label>
-                         <Form.Control
-                              type="text"
-                              name="serial_number"
-                              value={formData.serial_number}
-                              onChange={handleInputChange}
-                              placeholder="Введите серийный номер"
-                         />
-                    </Form.Group>
-                    <Form.Group>
-                         <Form.Label className="textModal">Статус</Form.Label>
-                         <Form.Select name="status" value={formData.status} onChange={handleInputChange} required>
-                              <option value="">Выберите статус</option>
-                              <option value={1}>В работе</option>
-                              <option value={0}>В ремонте</option>
-                         </Form.Select>
-                    </Form.Group>
-
-                    <Button type="submit" className="button-next w-100 mt-2" disabled={isLoading}>
-                         <VscSaveAs className={'icon-staff'} size={20} style={{ marginRight: '8px' }} />
-                         {isLoading ? 'СОХРАНЕНИЕ...' : 'СОХРАНИТЬ'}
+                <Form.Item style={{ textAlign: 'right', marginBottom: 0 }}>
+                    <Button onClick={handleCancel} style={{ marginRight: 8 }}>Отмена</Button>
+                    <Button type="primary" htmlType="submit" loading={loading} icon={<SaveOutlined />}>
+                        Сохранить
                     </Button>
-               </Form>
-          </Modal>
-     )
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
 }

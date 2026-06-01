@@ -1,7 +1,7 @@
 // src/modules/Map/ui/MapHeader/MapHeader.tsx
 import React from 'react';
-import { Button, Space, message, Modal } from 'antd';
-import { PlusOutlined, DeleteOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
+import { Button, Tooltip, Space, message, Modal } from 'antd';
+import { PlusOutlined, DeleteOutlined, EditOutlined, CloseOutlined, EnvironmentOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import mapStore from '../../store/MapStore';
 import TileSourceSwitcher from '../TileSourceSwitcher/TileSourceSwitcher';
@@ -21,7 +21,7 @@ interface MapHeaderProps {
   tileSources: MapSource[];
   currentTileSourceId: string;
   onSwitchTileSource: (sourceId: string) => void;
-  selectedLayerId: number | null; // добавляем проп
+  selectedLayerId: number | null;
 }
 
 const MapHeader: React.FC<MapHeaderProps> = observer(({
@@ -33,9 +33,9 @@ const MapHeader: React.FC<MapHeaderProps> = observer(({
   tileSources,
   currentTileSourceId,
   onSwitchTileSource,
-  selectedLayerId, // получаем из пропов
+  selectedLayerId,
 }) => {
-  const { layers, setSelectedLayerId, deleteLayer } = mapStore; // убрали selectedLayerId из стора
+  const { deleteLayer } = mapStore;
 
   const handleDeleteLayer = () => {
     if (!selectedLayerId) {
@@ -72,26 +72,39 @@ const MapHeader: React.FC<MapHeaderProps> = observer(({
 
   return (
     <div className={styles.header}>
-      <Space wrap>
-        <Button type="primary" icon={<PlusOutlined />} onClick={onAddLayer}>Добавить слой</Button>
-        <Button icon={<EditOutlined />} onClick={onEditLayer} disabled={!selectedLayerId}>Редактировать слой</Button>
-        <Button danger icon={<DeleteOutlined />} onClick={handleDeleteLayer} disabled={!selectedLayerId}>Удалить слой</Button>
-        
-        <Button 
-          type={isAddMarkerMode ? 'default' : 'primary'}
-          icon={isAddMarkerMode ? <CloseOutlined /> : <PlusOutlined />}
-          onClick={handleAddMarkerClick}
-          disabled={!selectedLayerId}
-          style={isAddMarkerMode ? { backgroundColor: '#ff4d4f', borderColor: '#ff4d4f', color: 'white' } : {}}
-        >
-          {isAddMarkerMode ? 'Отменить' : 'Добавить метку'}
-        </Button>
+      <Space size="small">
+        {/* Группа управления слоями */}
+        <Button.Group>
+          <Tooltip title="Добавить слой" placement="bottom">
+            <Button type="primary" icon={<PlusOutlined />} onClick={onAddLayer} />
+          </Tooltip>
+          <Tooltip title="Редактировать слой" placement="bottom">
+            <Button icon={<EditOutlined />} onClick={onEditLayer} disabled={!selectedLayerId} />
+          </Tooltip>
+          <Tooltip title="Удалить слой" placement="bottom">
+            <Button danger icon={<DeleteOutlined />} onClick={handleDeleteLayer} disabled={!selectedLayerId} />
+          </Tooltip>
+        </Button.Group>
 
-        <TileSourceSwitcher
-          sources={tileSources}
-          currentSourceId={currentTileSourceId}
-          onSwitch={onSwitchTileSource}
-        />
+        {/* Группа работы с маркерами */}
+        <Tooltip title={isAddMarkerMode ? "Отменить добавление метки" : "Добавить метку"} placement="bottom">
+          <Button
+            type={isAddMarkerMode ? 'default' : 'primary'}
+            icon={isAddMarkerMode ? <CloseOutlined /> : <EnvironmentOutlined />}
+            onClick={handleAddMarkerClick}
+            disabled={!selectedLayerId}
+            className={isAddMarkerMode ? styles.activeMarkerMode : ''}
+          />
+        </Tooltip>
+
+        {/* Группа переключения подложек */}
+        <div className={styles.tileGroup}>
+          <TileSourceSwitcher
+            sources={tileSources}
+            currentSourceId={currentTileSourceId}
+            onSwitch={onSwitchTileSource}
+          />
+        </div>
       </Space>
     </div>
   );

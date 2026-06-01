@@ -11,7 +11,7 @@ class StaffController {
 
      
 
-     async getAllDepartment(req, res) {
+     async getAllDepartment(req, res) { 
           const department = await Department.findAll()
           return res.json(department)
      }

@@ -1,4 +1,4 @@
-/* IpAddress.module.css – современный редизайн */
+/* IpAddress.module.css – исправленная тёмная тема */
 :root {
   --bg-page: #f8fafc;
   --bg-card: #ffffff;
@@ -8,16 +8,20 @@
   --transition: all 0.2s ease;
 }
 
+/* Светлая тема (по умолчанию) */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--bg-page) 0%, #eef2ff 100%);
+  
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  
 }
 
-/* Карточка таблицы – стеклянная морфинг-эстетика */
+
+
+/* Остальные стили */
 .tableCard {
   background: var(--bg-card);
   border-radius: var(--border-radius);
@@ -36,7 +40,6 @@
   padding: 0 !important;
 }
 
-/* Контейнер с прокруткой – плавный скролл */
 .userListScroll {
   overflow: auto;
   scrollbar-width: thin;
@@ -47,17 +50,32 @@
   width: 6px;
   height: 6px;
 }
-
 .userListScroll::-webkit-scrollbar-track {
   background: #f1f5f9;
   border-radius: 10px;
 }
-
 .userListScroll::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 10px;
 }
-
 .userListScroll::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Тёмная тема для карточки таблицы и скролла */
+body.dark-theme .tableCard {
+  background: rgba(20, 25, 35, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .userListScroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+body.dark-theme .userListScroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.25);
+}
+body.dark-theme .userListScroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.5);
 }

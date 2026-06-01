@@ -1,44 +1,54 @@
-.leftProperty{
+/* Стили для модуля принтеров – светлая тема */
+
+.prints-container {
+    padding: 16px;
+    min-height: calc(100vh - 250px);
+}
+
+.prints-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    padding: 20px 24px;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+
+.leftProperty {
     text-align: right;
     margin: 0px;
     font-weight: bold;
     margin-top: 30px;
     margin-left: -150px;
 }
-.leftProperty p{
-    
+.leftProperty p {
     margin: 0px;
 }
-
-.rightProperty{
+.rightProperty {
     text-align: left;
     padding-left: 10px;
     margin-top: 30px;
-    
 }
-.rightProperty p{
+.rightProperty p {
     margin: 0;
-    
 }
 .table-prints {
-    max-height: 750px; /* или любая другая высота */
-    height: 680px; /* если нужна строгая фиксация */
-    overflow-y: auto; /* вертикальный скролл */
-    display: block; /* чтобы таблица не растягивала родителя */
+    max-height: 750px;
+    height: 680px;
+    overflow-y: auto;
+    display: block;
     font-size: 11px;
     text-align: center;
-    width: 100%; /* чтобы не сжималась */
-    margin-bottom: 0; /* убираем лишние отступы */
+    width: 100%;
+    margin-bottom: 0;
 }
-
-/* Дополнительно: стиль для шапки таблицы, чтобы она не скроллилась */
 .table-prints thead {
     position: sticky;
     top: 0;
-    background-color: white; /* или любой другой фон */
+    background-color: white;
     z-index: 1;
 }
-
 .green-circle {
     display: inline-block;
     width: 16px;
@@ -46,11 +56,126 @@
     background-color: green;
     border-radius: 50%;
 }
-
 .red-circle {
     display: inline-block;
     width: 16px;
     height: 16px;
     background-color: red;
     border-radius: 50%;
+}
+
+/* ===== ТЁМНАЯ ТЕМА ===== */
+body.dark-theme .table-prints thead {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+body.dark-theme .table-prints tbody tr td {
+    background: rgba(30, 35, 45, 0.5);
+    color: #ddd;
+}
+body.dark-theme .leftProperty p,
+body.dark-theme .rightProperty p {
+    color: #e0e0e0;
+}
+body.dark-theme .green-circle {
+    background-color: #52c41a;
+}
+body.dark-theme .red-circle {
+    background-color: #ff4d4f;
+}
+/* React-Bootstrap компоненты */
+body.dark-theme .card {
+    background: rgba(20, 25, 35, 0.85) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+body.dark-theme .card-body {
+    background: transparent !important;
+}
+body.dark-theme .form-select,
+body.dark-theme .form-control {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+}
+body.dark-theme .form-select option {
+    background: #1a1a2e;
+    color: white;
+}
+body.dark-theme .btn-primary {
+    background: linear-gradient(135deg, #1890ff, #096dd9) !important;
+    border: none !important;
+}
+body.dark-theme .btn-outline-primary {
+    border-color: #1890ff !important;
+    color: #1890ff !important;
+}
+body.dark-theme .btn-outline-primary:hover {
+    background: rgba(24, 144, 255, 0.2) !important;
+    color: white !important;
+}
+body.dark-theme .alert {
+    background: rgba(24, 144, 255, 0.1) !important;
+    border-color: rgba(24, 144, 255, 0.3) !important;
+    color: #ddd !important;
+}
+body.dark-theme .alert-info {
+    background: rgba(24, 144, 255, 0.15) !important;
+}
+body.dark-theme .alert-danger {
+    background: rgba(245, 34, 45, 0.15) !important;
+}
+body.dark-theme .spinner-border {
+    color: #1890ff !important;
+}
+body.dark-theme .text-center p {
+    color: #ccc;
+}
+/* Модальные окна React-Modal (если остались) */
+body.dark-theme .ReactModal__Content {
+    background: rgba(18, 22, 35, 0.96) !important;
+    backdrop-filter: blur(20px);
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #e0e0e0;
+}
+body.dark-theme .ReactModal__Content h3,
+body.dark-theme .ReactModal__Content .textModal {
+    color: #f0f0f0;
+}
+body.dark-theme .ReactModal__Content .form-label {
+    color: #ccc;
+}
+
+body.dark-theme .prints-card {
+    background: rgba(20, 25, 35, 0.85) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .ant-tabs-nav {
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .ant-tabs-tab {
+    color: #ccc;
+}
+
+body.dark-theme .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #1890ff;
+}
+body.dark-theme .ant-tabs-nav {
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+/* Тёмная тема для скелетона */
+body.dark-theme .ant-card {
+    background: rgba(20, 25, 35, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+body.dark-theme .ant-card .ant-typography-secondary,
+body.dark-theme .ant-card .ant-typography {
+    color: #ccc !important;
+}
+body.dark-theme .ant-card div[style*="borderTop"] {
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
 }

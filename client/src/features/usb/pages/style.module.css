@@ -3,7 +3,7 @@
   height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
-  background: #f0f2f5;
+  
   padding: 16px;
   overflow: hidden;
   min-width: 0; /* добавляем */ 
@@ -73,4 +73,27 @@
 
 .tableRow:hover :global(.ant-table-cell) {
   background-color: #fafafa !important;
+}
+
+/* ===== ТЁМНАЯ ТЕМА ===== */
+body.dark-theme .container {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+}
+
+body.dark-theme .tableCard {
+  background: rgba(20, 25, 35, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .userListScroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+body.dark-theme .userListScroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.25);
+}
+body.dark-theme .userListScroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.5);
 }

@@ -16,6 +16,7 @@ import {
   GlobalOutlined,
   BookOutlined,
   ReconciliationOutlined,
+  KubernetesOutlined,
   CarOutlined,
 } from '@ant-design/icons';
 import styles from './MenuSection.module.css';
@@ -124,7 +125,7 @@ const MenuSection = ({ userRolesAuth }) => {
       ? [
           {
             key: '/ipaddress',
-            icon: <GlobalOutlined />,
+            icon: <KubernetesOutlined />,
             label: <Link to="/ipaddress">УЧЕТ IP</Link>,
           },
         ]
@@ -201,7 +202,7 @@ const MenuSection = ({ userRolesAuth }) => {
       ? [
           {
             key: '/map',
-            icon: <DashboardOutlined />,
+            icon: <GlobalOutlined />,
             label: <Link to="/map">КАРТА</Link>,
           },
         ]

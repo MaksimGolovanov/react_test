@@ -131,16 +131,27 @@ const MapPage: React.FC = observer(() => {
     }
   }, [visibleLayers]);
 
-  // Инициализация leaflet-editable
-  useEffect(() => {
-    if (mapRef.current && !(mapRef.current as any).editTools) {
-      try {
-        (mapRef.current as any).editTools = new L.Editable(mapRef.current, {});
-      } catch (err) {
-        console.warn('L.Editable already initialized or error:', err);
-      }
+  // Включение поворота через leaflet-rotate
+useEffect(() => {
+  if (!mapRef.current) return;
+  const map = mapRef.current;
+
+  // Дождёмся готовности карты
+  map.whenReady(() => {
+    // Принудительно включаем поворот (если метод существует)
+    if (typeof (map as any).rotateEnable === 'function') {
+      (map as any).rotateEnable(true);
     }
-  }, [mapRef.current]);
+    // Убедимся, что метод setAngle есть
+    if (typeof (map as any).setAngle === 'function') {
+      (map as any).setAngle(0);
+    } else {
+      console.warn('leaflet-rotate не установлен или не загрузился. Проверьте npm install leaflet-rotate');
+    }
+  });
+}, [mapRef.current]);
+
+  
 
   const toggleLayerVisibility = (layerId: number, visible: boolean) => {
     setVisibleLayers(prev => ({ ...prev, [layerId]: visible }));
@@ -326,6 +337,9 @@ const MapPage: React.FC = observer(() => {
         const sumLng = coords.reduce((s: number, p: number[]) => s + p[0], 0);
         center = [sumLat / coords.length, sumLng / coords.length];
       }
+    } else if (drawing.type === 'text') {
+      const [lng, lat] = drawing.coordinates as [number, number];
+      center = [lat, lng];
     }
     if (center) {
       mapRef.current.flyTo(center, 17, { duration: 1.0 });
@@ -410,7 +424,7 @@ const MapPage: React.FC = observer(() => {
             editable={true}
             rotate={true}
             rotateControl={false}
-            style={{ height: '800px', width: '100%', backgroundColor: '#1a1a1a' }}
+            style={{ height: '875px', width: '100%', backgroundColor: '#1a1a1a' }}
             ref={mapRef}
             className={isAddMarkerMode ? styles.addMarkerCursor : ''}
           >

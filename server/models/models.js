@@ -14,9 +14,9 @@ const Role = sequelize.define('roles', {
      description: { type: DataTypes.STRING },
 })
 const Dolgnost = sequelize.define('dolgnost', {
-     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-     dolgn: { type: DataTypes.STRING, },
-     dolgn_s: { type: DataTypes.STRING },
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  dolgn: { type: DataTypes.STRING },
+  dolgn_s: { type: DataTypes.STRING },
 })
 const Staff = sequelize.define('stafs', {
      tabNumber: { type: DataTypes.STRING, primaryKey: true },

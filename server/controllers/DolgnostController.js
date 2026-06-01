@@ -4,12 +4,12 @@ const ApiError = require('../error/ApiError')
 class DolgnostController {
      async getAllDolgnost(req, res, next) {
           try {
-               console.log('Fetching dolgnost...') // Добавьте лог
                const dolgnost = await Dolgnost.findAll()
-               console.log('Found departments:', dolgnost.length) // Лог количества
-               return res.json(dolgnost)
+                   // Принудительная сериализация
+               const safeData = dolgnost ? JSON.parse(JSON.stringify(dolgnost)) : []
+               return res.json(safeData)
           } catch (err) {
-               console.error('Error in getAlldolgnost:', err)
+               console.error('❌ Error in getAllDolgnost:', err)
                return next(ApiError.internal('Ошибка при получении списка должностей'))
           }
      }

@@ -1,3 +1,4 @@
+// ReportsTab.jsx – полный компонент с отчётами (водители/автомобили)
 import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Table, Tabs, Tag, Space, Tooltip, Select, Row, Col } from 'antd';
@@ -12,7 +13,7 @@ dayjs.locale('ru');
 const { TabPane } = Tabs;
 const { Option } = Select;
 
-// --- Вспомогательные функции и константы ---
+// === Вспомогательные функции ===
 const driverStatusLabels = {
   at_work: { text: 'На работе', color: 'green' },
   on_vacation: { text: 'В отпуске', color: 'orange' },
@@ -29,88 +30,38 @@ const getDriverStatusInfo = (driver) => {
   if (driver.is_active === 'at_work') {
     return <Tag color={info.color}>{info.text}</Tag>;
   }
-  const from = driver.date_from
-    ? dayjs(driver.date_from).format('DD.MM.YYYY')
-    : '—';
+  const from = driver.date_from ? dayjs(driver.date_from).format('DD.MM.YYYY') : '—';
   const to = driver.date_to ? dayjs(driver.date_to).format('DD.MM.YYYY') : '—';
   return (
     <Space direction="vertical" size={0}>
       <Tag color={info.color}>{info.text}</Tag>
-      <span style={{ fontSize: '12px', color: '#666' }}>
-        {from} – {to}
-      </span>
+      <span style={{ fontSize: '12px', color: '#666' }}>{from} – {to}</span>
     </Space>
   );
 };
 
 const getDriverRowClassName = (record) => {
   switch (record.is_active) {
-    case 'at_work':
-      return 'report-driver-row-at-work';
-    case 'on_vacation':
-      return 'report-driver-row-on-vacation';
-    case 'on_sick_leave':
-      return 'report-driver-row-on-sick-leave';
-    case 'on_study':
-      return 'report-driver-row-on-study';
-    case 'deactivated':
-      return 'report-driver-row-deactivated';
-    default:
-      return '';
+    case 'at_work': return 'report-driver-row-at-work';
+    case 'on_vacation': return 'report-driver-row-on-vacation';
+    case 'on_sick_leave': return 'report-driver-row-on-sick-leave';
+    case 'on_study': return 'report-driver-row-on-study';
+    case 'deactivated': return 'report-driver-row-deactivated';
+    default: return '';
   }
 };
 
 const getVehicleRowClassName = (record) => {
-  if (record.technical_condition === 'исправен')
-    return 'report-vehicle-row-good';
-  if (record.technical_condition === 'в ремонте')
-    return 'report-vehicle-row-repair';
+  if (record.technical_condition === 'исправен') return 'report-vehicle-row-good';
+  if (record.technical_condition === 'в ремонте') return 'report-vehicle-row-repair';
   return 'report-vehicle-row-bad';
 };
 
-// Стили для строк (добавляются в head)
-const injectRowStyles = () => {
-  if (document.getElementById('report-row-styles')) return;
-  const style = document.createElement('style');
-  style.id = 'report-row-styles';
-  style.textContent = `
-    .report-driver-row-at-work { background-color: #ffff !important; }
-    .report-driver-row-at-work:hover > td { background-color: #d9f7be !important; }
-    
-    .report-driver-row-on-vacation { background-color: #fff7e6 !important; }
-    .report-driver-row-on-vacation:hover > td { background-color: #ffe7ba !important; }
-    
-    .report-driver-row-on-sick-leave { background-color: #fff1f0 !important; }
-    .report-driver-row-on-sick-leave:hover > td { background-color: #ffccc7 !important; }
-    
-    .report-driver-row-on-study { background-color: #e6f7ff !important; }
-    .report-driver-row-on-study:hover > td { background-color: #bae7ff !important; }
-    
-    .report-driver-row-deactivated { background-color: #fafafa !important; color: #bfbfbf !important; }
-    .report-driver-row-deactivated:hover > td { background-color: #f0f0f0 !important; }
-    
-    .report-vehicle-row-good { background-color: #f6ffed !important; }
-    .report-vehicle-row-good:hover > td { background-color: #d9f7be !important; }
-    
-    .report-vehicle-row-repair { background-color: #fff7e6 !important; }
-    .report-vehicle-row-repair:hover > td { background-color: #ffe7ba !important; }
-    
-    .report-vehicle-row-bad { background-color: #fff1f0 !important; }
-    .report-vehicle-row-bad:hover > td { background-color: #ffccc7 !important; }
-  `;
-  document.head.appendChild(style);
-};
-
-// --- Отчёт по водителям ---
+// === Отчёт по водителям ===
 const DriversReport = observer(({ selectedDate }) => {
   const { transportStore } = useRootStore();
-
   const [statusFilter, setStatusFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
-
-  useEffect(() => {
-    injectRowStyles();
-  }, []);
 
   const confirmedRequests = useMemo(
     () =>
@@ -132,19 +83,13 @@ const DriversReport = observer(({ selectedDate }) => {
 
   let filteredDrivers = transportStore.drivers;
   if (statusFilter !== 'all') {
-    filteredDrivers = filteredDrivers.filter(
-      (d) => d.is_active === statusFilter
-    );
+    filteredDrivers = filteredDrivers.filter((d) => d.is_active === statusFilter);
   }
   if (departmentFilter !== 'all') {
-    filteredDrivers = filteredDrivers.filter(
-      (d) => d.department === departmentFilter
-    );
+    filteredDrivers = filteredDrivers.filter((d) => d.department === departmentFilter);
   }
 
-  const uniqueDepartments = [
-    ...new Set(transportStore.drivers.map((d) => d.department).filter(Boolean)),
-  ];
+  const uniqueDepartments = [...new Set(transportStore.drivers.map((d) => d.department).filter(Boolean))];
 
   const columns = [
     {
@@ -180,17 +125,13 @@ const DriversReport = observer(({ selectedDate }) => {
       render: (_, record) => {
         const request = driverToRequestMap[record.id];
         if (!request) return <Tag>Нет</Tag>;
-        const vehicle = transportStore.vehicles.find(
-          (v) => v.id === request.assigned_vehicle_id
-        );
+        const vehicle = transportStore.vehicles.find((v) => v.id === request.assigned_vehicle_id);
         return (
           <Space direction="vertical" size={2}>
             <Tooltip title="Автомобиль">
               <span>
                 <CarOutlined />{' '}
-                {vehicle
-                  ? `${vehicle.vehicle_brand} (${vehicle.state_number})`
-                  : '—'}
+                {vehicle ? `${vehicle.vehicle_brand} (${vehicle.state_number})` : '—'}
               </span>
             </Tooltip>
             <Tooltip title="Время">
@@ -198,9 +139,7 @@ const DriversReport = observer(({ selectedDate }) => {
                 <CalendarOutlined /> {request.start_time} – {request.end_time}
               </span>
             </Tooltip>
-            <div style={{ fontSize: 12, color: '#888' }}>
-              Место: {request.work_place}
-            </div>
+            <div style={{ fontSize: 12, color: '#888' }}>Место: {request.work_place}</div>
           </Space>
         );
       },
@@ -255,16 +194,11 @@ const DriversReport = observer(({ selectedDate }) => {
   );
 });
 
-// --- Отчёт по автомобилям ---
+// === Отчёт по автомобилям ===
 const VehiclesReport = observer(({ selectedDate }) => {
   const { transportStore } = useRootStore();
-
   const [conditionFilter, setConditionFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
-
-  useEffect(() => {
-    injectRowStyles();
-  }, []);
 
   const confirmedRequests = useMemo(
     () =>
@@ -286,21 +220,13 @@ const VehiclesReport = observer(({ selectedDate }) => {
 
   let filteredVehicles = transportStore.vehicles;
   if (conditionFilter !== 'all') {
-    filteredVehicles = filteredVehicles.filter(
-      (v) => v.technical_condition === conditionFilter
-    );
+    filteredVehicles = filteredVehicles.filter((v) => v.technical_condition === conditionFilter);
   }
   if (typeFilter !== 'all') {
-    filteredVehicles = filteredVehicles.filter(
-      (v) => v.vehicle_type === typeFilter
-    );
+    filteredVehicles = filteredVehicles.filter((v) => v.vehicle_type === typeFilter);
   }
 
-  const uniqueTypes = [
-    ...new Set(
-      transportStore.vehicles.map((v) => v.vehicle_type).filter(Boolean)
-    ),
-  ];
+  const uniqueTypes = [...new Set(transportStore.vehicles.map((v) => v.vehicle_type).filter(Boolean))];
 
   const columns = [
     {
@@ -331,18 +257,13 @@ const VehiclesReport = observer(({ selectedDate }) => {
       render: (status) => (
         <Tag
           color={
-            status === 'исправен'
-              ? 'green'
-              : status === 'в ремонте'
-                ? 'orange'
-                : 'red'
+            status === 'исправен' ? 'green' : status === 'в ремонте' ? 'orange' : 'red'
           }
         >
           {status}
         </Tag>
       ),
-      sorter: (a, b) =>
-        a.technical_condition.localeCompare(b.technical_condition),
+      sorter: (a, b) => a.technical_condition.localeCompare(b.technical_condition),
       showSorterTooltip: false,
     },
     {
@@ -351,9 +272,7 @@ const VehiclesReport = observer(({ selectedDate }) => {
       render: (_, record) => {
         const request = vehicleToRequestMap[record.id];
         if (!request) return <Tag>Нет</Tag>;
-        const driver = transportStore.drivers.find(
-          (d) => d.id === request.assigned_driver_id
-        );
+        const driver = transportStore.drivers.find((d) => d.id === request.assigned_driver_id);
         return (
           <Space direction="vertical" size={2}>
             <Tooltip title="Водитель">
@@ -366,9 +285,7 @@ const VehiclesReport = observer(({ selectedDate }) => {
                 <CalendarOutlined /> {request.start_time} – {request.end_time}
               </span>
             </Tooltip>
-            <div style={{ fontSize: 12, color: '#888' }}>
-              Место: {request.work_place}
-            </div>
+            <div style={{ fontSize: 12, color: '#888' }}>Место: {request.work_place}</div>
           </Space>
         );
       },
@@ -421,17 +338,15 @@ const VehiclesReport = observer(({ selectedDate }) => {
   );
 });
 
-// --- Главный компонент вкладки Отчёт ---
+// === Главный компонент вкладки Отчёт ===
 const ReportsTab = observer(() => {
   const { transportStore, filterStore } = useRootStore();
 
-  // Загружаем справочники при монтировании
   useEffect(() => {
     if (!transportStore.drivers.length) transportStore.fetchDrivers();
     if (!transportStore.vehicles.length) transportStore.fetchVehicles();
   }, [transportStore]);
 
-  // При изменении глобальной даты загружаем заявки за этот день
   useEffect(() => {
     if (filterStore.selectedDate) {
       transportStore.fetchRequests({
@@ -441,7 +356,7 @@ const ReportsTab = observer(() => {
   }, [filterStore.selectedDate, transportStore]);
 
   return (
-    <div style={{ padding: '8px', background: '#fff' }}>
+    <div style={{ padding: '8px' }}>
       <div style={{ marginBottom: 16 }}>
         <WeekDayPicker
           selectedDate={filterStore.selectedDate}

@@ -7,7 +7,7 @@
 }
 
 .userInfoExpanded {
-     padding: 16px;
+     padding: 12px 16px;
 }
 
 .userInfoCollapsed {
@@ -51,8 +51,8 @@
      padding: 0 !important;
      display: flex !important;
      align-items: center !important;
-     justifyContent: center !important;
-     flexShrink: 0 !important;
+     justify-content: center !important;
+     flex-shrink: 0 !important;
      margin-left: 8px !important;
 }
 

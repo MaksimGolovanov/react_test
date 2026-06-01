@@ -207,3 +207,41 @@
 .category-card.available:hover .card-bottom-line {
   opacity: 1;
 }
+
+/* ===== ТЁМНАЯ ТЕМА ===== */
+body.dark-theme .categories-container {
+  background: transparent;
+}
+
+body.dark-theme .category-card {
+  background: rgba(20, 25, 35, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .card-title {
+  color: #f0f0f0 !important;
+}
+
+body.dark-theme .card-description {
+  color: #aaa !important;
+}
+
+body.dark-theme .card-footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .course-count {
+  color: #ccc;
+}
+
+body.dark-theme .category-tag {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e0e0e0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+body.dark-theme .category-card.available:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(24, 144, 255, 0.3) !important;
+}

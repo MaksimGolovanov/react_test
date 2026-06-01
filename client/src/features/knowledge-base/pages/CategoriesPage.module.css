@@ -99,7 +99,6 @@
   background: transparent !important;
 }
 
-/* Кнопки действий */
 .table :global(.ant-btn-link) {
   color: #475569;
   transition: all 0.2s;
@@ -137,27 +136,59 @@
   padding: 16px 24px;
 }
 
-/* Форма внутри модалки */
 :global(.ant-form-item-label > label) {
   font-weight: 500;
   color: #334155;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
-  .container { 
-    padding: 16px;
-  }
-  .card {
-    padding: 16px;
-  }
-  .title {
-    font-size: 1.4rem;
-  }
-  .searchBar {
-    margin-bottom: 20px;
-  }
-  .header {
-    margin-bottom: 20px;
-  }
+  .container { padding: 16px; }
+  .card { padding: 16px; }
+  .title { font-size: 1.4rem; }
+  .searchBar { margin-bottom: 20px; }
+  .header { margin-bottom: 20px; }
+}
+
+/* ===== ТЁМНАЯ ТЕМА ===== */
+body.dark-theme .container {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+}
+
+body.dark-theme .card {
+  background: rgba(20, 25, 35, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .title {
+  color: #f0f0f0;
+}
+
+body.dark-theme .backBtn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .rootBadge {
+  background: rgba(24, 144, 255, 0.2);
+  color: #91d5ff;
+}
+
+body.dark-theme .noParent {
+  color: #aaa;
+}
+
+body.dark-theme .table :global(.ant-table-thead > tr > th) {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #eee;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .table :global(.ant-table-tbody > tr > td) {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .table :global(.ant-table-row:hover) {
+  background: rgba(24, 144, 255, 0.15) !important;
 }

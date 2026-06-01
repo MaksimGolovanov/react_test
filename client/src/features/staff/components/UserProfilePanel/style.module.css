@@ -6,7 +6,6 @@
   flex-direction: column;
   gap: 12px;
   padding: 0;
-  background: #f0f2f5;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -26,7 +25,6 @@
 .mainInfoCard :global(.ant-card-body) {
   padding: 0 !important;
 }
-
 .devicesCard :global(.ant-card-body) {
   padding: 0 !important;
 }
@@ -46,19 +44,16 @@
   left: 16px;
   z-index: 2;
 }
-
 .avatarContainer {
   position: relative;
   display: inline-block;
 }
-
 .userAvatar {
   width: 140px !important;
   height: 140px !important;
   border: 3px solid white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-
 .photoEditButton {
   position: absolute;
   bottom: 6px;
@@ -75,7 +70,6 @@
   z-index: 10;
   font-size: 14px;
 }
-
 .photoEditButton:hover {
   background: white;
   transform: scale(1.05);
@@ -97,12 +91,10 @@
   flex-direction: column;
   justify-content: center;
 }
-
 .userInfoOverlayFired {
   background: rgba(220, 53, 69, 0.1) !important;
   border: 1px solid rgba(220, 53, 69, 0.3);
 }
-
 .userName {
   color: white !important;
   margin: 0 !important;
@@ -116,14 +108,12 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-
 .userInfoDetails {
   display: flex;
   flex-direction: column;
   gap: 2px;
   margin-top: 4px;
 }
-
 .userPosition {
   font-size: 13px !important;
   color: white !important;
@@ -134,7 +124,6 @@
   white-space: nowrap;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
-
 .userDepartment {
   font-size: 13px !important;
   color: #096dd9 !important;
@@ -146,19 +135,10 @@
   white-space: nowrap;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
-
 .userInfoOverlayFired .userDepartment {
   color: #dc3545 !important;
 }
 
-.firedTag {
-  align-self: flex-start;
-  margin-top: 4px;
-  font-size: 11px;
-  line-height: 18px;
-  height: 20px;
-  padding: 0 6px;
-}
 
 /* Основная информация */
 .mainInfoCard {
@@ -168,12 +148,10 @@
   box-sizing: border-box;
   padding: 0 !important;
 }
-
 .infoSection {
   width: 100%;
   padding: 12px;
 }
-
 .sectionTitle {
   display: flex;
   align-items: center;
@@ -181,31 +159,27 @@
   padding-bottom: 8px;
   border-bottom: 1px solid #f0f0f0;
   width: 100%;
+  color: #f0f0f0;
 }
-
 .sectionIcon {
   margin-right: 6px;
   color: #1890ff;
   font-size: 14px;
   flex-shrink: 0;
 }
-
 .sectionTitleText {
   font-size: 14px !important;
   font-weight: 600 !important;
   word-break: break-word;
 }
-
 .infoGrid {
   display: grid;
   gap: 10px;
   width: 100%;
 }
-
 .infoItem {
   width: 100%;
 }
-
 .infoLabel {
   display: block;
   font-size: 14px;
@@ -215,7 +189,6 @@
   word-break: break-word;
   line-height: 1.2;
 }
-
 .infoValue {
   display: block;
   font-size: 14px !important;
@@ -235,24 +208,20 @@
   word-break: break-word;
   line-height: 1.3;
 }
-
 .contactLink:hover {
   text-decoration: underline;
 }
-
 .contactIcon {
   font-size: 14px;
   margin-right: 6px;
   flex-shrink: 0;
 }
-
 .ipContainer {
   display: flex;
   align-items: center;
   gap: 6px;
   width: 100%;
 }
-
 .ipText {
   font-size: 14px !important;
   display: flex;
@@ -261,7 +230,6 @@
   word-break: break-word;
   line-height: 1.3;
 }
-
 .copyButton {
   font-size: 12px !important;
   padding: 0 3px !important;
@@ -280,49 +248,40 @@
   flex: 1;
   min-height: 200px;
 }
-
 .devicesTabs :global(.ant-tabs-nav) {
   margin: 0 !important;
   padding: 0 12px;
   background: white;
   border-radius: 8px 8px 0 0;
 }
-
 .devicesTabs :global(.ant-tabs-tab) {
   padding: 12px 16px !important;
   margin: 0 !important;
   font-size: 14px;
 }
-
 .devicesTabs :global(.ant-tabs-tab-active) {
   font-weight: 600 !important;
 }
-
 .devicesTabs :global(.ant-tabs-ink-bar) {
   height: 3px !important;
 }
-
 .devicesTabs :global(.ant-tabs-content-holder) {
   padding: 0 12px 12px;
 }
-
 .tabTitle {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 14px;
 }
-
 .tabIcon {
   font-size: 14px;
   margin-right: 4px;
 }
-
 .tabBadge {
   margin-left: 4px;
   font-size: 10px !important;
 }
-
 .tabBadge :global(.ant-badge-count) {
   font-size: 10px !important;
   height: 18px !important;
@@ -330,17 +289,10 @@
   line-height: 18px !important;
   padding: 0 5px !important;
 }
-
 .tabContent {
   width: 100%;
   min-height: 120px;
   box-sizing: border-box;
-}
-
-.loadingContainer {
-  text-align: center;
-  padding: 40px 20px;
-  width: 100%;
 }
 
 .emptyAlert {
@@ -360,28 +312,23 @@
   border: 1px solid #f0f0f0;
   margin-top: 8px;
 }
-
 .tableContainer::-webkit-scrollbar {
   width: 4px;
 }
-
 .tableContainer::-webkit-scrollbar-track {
   background: #f5f5f5;
   border-radius: 2px;
 }
-
 .tableContainer::-webkit-scrollbar-thumb {
   background: #d9d9d9;
   border-radius: 2px;
 }
-
 .deviceTable {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
   min-width: 500px;
 }
-
 .deviceTable thead {
   background: #fafafa;
   border-bottom: 1px solid #f0f0f0;
@@ -389,7 +336,6 @@
   top: 0;
   z-index: 1;
 }
-
 .deviceTable th {
   padding: 10px 12px;
   text-align: left;
@@ -399,31 +345,24 @@
   font-size: 14px;
   min-width: 70px;
 }
-
 .deviceTable tbody tr {
   border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.2s;
 }
-
 .tableRowEven {
   background: #fff;
 }
-
 .tableRowOdd {
   background: #fafafa;
 }
-
 .deviceTable tbody tr:hover {
-  background-color: #f0f7ff !important;
+  background-color: #f0f7ff;
 }
-
 .tableCell {
   padding: 10px 12px;
   min-width: 70px;
   font-size: 14px;
   line-height: 1.2;
 }
-
 .tableCellBold {
   padding: 10px 12px;
   font-weight: 500;
@@ -431,7 +370,6 @@
   font-size: 14px;
   line-height: 1.2;
 }
-
 .truncatedText {
   display: inline-block;
   max-width: 150px;
@@ -446,7 +384,6 @@
   font-weight: 600;
   color: #52c41a;
 }
-
 .statusInactive {
   font-size: 14px;
   font-weight: 400;
@@ -463,7 +400,6 @@
   width: 100%;
   box-sizing: border-box;
 }
-
 .previewImage {
   max-width: 200px;
   max-height: 200px;
@@ -472,334 +408,46 @@
   object-fit: contain;
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-  .profileContainer {
-    padding: 8px;
-    gap: 8px;
-  }
-  
-  .profileHeader {
-    height: 120px;
-  }
-  
-  .headerTopHalf {
-    height: 60px;
-  }
-  
-  .avatarWrapper {
-    top: 30px;
-    left: 12px;
-  }
-  
-  .userAvatar {
-    width: 80px !important;
-    height: 80px !important;
-    border-width: 2px;
-  }
-  
-  .photoEditButton {
-    width: 24px;
-    height: 24px;
-    bottom: 4px;
-    right: 4px;
-    font-size: 12px;
-  }
-  
-  .userInfoOverlay {
-    top: 35px;
-    left: 105px;
-    right: 12px;
-    padding: 8px 12px;
-    min-height: 70px;
-  }
-  
-  .userName {
-    font-size: 16px !important;
-    max-height: 42px;
-  }
-  
-  .userPosition {
-    font-size: 12px !important;
-  }
-  
-  .userDepartment {
-    font-size: 11px !important;
-  }
-  
-  .mainInfoCard {
-    padding: 0 !important;
-  }
-  
-  .infoSection {
-    padding: 10px;
-  }
-  
-  .infoGrid {
-    gap: 8px;
-  }
-  
-  .infoLabel {
-    font-size: 10px;
-  }
-  
-  .infoValue,
-  .contactLink,
-  .ipText {
-    font-size: 12px !important;
-  }
-  
-  .devicesTabs :global(.ant-tabs-tab) {
-    padding: 10px 12px !important;
-    font-size: 12px;
-  }
-  
-  .tabTitle {
-    font-size: 12px;
-  }
-  
-  .deviceTable {
-    min-width: 450px;
-    font-size: 11px;
-  }
-  
-  .deviceTable th,
-  .deviceTable td {
-    padding: 8px 10px;
-    min-width: 60px;
-    font-size: 10px;
-  }
-  
-  .truncatedText {
-    max-width: 120px;
-  }
-}
-
-@media (max-width: 576px) {
-  .profileContainer {
-    padding: 6px;
-    gap: 6px;
-  }
-  
-  .profileHeader {
-    height: 110px;
-  }
-  
-  .headerTopHalf {
-    height: 55px;
-  }
-  
-  .avatarWrapper {
-    top: 27px;
-    left: 10px;
-  }
-  
-  .userAvatar {
-    width: 70px !important;
-    height: 70px !important;
-  }
-  
-  .userInfoOverlay {
-    top: 32px;
-    left: 90px;
-    right: 10px;
-    padding: 6px 10px;
-    min-height: 65px;
-  }
-  
-  .userName {
-    font-size: 14px !important;
-    max-height: 38px;
-  }
-  
-  .userPosition {
-    font-size: 11px !important;
-  }
-  
-  .userDepartment {
-    font-size: 10px !important;
-  }
-  
-  .mainInfoCard {
-    padding: 0 !important;
-  }
-  
-  .infoSection {
-    padding: 8px;
-  }
-  
-  .sectionTitle {
-    margin-bottom: 8px;
-    padding-bottom: 6px;
-  }
-  
-  .sectionTitleText {
-    font-size: 13px !important;
-  }
-  
-  .infoGrid {
-    gap: 6px;
-  }
-  
-  .infoLabel {
-    font-size: 9px;
-  }
-  
-  .infoValue,
-  .contactLink,
-  .ipText {
-    font-size: 11px !important;
-  }
-  
-  .devicesTabs :global(.ant-tabs-nav) {
-    padding: 0 8px;
-  }
-  
-  .devicesTabs :global(.ant-tabs-tab) {
-    padding: 8px 10px !important;
-    font-size: 11px;
-  }
-  
-  .devicesTabs :global(.ant-tabs-content-holder) {
-    padding: 0 8px 8px;
-  }
-  
-  .tabTitle {
-    font-size: 11px;
-  }
-  
-  .tabIcon {
-    font-size: 12px;
-  }
-  
-  .deviceTable {
-    min-width: 400px;
-  }
-  
-  .deviceTable th,
-  .deviceTable td {
-    padding: 6px 8px;
-    min-width: 50px;
-  }
-  
-  .truncatedText {
-    max-width: 100px;
-  }
-}
-
-/* Для очень маленьких экранов */
-@media (max-width: 400px) {
-  .profileHeader {
-    height: 100px;
-  }
-  
-  .headerTopHalf {
-    height: 50px;
-  }
-  
-  .avatarWrapper {
-    top: 25px;
-    left: 8px;
-  }
-  
-  .userAvatar {
-    width: 60px !important;
-    height: 60px !important;
-  }
-  
-  .userInfoOverlay {
-    top: 30px;
-    left: 75px;
-    right: 8px;
-    padding: 5px 8px;
-    min-height: 60px;
-  }
-  
-  .userName {
-    font-size: 13px !important;
-    max-height: 34px;
-  }
-  
-  .userPosition {
-    font-size: 10px !important;
-  }
-  
-  .userDepartment {
-    font-size: 9px !important;
-  }
-  
-  .devicesTabs :global(.ant-tabs-tab) {
-    padding: 6px 8px !important;
-    font-size: 10px;
-  }
-  
-  .tabTitle {
-    font-size: 10px;
-  }
-  
-  .tabIcon {
-    font-size: 11px;
-  }
-  
-  .deviceTable {
-    min-width: 350px;
-  }
-}
-
-
 .userInfoHeader {
-     display: flex;
-     justify-content: space-between;
-     align-items: flex-start;
-     width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
 }
-
 .userInfoText {
-     flex: 1;
-     min-width: 0; /* Для корректного обрезания текста */
+  flex: 1;
+  min-width: 0;
 }
-
 .userActions {
-     display: flex;
-     gap: 8px;
-     margin-left: 16px;
-     flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+  flex-shrink: 0;
 }
-
 .actionButton {
-     display: flex;
-     color: white;
-     align-items: center;
-     justify-content: center;
-     width: 32px;
-     height: 32px;
-     border-radius: 4px;
-     
+  display: flex;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
 }
-
 .actionButton:hover {
-     color: rgb(1, 107, 15);
+  color: rgb(1, 107, 15);
+}
+.statusInactive:hover {
+  color: #8c8c8c;
 }
 
-
-
-/* Для мобильных устройств можно адаптировать */
-@media (max-width: 768px) {
-     .userInfoHeader {
-          flex-direction: column;
-          align-items: flex-start;
-     }
-     
-     .userActions {
-          margin-left: 0;
-          margin-top: 12px;
-          align-self: flex-end;
-     }
-}
-
-.tabContentSkeleton{
+.tabContentSkeleton {
   padding: 12px;
 }
-.tabsSkeleton{
+.tabsSkeleton {
   padding: 12px;
+}
+
+/* ===== ТЁМНАЯ ТЕМА (для таблиц USB/карт) ===== */
+:global(body.dark-theme) .deviceTable tbody tr:hover {
+  background-color: rgba(24, 144, 255, 0.15);
 }

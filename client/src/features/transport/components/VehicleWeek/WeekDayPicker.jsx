@@ -6,7 +6,18 @@ import dayjs from 'dayjs';
 const WeekDayPicker = ({ selectedDate, setSelectedDate }) => {
   const today = dayjs().startOf('day');
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
   const containerRef = useRef(null);
+
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsDarkTheme(document.body.classList.contains('dark-theme'));
+    };
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   const getDaysRelativeToToday = () => {
     const days = [];
@@ -49,15 +60,24 @@ const WeekDayPicker = ({ selectedDate, setSelectedDate }) => {
           const isWeekendDay = isWeekend(day);
 
           let backgroundColor = '#fff';
-          if (isSelectedDay) backgroundColor = '#1451fa';
-          else if (isTodayDay) backgroundColor = '#a8c599';
-          else if (isPastDay) backgroundColor = '#f5f5f5';
-          else if (isWeekendDay) backgroundColor = '#ffd9d9';
-
           let color = '#666';
-          if (isSelectedDay || isTodayDay) color = '#fff';
-          else if (isPastDay) color = '#bfbfbf';
-          else if (isWeekendDay) color = '#d4380d';
+
+          if (isSelectedDay) {
+            backgroundColor = isDarkTheme ? '#1890ff' : '#1451fa';
+            color = '#fff';
+          } else if (isTodayDay) {
+            backgroundColor = isDarkTheme ? '#2e5a4e' : '#a8c599';
+            color = '#fff';
+          } else if (isPastDay) {
+            backgroundColor = isDarkTheme ? 'rgba(255,255,255,0.08)' : '#f5f5f5';
+            color = isDarkTheme ? '#aaa' : '#bfbfbf';
+          } else if (isWeekendDay) {
+            backgroundColor = isDarkTheme ? 'rgba(255,77,79,0.2)' : '#ffd9d9';
+            color = isDarkTheme ? '#ffa39e' : '#d4380d';
+          } else {
+            backgroundColor = isDarkTheme ? 'rgba(255,255,255,0.05)' : '#fff';
+            color = isDarkTheme ? '#e0e0e0' : '#666';
+          }
 
           return (
             <Button

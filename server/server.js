@@ -123,6 +123,7 @@ app.get('/api/debug/files', (req, res) => {
 })
 
 // Роуты API
+
 app.use('/api', route)
 
 app.use((err, req, res, next) => {

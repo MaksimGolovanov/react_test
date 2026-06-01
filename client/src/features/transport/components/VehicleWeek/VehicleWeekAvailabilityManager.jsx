@@ -300,7 +300,7 @@ const VehicleWeek = observer(() => {
       <div
         style={{
           padding: 16,
-          background: '#fff',
+          
           border: '1px solid #f0f0f0',
           borderRadius: 8,
         }}

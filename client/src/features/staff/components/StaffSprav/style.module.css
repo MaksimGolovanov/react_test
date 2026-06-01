@@ -3,7 +3,7 @@
   height: calc(100vh - 75px);
   display: flex;
   flex-direction: column; 
-  background: #f0f2f5; 
+  
   padding: 16px;
   overflow: hidden;
 }
@@ -36,11 +36,22 @@
 }
 
 .spravTabs {
+  
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .spravTabs :global(.ant-tabs-nav) {
-  margin-bottom: 16px;
+  
+  padding: 0 16px;
+  margin: 0;
+  border-radius: 8px 8px 0 0;
+  height: 56px;
 }
 
 .spravTabs :global(.ant-tabs-content) {
@@ -67,7 +78,7 @@
 }
 
 .spravTabs :global(.ant-tabs-tab-active) {
-  background: #e6f7ff;
+  background: #013249;
   border-radius: 4px;
 }
 
@@ -238,3 +249,4 @@
 :global(.ant-card-hoverable) {
   transition: none !important; /* Отключаем анимацию для всех карточек */
 }
+

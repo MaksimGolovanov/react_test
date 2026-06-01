@@ -1,45 +1,42 @@
-/* Общие стили */
+/* ===== БАЗОВЫЕ СТИЛИ (светлая тема) ===== */
 .app-container {
   display: flex;
   min-height: 100vh;
-  background-image: url("../shared/assets/Image/UI.jpg");
+  background-image: url('../shared/assets/Image/UI.jpg');
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  font-family:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", "Open Sans", Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Oxygen-Sans,
+    Ubuntu, Cantarell, 'Helvetica Neue', 'Open Sans', Arial, sans-serif;
 }
 
-/* Основной контент */
 .main-content {
-  margin-left: 250px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  margin-left: 240px;
   transition: margin-left 0.2s ease;
-  background-color: rgba(255, 255, 255, 0.95);
+  flex: 1;
+  width: auto;
 }
-
 .main-content.collapsed {
   margin-left: 80px;
 }
 
-/* Шапка страницы */
 .page-header {
   height: 60px;
   background-color: white;
   border-bottom: 1px solid #dee6ea;
   width: 100%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
-
 .sticky-header {
   position: sticky;
   top: 0;
   z-index: 100;
   background-color: white;
 }
-
 .header-content {
   display: flex;
   align-items: center;
@@ -47,110 +44,1286 @@
   height: 100%;
   padding: 0 20px;
 }
-
 .page-title {
   margin: 0;
   font-weight: bold;
   color: #004c5e;
   font-size: 18px;
   line-height: 1.2;
+  transition: color 0.2s ease;
 }
-
 .header-clock {
   display: flex;
   align-items: center;
 }
-
-/* Контейнер содержимого */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 .content-container {
   flex: 1;
   overflow-y: auto;
-
   background-color: #fff;
+  transition: background-color 0.2s ease;
 }
 
-/* Общие утилиты */
-.bg-fon {
-  background-color: #ffffff;
-}
 
-/* Адаптивность */
-@media (max-width: 768px) {
-  .app-container {
-    flex-direction: column;
-  }
 
-  .main-content {
-    margin-left: 0;
-    margin-top: 60px;
-  }
 
-  .main-content.collapsed {
-    margin-left: 0;
-  }
-
-  .header-content {
-    padding: 0 10px;
-  }
-
-  .page-title {
-    font-size: 16px;
-  }
-
-  .content-container {
-    padding: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .page-header {
-    height: 50px;
-  }
-
-  .page-title {
-    font-size: 14px;
-  }
-
-  .content-container {
-    padding: 10px;
-  }
-}
-
-/* Добавьте в конец App.css */
-
-/* Стили для глобальных попап меню */
-:global(.ant-menu-submenu-popup) {
+/* ===== ГЛОБАЛЬНЫЕ ПОПАП МЕНЮ (светлая тема) ===== */
+.ant-menu-submenu-popup {
   background-color: #002e3d !important;
 }
-
-:global(.ant-menu-submenu-popup .ant-menu-item) {
+.ant-menu-submenu-popup .ant-menu-item {
   background-color: #002e3d !important;
 }
-
-:global(.ant-menu-submenu-popup .ant-menu-item:hover) {
+.ant-menu-submenu-popup .ant-menu-item:hover {
   background-color: #004c5e !important;
 }
-
-:global(.ant-menu-submenu-popup .ant-menu-item-selected) {
+.ant-menu-submenu-popup .ant-menu-item-selected {
   background-color: #1890ff !important;
 }
 
-/* Убедитесь, что меню растягивается на всю высоту */
+/* Фиксы для Sider и Menu */
 .ant-layout-sider {
-  display: flex !important;
-  flex-direction: column !important;
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
 }
-
-/* Исправьте отображение Sider */
 .ant-layout-sider-children {
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
 }
-
-/* Убедитесь, что Menu занимает все пространство */
 .ant-menu {
   flex: 1 !important;
-
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
+/* ===== ТЁМНАЯ СТЕКЛЯННАЯ ТЕМА ===== */
+body.dark-theme {
+  background: transparent;
+}
+
+/* Основной контент, шапка */
+body.dark-theme .main-content {
+  background-color: rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(12px);
+}
+body.dark-theme .page-header {
+  background: rgba(30, 30, 40, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+}
+body.dark-theme .page-title {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+body.dark-theme .content-container {
+  background: transparent !important;
+}
+
+/* Боковое меню (Sider) */
+body.dark-theme .ant-layout-sider {
+  background: rgba(8, 12, 20, 0.75) !important;
+  backdrop-filter: blur(20px) brightness(0.9);
+  border-right: 1px solid rgba(0, 255, 255, 0.3);
+  box-shadow:
+    -5px 0 20px rgba(0, 255, 255, 0.1) inset,
+    2px 0 10px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+body.dark-theme .ant-layout-sider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 120px;
+  pointer-events: none;
+  z-index: 1;
+}
+body.dark-theme .ant-layout-sider::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 255, 0.05) 0%,
+    rgba(255, 0, 255, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+body.dark-theme .ant-menu-item,
+body.dark-theme .ant-menu-submenu-title {
+  background: transparent !important;
+  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  position: relative;
+  z-index: 2;
+}
+body.dark-theme .ant-menu-item:hover,
+body.dark-theme .ant-menu-submenu-title:hover {
+  background-color: rgba(0, 255, 255, 0.1) !important;
+  border-left: 3px solid #0ff;
+  box-shadow: -3px 0 8px rgba(0, 255, 255, 0.4);
+  transform: translateX(2px);
+}
+body.dark-theme .ant-menu-item-selected {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 255, 255, 0.2),
+    rgba(0, 255, 255, 0)
+  ) !important;
+  border-left: 3px solid #0ff;
+  box-shadow: -5px 0 12px rgba(0, 255, 255, 0.6);
+  text-shadow: 0 0 5px #0ff;
+}
+body.dark-theme .ant-menu-item .anticon,
+body.dark-theme .ant-menu-submenu-title .anticon {
+  filter: drop-shadow(0 0 3px rgba(0, 255, 255, 0.6));
+  transition: filter 0.2s;
+}
+body.dark-theme .ant-menu-item:hover .anticon,
+body.dark-theme .ant-menu-submenu-title:hover .anticon {
+  filter: drop-shadow(0 0 6px #0ff);
+}
+body.dark-theme .ant-menu-submenu-arrow {
+  color: #0ff !important;
+  filter: drop-shadow(0 0 2px cyan);
+}
+body.dark-theme .ant-menu-submenu-popup {
+  background: rgba(8, 12, 20, 0.95) !important;
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  border-radius: 12px;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.6),
+    0 0 15px rgba(0, 255, 255, 0.3);
+}
+body.dark-theme .ant-menu-submenu-popup .ant-menu-item:hover {
+  background-color: rgba(0, 255, 255, 0.2) !important;
+  border-left: 3px solid #0ff;
+}
+
+/* Карточки */
+body.dark-theme .ant-card {
+  background: rgba(20, 25, 35, 0.75) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+body.dark-theme .ant-card-head {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  background: transparent;
+}
+body.dark-theme .ant-card-head-title,
+body.dark-theme .ant-card-extra {
+  color: #f0f0f0;
+}
+body.dark-theme .ant-card-body {
+  color: #e0e0e0;
+}
+
+/* Таблицы (глобальные) */
+body.dark-theme .ant-table {
+  background: transparent;
+}
+body.dark-theme .ant-table-thead > tr > th {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #eee;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-theme .ant-table-tbody > tr > td {
+  background: rgba(30, 35, 45, 0.5);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  color: #ddd;
+}
+body.dark-theme .ant-table-tbody > tr:hover > td {
+  background: rgba(24, 144, 255, 0.15) !important;
+}
+
+/* Модальные окна */
+body.dark-theme .ant-modal-content {
+  background: rgba(18, 22, 35, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+body.dark-theme .ant-modal-header {
+  background: transparent !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-theme .ant-modal-title,
+body.dark-theme .ant-modal-close {
+  color: #f0f0f0 !important;
+}
+body.dark-theme .ant-modal-body {
+  color: #ddd;
+}
+/* Дополнительно для confirm-модалок */
+body.dark-theme .ant-modal-confirm-body .ant-modal-confirm-title,
+body.dark-theme .ant-modal-confirm-body .ant-modal-confirm-content {
+  color: #f0f0f0;
+}
+
+/* Поля ввода, селекты, пикеры */
+body.dark-theme .ant-input,
+body.dark-theme .ant-input-number,
+body.dark-theme .ant-select-selector,
+body.dark-theme .ant-picker,
+body.dark-theme .ant-input-affix-wrapper {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+body.dark-theme .ant-input-prefix,
+body.dark-theme .ant-input-suffix {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Кнопки */
+body.dark-theme .ant-btn,
+body.dark-theme .ant-btn:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #e0e0e0 !important;
+  transition: all 0.2s ease !important;
+  backdrop-filter: blur(4px);
+}
+body.dark-theme .ant-btn:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+body.dark-theme .ant-btn-primary {
+  background: linear-gradient(135deg, #1890ff, #096dd9) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4) !important;
+}
+body.dark-theme .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #40a9ff, #1890ff) !important;
+  box-shadow: 0 4px 14px rgba(24, 144, 255, 0.6) !important;
+}
+body.dark-theme .ant-btn-danger {
+  background: rgba(255, 77, 79, 0.15) !important;
+  border-color: rgba(255, 77, 79, 0.5) !important;
+  color: #ff7875 !important;
+}
+body.dark-theme .ant-btn-danger:hover {
+  background: rgba(255, 77, 79, 0.3) !important;
+  border-color: #ff4d4f !important;
+  color: #ffa39e !important;
+}
+body.dark-theme .ant-btn-link {
+  background: transparent !important;
+  border: none !important;
+  color: #69c0ff !important;
+}
+body.dark-theme .ant-btn-link:hover {
+  color: #91d5ff !important;
+  background: rgba(24, 144, 255, 0.1) !important;
+}
+body.dark-theme .ant-btn-text {
+  background: transparent !important;
+  border: none !important;
+}
+body.dark-theme .ant-btn-text:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+}
+body.dark-theme .ant-btn[disabled],
+body.dark-theme .ant-btn.disabled {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Вкладки */
+body.dark-theme .ant-tabs-nav {
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+body.dark-theme .ant-tabs-tab {
+  color: #ccc;
+}
+body.dark-theme .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #1890ff;
+}
+body.dark-theme .ant-tabs-ink-bar {
+  background: #1890ff;
+}
+
+/* Алерты */
+body.dark-theme .ant-alert {
+  background: rgba(24, 144, 255, 0.1) !important;
+  border-color: rgba(24, 144, 255, 0.3) !important;
+  backdrop-filter: blur(4px);
+}
+body.dark-theme .ant-alert-message,
+body.dark-theme .ant-alert-description {
+  color: #ddd !important;
+}
+
+/* Переключатели (Switch) и их контейнеры */
+body.dark-theme .ant-switch {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+body.dark-theme .ant-switch-checked {
+  background: linear-gradient(135deg, #1890ff, #096dd9) !important;
+  box-shadow: 0 0 6px rgba(24, 144, 255, 0.5);
+}
+body.dark-theme .ant-switch-handle::before {
+  background: white !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+body.dark-theme [class*='toggleContainer'] {
+  background: rgba(0, 0, 0, 0.35) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+body.dark-theme [class*='toggleContainer']:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+body.dark-theme [class*='toggleLabel'] {
+  color: #e0e0e0 !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Скроллбары */
+body.dark-theme ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+body.dark-theme ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+body.dark-theme ::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.25);
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 4px cyan;
+}
+body.dark-theme * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 255, 0.4) rgba(255, 255, 255, 0.05);
+}
+
+/* Кастомные компоненты (список сотрудников, профиль, справочники) */
+body.dark-theme .staffContainer,
+body.dark-theme .spravContainer,
+
+body.dark-theme .profileContainer {
+  background: transparent !important;
+}
+body.dark-theme [class*='userListCard'],
+body.dark-theme [class*='profileHeader'],
+body.dark-theme [class*='mainInfoCard'],
+body.dark-theme [class*='devicesCard'],
+body.dark-theme [class*='toolbarCard'],
+body.dark-theme [class*='tableCard'],
+body.dark-theme [class*='topPanel'],
+body.dark-theme [class*='panelHeader'] {
+  background: rgba(20, 25, 35, 0.65) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+body.dark-theme [class*='userItem'] {
+  background: rgba(30, 35, 45, 0.6) !important;
+  backdrop-filter: blur(4px);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+body.dark-theme [class*='userItem']:hover {
+  background: rgba(40, 50, 65, 0.8);
+  border-left: 3px solid #0ff;
+  transform: translateX(2px);
+}
+body.dark-theme [class*='itemSelected'] {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 255, 255, 0.2),
+    rgba(0, 255, 255, 0)
+  ) !important;
+  border-left: 3px solid #0ff !important;
+  box-shadow: -5px 0 12px rgba(0, 255, 255, 0.6) !important;
+}
+body.dark-theme [class*='itemName'],
+body.dark-theme [class*='itemPosition'],
+body.dark-theme [class*='itemDepartment'],
+body.dark-theme [class*='phoneText'] {
+  color: #f0f0f0 !important;
+}
+body.dark-theme [class*='itemPosition'] {
+  color: #b0b0b0 !important;
+}
+body.dark-theme [class*='itemDepartment'] {
+  color: #8c8c8c !important;
+}
+body.dark-theme [class*='sectionTitle'] {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-theme [class*='infoLabel'] {
+  color: #aaa;
+}
+body.dark-theme [class*='infoValue'] {
+  color: #eee !important;
+}
+body.dark-theme [class*='contactLink'],
+body.dark-theme [class*='ipText'] {
+  color: #69c0ff !important;
+}
+
+/* Таблицы USB/карт – единый блок */
+body.dark-theme [class*='tableContainer'] {
+  background: rgba(25, 30, 40, 0.85) !important;
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+body.dark-theme [class*='deviceTable'] th {
+  background: rgba(0, 0, 0, 0.65) !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #1890ff;
+}
+body.dark-theme [class*='deviceTable'] td {
+  background: rgba(35, 40, 50, 0.7) !important;
+  color: #e0e0e0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+body.dark-theme [class*='tableRowEven'] td {
+  background: rgba(30, 35, 45, 0.8) !important;
+}
+body.dark-theme [class*='tableRowOdd'] td {
+  background: rgba(40, 45, 55, 0.7) !important;
+}
+
+/* Наведение на строки таблиц USB/карт – только фон, без изменения статусов */
+body.dark-theme [class*='deviceTable'] tbody tr:hover td {
+  background: rgba(24, 144, 255, 0.15) !important;
+}
+
+/* При наведении статусы сохраняют свои цвета */
+body.dark-theme [class*='deviceTable'] tbody tr:hover [class*='statusActive'],
+body.dark-theme [class*='deviceTable'] tbody tr:hover [class*='statusActive'] * {
+  color: #52c41a !important;
+  background: transparent !important;
+}
+body.dark-theme [class*='deviceTable'] tbody tr:hover [class*='statusInactive'],
+body.dark-theme [class*='deviceTable'] tbody tr:hover [class*='statusInactive'] * {
+  color: #a0a0a0 !important;
+  background: transparent !important;
+}
+
+/* Точки статуса при наведении — сохраняем цвет по статусу (исправлено) */
+body.dark-theme [class*='deviceTable'] tbody tr:hover .ant-badge-status-dot.ant-badge-status-success {
+  background-color: #52c41a !important;  /* зелёный для активных */
+}
+body.dark-theme [class*='deviceTable'] tbody tr:hover .ant-badge-status-dot.ant-badge-status-default {
+  background-color: #d9d9d9 !important;  /* серый для неактивных */
+}
+
+/* Статусы вне наведения */
+body.dark-theme [class*='statusActive'] {
+  color: #52c41a !important;
+}
+body.dark-theme [class*='statusInactive'] {
+  color: #a0a0a0 !important;
+}
+
+/* ===== ВСПЛЫВАЮЩИЕ ОКНА (ДЛЯ ТЁМНОЙ ТЕМЫ) ===== */
+/* Popover */
+body.dark-theme .ant-popover-inner {
+  background: rgba(18, 22, 35, 0.96) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+body.dark-theme .ant-popover-title {
+  color: #f0f0f0 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-theme .ant-popover-inner-content {
+  color: #ddd !important;
+}
+body.dark-theme .ant-popover-arrow {
+  border-color: rgba(255, 255, 255, 0.2) transparent transparent transparent !important;
+}
+body.dark-theme .ant-popover-arrow::after {
+  background: rgba(18, 22, 35, 0.96) !important;
+}
+
+/* Tooltip */
+body.dark-theme .ant-tooltip-inner {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(8px);
+  color: #f0f0f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+body.dark-theme .ant-tooltip-arrow-content {
+  background: rgba(0, 0, 0, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Dropdown (общее меню) */
+body.dark-theme .ant-dropdown {
+  background: rgba(18, 22, 35, 0.96) !important;
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+body.dark-theme .ant-dropdown-menu {
+  background: transparent !important;
+}
+body.dark-theme .ant-dropdown-menu-item {
+  color: #e0e0e0 !important;
+}
+body.dark-theme .ant-dropdown-menu-item:hover {
+  background: rgba(24, 144, 255, 0.2) !important;
+  color: white !important;
+}
+body.dark-theme .ant-dropdown-menu-item-divider {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Select dropdown */
+body.dark-theme .ant-select-dropdown {
+  background: rgba(18, 22, 35, 0.96) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+body.dark-theme .ant-select-item {
+  color: #e0e0e0 !important;
+}
+body.dark-theme .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: rgba(24, 144, 255, 0.2) !important;
+}
+body.dark-theme .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: rgba(24, 144, 255, 0.3) !important;
+  color: white !important;
+}
+body.dark-theme .ant-select-dropdown .ant-select-item-empty {
+  color: #aaa !important;
+}
+
+/* Picker dropdown (DatePicker, TimePicker) */
+body.dark-theme .ant-picker-dropdown {
+  background: rgba(18, 22, 35, 0.96) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+}
+body.dark-theme .ant-picker-panel-container {
+  background: transparent !important;
+}
+body.dark-theme .ant-picker-panel {
+  background: transparent !important;
+}
+body.dark-theme .ant-picker-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-theme .ant-picker-header button {
+  color: #e0e0e0;
+}
+body.dark-theme .ant-picker-cell {
+  color: #ccc;
+}
+body.dark-theme .ant-picker-cell-in-view {
+  color: #f0f0f0;
+}
+body.dark-theme .ant-picker-cell:hover:not(.ant-picker-cell-selected) .ant-picker-cell-inner {
+  background: rgba(24, 144, 255, 0.2);
+}
+body.dark-theme .ant-picker-cell-selected .ant-picker-cell-inner {
+  background: #1890ff !important;
+}
+body.dark-theme .ant-picker-today-btn {
+  color: #69c0ff;
+}
+body.dark-theme .ant-picker-content th {
+  color: #aaa;
+}
+body.dark-theme .ant-picker-footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-theme .ant-picker-cell-disabled::before {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Cascader dropdown */
+body.dark-theme .ant-cascader-dropdown {
+  background: rgba(18, 22, 35, 0.96) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+}
+body.dark-theme .ant-cascader-menu {
+  background: transparent !important;
+  border-right-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-theme .ant-cascader-menu-item {
+  color: #e0e0e0;
+}
+body.dark-theme .ant-cascader-menu-item:hover {
+  background: rgba(24, 144, 255, 0.2);
+}
+body.dark-theme .ant-cascader-menu-item-active {
+  background: rgba(24, 144, 255, 0.3);
+  color: white;
+}
+
+/* Message (уведомления) */
+body.dark-theme .ant-message-notice-content {
+  background: rgba(18, 22, 35, 0.96) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  color: #f0f0f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+body.dark-theme .ant-message-success .anticon {
+  color: #52c41a;
+}
+body.dark-theme .ant-message-error .anticon {
+  color: #ff4d4f;
+}
+body.dark-theme .ant-message-warning .anticon {
+  color: #faad14;
+}
+body.dark-theme .ant-message-info .anticon {
+  color: #1890ff;
+}
+
+/* Notification */
+body.dark-theme .ant-notification-notice {
+  background: rgba(18, 22, 35, 0.96) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+body.dark-theme .ant-notification-notice-message {
+  color: #f0f0f0;
+}
+body.dark-theme .ant-notification-notice-description {
+  color: #ccc;
+}
+body.dark-theme .ant-notification-notice-close {
+  color: #aaa;
+}
+body.dark-theme .ant-notification-notice-close:hover {
+  color: white;
+}
+
+/* Справочники (отделы/должности) – дополнительно */
+body.dark-theme [class*='spravHeader'] {
+  background: rgba(20, 25, 35, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  padding: 12px 20px;
+}
+body.dark-theme [class*='spravHeader'] .ant-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+body.dark-theme [class*='spravContent'] {
+  background: rgba(20, 25, 35, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+body.dark-theme .spravTabs {
+  background: rgba(20, 25, 35, 0.85) !important;
+  backdrop-filter: blur(12px);
+}
+body.dark-theme .spravTabs .ant-tabs-nav {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Обнуление лишних фонов Ant Design */
+body.dark-theme .ant-layout,
+body.dark-theme .ant-spin-container,
+body.dark-theme .ant-spin-nested-loading,
+body.dark-theme .ant-tabs-content-holder {
+  background: transparent !important;
+}
+
+/* Принудительный светлый цвет для всех текстов в тёмной теме */
+body.dark-theme .ant-typography,
+body.dark-theme .ant-typography span,
+body.dark-theme .ant-typography div,
+body.dark-theme .ant-typography p,
+body.dark-theme .ant-typography h1,
+body.dark-theme .ant-typography h2,
+body.dark-theme .ant-typography h3,
+body.dark-theme .ant-typography h4,
+body.dark-theme .ant-typography h5,
+body.dark-theme .ant-typography h6,
+body.dark-theme .ant-statistic-content,
+body.dark-theme .ant-statistic-title,
+body.dark-theme .ant-descriptions-item-label,
+body.dark-theme .ant-descriptions-item-content {
+  color: #f0f0f0 !important;
+}
+body.dark-theme p,
+body.dark-theme span:not([class*='ant-btn']),
+body.dark-theme div:not([class*='ant-modal']) {
+  color: #e0e0e0 !important;
+}
+
+/* Сохраняем акцентные цвета */
+body.dark-theme a,
+body.dark-theme .ant-btn-link {
+  color: #69c0ff !important;
+}
+body.dark-theme .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #1890ff !important;
+}
+
+/* Выделенная строка таблицы в справочниках (при radio/checkbox) */
+body.dark-theme .ant-table-tbody > tr.ant-table-row-selected > td {
+  background: rgba(24, 144, 255, 0.35) !important;
+  color: #ffffff !important;
+}
+body.dark-theme .ant-table-tbody > tr.ant-table-row-selected:hover > td {
+  background: rgba(24, 144, 255, 0.45) !important;
+}
+
+/* Таблицы (глобальные) */
+body.dark-theme .ant-table {
+  background: transparent;
+}
+body.dark-theme .ant-table-thead > tr > th {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #eee;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+/* Добавлено: убираем белый фон у sticky-заголовка */
+body.dark-theme .ant-table-sticky-holder {
+  background: rgba(18, 22, 35, 0.95) !important;
+  backdrop-filter: blur(12px);
+}
+body.dark-theme .ant-table-tbody > tr > td {
+  background: rgba(30, 35, 45, 0.5);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  color: #ddd;
+}
+
+/* ===== СТИЛИ ДЛЯ ТЕГОВ (Tag) В ТЁМНОЙ ТЕМЕ ===== */
+body.dark-theme .ant-tag {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e0e0e0;
+}
+
+body.dark-theme .ant-tag-blue {
+  background: rgba(24, 144, 255, 0.2);
+  border-color: rgba(24, 144, 255, 0.4);
+  color: #91d5ff;
+}
+
+body.dark-theme .ant-tag-purple {
+  background: rgba(114, 46, 209, 0.2);
+  border-color: rgba(114, 46, 209, 0.4);
+  color: #d3adf7;
+}
+
+body.dark-theme .ant-tag-orange {
+  background: rgba(250, 173, 20, 0.2);
+  border-color: rgba(250, 173, 20, 0.4);
+  color: #ffd666;
+}
+
+body.dark-theme .ant-tag-green {
+  background: rgba(82, 196, 26, 0.2);
+  border-color: rgba(82, 196, 26, 0.4);
+  color: #b7eb8f;
+}
+
+body.dark-theme .ant-tag-cyan {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: rgba(0, 255, 255, 0.4);
+  color: #80ffdf;
+}
+
+body.dark-theme .ant-tag-geekblue {
+  background: rgba(47, 84, 235, 0.2);
+  border-color: rgba(47, 84, 235, 0.4);
+  color: #adc6ff;
+}
+
+body.dark-theme .ant-tag-red {
+  background: rgba(245, 34, 45, 0.2);
+  border-color: rgba(245, 34, 45, 0.4);
+  color: #ffa39e;
+}
+
+body.dark-theme .ant-tag-magenta {
+  background: rgba(235, 47, 150, 0.2);
+  border-color: rgba(235, 47, 150, 0.4);
+  color: #ffadd6;
+}
+
+body.dark-theme .ant-tag-volcano {
+  background: rgba(250, 84, 28, 0.2);
+  border-color: rgba(250, 84, 28, 0.4);
+  color: #ffbb96;
+}
+
+body.dark-theme .ant-tag-gold {
+  background: rgba(250, 173, 20, 0.2);
+  border-color: rgba(250, 173, 20, 0.4);
+  color: #ffe58f;
+}
+
+body.dark-theme .ant-tag-lime {
+  background: rgba(160, 217, 17, 0.2);
+  border-color: rgba(160, 217, 17, 0.4);
+  color: #eaff8f;
+}
+
+body.dark-theme .ant-tag-success {
+  background: rgba(82, 196, 26, 0.2);
+  border-color: rgba(82, 196, 26, 0.4);
+  color: #b7eb8f;
+}
+
+body.dark-theme .ant-tag-processing {
+  background: rgba(24, 144, 255, 0.2);
+  border-color: rgba(24, 144, 255, 0.4);
+  color: #91d5ff;
+}
+
+body.dark-theme .ant-tag-warning {
+  background: rgba(250, 173, 20, 0.2);
+  border-color: rgba(250, 173, 20, 0.4);
+  color: #ffe58f;
+}
+
+body.dark-theme .ant-tag-error {
+  background: rgba(245, 34, 45, 0.2);
+  border-color: rgba(245, 34, 45, 0.4);
+  color: #ffa39e;
+}
+
+/* ===== СТИЛИ ДЛЯ ПРИНТЕРОВ (тёмная тема) ===== */
+body.dark-theme .ant-table-tbody > tr.ant-table-row-selected > td {
+    background: rgba(24, 144, 255, 0.35) !important;
+}
+body.dark-theme .compact-table .ant-table-thead > tr > th {
+    background: rgba(0, 0, 0, 0.4) !important;
+}
+/* Для компонента PrintChart (Chart.js) */
+body.dark-theme canvas {
+    filter: brightness(0.9) contrast(1.1);
+}
+body.dark-theme .chartjs-tooltip {
+    background: rgba(0, 0, 0, 0.8) !important;
+    color: white !important;
+}
+
+/* Скелетон в тёмной теме */
+body.dark-theme .ant-skeleton-element .ant-skeleton-input,
+body.dark-theme .ant-skeleton-element .ant-skeleton-button,
+body.dark-theme .ant-skeleton .ant-skeleton-content .ant-skeleton-title,
+body.dark-theme .ant-skeleton .ant-skeleton-content .ant-skeleton-paragraph > li {
+    background: linear-gradient(90deg, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0.3) 37%, rgba(255,255,255,0.15) 63%);
+    background-size: 400% 100%;
+    animation: ant-skeleton-loading 1.4s ease infinite;
+}
+body.dark-theme .ant-skeleton-avatar {
+    background: rgba(255,255,255,0.15);
+}
+body.dark-theme .ant-card {
+    background: rgba(20, 25, 35, 0.85) !important;
+}
+
+/* Тултипы в таблицах USB */
+body.dark-theme .ant-tooltip-inner {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f0f0f0;
+}
+
+/* Скелетон для загрузки (если используется) */
+body.dark-theme .ant-skeleton-element .ant-skeleton-input,
+body.dark-theme .ant-skeleton-element .ant-skeleton-button {
+  background: linear-gradient(90deg, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0.3) 37%, rgba(255,255,255,0.15) 63%);
+  background-size: 400% 100%;
+}
+
+/* Стили для подписей полей ввода в тёмной теме */
+body.dark-theme .ant-form-item-label > label {
+  color: #e0e0e0 !important;
+}
+body.dark-theme .ant-form-item-label > label.ant-form-item-required:before {
+  color: #ff4d4f !important;
+}
+
+/* Подписи полей в формах (Modal, Form) */
+body.dark-theme .ant-form-item-label > label {
+  color: #e0e0e0 !important;
+}
+body.dark-theme .ant-form-item-label > label.ant-form-item-required::before {
+  color: #ff4d4f !important;
+}
+
+/* Хедер карт доступа – тёмная тема (по аналогии с USB) */
+body.dark-theme [class*="CardHeader_header"] {
+  background: rgba(18, 22, 35, 0.85) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Подписи полей в формах (CardModal) */
+body.dark-theme .ant-form-item-label > label {
+  color: #e0e0e0 !important;
+}
+body.dark-theme .ant-form-item-label > label.ant-form-item-required::before {
+  color: #ff4d4f !important;
+}
+
+/* Таблицы (глобальные) – добавить/дополнить */
+body.dark-theme .ant-table {
+  background: transparent;
+}
+body.dark-theme .ant-table-thead > tr > th {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #eee;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+/* Добавлено: цвет бордеров для всех ячеек таблицы */
+body.dark-theme .ant-table-container,
+body.dark-theme .ant-table-thead > tr > th,
+body.dark-theme .ant-table-tbody > tr > td {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+body.dark-theme .ant-table-tbody > tr > td {
+  background: rgba(30, 35, 45, 0.5);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  color: #ddd;
+}
+body.dark-theme .ant-table-sticky-holder {
+  background: rgba(18, 22, 35, 0.95) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* ===== СТИЛИ ДЛЯ REACT-BOOTSTRAP В ТЁМНОЙ ТЕМЕ ===== */
+body.dark-theme .bg-light {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+body.dark-theme .rounded-3 {
+  border-radius: 12px !important;
+}
+body.dark-theme .form-control,
+body.dark-theme .form-select {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #f0f0f0 !important;
+}
+body.dark-theme .form-control:focus,
+body.dark-theme .form-select:focus {
+  box-shadow: 0 0 0 0.2rem rgba(24, 144, 255, 0.25);
+  border-color: #1890ff;
+}
+body.dark-theme .table {
+  background-color: transparent !important;
+  color: #e0e0e0 !important;
+}
+body.dark-theme .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+body.dark-theme .table-bordered,
+body.dark-theme .table-bordered td,
+body.dark-theme .table-bordered th {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+body.dark-theme .table-hover > tbody > tr:hover > * {
+  background-color: rgba(24, 144, 255, 0.15) !important;
+}
+body.dark-theme .btn-link {
+  color: #69c0ff !important;
+}
+body.dark-theme .btn-link:hover {
+  color: #91d5ff !important;
+  text-decoration: underline;
+}
+body.dark-theme .card {
+  background: rgba(20, 25, 35, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #e0e0e0;
+}
+body.dark-theme .card-header,
+body.dark-theme .card-footer {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+body.dark-theme .text-muted {
+  color: #aaa !important;
+}
+body.dark-theme .text-success {
+  color: #52c41a !important;
+}
+body.dark-theme .text-warning {
+  color: #faad14 !important;
+}
+
+/* quill snow theme dark mode */
+body.dark-theme .ql-toolbar.ql-snow {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme .ql-container.ql-snow {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme .ql-editor {
+  color: #e0e0e0;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .ql-editor.ql-blank::before {
+  color: #aaa;
+}
+
+body.dark-theme .ql-snow .ql-stroke {
+  stroke: #ccc;
+}
+
+body.dark-theme .ql-snow .ql-fill {
+  fill: #ccc;
+}
+
+body.dark-theme .ql-snow .ql-picker-label {
+  color: #ccc;
+}
+
+body.dark-theme .ql-snow .ql-picker-options {
+  background: #1e1e2e;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== ТРАНСПОРТ: ДОПОЛНИТЕЛЬНЫЕ КЛАССЫ ДЛЯ ТЁМНОЙ ТЕМЫ ===== */
+
+/* Отчёты */
+.report-driver-row-at-work { background-color: #ffffff !important; }
+.report-driver-row-at-work:hover > td { background-color: #d9f7be !important; }
+.report-driver-row-on-vacation { background-color: #fff7e6 !important; }
+.report-driver-row-on-vacation:hover > td { background-color: #ffe7ba !important; }
+.report-driver-row-on-sick-leave { background-color: #fff1f0 !important; }
+.report-driver-row-on-sick-leave:hover > td { background-color: #ffccc7 !important; }
+.report-driver-row-on-study { background-color: #e6f7ff !important; }
+.report-driver-row-on-study:hover > td { background-color: #bae7ff !important; }
+.report-driver-row-deactivated { background-color: #fafafa !important; color: #bfbfbf !important; }
+.report-driver-row-deactivated:hover > td { background-color: #f0f0f0 !important; }
+
+.report-vehicle-row-good { background-color: #f6ffed !important; }
+.report-vehicle-row-good:hover > td { background-color: #d9f7be !important; }
+.report-vehicle-row-repair { background-color: #fff7e6 !important; }
+.report-vehicle-row-repair:hover > td { background-color: #ffe7ba !important; }
+.report-vehicle-row-bad { background-color: #fff1f0 !important; }
+.report-vehicle-row-bad:hover > td { background-color: #ffccc7 !important; }
+
+body.dark-theme .report-driver-row-at-work { background-color: rgba(30, 35, 45, 0.6) !important; }
+body.dark-theme .report-driver-row-at-work:hover > td { background-color: rgba(82, 196, 26, 0.2) !important; }
+body.dark-theme .report-driver-row-on-vacation { background-color: rgba(250, 173, 20, 0.15) !important; }
+body.dark-theme .report-driver-row-on-vacation:hover > td { background-color: rgba(250, 173, 20, 0.3) !important; }
+body.dark-theme .report-driver-row-on-sick-leave { background-color: rgba(245, 34, 45, 0.15) !important; }
+body.dark-theme .report-driver-row-on-sick-leave:hover > td { background-color: rgba(245, 34, 45, 0.3) !important; }
+body.dark-theme .report-driver-row-on-study { background-color: rgba(24, 144, 255, 0.15) !important; }
+body.dark-theme .report-driver-row-on-study:hover > td { background-color: rgba(24, 144, 255, 0.3) !important; }
+body.dark-theme .report-driver-row-deactivated { background-color: rgba(0, 0, 0, 0.3) !important; color: #aaa !important; }
+body.dark-theme .report-driver-row-deactivated:hover > td { background-color: rgba(0, 0, 0, 0.5) !important; }
+
+body.dark-theme .report-vehicle-row-good { background-color: rgba(82, 196, 26, 0.15) !important; }
+body.dark-theme .report-vehicle-row-good:hover > td { background-color: rgba(82, 196, 26, 0.3) !important; }
+body.dark-theme .report-vehicle-row-repair { background-color: rgba(250, 173, 20, 0.15) !important; }
+body.dark-theme .report-vehicle-row-repair:hover > td { background-color: rgba(250, 173, 20, 0.3) !important; }
+body.dark-theme .report-vehicle-row-bad { background-color: rgba(245, 34, 45, 0.15) !important; }
+body.dark-theme .report-vehicle-row-bad:hover > td { background-color: rgba(245, 34, 45, 0.3) !important; }
+
+/* Неисправные автомобили в VehicleManager */
+.vehicle-unavailable-row {
+  background-color: #ffccc7 !important;
+}
+.vehicle-unavailable-row:hover > td {
+  background-color: #ffe7e5 !important;
+}
+body.dark-theme .vehicle-unavailable-row {
+  background-color: rgba(245, 34, 45, 0.15) !important;
+}
+body.dark-theme .vehicle-unavailable-row:hover > td {
+  background-color: rgba(245, 34, 45, 0.3) !important;
+}
+
+/* Отменённые заявки в VehicleWeek */
+.request-row-cancelled {
+  background-color: #fff1f0 !important;
+}
+.request-row-cancelled:hover > td {
+  background-color: #ffccc7 !important;
+}
+body.dark-theme .request-row-cancelled {
+  background-color: rgba(245, 34, 45, 0.15) !important;
+}
+body.dark-theme .request-row-cancelled:hover > td {
+  background-color: rgba(245, 34, 45, 0.3) !important;
+}
+
+/* ===== ГЛОБАЛЬНЫЕ СТИЛИ ДЛЯ ТАБЛИЦ ANT DESIGN В ТЁМНОЙ ТЕМЕ ===== */
+body.dark-theme .ant-table {
+  background: transparent;
+}
+body.dark-theme .ant-table-thead > tr > th {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #eee !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+body.dark-theme .ant-table-tbody > tr > td {
+  background: rgba(30, 35, 45, 0.5) !important;
+  color: #e0e0e0 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+body.dark-theme .ant-table-tbody > tr:hover > td {
+  background: rgba(24, 144, 255, 0.15) !important;
+}
+body.dark-theme .ant-table-tbody > tr.ant-table-row-selected > td {
+  background: rgba(24, 144, 255, 0.35) !important;
+}
+
+/* Стили для строк неисправных автомобилей */
+.vehicle-unavailable-row {
+  background-color: #ffccc7 !important;
+}
+.vehicle-unavailable-row:hover > td {
+  background-color: #ffe7e5 !important;
+}
+body.dark-theme .vehicle-unavailable-row {
+  background-color: rgba(245, 34, 45, 0.15) !important;
+}
+body.dark-theme .vehicle-unavailable-row:hover > td {
+  background-color: rgba(245, 34, 45, 0.3) !important;
+}
+
+/* ===== ТЁМНАЯ ТЕМА ДЛЯ LEAFLET ===== */
+body.dark-theme .leaflet-container {
+  background: #1a1a2e !important;
+}
+body.dark-theme .leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.7) !important;
+  color: #ccc !important;
+}
+body.dark-theme .leaflet-control-attribution a {
+  color: #69c0ff !important;
+}
+body.dark-theme .leaflet-popup-content-wrapper {
+  background: rgba(20, 25, 35, 0.95);
+  color: #e0e0e0;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+body.dark-theme .leaflet-popup-tip {
+  background: rgba(20, 25, 35, 0.95);
+}
+body.dark-theme .leaflet-tooltip {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f0f0f0;
+}
+body.dark-theme .leaflet-editable-icon {
+  background-color: #ffaa00 !important;
+  border: 2px solid #000 !important;
+}
+body.dark-theme .leaflet-editable-move {
+  background-color: #ffaa00 !important;
+  border: 2px solid white !important;
+}
+
+/* Контекстные меню react-contexify */
+body.dark-theme .react-contexify {
+  background: rgba(18, 22, 35, 0.96) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+body.dark-theme .react-contexify__item__content {
+  color: #e0e0e0 !important;
+}
+body.dark-theme .react-contexify__item:focus .react-contexify__item__content,
+body.dark-theme .react-contexify__item:hover .react-contexify__item__content {
+  background: rgba(24, 144, 255, 0.2) !important;
+  color: white !important;
+}
+
+body.dark-theme .ant-tree,
+body.dark-theme .ant-tree .ant-tree-treenode,
+body.dark-theme .ant-tree .ant-tree-node-content-wrapper {
+  background: transparent !important;
+}
+
+/* Стили для InputNumber в модальных окнах */
+body.dark-theme .ant-modal .ant-input-number {
+  background: rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-theme .ant-modal .ant-input-number-input {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+body.dark-theme .ant-modal .ant-input-number-handler-wrap {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-left-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-theme .ant-modal .ant-input-number-handler-up,
+body.dark-theme .ant-modal .ant-input-number-handler-down {
+  color: #ccc !important;
+}

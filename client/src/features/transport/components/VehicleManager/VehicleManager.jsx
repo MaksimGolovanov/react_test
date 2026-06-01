@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Table, Button, Space, Popconfirm, message, Row, Col, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { VehicleModal } from './VehicleModal';
 import { VehicleSearch } from './VehicleSearch';
 import { useRootStore } from '../../hooks/useStores';
+import styles from './VehicleManager.module.css'; // импорт CSS-модуля
 
 const VehicleManager = observer(() => {
   const { transportStore, filterStore } = useRootStore();
@@ -38,23 +39,6 @@ const VehicleManager = observer(() => {
     message.success('Автомобиль удален');
   };
 
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-        .vehicle-unavailable-row {
-            background-color: #ffccc7 !important;
-        }
-        .vehicle-unavailable-row:hover > td {
-            background-color: #ffe7e5 !important;
-        }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-  // Функция для определения класса строки
   const getRowClassName = (record) => {
     if (record.technical_condition !== 'исправен') {
       return 'vehicle-unavailable-row';
@@ -96,15 +80,7 @@ const VehicleManager = observer(() => {
       key: 'condition',
       width: 150,
       render: (text) => (
-        <Tag
-          color={
-            text === 'исправен'
-              ? 'success'
-              : text === 'в ремонте'
-                ? 'warning'
-                : 'error'
-          }
-        >
+        <Tag color={text === 'исправен' ? 'success' : text === 'в ремонте' ? 'warning' : 'error'}>
           {text}
         </Tag>
       ),
@@ -121,17 +97,8 @@ const VehicleManager = observer(() => {
       width: 100,
       render: (_, record) => (
         <Space>
-          <Button
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleEditVehicle(record)}
-          />
-          <Popconfirm
-            title="Удалить автомобиль?"
-            onConfirm={() => handleDeleteVehicle(record.id)}
-            okText="Да"
-            cancelText="Нет"
-          >
+          <Button icon={<EditOutlined />} size="small" onClick={() => handleEditVehicle(record)} />
+          <Popconfirm title="Удалить автомобиль?" onConfirm={() => handleDeleteVehicle(record.id)} okText="Да" cancelText="Нет">
             <Button icon={<DeleteOutlined />} size="small" danger />
           </Popconfirm>
         </Space>
@@ -145,19 +112,12 @@ const VehicleManager = observer(() => {
 
   return (
     <div>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <Row gutter={16} className={styles.searchRow}>
         <Col flex="auto">
-          <VehicleSearch
-            value={filterStore.searchText}
-            onChange={filterStore.setSearchText.bind(filterStore)}
-          />
+          <VehicleSearch value={filterStore.searchText} onChange={filterStore.setSearchText.bind(filterStore)} />
         </Col>
         <Col>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAddVehicle}
-          >
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddVehicle}>
             Добавить автомобиль
           </Button>
         </Col>

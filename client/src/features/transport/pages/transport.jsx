@@ -19,7 +19,7 @@ import {
   UserOutlined,
   TruckOutlined,
   IdcardOutlined,
-  FileTextOutlined
+  FileTextOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
@@ -27,7 +27,7 @@ import { generateTransportPDF } from '../components/PdfGenerator';
 import DirectoryEditor from '../components/DirectoryEditor/DirectoryEditor';
 import VehicleManager from '../components/VehicleManager/VehicleManager';
 import VehicleWeek from '../components/VehicleWeek/VehicleWeekAvailabilityManager';
-import ReportsTab from '../components/ReportsTab/ReportsTab'
+import ReportsTab from '../components/ReportsTab/ReportsTab';
 import { BookingTableTab } from '../components/BookingTableTab/BookingTableTab';
 import DriversManager from '../components/DriversManager/DriversManager';
 import StatisticsBar from '../components/StatisticsBar';
@@ -347,18 +347,8 @@ const VehicleBookingPage = observer(() => {
   };
 
   return (
-    <Layout style={{ height: 'calc(100vh - 180px)' }}>
-      <Header
-        style={{
-          background: '#fff',
-          padding: '0 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: '1px solid #f0f0f0',
-          height: 48,
-        }}
-      >
+    <Layout className={styles.layout}>
+      <Header className={styles.header}>
         <StatisticsBar
           statistics={getStatisticsForDate()}
           selectedDate={filterStore.selectedDate}
@@ -383,23 +373,13 @@ const VehicleBookingPage = observer(() => {
         )}
       </Header>
 
-      <Content
-        style={{
-          padding: '8px',
-          background: '#fff',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <Content className={styles.content}>
         <Tabs
           defaultActiveKey="1"
           onChange={(key) => {
-            if (key !== '4') {
-              // 4 – ключ вкладки "Заказ"
-              handleRefreshData();
-            }
+            if (key !== '4') handleRefreshData();
           }}
-          style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+          className={styles.tabs}
         >
           {hasAccess('TRANSPORT') && (
             <TabPane

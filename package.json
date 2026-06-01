@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "eslint-plugin-css-modules": "^2.12.0"
+  }
+}

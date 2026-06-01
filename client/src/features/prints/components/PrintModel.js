@@ -24,6 +24,18 @@ function PrintModel() {
   const [printsModels, setPrintsModels] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+  // Определение текущей темы
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsDarkTheme(document.body.classList.contains('dark-theme'));
+    };
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   const openModal = () => setModalIsOpen(true);
   const closeModal = () => setModalIsOpen(false);
@@ -33,8 +45,7 @@ function PrintModel() {
     setLoading(true);
     try {
       const response = await PrintsService.fetchPrintModel();
-      if (!Array.isArray(response))
-        throw new Error('Ответ сервера не является массивом');
+      if (!Array.isArray(response)) throw new Error('Ответ сервера не является массивом');
       setPrintsModels(response);
     } catch (error) {
       console.error(error);
@@ -93,12 +104,12 @@ function PrintModel() {
           style={{
             width: 80,
             height: 80,
-            background: '#f5f5f5',
+            background: isDarkTheme ? 'rgba(255,255,255,0.1)' : '#f5f5f5',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#bfbfbf',
+            color: isDarkTheme ? '#aaa' : '#bfbfbf',
           }}
         >
           <PictureOutlined style={{ fontSize: 24 }} />
@@ -112,7 +123,7 @@ function PrintModel() {
       title: <span style={{ fontWeight: 600 }}>📄 Модель принтера</span>,
       dataIndex: 'name',
       key: 'name',
-      render: (text) => <Text strong>{text}</Text>,
+      render: (text) => <Text style={{ color: isDarkTheme ? '#f0f0f0' : undefined }} strong>{text}</Text>,
       ellipsis: true,
     },
     {
@@ -120,18 +131,21 @@ function PrintModel() {
       dataIndex: 'cartridge',
       key: 'cartridge',
       ellipsis: true,
+      render: (text) => <span style={{ color: isDarkTheme ? '#ddd' : undefined }}>{text || '-'}</span>,
     },
     {
       title: <span style={{ fontWeight: 600 }}>📐 Формат печати</span>,
       dataIndex: 'paper_size',
       key: 'paper_size',
       ellipsis: true,
+      render: (text) => <span style={{ color: isDarkTheme ? '#ddd' : undefined }}>{text || '-'}</span>,
     },
     {
       title: <span style={{ fontWeight: 600 }}>🔍 Сканирование</span>,
       dataIndex: 'scanner',
       key: 'scanner',
       ellipsis: true,
+      render: (text) => <span style={{ color: isDarkTheme ? '#ddd' : undefined }}>{text || '-'}</span>,
     },
     {
       title: <span style={{ fontWeight: 600 }}>🖼️ Внешний вид</span>,
@@ -161,7 +175,7 @@ function PrintModel() {
             <Button
               type="text"
               icon={<EditOutlined style={{ fontSize: 18 }} />}
-              style={{ color: '#1890ff' }}
+              style={{ color: isDarkTheme ? '#69c0ff' : '#1890ff' }}
               onClick={() => {}}
             />
           </Tooltip>
@@ -179,7 +193,26 @@ function PrintModel() {
   ];
 
   const getRowClassName = (_, index) => {
+    if (isDarkTheme) {
+      return index % 2 === 0 ? 'table-row-dark-even' : 'table-row-dark-odd';
+    }
     return index % 2 === 0 ? 'table-row-light' : 'table-row-dark';
+  };
+
+  // Динамические стили в зависимости от темы
+  const tableStyle = {
+    borderRadius: '16px',
+    overflow: 'hidden',
+  };
+
+  const titleStyle = {
+    margin: 0,
+    fontWeight: 600,
+    color: isDarkTheme ? '#f0f0f0' : '#1a1a1a',
+  };
+
+  const subtitleStyle = {
+    color: isDarkTheme ? '#aaa' : '#666',
   };
 
   return (
@@ -195,10 +228,8 @@ function PrintModel() {
           }}
         >
           <div>
-            <Title level={3} style={{ margin: 0, fontWeight: 600 }}>
-              Справочник моделей принтеров
-            </Title>
-            <Text type="secondary">Всего моделей: {printsModels.length}</Text>
+            <Title level={3} style={titleStyle}>Справочник моделей принтеров</Title>
+            <Text type="secondary" style={subtitleStyle}>Всего моделей: {printsModels.length}</Text>
           </div>
           <Button
             type="primary"
@@ -214,16 +245,18 @@ function PrintModel() {
         <style>{`
           .table-row-light { background-color: #ffffff; }
           .table-row-dark { background-color: #fafafa; }
+          .table-row-dark-even { background-color: rgba(30, 35, 45, 0.6); }
+          .table-row-dark-odd { background-color: rgba(40, 45, 55, 0.6); }
           .ant-table-thead > tr > th {
-            background-color: #f8f9fc !important;
+            background-color: ${isDarkTheme ? 'rgba(0,0,0,0.4)' : '#f8f9fc'} !important;
             font-weight: 600;
             font-size: 14px;
-            border-bottom: 2px solid #e8eef4;
+            border-bottom: 2px solid ${isDarkTheme ? 'rgba(255,255,255,0.1)' : '#e8eef4'};
+            color: ${isDarkTheme ? '#f0f0f0' : '#333'};
           }
           .ant-table-tbody > tr:hover > td {
-            background-color: #f0f7ff !important;
+            background-color: ${isDarkTheme ? 'rgba(24,144,255,0.15)' : '#f0f7ff'} !important;
           }
-          /* Принудительно скрываем горизонтальную прокрутку */
           .ant-table-wrapper .ant-table-content {
             overflow-x: hidden !important;
           }
@@ -232,6 +265,8 @@ function PrintModel() {
           }
           .ant-table-tbody > tr > td {
             word-break: break-word;
+            background: ${isDarkTheme ? 'transparent' : 'inherit'};
+            color: ${isDarkTheme ? '#e0e0e0' : 'inherit'};
           }
         `}</style>
 
@@ -245,7 +280,7 @@ function PrintModel() {
           locale={{
             emptyText: <Empty description="Нет данных" image={Empty.PRESENTED_IMAGE_SIMPLE} />,
           }}
-          style={{ borderRadius: '16px', overflow: 'hidden' }}
+          style={tableStyle}
           rowClassName={getRowClassName}
         />
       </div>

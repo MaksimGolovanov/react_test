@@ -1,25 +1,84 @@
-/* VehicleBooking.module.css */
+/* VehicleBooking.module.css – с поддержкой тёмной темы */
 
 .cellOverdue {
-    background-color: #ffccc7 !important;
-    color: #a8071a !important;
+  background-color: #ffccc7 !important;
+  color: #a8071a !important;
 }
 
 .cellBooked {
-    background-color: #d9f7be !important;
-    color: #237804 !important;
+  background-color: #d9f7be !important;
+  color: #237804 !important;
 }
 
 .cellAvailable {
-    background-color: #ffffff !important;
-    color: inherit !important;
+  background-color: #ffffff !important;
+  color: inherit !important;
 }
 
 :global(.ant-table-wrapper .ant-table.ant-table-small) {
-    font-size: 12px !important;
+  font-size: 12px !important;
 }
 
 :global(.ant-table-cell) {
-    padding: 8px 12px !important;
+  padding: 8px 12px !important;
 }
 
+/* ===== ТЁМНАЯ ТЕМА ===== */
+body.dark-theme .cellOverdue {
+  background-color: #b91c1c !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme .cellBooked {
+  background-color: #237804 !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme .cellAvailable {
+  background-color: rgba(30, 35, 45, 0.5) !important;
+  color: #e0e0e0 !important;
+}
+
+/* VehicleBooking.module.css – дополнение */
+
+.layout {
+  height: calc(100vh - 63px);
+}
+
+.header {
+  
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f0;
+  height: 48px;
+}
+
+.content {
+  padding: 8px;
+  
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Тёмная тема */
+:global(body.dark-theme) .header {
+  background: rgba(18, 22, 35, 0.85) !important;
+  backdrop-filter: blur(16px);
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:global(body.dark-theme) .content {
+  background: rgba(20, 25, 35, 0.75) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

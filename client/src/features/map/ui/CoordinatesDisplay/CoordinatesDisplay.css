@@ -23,3 +23,11 @@
   font-variant-numeric: tabular-nums; /* цифры одинаковой ширины */
   letter-spacing: 0;
 }
+
+/* ===== ТЁМНАЯ ТЕМА ===== */
+body.dark-theme .coordinates-display {
+  background: rgba(0, 0, 0, 0.85);
+  color: #f0f0f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+}

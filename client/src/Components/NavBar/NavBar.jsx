@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import React from 'react';
 import { Layout } from 'antd';
 import { observer } from 'mobx-react';
 import userStore from '../../features/admin/store/UserStore';
@@ -10,15 +9,9 @@ import styles from './NavBar.module.css';
 
 const { Sider } = Layout;
 
-const NavBar = observer(({ onCollapseChange }) => {
-  const [collapsed, setCollapsed] = useState(false);
-
+const NavBar = observer(({ collapsed, onCollapseChange }) => {
   const toggleCollapsed = () => {
-    const newCollapsed = !collapsed;
-    setCollapsed(newCollapsed);
-    if (onCollapseChange) {
-      onCollapseChange(newCollapsed);
-    }
+    onCollapseChange(!collapsed);
   };
 
   return (
@@ -26,7 +19,7 @@ const NavBar = observer(({ onCollapseChange }) => {
       trigger={null}
       collapsible
       collapsed={collapsed}
-      width={250}
+      width={240}
       collapsedWidth={80}
       className={styles.sider}
       theme="dark"
