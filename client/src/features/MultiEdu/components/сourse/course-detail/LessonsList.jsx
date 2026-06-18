@@ -1,6 +1,7 @@
 import React from 'react';
 import { Menu, Tag, Alert } from 'antd';
 import { CheckCircleOutlined, FileTextOutlined } from '@ant-design/icons';
+import './LessonsList.css';
 
 const LessonsList = ({ lessons, userProgress, selectedLesson, onSelectLesson }) => {
   if (lessons.length === 0) {
@@ -11,7 +12,6 @@ const LessonsList = ({ lessons, userProgress, selectedLesson, onSelectLesson }) 
         type="info"
         showIcon
         size="small"
-        style={{ fontSize: '12px' }}
       />
     );
   }
@@ -20,24 +20,20 @@ const LessonsList = ({ lessons, userProgress, selectedLesson, onSelectLesson }) 
     <Menu
       mode="inline"
       selectedKeys={selectedLesson ? [selectedLesson.id] : []}
-      style={{ borderRight: 0, fontSize: '13px' }}
+      className="lessons-menu"
     >
       {lessons.map((lesson, index) => (
         <Menu.Item
           key={lesson.id}
           icon={
             userProgress?.completedLessons?.includes(lesson.id) ? (
-              <CheckCircleOutlined style={{ color: '#52c41a', fontSize: '14px' }} />
+              <CheckCircleOutlined className="lesson-icon-completed" />
             ) : (
-              <FileTextOutlined style={{ fontSize: '14px' }} />
+              <FileTextOutlined className="lesson-icon-default" />
             )
           }
           onClick={() => onSelectLesson(lesson)}
-          style={{ 
-            marginBottom: '6px', 
-            padding: '8px 12px',
-            borderRadius: '6px'
-          }}
+          className="lesson-menu-item"
         >
           <LessonItem lesson={lesson} index={index} />
         </Menu.Item>
@@ -47,24 +43,12 @@ const LessonsList = ({ lessons, userProgress, selectedLesson, onSelectLesson }) 
 };
 
 const LessonItem = ({ lesson, index }) => (
-  <div style={{ 
-    display: 'flex', 
-    justifyContent: 'space-between', 
-    alignItems: 'center',
-    width: '100%'
-  }}>
-    <div style={{ 
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      maxWidth: '180px'
-    }}>
-      <span style={{ fontSize: '13px' }}>
-        {index + 1}. {lesson.title}
-      </span>
+  <div className="lesson-item">
+    <div className="lesson-item-title">
+      <span>{index + 1}. {lesson.title}</span>
     </div>
     {lesson.duration && (
-      <Tag size="small" style={{ fontSize: '10px', padding: '0 4px', margin: 0 }}>
+      <Tag size="small" className="lesson-duration-tag">
         {lesson.duration}
       </Tag>
     )}

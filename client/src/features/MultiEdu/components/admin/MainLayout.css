@@ -1,0 +1,19 @@
+/* MainLayout.css */
+:root {
+  --admin-content-bg: transparent;
+}
+
+body.dark-theme {
+  --admin-content-bg: transparent;
+}
+
+.admin-main-layout {
+  min-height: calc(100vh - 64px);
+  background: var(--admin-content-bg);
+}
+
+.admin-main-content {
+  padding: 24px;
+  overflow: auto;
+  margin-top: 64px;
+}

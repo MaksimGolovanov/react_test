@@ -1,0 +1,41 @@
+/* CourseSidebar.css */
+.course-sidebar {
+  margin-bottom: 16px;
+}
+
+.back-button {
+  margin-bottom: 12px;
+  padding: 4px 0;
+}
+
+.course-title {
+  margin-bottom: 6px;
+  font-size: 18px !important;
+}
+
+.progress-section {
+  margin-bottom: 12px;
+}
+
+.course-tags-wrapper {
+  margin-top: 8px;
+}
+
+.lessons-divider {
+  font-size: 14px;
+  margin: 16px 0;
+}
+
+.course-tag {
+  font-size: 11px;
+  padding: 1px 6px;
+}
+
+.tag-icon {
+  font-size: 10px;
+}
+
+/* Тёмная тема – всё через CSS-переменные */
+body.dark-theme .course-sidebar {
+  /* наследует фон от родителя */
+}

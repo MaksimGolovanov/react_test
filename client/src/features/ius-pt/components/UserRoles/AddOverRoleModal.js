@@ -1,15 +1,13 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Modal, Input, Button, Space, Spin, message, theme } from 'antd';
 import { FixedSizeList as List } from 'react-window';
-import styles from './style.module.css';
-import SearchInput from '../SearchInput/SearchInput';
 import iusPtStore from '../../store/IusPtStore';
 import RoleSelectionModal from './RoleSelectionModal';
 
-// Оптимизированная функция нормализации
+const { useToken } = theme;
 
-
-const AddOverRoleModal = React.memo(({ show, onHide, role }) => {
+const AddOverRoleModal = React.memo(({ visible, onClose, selectedRoles, sourceUser }) => {
+    const { token } = useToken();
     const normalizeString = useCallback((str) => (str || '').toLowerCase().trim(), []);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -20,37 +18,34 @@ const AddOverRoleModal = React.memo(({ show, onHide, role }) => {
     const [users, setUsers] = useState([]);
     const [searchIndex, setSearchIndex] = useState(new Map());
 
-    // Загрузка и предварительная обработка данных
+    // Загрузка данных при открытии модалки
     useEffect(() => {
-        if (!show) return;
+        if (!visible) return;
 
         const controller = new AbortController();
-        
+
         const fetchData = async () => {
             try {
                 setIsLoading(true);
                 await iusPtStore.fetchStaffWithIusUserSimpleOver({ signal: controller.signal });
-                
-                // Сортировка и индексация данных
+
                 const sortedUsers = [...(iusPtStore.staffWithIusUsersSimpleOver || [])]
                     .sort((a, b) => a.fio.localeCompare(b.fio));
-                
-                // Создание поискового индекса
+
                 const index = new Map();
                 sortedUsers.forEach(user => {
-                    const normalizedFio = normalizeString(user.fio);
-                    if (!index.has(normalizedFio)) {
-                        index.set(normalizedFio, []);
-                    }
-                    index.get(normalizedFio).push(user);
+                    const normalized = normalizeString(user.fio);
+                    if (!index.has(normalized)) index.set(normalized, []);
+                    index.get(normalized).push(user);
                 });
 
                 setUsers(sortedUsers);
                 setSearchIndex(index);
             } catch (err) {
                 if (err.name !== 'AbortError') {
-                    console.error('Ошибка при загрузке данных:', err);
+                    console.error(err);
                     setError(err);
+                    message.error('Ошибка загрузки списка пользователей');
                 }
             } finally {
                 setIsLoading(false);
@@ -58,149 +53,144 @@ const AddOverRoleModal = React.memo(({ show, onHide, role }) => {
         };
 
         fetchData();
-        
         return () => controller.abort();
-    }, [show, normalizeString]);
+    }, [visible, normalizeString]);
 
-    // Оптимизированная фильтрация с использованием индекса
+    // Фильтрация с использованием индекса
     const filteredUsers = useMemo(() => {
         if (!searchQuery) return users;
-        
         const query = normalizeString(searchQuery);
         const results = [];
-        
-        // Быстрый поиск по индексу
         for (const [key, userGroup] of searchIndex.entries()) {
-            if (key.includes(query)) {
-                results.push(...userGroup);
-            }
+            if (key.includes(query)) results.push(...userGroup);
         }
-        
         return results;
-    }, [users, searchQuery, searchIndex]);
+    }, [users, searchQuery, searchIndex, normalizeString]);
 
-    // Оптимизированные обработчики
     const handleUserClick = useCallback((tabNumber) => {
-        setSelectedUser(users.find(user => user.tabNumber === tabNumber));
+        const user = users.find(u => u.tabNumber === tabNumber);
+        setSelectedUser(user);
     }, [users]);
 
     const handleSubmit = useCallback(async () => {
         if (!selectedUser) return;
-
+        setIsLoading(true);
         try {
-            setIsLoading(true);
             await iusPtStore.fetchUserRoles(selectedUser.tabNumber);
             setUserRoles(iusPtStore.userRoles);
-            onHide();
-            setShowRoleModal(true);
+            onClose();            // закрываем текущую модалку
+            setShowRoleModal(true); // открываем следующую
         } catch (error) {
-            console.error('Ошибка при загрузке ролей пользователя:', error);
+            console.error(error);
+            message.error('Ошибка при загрузке ролей пользователя');
         } finally {
             setIsLoading(false);
         }
-    }, [selectedUser, onHide]);
+    }, [selectedUser, onClose]);
 
-    // Оптимизированный рендеринг строк таблицы
+    // Компонент строки для виртуального списка
     const Row = useCallback(({ index, style }) => {
-        const staffUser = filteredUsers[index];
+        const user = filteredUsers[index];
+        if (!user) return null;
+        const isSelected = selectedUser?.tabNumber === user.tabNumber;
         return (
-            <UserRow 
-                staffUser={staffUser}
-                isSelected={selectedUser?.tabNumber === staffUser.tabNumber}
-                onClick={handleUserClick}
-                style={style}
-            />
+            <div
+                style={{
+                    ...style,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    borderBottom: `1px solid ${token.colorBorder}`,
+                    cursor: 'pointer',
+                    backgroundColor: isSelected ? token.colorPrimaryBg : 'transparent',
+                    transition: 'background-color 0.2s',
+                }}
+                onClick={() => handleUserClick(user.tabNumber)}
+                onMouseEnter={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = token.controlItemBgHover;
+                }}
+                onMouseLeave={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+            >
+                <span style={{ width: '60%', fontWeight: isSelected ? 500 : 400, color: token.colorText }}>
+                    {user.fio}
+                </span>
+                <span style={{ width: '40%', color: token.colorTextSecondary }}>
+                    {user.IusUser?.name || ''}
+                </span>
+            </div>
         );
-    }, [filteredUsers, selectedUser, handleUserClick]);
-
-    if (isLoading) {
-        return <div className={styles.loading}>Загрузка...</div>;
-    }
+    }, [filteredUsers, selectedUser, handleUserClick, token]);
 
     if (error) {
-        return <div className={styles.error}>Ошибка: {error?.message || 'Неизвестная ошибка'}</div>;
+        return (
+            <Modal title="Ошибка" open={visible} onCancel={onClose} footer={null}>
+                <div style={{ color: token.colorError }}>{error.message || 'Неизвестная ошибка'}</div>
+            </Modal>
+        );
     }
 
     return (
         <>
-            <Modal show={show} onHide={onHide} className={styles.modalAll}>
-                <Modal.Header closeButton className={styles.modalHeader}>
-                    <Modal.Title className={styles.modalTitle}>Выберите пользователя</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <SearchInput
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        placeholder="Поиск пользователей..."
-                        debounceTime={300}
-                    />
-                    <div className={styles.tablehead}>
-                        <p className={styles.tableheadfio}>ФИО</p>
-                        <p className={styles.tableheadname}>Имя для входа</p>
-                    </div>
-                    <div className={styles.tableContainer}>
-                        <List
-                            height={400}
-                            itemCount={filteredUsers.length}
-                            itemSize={38}
-                            width="100%"
-                            
-                        >
-                            {Row}
-                        </List>
-                    </div>
-                </Modal.Body>
-                <Modal.Footer className={styles.modalFooter}>
-                    <Button variant="secondary" onClick={onHide} className={styles.buttonSecondary}>
-                        Закрыть
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={handleSubmit}
-                        className={styles.buttonPrimary}
-                        disabled={!selectedUser}
-                    >
+            <Modal
+                title="Выберите пользователя"
+                open={visible}
+                onCancel={onClose}
+                footer={[
+                    <Button key="cancel" onClick={onClose}>Закрыть</Button>,
+                    <Button key="submit" type="primary" onClick={handleSubmit} disabled={!selectedUser}>
                         Выбрать
-                    </Button>
-                </Modal.Footer>
+                    </Button>,
+                ]}
+                width={600}
+            >
+                <Input.Search
+                    placeholder="Поиск пользователей..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ marginBottom: 16 }}
+                    allowClear
+                />
+                <div
+                    style={{
+                        display: 'flex',
+                        fontWeight: 500,
+                        padding: '8px 12px',
+                        borderBottom: `1px solid ${token.colorBorder}`,
+                        color: token.colorTextSecondary,
+                        fontSize: 12,
+                    }}
+                >
+                    <span style={{ width: '60%' }}>ФИО</span>
+                    <span style={{ width: '40%' }}>Имя для входа</span>
+                </div>
+                {isLoading ? (
+                    <div style={{ textAlign: 'center', padding: 40 }}>
+                        <Spin tip="Загрузка..." />
+                    </div>
+                ) : (
+                    <List
+                        height={400}
+                        itemCount={filteredUsers.length}
+                        itemSize={48}
+                        width="100%"
+                    >
+                        {Row}
+                    </List>
+                )}
             </Modal>
 
             <RoleSelectionModal
-                show={showRoleModal}
-                onHide={() => setShowRoleModal(false)}
-                roles={role}
-                userRoles={userRoles}
-                stopRoles={iusPtStore.stopRoles}
-                selectedUser={selectedUser}
+                visible={showRoleModal}
+                onClose={() => setShowRoleModal(false)}
+                targetUser={selectedUser}
+                sourceRoles={selectedRoles}
+                sourceUser={sourceUser}
             />
         </>
     );
 });
-
-// Оптимизированный компонент строки
-const UserRow = React.memo(({ staffUser, isSelected, onClick, style }) => {
-    const handleClick = useCallback(() => {
-        onClick(staffUser.tabNumber);
-    }, [onClick, staffUser.tabNumber]);
-    
-    return (
-        <div style={style}>
-            <div 
-                className={`${styles.rowContainer} ${isSelected ? styles.selectedRow : ''}`}
-                onClick={handleClick}
-            >
-                <span className={styles.fioLink}>{staffUser.fio}</span>
-                <span className={styles.nameLink}>
-                    {staffUser.IusUser?.name || ''}
-                </span>
-            </div>
-        </div>
-    );
-}, (prevProps, nextProps) => (
-    prevProps.isSelected === nextProps.isSelected &&
-    prevProps.staffUser.tabNumber === nextProps.staffUser.tabNumber &&
-    prevProps.staffUser.fio === nextProps.staffUser.fio &&
-    prevProps.staffUser.IusUser?.name === nextProps.staffUser.IusUser?.name
-));
 
 export default AddOverRoleModal;

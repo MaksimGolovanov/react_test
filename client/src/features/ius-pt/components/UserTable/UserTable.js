@@ -1,133 +1,121 @@
-import React, { useState, useEffect } from 'react'
-import { observer } from 'mobx-react-lite'
-import styles from './style.module.css' // Импорт CSS модуля
-import ButtonAll from '../ButtonAll/ButtonAll'
-import { FaRegEdit } from 'react-icons/fa'
-import EditUserModal from './EditUserModal' // Импортируем модальное окно
-import IusPtService from '../../services/IusPtService'
-import IusPtStore from '../../store/IusPtStore' // Импорт хранилища
-import StaffService from '../../../staff/services/StaffService'
+import React, { useState, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
+import { Button, Descriptions, message, theme } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
+import EditUserModal from './EditUserModal';
+import IusPtService from '../../services/IusPtService';
+import IusPtStore from '../../store/IusPtStore';
+import StaffService from '../../../staff/services/StaffService';
+
+const { useToken } = theme;
 
 const UserTable = observer(({ info }) => {
-     const [showModal, setShowModal] = useState(false) // Состояние для управления модальным окном
-     const [isLoading, setIsLoading] = useState(false) // Состояние для отображения загрузки
-     const [error, setError] = useState(null) // Состояние для хранения ошибок
-     const [departmens, setDepatmens] = useState([])
+  const { token } = useToken();
+  const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [departments, setDepartments] = useState([]);
 
-     useEffect(() => {
-          async function departmensGet() {
-               try {
-                    const departments = await StaffService.fetchAllDepartments()
-                    setDepatmens(departments)
-               } catch (error) {
-                    console.error(error)
-               }
-          }
-          departmensGet()
-     }, [])
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const depts = await StaffService.fetchAllDepartments();
+        setDepartments(depts);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
-     const getDepartmentById = (id) => {
-          if (id === null || id === undefined) return null
+  const getDepartmentById = (id) => {
+    if (!id) return null;
+    const code = String(id).split(' ')[0];
+    const found = departments.find(d => d.code === code) || departments.find(d => d.code === id);
+    return found ? found.description : null;
+  };
 
-          const departmentCode = String(id).split(' ')[0]
-          const foundDepartment =
-               departmens.find((d) => d.code === departmentCode) || departmens.find((d) => d.code === id)
+  const handleEditClick = () => setShowModal(true);
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setError(null);
+  };
 
-          return foundDepartment ? foundDepartment.description : null
-     }
+  const handleSave = async (updatedData) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const userData = {
+        tabNumber: info.tabNumber,
+        name: updatedData.name,
+        contractDetails: updatedData.contractDetails,
+        computerName: updatedData.computerName,
+        location: updatedData.location,
+        manager: updatedData.manager,
+        managerEmail: updatedData.managerEmail,
+      };
+      await IusPtService.createOrUpdateUser(userData);
+      await IusPtStore.fetchStaffWithIusUsers();
+      setShowModal(false);
+      message.success('Данные обновлены');
+    } catch (err) {
+      console.error(err);
+      setError('Ошибка при обновлении данных пользователя');
+      message.error('Ошибка обновления');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-     // Обработчик открытия модального окна
-     const handleEditClick = () => {
-          setShowModal(true)
-     }
+  const items = [
+    { label: 'Имя пользователя', children: info.IusUser?.name || '-' },
+    { label: 'Фамилия Имя Отчество', children: info.fio || '-' },
+    { label: 'Электронная почта', children: info.email || '-' },
+    { label: 'Подразделение', children: getDepartmentById(info.department) || '-' },
+    { label: 'Должность', children: info.post || '-' },
+    { label: 'Табельный номер', children: info.tabNumber || '-' },
+    { label: 'Реквизиты договора о конфиденциальности', children: info.IusUser?.contractDetails || '-' },
+    { label: 'Расположение (город, адрес)', children: info.IusUser?.location || '-' },
+    { label: 'Имя компьютера', children: info.IusUser?.computerName || '-' },
+    { label: 'Контактный телефон', children: info.telephone || '-' },
+    { label: 'IP адрес', children: info.ip || '-' },
+    { label: 'Ф.И.О. руководителя', children: info.IusUser?.manager || '-' },
+    { label: 'E-mail руководителя', children: info.IusUser?.managerEmail || '-' },
+  ];
 
-     // Обработчик закрытия модального окна
-     const handleCloseModal = () => {
-          setShowModal(false)
-          setError(null) // Сбрасываем ошибку при закрытии модального окна
-     }
+  return (
+    <div>
+      <Button
+        icon={<EditOutlined />}
+        onClick={handleEditClick}
+        style={{ marginBottom: 16 }}
+      >
+        Редактировать
+      </Button>
 
-     // Обработчик сохранения данных
-     const handleSave = async (updatedData) => {
-          setIsLoading(true) // Включаем индикатор загрузки
-          setError(null) // Сбрасываем ошибку
+      <Descriptions
+        bordered
+        column={1}
+        size="small"
+        labelStyle={{ width: '40%', background: token.colorBgLayout }}
+      >
+        {items.map(item => (
+          <Descriptions.Item key={item.label} label={item.label}>
+            {item.children}
+          </Descriptions.Item>
+        ))}
+      </Descriptions>
 
-          try {
-               const userData = {
-                    tabNumber: info.tabNumber,
-                    name: updatedData.name,
-                    contractDetails: updatedData.contractDetails,
-                    computerName: updatedData.computerName,
-                    location: updatedData.location,
-                    manager: updatedData.manager,
-                    managerEmail: updatedData.managerEmail,
-               }
+      <EditUserModal
+        visible={showModal}
+        onCancel={handleCloseModal}
+        user={info}
+        onSave={handleSave}
+        isLoading={isLoading}
+        error={error}
+      />
+    </div>
+  );
+});
 
-               // Обновляем данные пользователя через сервис
-               await IusPtService.createOrUpdateUser(userData)
-               await IusPtStore.fetchStaffWithIusUsers()
-
-               // Обновляем данные в хранилище
-
-               setShowModal(false) // Закрываем модальное окно
-          } catch (error) {
-               console.error('Ошибка при обновлении данных пользователя:', error)
-               setError('Ошибка при обновлении данных пользователя')
-          } finally {
-               setIsLoading(false) // Выключаем индикатор загрузки
-          }
-     }
-
-     return (
-          <>
-               {/* Кнопка "Редактировать" */}
-               <ButtonAll icon={FaRegEdit} text="Редактировать" onClick={handleEditClick} />
-
-               {/* Карточка пользователя */}
-               <div className={styles.ankCardContainer}>
-                    <div className={styles.ankCard}>
-                         <p>Имя пользователя</p>
-                         <p>Фамилия Имя Отчество</p>
-                         <p>Электронная почта</p>
-                         <p>Подразделение</p>
-                         <p>Должность</p>
-                         <p>Табельный номер</p>
-                         <p>Реквизиты договора о конфиденциальности</p>
-                         <p>Расположение город, адресс</p>
-                         <p>Имя компьютера</p>
-                         <p>Контактный телефон</p>
-                         <p>IP адрес</p>
-                         <p>Ф.И.О. непосредственного руководителя пользователя</p>
-                         <p>E-mail непосредственного руководителя пользователя:</p>
-                    </div>
-                    <div className={styles.ankCardDinamic}>
-                         <p>{info.IusUser ? info.IusUser.name : '-'}</p>
-                         <p>{info.fio || ' - '}</p>
-                         <p>{info.email || ' - '}</p>
-                         <p>{getDepartmentById(info.department)}</p>
-                         <p>{info.post || ' - '}</p>
-                         <p>{info.tabNumber || ' - '}</p>
-                         <p>{info.IusUser ? info.IusUser.contractDetails : ' - '}</p>
-                         <p>{info.IusUser ? info.IusUser.location : ' - '}</p>
-                         <p>{info.IusUser ? info.IusUser.computerName : ' - '}</p>
-                         <p>{info.telephone || ' - '}</p>
-                         <p>{info.ip || ' - '}</p>
-                         <p>{info.IusUser ? info.IusUser.manager : ' - '}</p>
-                         <p>{info.IusUser ? info.IusUser.managerEmail : ' - '}</p>
-                    </div>
-               </div>
-
-               {/* Модальное окно редактирования */}
-               <EditUserModal
-                    show={showModal}
-                    handleClose={handleCloseModal}
-                    user={info}
-                    onSave={handleSave}
-                    isLoading={isLoading}
-                    error={error}
-               />
-          </>
-     )
-})
-
-export default UserTable
+export default UserTable;

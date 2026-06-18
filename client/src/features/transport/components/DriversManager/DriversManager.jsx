@@ -1,16 +1,35 @@
+// src/features/transport/components/DriversManager/DriversManager.jsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Table, Button, Space, Popconfirm, message, Row, Col, Input, Select, Tag } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Button,
+  Space,
+  Popconfirm,
+  message,
+  Row,
+  Col,
+  Input,
+  Select,
+  Tag,
+  theme,
+} from 'antd';
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useDriversManager } from './hooks/useDriversManager';
 import DriverFormModal from './DriverFormModal';
-import { DRIVER_STATUSES, getRowClassNameByStatus } from './constants/driverStatuses';
-import './DriversManager.css';
-
+import { DRIVER_STATUSES } from './constants/driverStatuses';
+import styles from '../../pages/VehicleBooking.module.css';
 const { Option } = Select;
+const { useToken } = theme;
 
 const DriversManager = observer(() => {
+  const { token } = useToken();
   const {
     drivers,
     loading,
@@ -27,42 +46,59 @@ const DriversManager = observer(() => {
     setStatusFilter,
   } = useDriversManager();
 
+  const getRowStyle = (record) => {
+    const status = record.is_active;
+    switch (status) {
+      case 'at_work':
+        return { backgroundColor: token.colorSuccessBg };
+      case 'on_vacation':
+        return { backgroundColor: token.colorWarningBg };
+      case 'on_sick_leave':
+        return { backgroundColor: token.colorErrorBg };
+      case 'on_study':
+        return { backgroundColor: token.colorPrimaryBg };
+      case 'deactivated':
+        return { backgroundColor: token.colorBgLayout, opacity: 0.7 };
+      default:
+        return {};
+    }
+  };
+
   const columns = [
     {
       title: 'ФИО',
       dataIndex: 'fio',
-      key: 'fio',
       sorter: (a, b) => a.fio?.localeCompare(b.fio),
-      width: 200,
     },
     {
       title: 'Должность',
       dataIndex: 'post',
-      key: 'post',
-      width: 150,
     },
     {
       title: 'Принадлежность',
       dataIndex: 'department',
-      key: 'department',
-      width: 200,
     },
     {
       title: 'Статус',
       dataIndex: 'is_active',
-      key: 'is_active',
-      width: 200,
       render: (status, record) => {
-        const info = DRIVER_STATUSES[status] || { text: status, color: 'default' };
+        const info = DRIVER_STATUSES[status] || {
+          text: status,
+          color: 'default',
+        };
         if (status === 'at_work') {
           return <Tag color={info.color}>{info.text}</Tag>;
         }
-        const from = record.date_from ? dayjs(record.date_from).format('DD.MM.YYYY') : '—';
-        const to = record.date_to ? dayjs(record.date_to).format('DD.MM.YYYY') : '—';
+        const from = record.date_from
+          ? dayjs(record.date_from).format('DD.MM.YYYY')
+          : '—';
+        const to = record.date_to
+          ? dayjs(record.date_to).format('DD.MM.YYYY')
+          : '—';
         return (
           <Space direction="vertical" size={0}>
             <Tag color={info.color}>{info.text}</Tag>
-            <span style={{ fontSize: '12px', color: '#666' }}>
+            <span style={{ fontSize: '12px', color: token.colorTextSecondary }}>
               {from} – {to}
             </span>
           </Space>
@@ -72,12 +108,17 @@ const DriversManager = observer(() => {
     {
       title: 'Действия',
       key: 'action',
-      width: 100,
-      fixed: 'right',
       render: (_, record) => (
         <Space>
-          <Button icon={<EditOutlined />} size="small" onClick={() => openEditModal(record)} />
-          <Popconfirm title="Удалить водителя?" onConfirm={() => deleteDriver(record.id)}>
+          <Button
+            icon={<EditOutlined />}
+            size="small"
+            onClick={() => openEditModal(record)}
+          />
+          <Popconfirm
+            title="Удалить водителя?"
+            onConfirm={() => deleteDriver(record.id)}
+          >
             <Button icon={<DeleteOutlined />} size="small" danger />
           </Popconfirm>
         </Space>
@@ -117,18 +158,18 @@ const DriversManager = observer(() => {
           </Button>
         </Col>
       </Row>
-
-      <Table
-        size="small"
-        columns={columns}
-        dataSource={drivers}
-        rowKey="id"
-        loading={loading}
-        pagination={false}
-        scroll={{ y: 'calc(100vh - 300px)' }}
-        bordered
-        rowClassName={(record) => getRowClassNameByStatus(record.is_active)}
-      />
+      <div className={styles.userListScroll}>
+        <Table
+          size="small"
+          columns={columns}
+          dataSource={drivers}
+          rowKey="id"
+          loading={loading}
+          pagination={false}
+          bordered
+          onRow={(record) => ({ style: getRowStyle(record) })}
+        />
+      </div>
 
       <DriverFormModal
         visible={modalVisible}

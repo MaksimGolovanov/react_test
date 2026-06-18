@@ -1,0 +1,12 @@
+/* CourseCard.css - базовые стили, можно оставить пустым или минимальным */
+.course-card {
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+.course-card .ant-card-body {
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+/* Остальные стили из моего предыдущего ответа можно добавить позже */

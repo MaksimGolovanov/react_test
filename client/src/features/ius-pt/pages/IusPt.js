@@ -1,15 +1,17 @@
+// src/features/ius-pt/pages/IusPt.jsx
 import React, { useEffect, useState, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Table, Input, Button, Space, Typography, Spin, Alert } from 'antd';
+import { Table, Input, Button, Space, Typography, Spin, Alert, theme } from 'antd';
 import { SettingOutlined, SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import iusPtStore from '../store/IusPtStore';
 import AvatarWithFallback from '../components/AvatarWithFallback/AvatarWithFallback';
-import styles from './style.module.css'; // оставляем для возможных глобальных стилей
 
+const { useToken } = theme;
 const { Title } = Typography;
 
 const IusPt = observer(() => {
+  const { token } = useToken();
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,62 +30,35 @@ const IusPt = observer(() => {
     fetchData();
   }, []);
 
-  // Фильтрация по поисковому запросу
   const filteredUsers = useMemo(() => {
-    return iusPtStore.staffWithIusUsersSimple.filter((staffUser) => {
-      const searchLower = searchQuery.toLowerCase();
-      return (
-        staffUser.tabNumber?.toLowerCase().includes(searchLower) ||
-        staffUser.fio?.toLowerCase().includes(searchLower) ||
-        staffUser.post?.toLowerCase().includes(searchLower) ||
-        staffUser.department?.toLowerCase().includes(searchLower) ||
-        staffUser.email?.toLowerCase().includes(searchLower) ||
-        (staffUser.IusUser &&
-          staffUser.IusUser.name?.toLowerCase().includes(searchLower))
-      );
-    });
+    const searchLower = searchQuery.toLowerCase();
+    return iusPtStore.staffWithIusUsersSimple.filter(staff =>
+      staff.tabNumber?.toLowerCase().includes(searchLower) ||
+      staff.fio?.toLowerCase().includes(searchLower) ||
+      staff.post?.toLowerCase().includes(searchLower) ||
+      staff.department?.toLowerCase().includes(searchLower) ||
+      staff.email?.toLowerCase().includes(searchLower) ||
+      staff.IusUser?.name?.toLowerCase().includes(searchLower)
+    );
   }, [iusPtStore.staffWithIusUsersSimple, searchQuery]);
 
-  // Сортировка по ФИО
-  const sortedUsers = useMemo(() => {
-    return [...filteredUsers].sort((a, b) => a.fio?.localeCompare(b.fio));
-  }, [filteredUsers]);
+  const sortedUsers = useMemo(() => [...filteredUsers].sort((a, b) => a.fio?.localeCompare(b.fio)), [filteredUsers]);
 
-  const handleUserClick = (tabNumber) => {
-    navigate(`/iuspt/user/${tabNumber}`);
-  };
-
-  const handleSpravClick = () => {
-    navigate(`/iuspt/sprav`);
-  };
-
-  // Определение колонок таблицы
   const columns = [
     {
       title: '',
       key: 'avatar',
-      width: 45,
+      width: 60,
       render: (_, record) => (
-        <div className={styles.itemAvatar}>
-          <AvatarWithFallback
-            tabNumber={record.tabNumber}
-            size={44}
-            className={styles.userAvatar}
-          />
-        </div>
+        <AvatarWithFallback tabNumber={record.tabNumber} size={44} />
       ),
     },
     {
       title: 'ФИО',
       dataIndex: 'fio',
-      key: 'fio',
-      width: 250,
       sorter: (a, b) => (a.fio || '').localeCompare(b.fio || ''),
       render: (text, record) => (
-        <a
-          onClick={() => handleUserClick(record.tabNumber)}
-          style={{ cursor: 'pointer' }}
-        >
+        <a onClick={() => navigate(`/iuspt/user/${record.tabNumber}`)} style={{ cursor: 'pointer', color: token.colorPrimary }}>
           {text}
         </a>
       ),
@@ -91,86 +66,42 @@ const IusPt = observer(() => {
     {
       title: 'Имя для входа',
       dataIndex: ['IusUser', 'name'],
-      key: 'iusName',
-      width: 150,
-      render: (name) => name || '-',
+      render: name => name || '-',
     },
-    {
-      title: 'Электронная почта',
-      dataIndex: 'email',
-      key: 'email',
-      width: 250,
-      render: (email) => email || '-',
-    },
-    {
-      title: 'Табельный номер',
-      dataIndex: 'tabNumber',
-      key: 'tabNumber',
-      width: 120,
-    },
-    {
-      title: 'Должность',
-      dataIndex: 'post',
-      key: 'post',
-      width: 300,
-      render: (post) => post || '-',
-    },
+    { title: 'Электронная почта', dataIndex: 'email', render: email => email || '-' },
+    { title: 'Табельный номер', dataIndex: 'tabNumber' },
+    { title: 'Должность', dataIndex: 'post', render: post => post || '-' },
     {
       title: 'Подразделение',
-      key: 'department',
-      width: 'auto',
-      render: (_, record) => {
-        const dept = record.department;
-        return dept?.length >= 13 ? dept.slice(13) : dept || '-';
-      },
+      render: (_, record) => record.department?.length >= 13 ? record.department.slice(13) : record.department || '-',
     },
   ];
 
-  if (isLoading) {
-    return (
-      <Spin
-        tip="Загрузка..."
-        style={{ display: 'block', margin: '50px auto' }}
-      />
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert
-        message="Ошибка"
-        description={error?.message || 'Неизвестная ошибка'}
-        type="error"
-        showIcon
-      />
-    );
-  }
+  if (isLoading) return <Spin tip="Загрузка..." style={{ display: 'block', margin: '50px auto' }} />;
+  if (error) return <Alert message="Ошибка" description={error.message} type="error" showIcon />;
 
   return (
-    <div style={{ padding: '16px 16px' }}>
+    <div style={{ padding: '16px' }}>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Button type="primary" icon={<SettingOutlined />} onClick={handleSpravClick}>
+        <Button type="primary" icon={<SettingOutlined />} onClick={() => navigate('/iuspt/sprav')}>
           Справочники
         </Button>
         <Input.Search
           placeholder="Поиск пользователей..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           allowClear
           enterButton={<SearchOutlined />}
-          onSearch={(value) => setSearchQuery(value)}
+          onSearch={setSearchQuery}
         />
-        <div style={{ overflowX: 'auto', width: '100%' }}>
-          <Table
-            columns={columns}
-            dataSource={sortedUsers}
-            rowKey="tabNumber"
-            pagination={true}
-            bordered
-            
-            size="middle"
-          />
-        </div>
+        <Table
+          columns={columns}
+          dataSource={sortedUsers}
+          rowKey="tabNumber"
+          pagination={{ defaultPageSize: 20 }}
+          bordered
+          size="middle"
+        />
       </Space>
     </div>
   );

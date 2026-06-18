@@ -1,0 +1,51 @@
+.compass-modern {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  z-index: 1000;
+  user-select: none;
+}
+
+.compass-outer-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+.compass-modern:hover .compass-outer-ring {
+  transform: scale(1.05);
+}
+
+.compass-ring-marks {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.compass-ring-marks span {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mark-n { top: 4px; left: 50%; transform: translateX(-50%); }
+.mark-e { right: 6px; top: 50%; transform: translateY(-50%); }
+.mark-s { bottom: 4px; left: 50%; transform: translateX(-50%); }
+.mark-w { left: 6px; top: 50%; transform: translateY(-50%); }
+
+.mark-ne, .mark-se, .mark-sw, .mark-nw {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50%;
+}
+.mark-ne { top: 12px; right: 12px; }
+.mark-se { bottom: 12px; right: 12px; }
+.mark-sw { bottom: 12px; left: 12px; }
+.mark-nw { top: 12px; left: 12px; }

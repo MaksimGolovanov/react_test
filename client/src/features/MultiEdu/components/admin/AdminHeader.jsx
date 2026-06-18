@@ -1,5 +1,4 @@
 // src/features/security-training/components/admin/AdminHeader.jsx
-
 import { Layout, Typography, Menu } from 'antd';
 import {
   DashboardOutlined,
@@ -7,15 +6,13 @@ import {
   UserOutlined,
   BarChartOutlined,
   SettingOutlined,
-} from "@ant-design/icons";
+} from '@ant-design/icons';
+import './AdminHeader.css';
 
 const { Header } = Layout;
 const { Title } = Typography;
 
-const AdminHeader = ({ 
-  selectedMenu,
-  onMenuSelect,
-}) => {
+const AdminHeader = ({ selectedMenu, onMenuSelect }) => {
   const getTitle = () => {
     switch (selectedMenu) {
       case 'dashboard': return 'Панель управления';
@@ -27,95 +24,36 @@ const AdminHeader = ({
   };
 
   return (
-    <Header
-      style={{
-        background: "#fff",
-        padding: "0 24px",
-        borderBottom: "1px solid #f0f0f0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "fixed", 
-        zIndex: 1000,
-        height: 64,
-        width: "100%",
-      }}
-    >
-      {/* Левая часть: Название и меню */}
-      <div style={{ 
-        display: "flex", 
-        alignItems: "center", 
-        flex: 1,
-        minWidth: 0, // Важно для flex контейнера
-      }}>
-        <div style={{ 
-          display: "flex", 
-          alignItems: "center", 
-          gap: "8px",
-          flexShrink: 0, // Не сжимать заголовок
-          marginRight: "32px", // Отступ перед меню
-        }}>
-          <SettingOutlined style={{ fontSize: "18px", color: "#1890ff" }} />
-          <Title level={4} style={{ margin: 0, whiteSpace: "nowrap" }}>
-            Администрирование
-          </Title>
+    <Header className="admin-header">
+      <div className="admin-header-left">
+        <div className="logo-area">
+          <SettingOutlined className="logo-icon" />
+          <Title level={4} className="logo-title">Администрирование</Title>
         </div>
-
-        {/* Горизонтальное меню - занимает все доступное пространство */}
-        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+        <div className="menu-wrapper">
           <Menu
             mode="horizontal"
             selectedKeys={[selectedMenu]}
             onSelect={({ key }) => onMenuSelect(key)}
-            style={{
-              borderBottom: "none",
-              lineHeight: "64px",
-              background: "transparent",
-              width: "100%", // Занимает всю ширину
-              minWidth: "auto", // Отключаем авто-минимальную ширину
-              flex: 1,
-              display: "flex", // Используем flex для меню
-            }}
-            // Отключаем автоматическое сворачивание
-            overflowedIndicator={null}
-            // Форсируем горизонтальное отображение
-            inlineCollapsed={false}
-            // Отключаем адаптивность
-            triggerSubMenuAction="click"
+            className="admin-menu"
           >
-            <Menu.Item key="dashboard" icon={<DashboardOutlined />} style={{ flexShrink: 0 }}>
+            <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
               Панель управления
             </Menu.Item>
-            <Menu.Item key="courses" icon={<BookOutlined />} style={{ flexShrink: 0 }}>
+            <Menu.Item key="courses" icon={<BookOutlined />}>
               Управление курсами
             </Menu.Item>
-            <Menu.Item key="users" icon={<UserOutlined />} style={{ flexShrink: 0 }}>
+            <Menu.Item key="users" icon={<UserOutlined />}>
               Пользователи
             </Menu.Item>
-            <Menu.Item key="documents" icon={<BarChartOutlined />} style={{ flexShrink: 0 }}>
+            <Menu.Item key="documents" icon={<BarChartOutlined />}>
               Документы
             </Menu.Item>
           </Menu>
         </div>
       </div>
-
-      {/* Правая часть: Заголовок текущего раздела */}
-      <div style={{ 
-        flexShrink: 0, 
-        marginLeft: "24px",
-        minWidth: "200px", // Резервируем место для заголовка
-        textAlign: "right"
-      }}>
-        <Title 
-          level={5} 
-          style={{ 
-            margin: 0, 
-            fontWeight: "normal",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {getTitle()}
-        </Title>
+      <div className="admin-header-right">
+        <Title level={5} className="current-title">{getTitle()}</Title>
       </div>
     </Header>
   );

@@ -1,64 +1,87 @@
-// ReportsTab.jsx – полный компонент с отчётами (водители/автомобили)
+// src/features/transport/components/ReportsTab/ReportsTab.jsx (фрагмент)
 import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Table, Tabs, Tag, Space, Tooltip, Select, Row, Col } from 'antd';
+import {
+  Table,
+  Tabs,
+  Tag,
+  Space,
+  Tooltip,
+  Select,
+  Row,
+  Col,
+  theme,
+} from 'antd';
 import { CarOutlined, UserOutlined, CalendarOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import { useRootStore } from '../../hooks/useStores';
 import WeekDayPicker from '../VehicleWeek/WeekDayPicker';
-
+import styles from './ReportsTab.module.css';
 dayjs.locale('ru');
-
 const { TabPane } = Tabs;
 const { Option } = Select;
+const { useToken } = theme;
 
-// === Вспомогательные функции ===
-const driverStatusLabels = {
-  at_work: { text: 'На работе', color: 'green' },
-  on_vacation: { text: 'В отпуске', color: 'orange' },
-  on_sick_leave: { text: 'На больничном', color: 'red' },
-  on_study: { text: 'На учёбе', color: 'blue' },
-  deactivated: { text: 'Деактивирован', color: 'default' },
-};
+const driverStatusLabels = (token) => ({
+  at_work: { text: 'На работе', color: token.colorSuccess },
+  on_vacation: { text: 'В отпуске', color: token.colorWarning },
+  on_sick_leave: { text: 'На больничном', color: token.colorError },
+  on_study: { text: 'На учёбе', color: token.colorPrimary },
+  deactivated: { text: 'Деактивирован', color: token.colorTextDisabled },
+});
 
-const getDriverStatusInfo = (driver) => {
-  const info = driverStatusLabels[driver.is_active] || {
+const getDriverStatusInfo = (driver, token) => {
+  const labels = driverStatusLabels(token);
+  const info = labels[driver.is_active] || {
     text: driver.is_active,
     color: 'default',
   };
   if (driver.is_active === 'at_work') {
     return <Tag color={info.color}>{info.text}</Tag>;
   }
-  const from = driver.date_from ? dayjs(driver.date_from).format('DD.MM.YYYY') : '—';
+  const from = driver.date_from
+    ? dayjs(driver.date_from).format('DD.MM.YYYY')
+    : '—';
   const to = driver.date_to ? dayjs(driver.date_to).format('DD.MM.YYYY') : '—';
   return (
     <Space direction="vertical" size={0}>
       <Tag color={info.color}>{info.text}</Tag>
-      <span style={{ fontSize: '12px', color: '#666' }}>{from} – {to}</span>
+      <span style={{ fontSize: '12px', color: token.colorTextSecondary }}>
+        {from} – {to}
+      </span>
     </Space>
   );
 };
 
-const getDriverRowClassName = (record) => {
+const getDriverRowStyle = (record, token) => {
   switch (record.is_active) {
-    case 'at_work': return 'report-driver-row-at-work';
-    case 'on_vacation': return 'report-driver-row-on-vacation';
-    case 'on_sick_leave': return 'report-driver-row-on-sick-leave';
-    case 'on_study': return 'report-driver-row-on-study';
-    case 'deactivated': return 'report-driver-row-deactivated';
-    default: return '';
+    case 'at_work':
+      return { backgroundColor: token.colorSuccessBg };
+    case 'on_vacation':
+      return { backgroundColor: token.colorWarningBg };
+    case 'on_sick_leave':
+      return { backgroundColor: token.colorErrorBg };
+    case 'on_study':
+      return { backgroundColor: token.colorPrimaryBg };
+    case 'deactivated':
+      return { backgroundColor: token.colorBgLayout, opacity: 0.7 };
+    default:
+      return {};
   }
 };
 
-const getVehicleRowClassName = (record) => {
-  if (record.technical_condition === 'исправен') return 'report-vehicle-row-good';
-  if (record.technical_condition === 'в ремонте') return 'report-vehicle-row-repair';
-  return 'report-vehicle-row-bad';
+const getVehicleRowStyle = (record, token) => {
+  if (record.technical_condition === 'исправен')
+    return { backgroundColor: token.colorSuccessBg };
+  if (record.technical_condition === 'в ремонте')
+    return { backgroundColor: token.colorWarningBg };
+  return { backgroundColor: token.colorErrorBg };
 };
 
 // === Отчёт по водителям ===
 const DriversReport = observer(({ selectedDate }) => {
+  const { token } = useToken();
   const { transportStore } = useRootStore();
   const [statusFilter, setStatusFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
@@ -83,41 +106,38 @@ const DriversReport = observer(({ selectedDate }) => {
 
   let filteredDrivers = transportStore.drivers;
   if (statusFilter !== 'all') {
-    filteredDrivers = filteredDrivers.filter((d) => d.is_active === statusFilter);
+    filteredDrivers = filteredDrivers.filter(
+      (d) => d.is_active === statusFilter
+    );
   }
   if (departmentFilter !== 'all') {
-    filteredDrivers = filteredDrivers.filter((d) => d.department === departmentFilter);
+    filteredDrivers = filteredDrivers.filter(
+      (d) => d.department === departmentFilter
+    );
   }
 
-  const uniqueDepartments = [...new Set(transportStore.drivers.map((d) => d.department).filter(Boolean))];
+  const uniqueDepartments = [
+    ...new Set(transportStore.drivers.map((d) => d.department).filter(Boolean)),
+  ];
 
   const columns = [
     {
       title: 'ФИО',
       dataIndex: 'fio',
       sorter: (a, b) => a.fio.localeCompare(b.fio),
-      showSorterTooltip: false,
-      width: 200,
     },
     {
       title: 'Должность',
       dataIndex: 'post',
-      sorter: (a, b) => a.post.localeCompare(b.post),
-      showSorterTooltip: false,
-      width: 150,
     },
     {
       title: 'Принадлежность',
       dataIndex: 'department',
-      sorter: (a, b) => a.department.localeCompare(b.department),
-      showSorterTooltip: false,
-      width: 200,
     },
     {
       title: 'Статус',
       key: 'status',
-      width: 160,
-      render: (_, record) => getDriverStatusInfo(record),
+      render: (_, record) => getDriverStatusInfo(record, token),
     },
     {
       title: 'Задействован',
@@ -125,13 +145,17 @@ const DriversReport = observer(({ selectedDate }) => {
       render: (_, record) => {
         const request = driverToRequestMap[record.id];
         if (!request) return <Tag>Нет</Tag>;
-        const vehicle = transportStore.vehicles.find((v) => v.id === request.assigned_vehicle_id);
+        const vehicle = transportStore.vehicles.find(
+          (v) => v.id === request.assigned_vehicle_id
+        );
         return (
           <Space direction="vertical" size={2}>
             <Tooltip title="Автомобиль">
               <span>
                 <CarOutlined />{' '}
-                {vehicle ? `${vehicle.vehicle_brand} (${vehicle.state_number})` : '—'}
+                {vehicle
+                  ? `${vehicle.vehicle_brand} (${vehicle.state_number})`
+                  : '—'}
               </span>
             </Tooltip>
             <Tooltip title="Время">
@@ -139,7 +163,9 @@ const DriversReport = observer(({ selectedDate }) => {
                 <CalendarOutlined /> {request.start_time} – {request.end_time}
               </span>
             </Tooltip>
-            <div style={{ fontSize: 12, color: '#888' }}>Место: {request.work_place}</div>
+            <div style={{ fontSize: 12, color: token.colorTextSecondary }}>
+              Место: {request.work_place}
+            </div>
           </Space>
         );
       },
@@ -154,7 +180,6 @@ const DriversReport = observer(({ selectedDate }) => {
             placeholder="Статус водителя"
             value={statusFilter}
             onChange={setStatusFilter}
-            style={{ width: 150 }}
           >
             <Option value="all">Все</Option>
             <Option value="at_work">На работе</Option>
@@ -169,7 +194,6 @@ const DriversReport = observer(({ selectedDate }) => {
             placeholder="Принадлежность"
             value={departmentFilter}
             onChange={setDepartmentFilter}
-            style={{ width: 200 }}
           >
             <Option value="all">Все</Option>
             {uniqueDepartments.map((dept) => (
@@ -180,22 +204,24 @@ const DriversReport = observer(({ selectedDate }) => {
           </Select>
         </Col>
       </Row>
-      <Table
-        dataSource={filteredDrivers}
-        columns={columns}
-        rowKey="id"
-        pagination={false}
-        bordered
-        size="small"
-        scroll={{ y: 'calc(100vh - 400px)' }}
-        rowClassName={getDriverRowClassName}
-      />
+      <div className={styles.userListScroll}>
+        <Table
+          dataSource={filteredDrivers}
+          columns={columns}
+          rowKey="id"
+          pagination={false}
+          bordered
+          size="small"
+          onRow={(record) => ({ style: getDriverRowStyle(record, token) })}
+        />
+      </div>
     </div>
   );
 });
 
 // === Отчёт по автомобилям ===
 const VehiclesReport = observer(({ selectedDate }) => {
+  const { token } = useToken();
   const { transportStore } = useRootStore();
   const [conditionFilter, setConditionFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -220,51 +246,46 @@ const VehiclesReport = observer(({ selectedDate }) => {
 
   let filteredVehicles = transportStore.vehicles;
   if (conditionFilter !== 'all') {
-    filteredVehicles = filteredVehicles.filter((v) => v.technical_condition === conditionFilter);
+    filteredVehicles = filteredVehicles.filter(
+      (v) => v.technical_condition === conditionFilter
+    );
   }
   if (typeFilter !== 'all') {
-    filteredVehicles = filteredVehicles.filter((v) => v.vehicle_type === typeFilter);
+    filteredVehicles = filteredVehicles.filter(
+      (v) => v.vehicle_type === typeFilter
+    );
   }
 
-  const uniqueTypes = [...new Set(transportStore.vehicles.map((v) => v.vehicle_type).filter(Boolean))];
+  const uniqueTypes = [
+    ...new Set(
+      transportStore.vehicles.map((v) => v.vehicle_type).filter(Boolean)
+    ),
+  ];
 
   const columns = [
     {
       title: 'Модель',
       dataIndex: 'vehicle_brand',
       sorter: (a, b) => a.vehicle_brand.localeCompare(b.vehicle_brand),
-      showSorterTooltip: false,
-      width: 180,
     },
-    {
-      title: 'Госномер',
-      dataIndex: 'state_number',
-      sorter: (a, b) => a.state_number.localeCompare(b.state_number),
-      showSorterTooltip: false,
-      width: 120,
-    },
-    {
-      title: 'Тип',
-      dataIndex: 'vehicle_type',
-      sorter: (a, b) => a.vehicle_type.localeCompare(b.vehicle_type),
-      showSorterTooltip: false,
-      width: 120,
-    },
+    { title: 'Госномер', dataIndex: 'state_number' },
+    { title: 'Тип', dataIndex: 'vehicle_type' },
     {
       title: 'Тех. состояние',
       dataIndex: 'technical_condition',
-      width: 130,
       render: (status) => (
         <Tag
           color={
-            status === 'исправен' ? 'green' : status === 'в ремонте' ? 'orange' : 'red'
+            status === 'исправен'
+              ? 'success'
+              : status === 'в ремонте'
+                ? 'warning'
+                : 'error'
           }
         >
           {status}
         </Tag>
       ),
-      sorter: (a, b) => a.technical_condition.localeCompare(b.technical_condition),
-      showSorterTooltip: false,
     },
     {
       title: 'Задействован',
@@ -272,7 +293,9 @@ const VehiclesReport = observer(({ selectedDate }) => {
       render: (_, record) => {
         const request = vehicleToRequestMap[record.id];
         if (!request) return <Tag>Нет</Tag>;
-        const driver = transportStore.drivers.find((d) => d.id === request.assigned_driver_id);
+        const driver = transportStore.drivers.find(
+          (d) => d.id === request.assigned_driver_id
+        );
         return (
           <Space direction="vertical" size={2}>
             <Tooltip title="Водитель">
@@ -285,7 +308,9 @@ const VehiclesReport = observer(({ selectedDate }) => {
                 <CalendarOutlined /> {request.start_time} – {request.end_time}
               </span>
             </Tooltip>
-            <div style={{ fontSize: 12, color: '#888' }}>Место: {request.work_place}</div>
+            <div style={{ fontSize: 12, color: token.colorTextSecondary }}>
+              Место: {request.work_place}
+            </div>
           </Space>
         );
       },
@@ -300,7 +325,6 @@ const VehiclesReport = observer(({ selectedDate }) => {
             placeholder="Тех. состояние"
             value={conditionFilter}
             onChange={setConditionFilter}
-            style={{ width: 150 }}
           >
             <Option value="all">Все</Option>
             <Option value="исправен">Исправен</Option>
@@ -313,7 +337,6 @@ const VehiclesReport = observer(({ selectedDate }) => {
             placeholder="Тип ТС"
             value={typeFilter}
             onChange={setTypeFilter}
-            style={{ width: 150 }}
           >
             <Option value="all">Все типы</Option>
             {uniqueTypes.map((type) => (
@@ -331,8 +354,7 @@ const VehiclesReport = observer(({ selectedDate }) => {
         pagination={false}
         bordered
         size="small"
-        scroll={{ y: 'calc(100vh - 400px)' }}
-        rowClassName={getVehicleRowClassName}
+        onRow={(record) => ({ style: getVehicleRowStyle(record, token) })}
       />
     </div>
   );

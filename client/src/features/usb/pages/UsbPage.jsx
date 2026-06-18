@@ -1,30 +1,22 @@
-import React from "react";
-import { observer } from "mobx-react-lite";
-import { Container, Card, Alert, Spinner } from "react-bootstrap";
+// src/features/usb/pages/UsbPage.jsx
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
+import { Spin, Alert, Card, theme } from 'antd';
+import { useUsbData } from '../hooks/useUsbData';
+import { useUsbFilters } from '../hooks/useUsbFilters';
+import { useUsbNotifications } from '../hooks/useUsbNotifications';
+import { useUsbForm } from '../hooks/useUsbForm';
+import UsbHeader from '../ui/UsbHeader/UsbHeader';
+import UsbTable from '../ui/UsbTable/UsbTable';
+import UsbModal from '../ui/UsbModal/UsbModal';
+import NotificationStatusBar from '../ui/NotificationStatusBar/NotificationStatusBar';
+import styles from './style.module.css';
 
-// Импорт кастомных хуков
-import { useUsbData } from "../hooks/useUsbData";
-import { useUsbFilters } from "../hooks/useUsbFilters";
-import { useUsbNotifications } from "../hooks/useUsbNotifications";
-import { useUsbForm } from "../hooks/useUsbForm";
-
-// Импорт утилит
-import { formatDate, getNextCheckDate } from "../utils/dateUtils";
-import { filterAndSortUsbs, getCellColorClass } from "../utils/usbUtils";
-
-// Импорт компонентов UI
-import UsbModal from "../ui/UsbModal/UsbModal";
-import NotificationStatusBar from "../ui/NotificationStatusBar/NotificationStatusBar";
-import UsbHeader from "../ui/UsbHeader/UsbHeader";
-import UsbTable from "../ui/UsbTable/UsbTable";
-
-import styles from "./style.module.css";
+const { useToken } = theme;
 
 const UsbPage = observer(() => {
-  // Хуки для данных
+  const { token } = useToken();
   const { usbData, staffData, loading, error, refetchUsbData } = useUsbData();
-
-  // Хуки для фильтрации и сортировки
   const {
     searchTerm,
     setSearchTerm,
@@ -33,8 +25,6 @@ const UsbPage = observer(() => {
     sortConfig,
     handleSort,
   } = useUsbFilters();
-
-  // Хуки для уведомлений
   const {
     sendingState,
     hasUsbsToNotify,
@@ -42,12 +32,10 @@ const UsbPage = observer(() => {
     closeStatusBar,
     isSending,
   } = useUsbNotifications(usbData);
-
-  // Хуки для формы
   const {
     showModal,
     currentUsb,
-    selectedIds,
+    selectedId,
     formData,
     setShowModal,
     setFormData,
@@ -58,121 +46,135 @@ const UsbPage = observer(() => {
     getFioSuggestions,
   } = useUsbForm(staffData, refetchUsbData);
 
-  // Мемоизированные вычисления
-  const filteredAndSortedData = React.useMemo(
-    () => filterAndSortUsbs(usbData, searchTerm, showInWorkOnly, sortConfig),
-    [usbData, searchTerm, showInWorkOnly, sortConfig]
-  );
+  // Фильтрация и сортировка
+  const filteredAndSortedData = useMemo(() => {
+    let filtered =
+      usbData?.filter((usb) => {
+        const matchSearch =
+          (usb.num_form && usb.num_form.includes(searchTerm)) ||
+          (usb.ser_num &&
+            usb.ser_num.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (usb.fio && usb.fio.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchWork =
+          !showInWorkOnly || (usb.log && usb.log.toLowerCase() === 'да');
+        return matchSearch && matchWork;
+      }) || [];
 
-  const getCellColorClassMemoized = React.useCallback(
-    (usb) => getCellColorClass(usb, getNextCheckDate, styles),
-    []
-  );
-
-  const handleEditUsb = React.useCallback(() => {
-    if (selectedIds.length > 0) {
-      handleEdit(selectedIds[0], usbData);
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        if (sortConfig.key === 'num_form') {
+          const numA = parseInt(a.num_form) || 0;
+          const numB = parseInt(b.num_form) || 0;
+          return sortConfig.direction === 'ascending'
+            ? numA - numB
+            : numB - numA;
+        }
+        if (sortConfig.key === 'volume') {
+          const numA = parseFloat(a[sortConfig.key]) || 0;
+          const numB = parseFloat(b[sortConfig.key]) || 0;
+          return sortConfig.direction === 'ascending'
+            ? numA - numB
+            : numB - numA;
+        }
+        if (sortConfig.key.includes('data')) {
+          const dateA = new Date(a[sortConfig.key]);
+          const dateB = new Date(b[sortConfig.key]);
+          if (isNaN(dateA.getTime()))
+            return sortConfig.direction === 'ascending' ? -1 : 1;
+          if (isNaN(dateB.getTime()))
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+          return sortConfig.direction === 'ascending'
+            ? dateA - dateB
+            : dateB - dateA;
+        }
+        const valA = a[sortConfig.key]
+          ? a[sortConfig.key].toString().toLowerCase()
+          : '';
+        const valB = b[sortConfig.key]
+          ? b[sortConfig.key].toString().toLowerCase()
+          : '';
+        if (valA === valB) return 0;
+        const cmp = valA < valB ? -1 : 1;
+        return sortConfig.direction === 'ascending' ? cmp : -cmp;
+      });
     }
-  }, [selectedIds, usbData, handleEdit]);
+    return filtered;
+  }, [usbData, searchTerm, showInWorkOnly, sortConfig]);
 
-  // Пропсы для дочерних компонентов
-  const usbHeaderProps = React.useMemo(
-    () => ({
-      searchTerm,
-      onSearchChange: setSearchTerm,
-      onAddNew: handleAddNew,
-      onEdit: handleEditUsb,
-      selectedIds,
-      usbData,
-      showInWorkOnly,
-      onToggleShowInWorkOnly: toggleShowInWorkOnly,
-      onSendReminders: sendReminders,
-      isSending,
-      hasUsbsToNotify,
-      sendingState,
-    }),
-    [
-      searchTerm,
-      setSearchTerm, // Добавлено
-      handleAddNew,
-      handleEditUsb,
-      selectedIds,
-      usbData,
-      showInWorkOnly,
-      toggleShowInWorkOnly,
-      sendReminders,
-      isSending,
-      hasUsbsToNotify,
-      sendingState,
-    ]
-  );
+  const handleEditUsb = useCallback(() => {
+    if (selectedId) {
+      handleEdit(selectedId, usbData);
+    }
+  }, [selectedId, usbData, handleEdit]);
 
-  const usbTableProps = React.useMemo(
-    () => ({
-      data: filteredAndSortedData,
-      sortConfig,
-      onSort: handleSort,
-      selectedIds,
-      onSelectionChange: handleCheckboxChange,
-      formatDate,
-      getNextCheckDate,
-      getCellColorClass: getCellColorClassMemoized,
-    }),
-    [
-      filteredAndSortedData,
-      sortConfig,
-      handleSort,
-      selectedIds,
-      handleCheckboxChange,
-      getCellColorClassMemoized,
-    ]
-  );
-
-  // Состояния загрузки и ошибок
   if (error) {
     return (
-      <Container className={styles.errorContainer}>
-        <Alert variant="danger">
-          <Alert.Heading>Ошибка загрузки данных</Alert.Heading>
-          <p>{error.message}</p>
-        </Alert>
-      </Container>
+      <Alert
+        message="Ошибка загрузки данных"
+        description={error.message}
+        type="error"
+        showIcon
+        style={{ margin: 24 }}
+      />
     );
   }
 
   if (loading) {
     return (
-      <Container className={styles.loadingContainer}>
-        <Spinner animation="border" role="status" />
-        <p className={styles.loadingText}>
-          Загрузка данных о USB-накопителях...
-        </p>
-      </Container>
+      <Spin
+        tip="Загрузка USB-накопителей..."
+        style={{ display: 'block', textAlign: 'center', margin: 50 }}
+      />
     );
   }
 
   return (
-    <div className={styles.container}> 
-      <UsbHeader {...usbHeaderProps} />
-      <NotificationStatusBar
+    <div className={styles.container}>
+      <UsbHeader
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onAddNew={handleAddNew}
+        onEdit={handleEditUsb}
+        selectedId={selectedId}
+        usbData={usbData}
+        showInWorkOnly={showInWorkOnly}
+        onToggleShowInWorkOnly={toggleShowInWorkOnly}
+        onSendReminders={sendReminders}
+        isSending={isSending}
+        hasUsbsToNotify={hasUsbsToNotify}
         sendingState={sendingState}
-        onClose={closeStatusBar}
       />
-
-      <Card className={styles.tableCard}>
+      <NotificationStatusBar sendingState={sendingState} onClose={closeStatusBar} />
+      <div
+        className={styles.tableCard}
+        style={{
+          background: token.colorBgContainer,
+          boxShadow: token.boxShadow,
+        }}
+      >
         <div className={styles.userListScroll}>
-          <UsbTable {...usbTableProps} />
+          <UsbTable
+            data={filteredAndSortedData}
+            sortConfig={sortConfig} 
+            onSort={handleSort}
+            selectedId={selectedId}
+            onSelectionChange={handleCheckboxChange}
+            formatDate={(date) =>
+              date ? new Date(date).toLocaleDateString('ru-RU') : '-'
+            }
+            getNextCheckDate={(dateStr) => {
+              if (!dateStr) return null;
+              const d = new Date(dateStr);
+              d.setDate(d.getDate() + 90);
+              return d;
+            }}
+          />
         </div>
-      </Card>
-
+      </div>
       <UsbModal
         show={showModal}
         onHide={() => setShowModal(false)}
-        onSubmit={(data) => handleSubmit(data, currentUsb)}
-        formData={formData}
-        onInputChange={(name, value) =>
-          setFormData((prev) => ({ ...prev, [name]: value }))
-        }
+        onSubmit={handleSubmit}
         currentUsb={currentUsb}
         staff={staffData}
         getFioSuggestions={getFioSuggestions}

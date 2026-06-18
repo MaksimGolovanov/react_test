@@ -15,7 +15,7 @@ import { exportStaffToExcel, downloadExcelFile } from '../utils/exportUtils';
 
 const { Text } = Typography;
 
-// Выносим константу за пределы компонента, чтобы она не пересоздавалась
+// Константа исключённых отделов (остаётся без изменений)
 const EXCLUDED_DEPARTMENTS = [
   'Бюро пропусков Вуктыльского ЛПУМГ',
   'ППО "Газпром трансгаз Ухта профсоюз - Вуктыльское ЛПУМГ"',
@@ -45,41 +45,22 @@ function Staff() {
 
   const navigate = useNavigate();
 
-  // Функция стабильной сортировки сотрудников
+  // Функция стабильной сортировки (без изменений)
   const sortStaff = useCallback((staffArray) => {
     if (!Array.isArray(staffArray)) return [];
-
-    return [...staffArray].sort((a, b) => {
-      return (a.fio || '').localeCompare(b.fio || '');
-    });
+    return [...staffArray].sort((a, b) => (a.fio || '').localeCompare(b.fio || ''));
   }, []);
 
-  const getDepartmentName = useCallback((departmentCode, departmentsList) => {
-    if (!departmentCode) return 'Не указано';
-    if (!departmentsList || departmentsList.length === 0) return 'Загрузка...';
-
-    const codeToFind = String(departmentCode).trim().split(' ')[0];
-    const dept = departmentsList.find(
-      (d) => d.code === codeToFind || d.code === String(departmentCode).trim()
-    );
-
-    return dept
-      ? dept.description.trim()
-      : `Неизвестный отдел (${departmentCode})`;
-  }, []);
-
-  // Функция загрузки данных с проверкой фото
+  // Функция загрузки данных с сопоставлением отделов по полному совпадению
   const fetchDataWithDepartments = useCallback(
     async (deptData) => {
       try {
         const fetchedStaff = await StaffService.fetchStaff();
 
-        // Получаем массив табельных номеров для проверки фото
+        // Проверка фото
         const tabNumbers = fetchedStaff
           .map((item) => item.tabNumber)
           .filter((tabNumber) => tabNumber && tabNumber.trim() !== '');
-
-        // Проверяем фото пакетно
         let photoResults = {};
         try {
           photoResults = await checkPhotosBatch(tabNumbers);
@@ -87,34 +68,33 @@ function Staff() {
           console.error('Ошибка при проверке фото:', photoError);
         }
 
-        // Добавляем departmentName, isExcludedDepartment и hasPhoto
+        // Сопоставляем отделы по точному совпадению строки department с code
         const staffWithDepartmentInfo = fetchedStaff.map((item) => {
           const delValue = item.del;
           let isDeleted = false;
-
           if (delValue === true || delValue === 1 || delValue === '1') {
             isDeleted = true;
           }
-
           const hasPhoto = !!photoResults[item.tabNumber];
-          const departmentName = getDepartmentName(item.department, deptData);
-          const isExcludedDepartment =
-            EXCLUDED_DEPARTMENTS.includes(departmentName);
+          const departmentCode = item.department || '';
+          // Ищем отдел по полному совпадению
+          const dept = deptData.find(d => d.code === departmentCode);
+          const departmentName = dept ? dept.description : departmentCode; // fallback – сам код
+          const isExcludedDepartment = EXCLUDED_DEPARTMENTS.includes(departmentName);
 
           return {
             ...item,
-            departmentName: departmentName,
-            isExcludedDepartment: isExcludedDepartment,
-            hasPhoto: hasPhoto,
-            isDeleted: isDeleted,
+            departmentName,
+            isExcludedDepartment,
+            hasPhoto,
+            isDeleted,
           };
         });
 
-        // Используем стабильную сортировку
         const sortedStaff = sortStaff(staffWithDepartmentInfo);
         setStaff(sortedStaff);
 
-        // Устанавливаем первого пользователя по умолчанию
+        // Выбираем первого подходящего пользователя
         const firstUser = sortedStaff.find(
           (u) => !u.isExcludedDepartment && !u.isDeleted
         );
@@ -126,7 +106,7 @@ function Staff() {
         message.error('Ошибка при загрузке данных');
       }
     },
-    [sortStaff, getDepartmentName]
+    [sortStaff]
   );
 
   useEffect(() => {
@@ -135,7 +115,6 @@ function Staff() {
       try {
         const deptData = await StaffService.fetchAllDepartments();
         setDepartments(deptData);
-
         await fetchDataWithDepartments(deptData);
         setDataVersion((prev) => prev + 1);
       } catch (error) {
@@ -145,7 +124,6 @@ function Staff() {
         setIsLoading(false);
       }
     };
-
     loadAllData();
   }, [fetchDataWithDepartments]);
 
@@ -154,52 +132,31 @@ function Staff() {
     setDataVersion((prev) => prev + 1);
   }, [departments, fetchDataWithDepartments]);
 
-  // Счетчики для панели
-  const { activeCount, deletedCount, noPhotoCount, excludedCount } =
-    useMemo(() => {
-      // Основные пользователи (не исключенные отделы)
-      const mainStaff = staff.filter((user) => !user.isExcludedDepartment);
+  // Счётчики (без изменений)
+  const { activeCount, deletedCount, noPhotoCount, excludedCount } = useMemo(() => {
+    const mainStaff = staff.filter((user) => !user.isExcludedDepartment);
+    const active = mainStaff.filter((user) => !user.isDeleted);
+    const deleted = mainStaff.filter((user) => user.isDeleted);
+    const noPhoto = staff.filter((user) => !user.hasPhoto && !user.isDeleted);
+    const excluded = staff.filter((user) => user.isExcludedDepartment);
+    return {
+      activeCount: active.length,
+      deletedCount: deleted.length,
+      noPhotoCount: noPhoto.length,
+      excludedCount: excluded.length,
+    };
+  }, [staff]);
 
-      // Активные пользователи (не уволенные)
-      const active = mainStaff.filter((user) => !user.isDeleted);
-
-      // Уволенные пользователи
-      const deleted = mainStaff.filter((user) => user.isDeleted);
-
-      // Пользователи без фото
-      const noPhoto = staff.filter((user) => !user.hasPhoto && !user.isDeleted);
-
-      // Исключенные пользователи (сторонние)
-      const excluded = staff.filter((user) => user.isExcludedDepartment);
-
-      return {
-        activeCount: active.length,
-        deletedCount: deleted.length,
-        noPhotoCount: noPhoto.length,
-        excludedCount: excluded.length,
-      };
-    }, [staff]);
-
+  // Фильтрация (без изменений)
   const filteredStaff = useMemo(() => {
-    if (!Array.isArray(staff) || staff.length === 0) {
-      return [];
-    }
-
+    if (!Array.isArray(staff) || staff.length === 0) return [];
     let result = [...staff];
-
-    // 1. Фильтр по статусу увольнения
     if (!showDeleted) {
-      result = result.filter(
-        (user) => !user.isDeleted || user.isExcludedDepartment
-      );
+      result = result.filter((user) => !user.isDeleted || user.isExcludedDepartment);
     }
-
-    // 2. Фильтр по наличию фото
     if (showNoPhoto) {
       result = result.filter((user) => !user.hasPhoto);
     }
-
-    // 3. Поиск по всем полям
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       result = result.filter((user) => {
@@ -211,46 +168,30 @@ function Staff() {
           user.tabNumber,
           user.ip,
         ];
-        return fields.some(
-          (field) => field && field.toString().toLowerCase().includes(query)
-        );
+        return fields.some((field) => field && field.toString().toLowerCase().includes(query));
       });
     }
-
-    // 4. Всегда сортируем результат
-    const sortedResult = sortStaff(result);
-
-    return sortedResult;
+    return sortStaff(result);
   }, [staff, searchQuery, showNoPhoto, showDeleted, sortStaff]);
 
-  // Эффект для автоматического выбора пользователя
+  // Автовыбор (без изменений)
   useEffect(() => {
     if (filteredStaff.length > 0) {
-      // Если есть выбранный пользователь и он есть в отфильтрованном списке - оставляем его
-      if (
-        selectedUser &&
-        filteredStaff.find((u) => u.tabNumber === selectedUser.tabNumber)
-      ) {
+      if (selectedUser && filteredStaff.find((u) => u.tabNumber === selectedUser.tabNumber)) {
         return;
       }
-
-      // Иначе выбираем первого из отфильтрованного списка
-      const newSelectedUser = filteredStaff[0];
-      setSelectedUser(newSelectedUser);
+      setSelectedUser(filteredStaff[0]);
     } else {
-      // Если список пуст, сбрасываем выбранного пользователя
       setSelectedUser(null);
     }
   }, [filteredStaff, selectedUser]);
 
+  // Обработчики (без изменений)
   const handleGeneratePassword = useCallback(() => {
-    if (!showPasswordField) {
-      setShowPasswordField(true);
-    }
+    if (!showPasswordField) setShowPasswordField(true);
     const result = passwordGenerator.generatePassword(15);
     setGeneratedPassword(result.password);
     setPasswordCopied(false);
-
     if (!result.password) {
       message.error('Не удалось сгенерировать пароль. Попробуйте еще раз.');
     } else {
@@ -264,65 +205,41 @@ function Staff() {
       await navigator.clipboard.writeText(generatedPassword);
       setPasswordCopied(true);
       setTimeout(() => setPasswordCopied(false), 2000);
-    } catch (err) {
-      console.error('Ошибка копирования:', err);
+    } catch {
       message.error('Не удалось скопировать пароль');
     }
   }, [generatedPassword]);
 
   const handleCreateUser = () => setCreateModalOpen(true);
   const handleEditUser = () => {
-    if (selectedUser) {
-      setEditModalOpen(true);
-    }
+    if (selectedUser) setEditModalOpen(true);
   };
   const handleImportUsers = () => setImportModalOpen(true);
-
   const handleSpravClick = () => navigate('/staff/sprav');
   const handlePSW = () => navigate('/staff/psw');
 
   const handleExportClick = useCallback(async () => {
     setExportLoading(true);
     try {
-      // Загружаем все USB устройства
       const allUsb = await StaffService.fetchAllUsb();
-
-      // Группируем USB по ФИО (как в StaffService.fetchUsbByFio)
       const usbByFio = new Map();
       allUsb.forEach((usb) => {
         if (usb.fio) {
           const fioLower = usb.fio.toLowerCase();
-          if (!usbByFio.has(fioLower)) {
-            usbByFio.set(fioLower, []);
-          }
+          if (!usbByFio.has(fioLower)) usbByFio.set(fioLower, []);
           usbByFio.get(fioLower).push(usb);
         }
       });
-
-      // Функция для получения списка USB для сотрудника
       const getUsbList = (staffMember) => {
         const fioLower = (staffMember.fio || '').toLowerCase().trim();
         const devices = usbByFio.get(fioLower) || [];
-        // Фильтруем только активные (log === "Да")
         const activeDevices = devices.filter((d) => d.log === 'Да');
-        // Возвращаем номера форм через запятую
-        return activeDevices
-          .map((d) => d.num_form || '')
-          .filter(Boolean)
-          .join(', ');
+        return activeDevices.map((d) => d.num_form || '').filter(Boolean).join(', ');
       };
-
-      // Используем функцию экспорта из утилит, передавая getUsbList
-      const exportResult = exportStaffToExcel(
-        filteredStaff,
-        EXCLUDED_DEPARTMENTS,
-        getUsbList // новый параметр
-      );
-
+      const exportResult = exportStaffToExcel(filteredStaff, EXCLUDED_DEPARTMENTS, getUsbList);
       downloadExcelFile(exportResult.workbook, exportResult.fileName);
       message.success('Экспорт успешно завершен');
-    } catch (error) {
-      console.error('Ошибка при экспорте:', error);
+    } catch {
       message.error('Ошибка при экспорте файла');
     } finally {
       setExportLoading(false);
@@ -331,70 +248,39 @@ function Staff() {
 
   const handleDeleteUser = useCallback(async () => {
     if (!selectedUser || selectedUser.isDeleted) return;
-
     try {
       await StaffService.deleteStaff(selectedUser.tabNumber);
       await fetchData();
       setDeleteModalVisible(false);
       message.success('Сотрудник успешно удален');
-    } catch (error) {
-      console.error('Ошибка при удалении:', error);
+    } catch {
       message.error('Ошибка при удалении сотрудника');
     }
   }, [selectedUser, fetchData]);
 
-  const handleToggleDeleted = useCallback(
-    (checked) => {
-      setShowDeleted(checked);
-
-      // Если включаем показ уволенных и нет выбранного пользователя
-      if (checked && !selectedUser && filteredStaff.length > 0) {
-        setSelectedUser(filteredStaff[0]);
-      }
-      // Если выключаем показ уволенных и выбран уволенный
-      else if (!checked && selectedUser?.isDeleted) {
-        const firstActive = staff.find(
-          (u) => !u.isExcludedDepartment && !u.isDeleted
-        );
-        setSelectedUser(firstActive || null);
-      }
-    },
-    [selectedUser, filteredStaff, staff]
-  );
-
-  const handleToggleNoPhoto = useCallback(
-    (checked) => {
-      setShowNoPhoto(checked);
-
-      // Если включаем показ без фото и нет выбранного пользователя
-      if (checked && !selectedUser && filteredStaff.length > 0) {
-        setSelectedUser(filteredStaff[0]);
-      }
-    },
-    [selectedUser, filteredStaff]
-  );
-
-  // Обработка обновления фото при редактировании
-  const handleUserUpdate = useCallback(async () => {
-    // Очищаем кэш фото для обновленного пользователя
-    if (selectedUser?.tabNumber) {
-      clearPhotoCache();
+  const handleToggleDeleted = useCallback((checked) => {
+    setShowDeleted(checked);
+    if (checked && !selectedUser && filteredStaff.length > 0) {
+      setSelectedUser(filteredStaff[0]);
+    } else if (!checked && selectedUser?.isDeleted) {
+      const firstActive = staff.find((u) => !u.isExcludedDepartment && !u.isDeleted);
+      setSelectedUser(firstActive || null);
     }
+  }, [selectedUser, filteredStaff, staff]);
 
+  const handleToggleNoPhoto = useCallback((checked) => {
+    setShowNoPhoto(checked);
+    if (checked && !selectedUser && filteredStaff.length > 0) {
+      setSelectedUser(filteredStaff[0]);
+    }
+  }, [selectedUser, filteredStaff]);
+
+  const handleUserUpdate = useCallback(async () => {
+    if (selectedUser?.tabNumber) clearPhotoCache();
     await fetchData();
   }, [selectedUser, fetchData]);
 
-  const handleClearSearch = useCallback(() => {
-    setSearchQuery('');
-  }, []);
-
-  // Функция для получения названия отдела
-  const getDepartmentNameForComponent = useCallback(
-    (departmentCode) => {
-      return getDepartmentName(departmentCode, departments);
-    },
-    [departments, getDepartmentName]
-  );
+  const handleClearSearch = useCallback(() => setSearchQuery(''), []);
 
   if (isLoading) {
     return (
@@ -420,7 +306,6 @@ function Staff() {
         showDeleted={showDeleted}
         showNoPhoto={showNoPhoto}
         exportLoading={exportLoading}
-        className={styles.topPanel}
         generatedPassword={generatedPassword}
         onGeneratePassword={handleGeneratePassword}
         onCopyPassword={handleCopyPassword}
@@ -440,7 +325,6 @@ function Staff() {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onUserSelect={setSelectedUser}
-            getDepartmentName={getDepartmentNameForComponent}
             totalCount={staff.filter((u) => !u.isExcludedDepartment).length}
             activeCount={activeCount}
             deletedCount={deletedCount}
@@ -456,14 +340,9 @@ function Staff() {
           <UserProfilePanel
             key={`profile-${selectedUser?.tabNumber || 'empty'}-${dataVersion}`}
             user={selectedUser || null}
-            departments={departments}
             onUpdate={handleUserUpdate}
-            onEdit={
-              selectedUser ? handleEditUser : null // Редактирование для всех активных
-            }
-            onDelete={
-              selectedUser ? () => setDeleteModalVisible(true) : null // Удаление для всех активных
-            }
+            onEdit={selectedUser ? handleEditUser : null}
+            onDelete={selectedUser ? () => setDeleteModalVisible(true) : null}
           />
         </Col>
       </Row>
@@ -495,12 +374,8 @@ function Staff() {
         open={deleteModalVisible}
         onCancel={() => setDeleteModalVisible(false)}
         footer={[
-          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
-            Отмена
-          </Button>,
-          <Button key="delete" type="primary" danger onClick={handleDeleteUser}>
-            Удалить
-          </Button>,
+          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>Отмена</Button>,
+          <Button key="delete" type="primary" danger onClick={handleDeleteUser}>Удалить</Button>,
         ]}
       >
         <p>
@@ -510,8 +385,7 @@ function Staff() {
         </p>
         {selectedUser?.isDeleted && (
           <Text type="danger">
-            ВНИМАНИЕ: Этот сотрудник уже отмечен как уволенный. Удаление будет
-            окончательным!
+            ВНИМАНИЕ: Этот сотрудник уже отмечен как уволенный. Удаление будет окончательным!
           </Text>
         )}
         <Text type="secondary">Это действие нельзя отменить.</Text>

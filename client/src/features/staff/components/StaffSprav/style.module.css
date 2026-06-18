@@ -1,19 +1,16 @@
 /* ===== СПРАВОЧНИКИ ===== */
 .spravContainer {
-  height: calc(100vh - 75px);
+  height: calc(100vh - 65px);
   display: flex;
-  flex-direction: column; 
-  
+  flex-direction: column;
   padding: 16px;
   overflow: hidden;
 }
 
 .spravHeader {
-  background: white;
-  padding: 16px;
+  
   border-radius: 8px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   flex-shrink: 0;
 }
 
@@ -26,9 +23,7 @@
 .spravContent {
   flex: 1;
   min-height: 0;
-  background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -36,9 +31,7 @@
 }
 
 .spravTabs {
-  
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -47,7 +40,6 @@
 }
 
 .spravTabs :global(.ant-tabs-nav) {
-  
   padding: 0 16px;
   margin: 0;
   border-radius: 8px 8px 0 0;
@@ -72,29 +64,13 @@
   font-weight: 500;
 }
 
-/* Убираем padding у табов Ant Design */
 .spravTabs :global(.ant-tabs-large > .ant-tabs-nav .ant-tabs-tab) {
-  padding: 12px 24px !important; /* Используем ваши значения вместо 16px 10px */
+  padding: 12px 24px !important;
 }
 
-.spravTabs :global(.ant-tabs-tab-active) {
-  background: #013249;
-  border-radius: 4px;
-}
-
-/* ===== СТИЛИ ДЛЯ СПРАВОЧНИКОВ БЕЗ ПАГИНАЦИИ ===== */
 .toolbarCard {
-  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 
-              0 1px 6px -1px rgba(0, 0, 0, 0.02), 
-              0 2px 4px 0 rgba(0, 0, 0, 0.02);
   flex-shrink: 0;
-}
-
-.actionButton {
-  margin-right: 8px;
-  margin-bottom: 8px;
 }
 
 .searchInput {
@@ -105,97 +81,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 
-              0 1px 6px -1px rgba(0, 0, 0, 0.02), 
-              0 2px 4px 0 rgba(0, 0, 0, 0.02);
   min-height: 0;
   overflow: hidden;
-}
-
-.tableWrapper {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  width: 100%;
-}
-
-.tableWrapper :global(.ant-table) {
-  min-width: 100%;
-  table-layout: fixed;
-}
-
-.tableWrapper :global(.ant-table-container) {
-  width: 100%;
-  border-radius: 0 !important;
-}
-
-.tableWrapper :global(.ant-table-thead > tr > th),
-.tableWrapper :global(.ant-table-tbody > tr > td) {
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-  word-break: break-word;
-  vertical-align: top;
-  padding: 12px 16px;
-}
-
-.tableWrapper :global(.ant-table-thead > tr > th:last-child),
-.tableWrapper :global(.ant-table-tbody > tr > td:last-child) {
-  border-right: 0 !important;
-}
-
-.tableWrapper :global(.ant-table-thead) {
-  background: #fafafa;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.tableWrapper :global(.ant-table-tbody > tr:hover > td) {
-  background: #fafafa !important;
-}
-
-.tableWrapper :global(.ant-table-content) {
-  overflow-x: auto !important;
-  overflow-y: auto !important;
-}
-
-.tableWrapper :global(.ant-table-wrapper) {
-  width: 100%;
-  overflow: hidden;
-}
-
-.tableWrapper :global(.ant-spin-nested-loading) {
-  width: 100%;
-  height: 100%;
-}
-
-.tableWrapper :global(.ant-spin-container) {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.tableWrapper :global(.ant-table) {
-  flex: 1;
-  min-height: 0;
-}
-
-.tableWrapper :global(.ant-table-body) {
-  overflow: auto !important;
-  max-height: calc(100vh - 300px) !important;
-}
-
-.tableRow :global(.ant-table-cell) {
-  cursor: pointer;
-  max-width: 400px;
-}
-
-.tableRow:hover :global(.ant-table-cell) {
-  background-color: #fafafa !important;
 }
 
 .userListScroll {
@@ -203,50 +91,16 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 8px;
-  max-height: calc(100vh - 335px);
-  
-  /* Стили для скроллбара */
+  max-height: calc(100vh - 290px);
   scrollbar-width: thin;
-  scrollbar-color: #d9d9d9 #f5f5f5;
 }
 
 .userListScroll::-webkit-scrollbar {
   width: 4px;
 }
-
 .userListScroll::-webkit-scrollbar-track {
-  background: #f5f5f5;
   border-radius: 2px;
 }
-
 .userListScroll::-webkit-scrollbar-thumb {
-  background: #d9d9d9;
   border-radius: 2px;
 }
-
-.userListScroll::-webkit-scrollbar-thumb:hover {
-  background: #bfbfbf;
-}
-
-/* Для лучшей читаемости длинного текста */
-.tableWrapper :global(.ant-table-tbody > tr > td) {
-  line-height: 1.5;
-  padding: 12px 16px;
-}
-
-.tableWrapper :global(.ant-table-thead > tr > th) {
-  padding: 16px;
-  font-weight: 600;
-}
-
-:global(.ant-card-hoverable:hover) {
-  box-shadow: none !important; /* Убирает тень при наведении */
-  transform: none !important; /* Убирает поднятие/трансформацию */
-  transition: none !important; /* Убирает анимацию */
-  border-color: #f0f0f0 !important; /* Возвращает обычный цвет границы */
-}
-
-:global(.ant-card-hoverable) {
-  transition: none !important; /* Отключаем анимацию для всех карточек */
-}
-

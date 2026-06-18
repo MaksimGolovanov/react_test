@@ -1,0 +1,22 @@
+/* CoursesContent.css */
+:root {
+  --courses-filter-bg: #ffffff;
+  --courses-border: #f0f0f0;
+  --courses-text: #1f1f1f;
+}
+
+body.dark-theme {
+  --courses-filter-bg: #1f1f1f;
+  --courses-border: #303030;
+  --courses-text: #e8e8e8;
+}
+
+.courses-content .filter-card,
+.courses-content .table-card {
+  background: var(--courses-filter-bg);
+  border-color: var(--courses-border);
+}
+
+.course-preview-content {
+  color: var(--courses-text);
+}

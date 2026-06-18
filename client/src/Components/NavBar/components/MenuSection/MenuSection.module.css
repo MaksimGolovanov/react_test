@@ -1,3 +1,4 @@
+/* MenuSection.module.css */
 .menu {
   background: transparent;
   border-right: 0;
@@ -5,12 +6,11 @@
   font-size: 14px;
 }
 
-/* Убираем внутренние отступы у корневого меню */
 .menu :global(.ant-menu) {
   padding: 0 !important;
 }
 
-/* Пункты меню и заголовки подменю – общие правила (развёрнутое состояние) */
+/* Обычное состояние – иконка слева, отступ 24px */
 .menu :global(.ant-menu-item),
 .menu :global(.ant-menu-submenu-title) {
   height: 40px !important;
@@ -22,47 +22,28 @@
   font-size: 14px !important;
 }
 
-/* Свёрнутое состояние – центрируем иконки */
-.menu :global(.ant-menu-inline-collapsed .ant-menu-item),
-.menu :global(.ant-menu-inline-collapsed .ant-menu-submenu-title) {
-  padding-left: 0 !important;
+/* СВЁРНУТОЕ СОСТОЯНИЕ – центрируем иконки */
+.menu :global(.ant-menu-inline-collapsed) :global(.ant-menu-item),
+.menu :global(.ant-menu-inline-collapsed) :global(.ant-menu-submenu-title) {
+  padding: 0 !important;               /* убираем весь внутренний отступ */
+  text-align: center !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
 }
 
-.menu :global(.ant-menu-inline-collapsed .ant-menu-item) .ant-menu-item-icon,
-.menu :global(.ant-menu-inline-collapsed .ant-menu-submenu-title) .ant-menu-item-icon {
-  margin-right: 0 !important;
+/* Контейнер иконки – тоже центрируем */
+.menu :global(.ant-menu-inline-collapsed) .ant-menu-item-icon,
+.menu :global(.ant-menu-inline-collapsed) .anticon {
+  margin: 0 auto !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
 
-/* Hover */
-.menu :global(.ant-menu-item:hover),
-.menu :global(.ant-menu-submenu-title:hover) {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Выделенный пункт */
-.menu :global(.ant-menu-item-selected) {
-  background-color: #1890ff !important;
-  border-left: 3px solid #fa922f;
-}
-
-.menu :global(.ant-menu-submenu-selected > .ant-menu-submenu-title) {
-  color: #fa922f !important;
-}
-
-.menu :global(.ant-menu-submenu-arrow) {
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.menu :global(.ant-menu-item a) {
-  color: inherit;
-  text-decoration: none;
-}
-
-.menu :global(.ant-menu-item a:hover) {
-  color: inherit;
+/* Скрываем текст, чтобы он не влиял на ширину */
+.menu :global(.ant-menu-inline-collapsed) .ant-menu-title-content {
+  display: none !important;
 }
 
 /* Убираем скругления */
@@ -72,9 +53,3 @@
   border-radius: 0 !important;
 }
 
-/* Перебиваем возможные глобальные стили */
-:where(.css-dev-only-do-not-override-mncuj7).ant-menu .ant-menu-item,
-:where(.css-dev-only-do-not-override-mncuj7).ant-menu .ant-menu-submenu,
-:where(.css-dev-only-do-not-override-mncuj7).ant-menu .ant-menu-submenu-title {
-  border-radius: 0 !important;
-}

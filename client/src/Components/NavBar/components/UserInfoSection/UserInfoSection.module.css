@@ -1,73 +1,86 @@
+/* UserInfoSection.module.css */
 .userInfoExpanded,
 .userInfoCollapsed {
-     position: absolute;
-     bottom: 0;
-     width: 100%;
-     border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .userInfoExpanded {
-     padding: 12px 16px;
+  padding: 12px 16px;
 }
-
 .userInfoCollapsed {
-     padding: 8px;
+  padding: 8px;
 }
 
 .userInfoContainer {
-     width: 100%;
-     justify-content: space-between;
-     padding: 0 4px;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
-.userTextContainer {
-     min-width: 0;
+.userInfoExpanded .userInfoContainer {
+  justify-content: space-between;
+}
+
+.userInfoCollapsed .userInfoContainer {
+  justify-content: center;
+}
+
+/* Анимируемый блок (аватар + имя) */
+.userInfoMain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 1;
+}
+
+.userInfoExpanded .userInfoMain {
+  max-width: 200px;
+  opacity: 1;
+}
+
+.userInfoCollapsed .userInfoMain {
+  max-width: 0;
+  width: 0;
+  opacity: 0;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.userTextWrapper {
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .userName {
-     color: white !important;
-     display: block !important;
-     font-size: 12px !important;
-     font-weight: 500 !important;
-     white-space: nowrap !important;
-     overflow: hidden !important;
-     text-overflow: ellipsis !important;
-}
-
-.userRoles {
-     color: rgba(255, 255, 255, 0.65) !important;
-     display: block !important;
-     font-size: 11px !important;
-     white-space: nowrap !important;
-     overflow: hidden !important;
-     text-overflow: ellipsis !important; /* было textOverflow */
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .logoutButton {
-     color: rgba(255, 255, 255, 0.65) !important;
-     font-size: 16px !important;
-     width: 32px !important;
-     height: 32px !important;
-     padding: 0 !important;
-     display: flex !important;
-     align-items: center !important;
-     justify-content: center !important;
-     flex-shrink: 0 !important;
-     margin-left: 8px !important;
+  font-size: 16px !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
 }
 
-.logoutCollapsedContainer {
-     display: flex;
-     justify-content: center;
+.userInfoExpanded .logoutButton {
+  margin-left: 8px !important;
 }
 
-.logoutButtonCollapsed {
-     color: rgba(255, 255, 255, 0.65) !important;
-     font-size: 16px !important;
-     width: 32px !important;
-     height: 32px !important;
-     padding: 0 !important;
-     display: flex !important;
-     align-items: center !important;
-     justify-content: center !important;
+.userInfoCollapsed .logoutButton {
+  margin-left: 0 !important;
 }

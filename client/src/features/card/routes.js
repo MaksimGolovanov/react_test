@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import PrivateRoute from '../../shared/PrivateRoute'
 import CardPage from './pages/CardPage'
 
-const UsbRoutes = () => {
+const CardRoutes = () => {
      return (
           <Routes>
                <Route
@@ -17,4 +17,4 @@ const UsbRoutes = () => {
      )
 }
 
-export default UsbRoutes
+export default CardRoutes

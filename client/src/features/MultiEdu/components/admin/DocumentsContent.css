@@ -1,0 +1,45 @@
+/* DocumentsContent.css */
+:root {
+  --doc-admin-bg: #ffffff;
+  --doc-admin-border: #f0f0f0;
+  --doc-admin-text: #1f1f1f;
+  --doc-admin-text-secondary: #666;
+}
+
+body.dark-theme {
+  --doc-admin-bg: #1f1f1f;
+  --doc-admin-border: #303030;
+  --doc-admin-text: #e8e8e8;
+  --doc-admin-text-secondary: #a6a6a6;
+}
+
+.documents-admin-container {
+  padding: 24px;
+}
+
+.documents-header {
+  margin-bottom: 24px;
+}
+
+.filters-card,
+.documents-table-card {
+  margin-bottom: 24px;
+  background: var(--doc-admin-bg);
+  border-color: var(--doc-admin-border);
+}
+
+.pdf-icon-table {
+  color: #ff4d4f;
+  font-size: 18px;
+}
+
+.doc-desc-table {
+  font-size: 12px;
+  display: block;
+  color: var(--doc-admin-text-secondary);
+}
+
+.documents-loading {
+  text-align: center;
+  padding: 40px;
+}

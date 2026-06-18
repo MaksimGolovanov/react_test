@@ -1,22 +1,59 @@
 import React from 'react';
+import { theme } from 'antd';
 import HighlightedText from '../HighlightedText/HighlightedText';
-import styles from '../../pages/JsonViewer.module.css';
+
+const { useToken } = theme;
 
 const JsonTree = ({ data, searchTerm, searchHighlights, depth = 0, path = '' }) => {
+  const { token } = useToken();
+
+  const styles = {
+    jsonIndent: {
+      marginLeft: depth * 20,
+    },
+    jsonItem: {
+      display: 'block',
+      margin: '2px 0',
+    },
+    jsonKey: {
+      color: token.colorPrimaryText, // #c41d7f аналог в токенах? используем primary
+      fontWeight: 500,
+    },
+    jsonString: {
+      color: token.colorSuccess,
+    },
+    jsonNumber: {
+      color: token.colorInfo,
+    },
+    jsonBoolean: {
+      color: token.colorWarning,
+    },
+    jsonNull: {
+      color: token.colorTextDisabled,
+    },
+    jsonBracket: {
+      color: token.colorTextSecondary,
+      fontWeight: 'bold',
+    },
+    jsonComma: {
+      color: token.colorTextSecondary,
+    },
+  };
+
   if (data === null) {
-    return <span className={styles.jsonNull}>null</span>;
+    return <span style={styles.jsonNull}>null</span>;
   }
 
   switch (typeof data) {
     case 'boolean':
-      return <span className={styles.jsonBoolean}>{data.toString()}</span>;
+      return <span style={styles.jsonBoolean}>{data.toString()}</span>;
     case 'number':
-      return <span className={styles.jsonNumber}>{data}</span>;
+      return <span style={styles.jsonNumber}>{data}</span>;
     case 'string':
       return (
-        <span className={styles.jsonString}>
+        <span style={styles.jsonString}>
           "
-          <HighlightedText 
+          <HighlightedText
             text={data}
             searchTerm={searchTerm}
             path={path}
@@ -29,39 +66,39 @@ const JsonTree = ({ data, searchTerm, searchHighlights, depth = 0, path = '' }) 
     case 'object':
       if (Array.isArray(data)) {
         if (data.length === 0) {
-          return <span className={styles.jsonBracket}>[]</span>;
+          return <span style={styles.jsonBracket}>[]</span>;
         }
         return (
-          <div className={styles.jsonIndent} style={{ marginLeft: `${depth * 20}px` }}>
-            <span className={styles.jsonBracket}>[</span>
+          <div style={styles.jsonIndent}>
+            <span style={styles.jsonBracket}>[</span>
             {data.map((item, index) => (
-              <div key={index} className={styles.jsonItem}>
-                <JsonTree 
+              <div key={index} style={styles.jsonItem}>
+                <JsonTree
                   data={item}
                   searchTerm={searchTerm}
                   searchHighlights={searchHighlights}
                   depth={depth + 1}
                   path={`${path}[${index}]`}
                 />
-                {index < data.length - 1 && <span className={styles.jsonComma}>,</span>}
+                {index < data.length - 1 && <span style={styles.jsonComma}>,</span>}
               </div>
             ))}
-            <span className={styles.jsonBracket}>]</span>
+            <span style={styles.jsonBracket}>]</span>
           </div>
         );
       } else {
         const keys = Object.keys(data);
         if (keys.length === 0) {
-          return <span className={styles.jsonBracket}>{'{'}</span>;
+          return <span style={styles.jsonBracket}>{'{'}</span>;
         }
         return (
-          <div className={styles.jsonIndent} style={{ marginLeft: `${depth * 20}px` }}>
-            <span className={styles.jsonBracket}>{'{'}</span>
+          <div style={styles.jsonIndent}>
+            <span style={styles.jsonBracket}>{'{'}</span>
             {keys.map((key, index) => (
-              <div key={key} className={styles.jsonItem}>
-                <span className={styles.jsonKey}>
+              <div key={key} style={styles.jsonItem}>
+                <span style={styles.jsonKey}>
                   "
-                  <HighlightedText 
+                  <HighlightedText
                     text={key}
                     searchTerm={searchTerm}
                     path={`${path}.${key}`}
@@ -71,17 +108,17 @@ const JsonTree = ({ data, searchTerm, searchHighlights, depth = 0, path = '' }) 
                   "
                 </span>
                 :{' '}
-                <JsonTree 
+                <JsonTree
                   data={data[key]}
                   searchTerm={searchTerm}
                   searchHighlights={searchHighlights}
                   depth={depth + 1}
                   path={`${path}.${key}`}
                 />
-                {index < keys.length - 1 && <span className={styles.jsonComma}>,</span>}
+                {index < keys.length - 1 && <span style={styles.jsonComma}>,</span>}
               </div>
             ))}
-            <span className={styles.jsonBracket}>{'}'}</span>
+            <span style={styles.jsonBracket}>{'}'}</span>
           </div>
         );
       }

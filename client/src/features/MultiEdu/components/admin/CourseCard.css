@@ -1,0 +1,63 @@
+/* CourseCard.css (admin) */
+:root {
+  --course-cover-bg: #1890ff;
+  --course-cover-text: #ffffff;
+  --course-card-bg: #ffffff;
+  --course-border: #f0f0f0;
+  --course-text: #1f1f1f;
+  --course-text-secondary: #666;
+}
+
+body.dark-theme {
+  --course-cover-bg: #177ddc;
+  --course-cover-text: #e8e8e8;
+  --course-card-bg: #1f1f1f;
+  --course-border: #303030;
+  --course-text: #e8e8e8;
+  --course-text-secondary: #a6a6a6;
+}
+
+.admin-course-card {
+  height: 100%;
+  background: var(--course-card-bg);
+  border-color: var(--course-border);
+}
+
+.course-cover {
+  background-color: var(--course-cover-bg);
+  padding: 20px;
+  text-align: center;
+  color: var(--course-cover-text);
+}
+
+.course-cover-title {
+  margin: 10px 0 0;
+  color: inherit;
+}
+
+.course-card-body {
+  min-height: 150px;
+}
+
+.course-description {
+  color: var(--course-text);
+}
+
+.course-tags-row {
+  margin-bottom: 16px;
+}
+
+.course-progress {
+  margin-top: 16px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--course-text-secondary);
+}
+
+.completed-tag {
+  margin-top: 10px;
+}

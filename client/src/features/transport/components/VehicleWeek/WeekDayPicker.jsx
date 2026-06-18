@@ -1,23 +1,16 @@
+// src/features/transport/components/VehicleWeek/WeekDayPicker.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from 'antd';
+import { Button, theme } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
+const { useToken } = theme;
+
 const WeekDayPicker = ({ selectedDate, setSelectedDate }) => {
+  const { token } = useToken();
   const today = dayjs().startOf('day');
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
   const containerRef = useRef(null);
-
-  useEffect(() => {
-    const checkTheme = () => {
-      setIsDarkTheme(document.body.classList.contains('dark-theme'));
-    };
-    checkTheme();
-    const observer = new MutationObserver(checkTheme);
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
 
   const getDaysRelativeToToday = () => {
     const days = [];
@@ -59,24 +52,24 @@ const WeekDayPicker = ({ selectedDate, setSelectedDate }) => {
           const isSelectedDay = isSelected(day);
           const isWeekendDay = isWeekend(day);
 
-          let backgroundColor = '#fff';
-          let color = '#666';
+          let backgroundColor = token.colorBgContainer;
+          let color = token.colorTextSecondary;
 
           if (isSelectedDay) {
-            backgroundColor = isDarkTheme ? '#1890ff' : '#1451fa';
+            backgroundColor = token.colorPrimary;
             color = '#fff';
           } else if (isTodayDay) {
-            backgroundColor = isDarkTheme ? '#2e5a4e' : '#a8c599';
+            backgroundColor = token.colorSuccess;
             color = '#fff';
           } else if (isPastDay) {
-            backgroundColor = isDarkTheme ? 'rgba(255,255,255,0.08)' : '#f5f5f5';
-            color = isDarkTheme ? '#aaa' : '#bfbfbf';
+            backgroundColor = token.colorBgLayout;
+            color = token.colorTextDisabled;
           } else if (isWeekendDay) {
-            backgroundColor = isDarkTheme ? 'rgba(255,77,79,0.2)' : '#ffd9d9';
-            color = isDarkTheme ? '#ffa39e' : '#d4380d';
+            backgroundColor = token.colorErrorBg;
+            color = token.colorError;
           } else {
-            backgroundColor = isDarkTheme ? 'rgba(255,255,255,0.05)' : '#fff';
-            color = isDarkTheme ? '#e0e0e0' : '#666';
+            backgroundColor = token.colorBgContainer;
+            color = token.colorText;
           }
 
           return (
@@ -89,7 +82,7 @@ const WeekDayPicker = ({ selectedDate, setSelectedDate }) => {
                 height: 'auto',
                 textAlign: 'center',
                 backgroundColor,
-                borderColor: isSelectedDay || isTodayDay ? 'transparent' : '#d9d9d9',
+                borderColor: isSelectedDay || isTodayDay ? 'transparent' : token.colorBorder,
                 color,
                 opacity: isPastDay ? 0.6 : 1,
               }}

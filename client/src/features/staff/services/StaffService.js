@@ -273,6 +273,16 @@ class StaffService {
       throw error;
     }
   }
+
+  static async fetchAllConfidential() {
+    try {
+      const response = await axios.get(`${API_URL}api/confidential`);
+      return response.data;
+    } catch (error) {
+      console.error('Ошибка при получении конфиденциальной информации:', error);
+      throw error;
+    }
+  }
 }
 
 export default StaffService;

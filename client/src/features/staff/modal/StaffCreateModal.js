@@ -1,26 +1,44 @@
-import React, { useState } from 'react';
-import { Modal, Form, Input, Button, Row, Col, message } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Modal, Form, Input, Button, Row, Col, message, theme, Select } from 'antd';
 import { SaveOutlined, CloseOutlined } from '@ant-design/icons';
 import StaffService from '../services/StaffService';
 
+const { useToken } = theme;
+const { Option } = Select;
+
 export default function StaffCreateModal({ isOpen, onRequestClose, fetchData }) {
+  const { token } = useToken();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [departmentsList, setDepartmentsList] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadDepartments();
+    }
+  }, [isOpen]);
+
+  const loadDepartments = async () => {
+    try {
+      const data = await StaffService.fetchAllDepartments();
+      setDepartmentsList(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Ошибка загрузки отделов:', error);
+    }
+  };
 
   const handleSave = async (values) => {
     setLoading(true);
-    
     const newUser = {
       fio: values.fio,
       login: values.login,
       post: values.post,
-      department: values.department,
+      department: values.department, // полная строка из Select
       telephone: values.telephone || '',
       email: values.email || '',
       ip: values.ip || '',
-      tabNumber: values.tabNumber
+      tabNumber: values.tabNumber,
     };
-
     try {
       await StaffService.createStaff(newUser);
       message.success('Сотрудник успешно создан');
@@ -28,7 +46,6 @@ export default function StaffCreateModal({ isOpen, onRequestClose, fetchData }) 
       onRequestClose();
       fetchData();
     } catch (error) {
-      console.error("Ошибка при создании пользователя:", error);
       message.error('Ошибка при создании сотрудника');
     } finally {
       setLoading(false);
@@ -50,183 +67,77 @@ export default function StaffCreateModal({ isOpen, onRequestClose, fetchData }) 
       centered
       width={600}
       closable={false}
-      className="staff-create-modal"
       maskClosable={!loading}
       destroyOnClose
     >
-      {/* Заголовок */}
-      <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-        <h6 className="mb-0 fw-semibold">Новый сотрудник</h6>
-        <Button
-          type="text"
-          onClick={handleClose}
-          disabled={loading}
-          icon={<CloseOutlined className="text-muted" />}
-          size="small"
-          className="p-0"
-          style={{ minWidth: '24px' }}
-        />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, paddingBottom: 8, borderBottom: `1px solid ${token.colorBorder}` }}>
+        <h6 style={{ margin: 0, fontWeight: 600 }}>Новый сотрудник</h6>
+        <Button type="text" onClick={handleClose} disabled={loading} icon={<CloseOutlined />} size="small" style={{ minWidth: 24 }} />
       </div>
-      
-      {/* Форма */}
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSave}
-        size="small"
-        requiredMark="optional"
-        disabled={loading}
-      >
+
+      <Form form={form} layout="vertical" onFinish={handleSave} size="small" requiredMark="optional" disabled={loading}>
         <Row gutter={[12, 8]}>
-          {/* ФИО */}
           <Col span={24}>
-            <Form.Item
-              name="fio"
-              label="ФИО"
-              rules={[
-                { required: true, message: 'Введите ФИО сотрудника' },
-                { min: 3, message: 'Не менее 3 символов' }
-              ]}
-            >
-              <Input 
-                placeholder="Иванов Иван Иванович"
-                size="small"
-              />
+            <Form.Item name="fio" label="ФИО" rules={[{ required: true, message: 'Введите ФИО сотрудника' }, { min: 3 }]}>
+              <Input placeholder="Иванов Иван Иванович" size="small" />
             </Form.Item>
           </Col>
-          
-          {/* Логин и Табельный номер */}
           <Col span={12}>
-            <Form.Item
-              name="login"
-              label="Логин"
-              rules={[
-                { required: true, message: 'Введите логин' },
-                { min: 2, message: 'Не менее 2 символов' }
-              ]}
-            >
-              <Input 
-                placeholder="i.ivanov"
-                size="small"
-              />
+            <Form.Item name="login" label="Логин" rules={[{ required: true, message: 'Введите логин' }, { min: 2 }]}>
+              <Input placeholder="i.ivanov" size="small" />
             </Form.Item>
           </Col>
-          
           <Col span={12}>
-            <Form.Item
-              name="tabNumber"
-              label="Табельный номер"
-              rules={[
-                { required: true, message: 'Введите табельный номер' },
-                { min: 3, message: 'Не менее 3 символов' }
-              ]}
-            >
-              <Input 
-                placeholder="001234"
-                size="small"
-              />
+            <Form.Item name="tabNumber" label="Табельный номер" rules={[{ required: true, message: 'Введите табельный номер' }, { min: 3 }]}>
+              <Input placeholder="001234" size="small" />
             </Form.Item>
           </Col>
-          
-          {/* Должность и Подразделение */}
           <Col span={12}>
-            <Form.Item
-              name="post"
-              label="Должность"
-              rules={[{ required: true, message: 'Введите должность' }]}
-            >
-              <Input 
-                placeholder="Специалист"
-                size="small"
-              />
+            <Form.Item name="post" label="Должность" rules={[{ required: true }]}>
+              <Input placeholder="Специалист" size="small" />
             </Form.Item>
           </Col>
-          
           <Col span={12}>
-            <Form.Item
-              name="department"
-              label="Подразделение"
-              rules={[{ required: true, message: 'Введите подразделение' }]}
-            >
-              <Input 
-                placeholder="Отдел ИТ"
-                size="small"
-              />
+            <Form.Item name="department" label="Подразделение" rules={[{ required: true }]}>
+              <Select
+                showSearch
+                placeholder="Выберите отдел"
+                optionFilterProp="children"
+                allowClear
+                disabled={loading}
+              >
+                {departmentsList.map(dept => (
+                  <Option key={dept.id} value={dept.code}>
+                    {dept.description} ({dept.code})
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
-          
-          {/* Телефон и Email */}
           <Col span={12}>
-            <Form.Item
-              name="telephone"
-              label="Телефон"
-            >
-              <Input 
-                placeholder="+7 (999) 000-00-00"
-                size="small"
-              />
+            <Form.Item name="telephone" label="Телефон">
+              <Input placeholder="+7 (999) 000-00-00" size="small" />
             </Form.Item>
           </Col>
-          
           <Col span={12}>
-            <Form.Item
-              name="email"
-              label="Email"
-              rules={[
-                { type: 'email', message: 'Введите корректный email' }
-              ]}
-            >
-              <Input 
-                placeholder="email@domain.com"
-                size="small"
-              />
+            <Form.Item name="email" label="Email" rules={[{ type: 'email', message: 'Введите корректный email' }]}>
+              <Input placeholder="email@domain.com" size="small" />
             </Form.Item>
           </Col>
-          
-          {/* IP адрес */}
           <Col span={24}>
-            <Form.Item
-              name="ip"
-              label="IP адрес"
-              rules={[
-                {
-                  pattern: /^(\d{1,3}\.){3}\d{1,3}$/,
-                  message: 'Введите корректный IP адрес'
-                }
-              ]}
-            >
-              <Input 
-                placeholder="192.168.1.100"
-                size="small"
-              />
+            <Form.Item name="ip" label="IP адрес" rules={[{ pattern: /^(\d{1,3}\.){3}\d{1,3}$/, message: 'Введите корректный IP адрес' }]}>
+              <Input placeholder="192.168.1.100" size="small" />
             </Form.Item>
           </Col>
         </Row>
-        
-        {/* Футер с кнопками */}
-        <div className="d-flex align-items-center justify-content-between mt-4 pt-3 border-top">
-          <div className="text-muted small">
-            <span className="text-danger me-1">*</span> Обязательные поля
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, paddingTop: 16, borderTop: `1px solid ${token.colorBorder}` }}>
+          <div style={{ color: token.colorTextSecondary, fontSize: 12 }}>
+            <span style={{ color: token.colorError, marginRight: 4 }}>*</span> Обязательные поля
           </div>
-          <div className="d-flex gap-2">
-            <Button 
-              onClick={handleClose}
-              disabled={loading}
-              size="small"
-              className="px-3"
-            >
-              Отмена
-            </Button>
-            <Button 
-              type="primary"
-              htmlType="submit"
-              size="small"
-              className="px-3 d-flex align-items-center gap-2"
-              loading={loading}
-            >
-              <SaveOutlined /> 
-              Создать
-            </Button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button onClick={handleClose} disabled={loading} size="small">Отмена</Button>
+            <Button type="primary" htmlType="submit" size="small" loading={loading} icon={<SaveOutlined />}>Создать</Button>
           </div>
         </div>
       </Form>

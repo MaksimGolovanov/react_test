@@ -1,10 +1,12 @@
 // src/modules/IpAddress/ui/IpHeader/IpHeader.tsx
 import React from 'react';
-import { Button, Input, Space, message, Modal } from 'antd';
+import { Button, Input, Space, message, Modal, theme } from 'antd';
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import IpStore from '../../store/IpStore';
 import { IpHeaderProps } from '../../types/ip.types';
 import styles from './IpHeader.module.css';
+
+const { useToken } = theme;
 
 const IpHeader: React.FC<IpHeaderProps> = ({
   searchTerm,
@@ -14,6 +16,8 @@ const IpHeader: React.FC<IpHeaderProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const { token } = useToken();
+
   const handleDelete = () => {
     if (!selectedRow) {
       message.warning('Выберите IP-адрес для удаления');
@@ -38,24 +42,30 @@ const IpHeader: React.FC<IpHeaderProps> = ({
   };
 
   return (
-    <div className={styles.header}>
+    
       <Space wrap>
-        <Button type="primary" icon={<PlusOutlined />} onClick={onAddNew}>Добавить</Button>
+        <Button type="primary" icon={<PlusOutlined />} onClick={onAddNew}>
+          Добавить
+        </Button>
         <Button
           icon={<EditOutlined />}
           onClick={() => selectedRow ? onEdit(selectedRow) : message.warning('Выберите IP-адрес')}
           disabled={!selectedRow}
-        >Редактировать</Button>
-        <Button danger icon={<DeleteOutlined />} onClick={handleDelete} disabled={!selectedRow}>Удалить</Button>
+        >
+          Редактировать
+        </Button>
+        <Button danger icon={<DeleteOutlined />} onClick={handleDelete} disabled={!selectedRow}>
+          Удалить
+        </Button>
         <Input
           placeholder="Поиск IP..."
           prefix={<SearchOutlined />}
           value={searchTerm}
           onChange={e => onSearchChange(e.target.value)}
-          style={{ width: 250 }}
+          style={{ width: 250, borderRadius: 40 }}
         />
       </Space>
-    </div>
+    
   );
 };
 

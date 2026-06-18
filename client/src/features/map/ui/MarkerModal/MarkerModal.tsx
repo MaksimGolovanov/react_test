@@ -47,10 +47,10 @@ const MarkerModal: React.FC<MarkerModalProps> = ({ visible, marker, defaultLngLa
       }
       if (marker) {
         await mapStore.updateMarker(marker.id, { ...values, layerId: marker.layerId });
-        await mapStore.fetchMarkers();
+        // Удалён лишний fetchMarkers – store уже обновил локальный массив
       } else {
         await mapStore.createMarker({ ...values, layerId: mapStore.selectedLayerId });
-        await mapStore.fetchMarkers();
+        // Удалён лишний fetchMarkers
       }
       onSuccess();
     } catch (err) {

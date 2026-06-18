@@ -1,7 +1,10 @@
 // src/modules/Map/components/CanvasTextLayer.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useMap } from 'react-leaflet';
+import { theme } from 'antd';
 import { Drawing, EditMode } from '../types/map.types';
+
+const { useToken } = theme;
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -43,6 +46,7 @@ const CanvasTextLayer: React.FC<Props> = ({
   onStopEdit,
   onEditTextProperties,
 }) => {
+  const { token } = useToken();
   const map = useMap();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dragState, setDragState] = useState<{
@@ -56,6 +60,13 @@ const CanvasTextLayer: React.FC<Props> = ({
 
   const textHitAreasRef = useRef<Array<{ id: number; center: { x: number; y: number }; radius: number }>>([]);
   const editMarkerAreasRef = useRef<{ center: { x: number; y: number }; rotPoint: { x: number; y: number }; editPoint: { x: number; y: number } } | null>(null);
+
+  const getMapAngle = useCallback(() => {
+    if (typeof (map as any).getBearing === 'function') {
+      return (map as any).getBearing();
+    }
+    return (map as any)._angle || 0;
+  }, [map]);
 
   const getZoomFactor = useCallback(() => {
     const currentZoom = map.getZoom();
@@ -76,7 +87,7 @@ const CanvasTextLayer: React.FC<Props> = ({
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const angleRad = (map.options as any).angle ? (map.options as any).angle * Math.PI / 180 : 0;
+    const angleRad = getMapAngle() * Math.PI / 180;
     const isRotated = angleRad !== 0;
     if (isRotated) {
       ctx.save();
@@ -97,12 +108,12 @@ const CanvasTextLayer: React.FC<Props> = ({
       const point = map.latLngToContainerPoint([lat, lng]);
 
       let {
-        color = '#000000',
+        color = token.colorText,
         fontSize: baseFontSize = 14,
         fontFamily = 'Arial',
         rotation = 0,
         opacity = 1,
-        backgroundColor = 'rgba(255, 255, 255, 0.7)',
+        backgroundColor = token.colorBgContainer,
         backgroundPadding: baseBackgroundPadding = 6,
         backgroundBorderRadius: baseBackgroundBorderRadius = 4,
       } = drawing.style;
@@ -147,7 +158,7 @@ const CanvasTextLayer: React.FC<Props> = ({
       if (isEditing) {
         ctx.save();
         ctx.shadowBlur = 8;
-        ctx.shadowColor = 'gold';
+        ctx.shadowColor = token.colorWarning;
         ctx.fillStyle = color;
         ctx.fillText(text, 0, 0);
         ctx.restore();
@@ -181,12 +192,12 @@ const CanvasTextLayer: React.FC<Props> = ({
 
         ctx.beginPath();
         ctx.arc(center.x, center.y, markerRadius, 0, 2 * Math.PI);
-        ctx.fillStyle = '#ffaa00';
+        ctx.fillStyle = token.colorWarning;
         ctx.fill();
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = token.colorText;
         ctx.lineWidth = 2;
         ctx.stroke();
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = token.colorText;
         ctx.font = `bold ${Math.max(12, 14 * zoomFactor)}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -195,25 +206,25 @@ const CanvasTextLayer: React.FC<Props> = ({
         const rotPoint = { x: center.x, y: center.y - offset };
         ctx.beginPath();
         ctx.arc(rotPoint.x, rotPoint.y, smallRadius, 0, 2 * Math.PI);
-        ctx.fillStyle = '#00aaff';
+        ctx.fillStyle = token.colorPrimary;
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = token.colorText;
         ctx.fillText('↻', rotPoint.x, rotPoint.y);
         ctx.beginPath();
         ctx.moveTo(center.x, center.y);
         ctx.lineTo(rotPoint.x, rotPoint.y);
-        ctx.strokeStyle = '#00aaff';
+        ctx.strokeStyle = token.colorPrimary;
         ctx.setLineDash([5, 5]);
         ctx.stroke();
 
         const editPoint = { x: center.x, y: center.y + offset };
         ctx.beginPath();
         ctx.arc(editPoint.x, editPoint.y, smallRadius, 0, 2 * Math.PI);
-        ctx.fillStyle = '#44cc44';
+        ctx.fillStyle = token.colorSuccess;
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = token.colorText;
         ctx.fillText('✎', editPoint.x, editPoint.y);
         ctx.beginPath();
         ctx.moveTo(center.x, center.y);
@@ -234,9 +245,13 @@ const CanvasTextLayer: React.FC<Props> = ({
     if (isRotated) {
       ctx.restore();
     }
-  }, [map, drawings, editMode, tempLngLat, tempRotation, getZoomFactor]);
+  }, [map, drawings, editMode, tempLngLat, tempRotation, getZoomFactor, getMapAngle, token]);
 
-  // Выбор текста по правому клику
+  useEffect(() => {
+    redraw();
+  }, [token, redraw]);
+
+  // Контекстное меню для входа в режим редактирования текста
   useEffect(() => {
     if (!map) return;
     const onContextMenu = (e: L.LeafletMouseEvent) => {
@@ -253,12 +268,10 @@ const CanvasTextLayer: React.FC<Props> = ({
       }
     };
     map.on('contextmenu', onContextMenu);
-    return () => {
-      map.off('contextmenu', onContextMenu);
-    };
+    return () => { map.off('contextmenu', onContextMenu); };
   }, [map, editMode, onStartEditText]);
 
-  // Левый клик – завершает редактирование, если клик не по маркерам
+  // Клик по карте для выхода из режима редактирования (если не по маркеру)
   useEffect(() => {
     if (!map) return;
     const onClick = (e: L.LeafletMouseEvent) => {
@@ -277,21 +290,21 @@ const CanvasTextLayer: React.FC<Props> = ({
           hitEditMarker = true;
         }
       }
-      if (!hitEditMarker) {
-        onStopEdit();
-      }
+      if (!hitEditMarker) onStopEdit();
     };
     map.on('click', onClick);
-    return () => {
-      map.off('click', onClick);
-    };
+    return () => { map.off('click', onClick); };
   }, [map, editMode, onStopEdit, getZoomFactor]);
 
-  // Двойной клик – модалка свойств
+  // Двойной клик для открытия свойств текста (исправлен)
   useEffect(() => {
     if (!map) return;
     const onDoubleClick = (e: L.LeafletMouseEvent) => {
       if (editMode.kind !== 'none') return;
+      // Предотвращаем зум карты при двойном клике на тексте
+      e.originalEvent.stopPropagation();
+      e.originalEvent.preventDefault();
+      
       const clickPoint = map.latLngToContainerPoint(e.latlng);
       const hit = textHitAreasRef.current.find(area => {
         const dx = clickPoint.x - area.center.x;
@@ -304,28 +317,32 @@ const CanvasTextLayer: React.FC<Props> = ({
       }
     };
     map.on('dblclick', onDoubleClick);
-    return () => {
-      map.off('dblclick', onDoubleClick);
-    };
+    return () => { map.off('dblclick', onDoubleClick); };
   }, [map, editMode, drawings, onEditTextProperties]);
 
-  // Блокировка/разблокировка карты при редактировании
+  // Управление взаимодействием с картой в режиме редактирования текста
   useEffect(() => {
     if (!map) return;
     if (editMode.kind === 'text') {
       map.dragging.disable();
       map.doubleClickZoom.disable();
+      map.scrollWheelZoom.disable();
+      map.touchZoom.disable();
     } else {
       map.dragging.enable();
       map.doubleClickZoom.enable();
+      map.scrollWheelZoom.enable();
+      map.touchZoom.enable();
     }
     return () => {
       map.dragging.enable();
       map.doubleClickZoom.enable();
+      map.scrollWheelZoom.enable();
+      map.touchZoom.enable();
     };
   }, [map, editMode]);
 
-  // Перетаскивание маркеров (с прямой перерисовкой)
+  // Перетаскивание маркеров (move/rotate)
   useEffect(() => {
     if (editMode.kind !== 'text') {
       setDragState(null);
@@ -399,7 +416,7 @@ const CanvasTextLayer: React.FC<Props> = ({
         const newLng = dragState.initialLngLat[0] + (currentLatLng.lng - startLatLng.lng);
         const newLat = dragState.initialLngLat[1] + (currentLatLng.lat - startLatLng.lat);
         setTempLngLat([newLng, newLat]);
-        redraw(); // синхронная перерисовка
+        redraw();
         setDragState(prev => prev ? { ...prev, startCanvasPoint: { x: currentCanvasX, y: currentCanvasY }, initialLngLat: [newLng, newLat] } : null);
       } else if (dragState.type === 'rotate') {
         const editingDrawing = drawings.find(d => d.id === editMode.drawingId && d.type === 'text');
@@ -413,7 +430,7 @@ const CanvasTextLayer: React.FC<Props> = ({
         let newRotation = (dragState.initialRotation + deltaAngle) % 360;
         if (newRotation < 0) newRotation += 360;
         setTempRotation(newRotation);
-        redraw(); // синхронная перерисовка
+        redraw();
         setDragState(prev => prev ? { ...prev, startCanvasPoint: { x: currentCanvasX, y: currentCanvasY }, initialRotation: newRotation } : null);
       }
     };
@@ -443,7 +460,7 @@ const CanvasTextLayer: React.FC<Props> = ({
     };
   }, [map, editMode, drawings, dragState, onUpdateText, onEditTextProperties, tempLngLat, tempRotation, getZoomFactor, redraw]);
 
-  // Перерисовка при событиях карты (синхронно)
+  // Перерисовка при событиях карты
   useEffect(() => {
     if (!map) return;
     const onMove = () => redraw();
@@ -465,7 +482,7 @@ const CanvasTextLayer: React.FC<Props> = ({
     };
   }, [map, redraw]);
 
-  // Перерисовка при изменении размеров контейнера
+  // ResizeObserver для контейнера карты
   useEffect(() => {
     const observer = new ResizeObserver(() => redraw());
     const container = map.getContainer();

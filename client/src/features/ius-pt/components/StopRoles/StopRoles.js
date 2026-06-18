@@ -34,14 +34,23 @@ const StopRoles = observer(() => {
     fetchData();
   }, []);
 
+  // Улучшенный поиск только по значимым полям
   const filteredStopRoles = useMemo(() => {
     if (!searchQuery) return iusPtStore.stopRoles;
-    const lower = searchQuery.toLowerCase();
-    return iusPtStore.stopRoles.filter((role) =>
-      Object.values(role).some((val) =>
-        String(val).toLowerCase().includes(lower)
-      )
-    );
+    const lowerQuery = searchQuery.toLowerCase();
+    return iusPtStore.stopRoles.filter((role) => {
+      const fieldsToSearch = [
+        role.CodName,
+        role.Description,
+        role.CanDoWithoutApproval,
+        role.Owner,
+        role.Note,
+        role.Approvers,
+      ];
+      return fieldsToSearch.some(field => 
+        field && String(field).toLowerCase().includes(lowerQuery)
+      );
+    });
   }, [searchQuery, iusPtStore.stopRoles]);
 
   const handleCreate = () => {
@@ -162,7 +171,7 @@ const StopRoles = observer(() => {
   return (
     <div style={{ padding: '0' }}>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
             Добавить Стоп-роль
           </Button>
@@ -180,13 +189,12 @@ const StopRoles = observer(() => {
             columns={columns}
             rowKey="id"
             pagination={{
-              defaultPageSize: 12,
-              pageSizeOptions: ['12', '24', '36', '48', '60'],
+              defaultPageSize: 8,
+              pageSizeOptions: ['8', '12', '24', '48'],
               showSizeChanger: true,
             }}
             bordered
             loading={isLoading}
-            
             style={{ width: '100%' }}
           />
         </div>

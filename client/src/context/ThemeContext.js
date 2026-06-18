@@ -1,29 +1,43 @@
+// context/ThemeContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { DEFAULT_THEME_KEY, themes } from '../theme/themeConfig';
 
 const ThemeContext = createContext();
-
-export const useTheme = () => useContext(ThemeContext);
+const THEME_STORAGE_KEY = 'appTheme';
 
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved === 'dark';
+  const [currentThemeKey, setCurrentThemeKey] = useState(() => {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    return saved && themes[saved] ? saved : DEFAULT_THEME_KEY;
   });
 
-  useEffect(() => {
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    if (isDark) {
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
+  const changeTheme = (newThemeKey) => {
+    if (themes[newThemeKey]) {
+      setCurrentThemeKey(newThemeKey);
+      localStorage.setItem(THEME_STORAGE_KEY, newThemeKey);
     }
-  }, [isDark]);
+  };
 
-  const toggleTheme = () => setIsDark(prev => !prev);
+  // Удаляем useEffect, который добавлял/удалял класс dark-theme на body
+  // Теперь тема полностью управляется ConfigProvider
+
+  const currentTheme = themes[currentThemeKey];
+  const isDark = currentTheme?.mode === 'dark';
 
   return (
-    <ThemeContext.Provider value={{ isDark, toggleTheme }}>
+    <ThemeContext.Provider value={{ 
+      currentThemeKey, 
+      changeTheme, 
+      currentTheme,
+      isDark
+    }}>
       {children}
     </ThemeContext.Provider>
   );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) throw new Error('useTheme must be used within a ThemeProvider');
+  return context;
 };

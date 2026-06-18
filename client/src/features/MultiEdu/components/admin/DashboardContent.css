@@ -1,4 +1,20 @@
-/* src/features/security-training/components/admin/DashboardContent.css */
+/* DashboardContent.css */
+:root {
+  --dashboard-border: #f0f0f0;
+  --dashboard-card-bg: #ffffff;
+  --dashboard-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --dashboard-text: #1f1f1f;
+  --dashboard-text-secondary: #666;
+}
+
+body.dark-theme {
+  --dashboard-border: #303030;
+  --dashboard-card-bg: #1f1f1f;
+  --dashboard-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --dashboard-text: #e8e8e8;
+  --dashboard-text-secondary: #a6a6a6;
+}
+
 .dashboard-container {
   padding: 24px;
 }
@@ -7,32 +23,34 @@
   transition: all 0.3s ease;
   border-radius: 8px;
   border-left: 4px solid transparent;
+  background: var(--dashboard-card-bg);
+  border-color: var(--dashboard-border);
 }
 
 .stat-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--dashboard-shadow);
 }
 
 .dashboard-card {
   border-radius: 8px;
   height: 100%;
+  background: var(--dashboard-card-bg);
+  border-color: var(--dashboard-border);
 }
 
 .dashboard-card .ant-card-head {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--dashboard-border);
 }
 
 .dashboard-card .ant-card-body {
   padding: 16px;
 }
 
-/* Адаптивные стили */
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 16px;
   }
-  
   .stat-card {
     margin-bottom: 16px;
   }

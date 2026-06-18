@@ -1,119 +1,59 @@
+// src/features/prints/components/PrintLocation.jsx
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button } from 'antd';
+import { Table, Button, message, Modal, theme } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import PrintsService from '../services/PrintsService';
 import PrintEditLocationModal from './PrinteEditLocationModal';
 
+const { useToken } = theme;
+
 const PrintLocation = () => {
-    const [locations, setLocations] = useState([]);
-    const [modalIsOpen, setModalIsOpen] = useState(false);
+  const { token } = useToken();
+  const [locations, setLocations] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
-    const openModal = useCallback(() => {
-        if (!modalIsOpen) {
-            setModalIsOpen(true);
-        }
-    }, [modalIsOpen]);
+  const fetchData = useCallback(async () => {
+    try {
+      const data = await PrintsService.fetchLocation();
+      setLocations(data);
+    } catch (error) { message.error('Ошибка загрузки зданий'); }
+  }, []);
 
-    const closeModal = useCallback(() => {
-        setModalIsOpen(false);
-        fetchData();
-    }, []);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-    const handleCreateClick = useCallback(() => {
-        openModal();
-    }, [openModal]);
+  const deleteLocation = async (id) => {
+    try {
+      await PrintsService.deleteLocation(id);
+      fetchData();
+      message.success('Здание удалено');
+    } catch (error) { message.error('Ошибка удаления'); }
+  };
 
-    const fetchData = useCallback(async () => {
-        try {
-            const locations = await PrintsService.fetchLocation();
-            setLocations(locations);
-        } catch (error) {
-            console.error(error);
-        }
-    }, []);
+  const columns = [
+    { title: 'Расположение', dataIndex: 'location', key: 'location' },
+    { title: '', key: 'action', width: 50, render: (_, r) => <Button type="text" danger icon={<DeleteOutlined />} onClick={() => deleteLocation(r.id)} size="small" /> }
+  ];
 
-    const deleteLocation = useCallback(async (id) => {
-        try {
-            await PrintsService.deleteLocation(id);
-            const updatedLocations = locations.filter((location) => location.id !== id);
-            setLocations(updatedLocations);
-        } catch (error) {
-            console.error('Ошибка при удалении локации:', error);
-        }
-    }, [locations]);
-
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
-
-    const columns = [
-        {
-            title: 'Расположение',
-            dataIndex: 'location',
-            key: 'location',
-            render: (text) => <span style={{ fontSize: '13px' }}>{text}</span>,
-        },
-        {
-            title: '',
-            key: 'action',
-            width: 40,
-            render: (_, record) => (
-                <Button
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => deleteLocation(record.id)}
-                    style={{ padding: 0, fontSize: '14px' }}
-                    size="small"
-                />
-            ),
-        },
-    ];
-
-    return (
-        <div>
-            <div style={{ marginBottom: 12, textAlign: 'left' }}>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={handleCreateClick}
-                    size="small"
-                >
-                    Создать
-                </Button>
-            </div>
-
-            <Table
-                columns={columns}
-                dataSource={locations}
-                rowKey="id"
-                bordered
-                size="small"
-                style={{ width: '300px' }}
-                pagination={false}
-                className="compact-table"
-            />
-            <style jsx>{`
-                .compact-table .ant-table-cell {
-                    padding: 4px 8px !important;
-                    font-size: 13px;
-                }
-                .compact-table .ant-table-thead > tr > th {
-                    padding: 6px 8px !important;
-                    font-size: 13px;
-                }
-                .compact-table .ant-table-tbody > tr > td {
-                    padding: 4px 8px !important;
-                }
-            `}</style>
-
-            <PrintEditLocationModal
-                isOpen={modalIsOpen}
-                onRequestClose={closeModal}
-                onSuccess={fetchData}
-            />
-        </div>
-    );
+  return (
+    <div style={{ height: 'calc(100vh - 250px)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ marginBottom: 12, flexShrink: 0 }}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)} size="small">Создать</Button>
+      </div>
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        <Table
+          columns={columns}
+          dataSource={locations}
+          rowKey="id"
+          bordered
+          size="small"
+          style={{ width: 400 }}
+          pagination={false}
+          scroll={{ y: 'calc(100vh - 330px)' }}
+        />
+      </div>
+      <PrintEditLocationModal isOpen={modalOpen} onRequestClose={() => setModalOpen(false)} onSuccess={fetchData} />
+    </div>
+  );
 };
 
 export default PrintLocation;

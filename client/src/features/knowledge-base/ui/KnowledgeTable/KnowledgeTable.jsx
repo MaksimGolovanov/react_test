@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Tag, Tooltip, Avatar, Skeleton } from 'antd';
+import { Table, Tag, Tooltip, Avatar, Skeleton, theme } from 'antd';
 import { 
     SortAscendingOutlined, SortDescendingOutlined,
     ClockCircleOutlined 
@@ -7,6 +7,8 @@ import {
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import styles from './KnowledgeTable.module.css';
+
+const { useToken } = theme;
 
 const KnowledgeTable = ({ 
     data, 
@@ -17,6 +19,8 @@ const KnowledgeTable = ({
     onRowClick,
     loading = false 
 }) => {
+    const { token } = useToken();
+
     const getSortIcon = (key) => {
         if (sortConfig.key !== key) return null;
         return sortConfig.direction === 'ascending' ? (
@@ -28,9 +32,8 @@ const KnowledgeTable = ({
 
     const renderTags = (tags) => {
         if (!tags || tags.length === 0) {
-            return <span style={{ color: '#8c8c8c', fontStyle: 'italic' }}>нет тегов</span>;
+            return <span style={{ color: token.colorTextDisabled, fontStyle: 'italic' }}>нет тегов</span>;
         }
-        
         return (
             <div className={styles.tagsContainer}>
                 {tags.slice(0, 2).map((tag, index) => (
@@ -51,7 +54,7 @@ const KnowledgeTable = ({
         const plainText = content?.replace(/<[^>]*>/g, '').substring(0, 100);
         return (
             <Tooltip title={plainText}>
-                <span className={styles.contentPreview}>
+                <span className={styles.contentPreview} style={{ color: token.colorTextSecondary }}>
                     {plainText || 'Нет содержания'}...
                 </span>
             </Tooltip>
@@ -71,10 +74,10 @@ const KnowledgeTable = ({
             render: (text, record) => (
                 <div className={styles.titleCell}>
                     <div className={styles.titleRow}>
-                        <span className={styles.titleText}>{text}</span>
+                        <span className={styles.titleText} style={{ color: token.colorText }}>{text}</span>
                     </div>
                     {record.category && (
-                        <div className={styles.category}>
+                        <div className={styles.category} style={{ color: token.colorTextSecondary }}>
                             {record.category.name}
                         </div>
                     )}
@@ -105,7 +108,7 @@ const KnowledgeTable = ({
             width: 150,
             render: (date) => (
                 <Tooltip title={format(new Date(date), 'PPpp', { locale: ru })}>
-                    <div className={styles.dateCell}>
+                    <div className={styles.dateCell} style={{ color: token.colorTextSecondary }}>
                         <ClockCircleOutlined style={{ marginRight: 4 }} />
                         {format(new Date(date), 'dd.MM.yy', { locale: ru })}
                     </div>

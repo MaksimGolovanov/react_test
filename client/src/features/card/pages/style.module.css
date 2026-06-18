@@ -1,9 +1,8 @@
-/* IpAddress.module.css */
+/* Только структурные стили */
 .container {
   height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
-  
   padding: 16px;
   overflow: hidden;
   min-width: 0;
@@ -13,12 +12,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
-    0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
-  min-height: 0;
   overflow: hidden;
+  min-height: 0;
   min-width: 0;
 }
 
@@ -30,97 +26,31 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px;
-  max-height: calc(100vh - 240px);
-  max-width: 100%; /* добавляем */
-  width: 100%; /* добавляем */
-  /* Стили для скроллбара */
+  padding: 8px 0px;
   scrollbar-width: thin;
-  scrollbar-color: #d9d9d9 #f5f5f5;
   min-width: 0;
 }
 
 .userListScroll::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
+  height: 6px;
 }
-
 .userListScroll::-webkit-scrollbar-track {
-  background: #f5f5f5;
-  border-radius: 2px;
+  border-radius: 10px;
 }
-
 .userListScroll::-webkit-scrollbar-thumb {
-  background: #d9d9d9;
-  border-radius: 2px;
+  border-radius: 10px;
 }
 
-.userListScroll::-webkit-scrollbar-thumb:hover {
-  background: #bfbfbf;
+.errorContainer,
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 60px);
+  padding: 24px;
 }
-
-.tableRow :global(.ant-table-cell) {
-  cursor: pointer;
-  max-width: 400px;
-}
-
-.tableRow:hover :global(.ant-table-cell) {
-  background-color: #fafafa !important;
-}
-
-/* CardTable.module.css */
-
-.nextCheckOverdue {
-  background-color: #fff2f0 !important;
-  color: #d4380d !important;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
-}
-
-.nextCheckWarning {
-  background-color: #fff8bb !important;
-  color: #fa541c !important;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
-}
-
-/* Для строк, которые не в работе, убираем подсветку */
-.table-warning .nextCheckOverdue,
-.table-warning .nextCheckWarning {
-  background-color: transparent !important;
-  color: inherit !important;
-  font-weight: normal;
-  padding: 0;
-  border-radius: 0;
-}
-
-/* Опционально: стили для ячеек таблицы */
-:global(.ant-table-cell) {
-  padding: 8px !important;
-}
-
-/* ===== ТЁМНАЯ ТЕМА ===== */
-body.dark-theme .container {
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(12px);
-}
-
-body.dark-theme .tableCard {
-  background: rgba(20, 25, 35, 0.85) !important;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-body.dark-theme .userListScroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-body.dark-theme .userListScroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 255, 0.25);
-}
-body.dark-theme .userListScroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 255, 0.5);
+.loadingText {
+  margin-top: 16px;
 }

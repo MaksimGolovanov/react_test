@@ -1,5 +1,5 @@
 // src/modules/Map/store/MapStore.ts
-import { makeAutoObservable, action, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx'; // убран неиспользуемый 'action'
 import MapService from '../services/MapService';
 import { Layer, Marker, MarkerInput, LayerInput, Drawing, DrawingInput } from '../types/map.types';
 
@@ -151,13 +151,6 @@ class MapStore {
     this.selectedLayerId = id;
   }
 
-  // Функция для смены видимости слоя (если нужно синхронизировать с бэком)
-  async toggleLayerVisibility(id: number, isVisible: boolean) {
-    const layer = this.layers.find(l => l.id === id);
-    if (!layer) return;
-    await this.updateLayer(id, { ...layer, isVisible });
-  }
-
   async fetchDrawings(layerId?: number) {
     this.drawingsLoading = true;
     this.drawingsError = null;
@@ -202,7 +195,8 @@ class MapStore {
       throw err;
     }
   }
-
 }
 
-export default new MapStore();
+// Создаём экземпляр и экспортируем его, чтобы избежать предупреждения import/no-anonymous-default-export
+const mapStoreInstance = new MapStore();
+export default mapStoreInstance;

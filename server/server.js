@@ -13,6 +13,9 @@ const TimeSlot = require('./models/TimeSlot')
 const VehicleType = require('./models/VehicleType')
 const VehicleSubtype = require('./models/VehicleSubtype')
 const Drivers = require('./models/Drivers')
+const { Consumable, Movement } = require('./models/consumableModels');
+const { ConfidentialInfo } = require('./models/confidentialModels');
+const {PositionAccess} = require('./models/models')
 require('./models/map');
 const knowledgeModels = require('./models/knowledgeModels')
 require('./models/associations')

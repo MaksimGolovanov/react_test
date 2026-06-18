@@ -9,36 +9,46 @@
   --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
   --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(24, 144, 255, 0.08);
   --gradient-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  --card-bg: white;
+  --card-border: 1px solid var(--border-color);
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ====================
-   Основные контейнеры
-   ==================== */
+body.dark-theme {
+  --text-primary: #f0f0f0;
+  --text-secondary: #aaa;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --shadow-light: 0 8px 20px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(24, 144, 255, 0.3);
+  --card-bg: rgba(20, 25, 35, 0.85);
+  --card-border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Основные контейнеры */
 .categories-container {
   padding: 32px 24px;
   max-width: 1200px;
   margin: 0 auto;
   min-height: calc(100vh - 64px);
+  background: transparent;
 }
 
 .categories-grid {
   margin: 0 -12px;
 }
 
-
-/* ====================
-   Карточка категории
-   ==================== */
+/* Карточка категории */
 .category-card {
   height: 100%;
   border-radius: 16px !important;
-  border: 1px solid var(--border-color) !important;
+  border: var(--card-border) !important;
   transition: var(--transition-smooth) !important;
   position: relative;
   overflow: hidden;
-  background: white !important;
+  background: var(--card-bg) !important;
   cursor: default;
+  backdrop-filter: blur(12px); /* для тёмной темы, в светлой не влияет */
 }
 
 .category-card.available {
@@ -67,9 +77,7 @@
   font-weight: 500;
 }
 
-/* ====================
-   Иконка карточки
-   ==================== */
+/* Иконка карточки */
 .card-icon-wrapper {
   position: relative;
   width: 80px;
@@ -111,9 +119,7 @@
   transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* ====================
-   Контент карточки
-   ==================== */
+/* Контент карточки */
 .card-content {
   flex: 1;
   text-align: center;
@@ -129,6 +135,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-primary) !important;
 }
 
 .tags-container {
@@ -147,6 +154,14 @@
   height: auto !important;
   line-height: 1.5 !important;
   border: none !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .category-tag {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e0e0e0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .card-description {
@@ -160,9 +175,7 @@
   overflow: hidden;
 }
 
-/* ====================
-   Футер карточки
-   ==================== */
+/* Футер карточки */
 .card-footer {
   display: flex;
   justify-content: space-between;
@@ -176,6 +189,7 @@
   display: flex;
   align-items: center;
   font-size: 0.875rem;
+  color: var(--text-secondary);
 }
 
 .select-button {
@@ -206,42 +220,4 @@
 
 .category-card.available:hover .card-bottom-line {
   opacity: 1;
-}
-
-/* ===== ТЁМНАЯ ТЕМА ===== */
-body.dark-theme .categories-container {
-  background: transparent;
-}
-
-body.dark-theme .category-card {
-  background: rgba(20, 25, 35, 0.85) !important;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-body.dark-theme .card-title {
-  color: #f0f0f0 !important;
-}
-
-body.dark-theme .card-description {
-  color: #aaa !important;
-}
-
-body.dark-theme .card-footer {
-  border-top-color: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-theme .course-count {
-  color: #ccc;
-}
-
-body.dark-theme .category-tag {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #e0e0e0 !important;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-body.dark-theme .category-card.available:hover {
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(24, 144, 255, 0.3) !important;
 }

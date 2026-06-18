@@ -1,4 +1,4 @@
-// src/pages/ArticlePage.jsx
+// src/features/knowledge-base/pages/ArticlePage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -9,6 +9,7 @@ import {
   Tag,
   Space,
   Breadcrumb,
+  theme,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -22,12 +23,29 @@ import KnowledgeStore from '../store/KnowledgeStore';
 import styles from './ArticlePage.module.css';
 
 const { Title, Text } = Typography;
+const { useToken } = theme;
 
 const ArticlePage = () => {
+  const { token } = useToken();
   const { id } = useParams();
   const navigate = useNavigate();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Функция для очистки HTML от inline-стилей цвета
+  const sanitizeHtmlContent = (html) => {
+    if (!html) return '';
+    // Удаляем атрибуты style, содержащие color или background-color
+    // Или заменяем только нужные свойства
+    return html.replace(/style="([^"]*?)"/gi, (match, styles) => {
+      // Удаляем свойства color и background-color
+      const cleaned = styles
+        .replace(/(color|background-color):\s*[^;]+;?/gi, '')
+        .trim();
+      if (cleaned === '') return '';
+      return `style="${cleaned}"`;
+    });
+  };
 
   useEffect(() => {
     const loadArticle = async () => {
@@ -47,20 +65,18 @@ const ArticlePage = () => {
   if (loading) return <Spin size="large" className={styles.spinner} />;
   if (!article) return null;
 
-  // Формируем цепочку категорий
   const categoryChain = [];
   const cat = article.category || article.klm_category;
   if (cat) {
     if (cat.parent) categoryChain.push(cat.parent.name);
     categoryChain.push(cat.name);
   }
-  const categoryPath = categoryChain.join(' / ') || 'Без категории';
-
-  // Для тега используем только конечную категорию
   const leafCategory = cat?.name || 'Без категории';
 
+  const cleanContent = sanitizeHtmlContent(article.content);
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} >
       <div className={styles.header}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/knowledge')}>
           Назад
@@ -70,7 +86,7 @@ const ArticlePage = () => {
         </Button>
       </div>
 
-      <div className={styles.content}>
+      <div className={styles.content} style={{ background: token.colorBgContainer, borderColor: token.colorBorder }}>
         <Breadcrumb
           items={[
             { title: 'База знаний' },
@@ -78,11 +94,11 @@ const ArticlePage = () => {
           ]}
         />
 
-        <Title level={1} className={styles.title}>
+        <Title level={1} className={styles.title} style={{ color: token.colorText }}>
           {article.title}
         </Title>
 
-        <div className={styles.meta}>
+        <div className={styles.meta} style={{ borderBottomColor: token.colorBorder }}>
           <Space size="middle">
             <Space size="small">
               <CalendarOutlined />
@@ -106,7 +122,12 @@ const ArticlePage = () => {
           </div>
         </div>
 
-        <div className={styles.body} dangerouslySetInnerHTML={{ __html: article.content }} />
+        {/* Контент статьи с очищенными стилями цвета */}
+        <div 
+          className={styles.body} 
+          style={{ color: token.colorText }}
+          dangerouslySetInnerHTML={{ __html: cleanContent }} 
+        />
       </div>
     </div>
   );

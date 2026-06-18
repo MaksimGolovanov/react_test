@@ -1,37 +1,31 @@
+// shared/PrivateRoute.js
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import userStore from '../features/admin/store/UserStore';
+import { Spin } from 'antd';
 import { observer } from 'mobx-react-lite';
+import userStore from '../features/admin/store/UserStore';
+import { getFirstAvailablePath } from './routesConfig';
 
 const PrivateRoute = observer(({ children, requiredRole }) => {
-  const userRoles = userStore.userRolesAuth || [];
-
-  if (!userStore.isAuthenticated) {
-    return <Navigate to="/login" />;
+  // Ждем инициализации
+  if (!userStore.initialized || userStore.loading) {
+    return <Spin size="large" style={{ position: 'fixed', top: '50%', left: '50%' }} />;
   }
 
-  if (requiredRole && !requiredRole.some((role) => userRoles.includes(role))) {
-    // Пытаемся найти первую доступную страницу для пользователя
-    const routesPriority = [
-      { path: '/staff', roles: ['ADMIN', 'USER'] },
-      { path: '/ipaddress', roles: ['ADMIN', 'IP'] },
-      { path: '/prints', roles: ['ADMIN', 'PRINT'] },
-      { path: '/badges', roles: ['ADMIN', 'BADGES'] },
-      { path: '/usb', roles: ['ADMIN', 'USB'] },
-      { path: '/card', roles: ['ADMIN', 'CARD'] },
-      { path: '/notes', roles: ['ADMIN', 'NOTES'] },
-      { path: '/iuspt', roles: ['ADMIN', 'IUSPT'] },
-      { path: '/multiedu', roles: ['ADMIN', 'ST', 'ST-ADMIN'] },
-      { path: '/admin', roles: ['ADMIN'] },
-    ];
+  const userRoles = userStore.userRolesAuth || [];
 
-    for (const route of routesPriority) {
-      if (route.roles.some((role) => userRoles.includes(role))) {
-        return <Navigate to={route.path} replace />;
-      }
-    }
-
+  // Не авторизован
+  if (!userStore.isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Проверка ролей
+  if (requiredRole && requiredRole.length > 0) {
+    const hasRequiredRole = requiredRole.some(role => userRoles.includes(role));
+    if (!hasRequiredRole) {
+      const firstPath = getFirstAvailablePath(userRoles);
+      return <Navigate to={firstPath} replace />;
+    }
   }
 
   return children;

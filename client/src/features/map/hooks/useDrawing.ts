@@ -18,6 +18,9 @@ export const useDrawing = ({ type, onComplete }: UseDrawingOptions) => {
   const [startPoint, setStartPoint] = useState<[number, number] | null>(null);
   const [radius, setRadius] = useState<number | null>(null);
 
+  // Флаг для подавления лишнего клика при двойном клике
+  const dblClickFlag = useRef(false);
+
   const reset = useCallback(() => {
     setPoints([]);
     setTempPoint(null);
@@ -34,6 +37,8 @@ export const useDrawing = ({ type, onComplete }: UseDrawingOptions) => {
 
   const startDrawing = useCallback(() => {
     if (isDrawing) return;
+    // Сбрасываем флаг двойного клика при старте нового рисования
+    dblClickFlag.current = false;
     setIsDrawing(true);
     map.dragging.disable();
     map.doubleClickZoom.disable();
@@ -45,9 +50,8 @@ export const useDrawing = ({ type, onComplete }: UseDrawingOptions) => {
     if (!isDrawing) return;
     if (!type) return;
 
-    
-
     const onMapClick = (e: L.LeafletMouseEvent) => {
+      if (dblClickFlag.current) return;
       const { lng, lat } = e.latlng;
       if (type === 'text') {
         onComplete({ coordinates: [lng, lat] });
@@ -66,13 +70,11 @@ export const useDrawing = ({ type, onComplete }: UseDrawingOptions) => {
         if (!startPoint) {
           setStartPoint([lng, lat]);
         } else {
-          if (radius) {
-            onComplete({ coordinates: { center: startPoint, radius } });
-            stopDrawing();
-          }
+          const dist = map.distance([startPoint[1], startPoint[0]], [lat, lng]);
+          onComplete({ coordinates: { center: startPoint, radius: dist } });
+          stopDrawing();
         }
       } else {
-        // polyline / polygon
         setPoints(prev => [...prev, [lng, lat]]);
       }
     };
@@ -92,6 +94,9 @@ export const useDrawing = ({ type, onComplete }: UseDrawingOptions) => {
 
     const onDblClick = (e: L.LeafletMouseEvent) => {
       L.DomEvent.stopPropagation(e);
+      dblClickFlag.current = true;
+      setTimeout(() => { dblClickFlag.current = false; }, 200);
+
       if (type === 'polyline' || type === 'polygon') {
         if (points.length >= 2) {
           let finalCoords = points;
@@ -119,7 +124,6 @@ export const useDrawing = ({ type, onComplete }: UseDrawingOptions) => {
     };
   }, [isDrawing, type, startPoint, points, radius, map, onComplete, stopDrawing]);
 
-  // Отмена по Escape
   useEffect(() => {
     if (!isDrawing) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -131,14 +135,12 @@ export const useDrawing = ({ type, onComplete }: UseDrawingOptions) => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [isDrawing, stopDrawing]);
 
-  // Очистка при размонтировании
   useEffect(() => {
     return () => {
       if (isDrawing) stopDrawing();
     };
   }, [isDrawing, stopDrawing]);
 
-  // Временная фигура для предпросмотра
   let tempFigure = null;
   if (isDrawing && type) {
     if (type === 'rectangle' && startPoint && tempPoint) {
@@ -156,12 +158,17 @@ export const useDrawing = ({ type, onComplete }: UseDrawingOptions) => {
 
   const forceComplete = useCallback(() => {
     if (!type) return;
-    if (type === 'polyline' && points.length >= 2) {
-      onComplete({ coordinates: points });
-      stopDrawing();
-    } else if (type === 'polygon' && points.length >= 3) {
-      const closedPoints = [...points, points[0]];
-      onComplete({ coordinates: closedPoints });
+    try {
+      if (type === 'polyline' && points.length >= 2) {
+        onComplete({ coordinates: points });
+        stopDrawing();
+      } else if (type === 'polygon' && points.length >= 3) {
+        const closedPoints = [...points, points[0]];
+        onComplete({ coordinates: closedPoints });
+        stopDrawing();
+      }
+    } catch (err) {
+      console.error('forceComplete error', err);
       stopDrawing();
     }
   }, [type, points, onComplete, stopDrawing]);

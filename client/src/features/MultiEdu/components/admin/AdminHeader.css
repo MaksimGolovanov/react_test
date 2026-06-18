@@ -1,0 +1,88 @@
+/* AdminHeader.css */
+:root {
+  --admin-header-bg: #ffffff;
+  --admin-header-border: #f0f0f0;
+  --admin-icon-color: #1890ff;
+  --admin-text-primary: #1f1f1f;
+  --admin-text-secondary: #666;
+}
+
+body.dark-theme {
+  --admin-header-bg: #1f1f1f;
+  --admin-header-border: #303030;
+  --admin-icon-color: #177ddc;
+  --admin-text-primary: #e8e8e8;
+  --admin-text-secondary: #a6a6a6;
+}
+
+.admin-header {
+  background: var(--admin-header-bg);
+  border-bottom: 1px solid var(--admin-header-border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  z-index: 1000;
+  height: 64px;
+  width: 100%;
+}
+
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-right: 32px;
+}
+
+.logo-icon {
+  font-size: 18px;
+  color: var(--admin-icon-color);
+}
+
+.logo-title {
+  margin: 0;
+  white-space: nowrap;
+  color: var(--admin-text-primary);
+}
+
+.menu-wrapper {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.admin-menu {
+  border-bottom: none;
+  line-height: 64px;
+  background: transparent;
+  width: 100%;
+  display: flex;
+}
+
+.admin-menu .ant-menu-item {
+  flex-shrink: 0;
+  color: var(--admin-text-primary);
+}
+
+.admin-header-right {
+  flex-shrink: 0;
+  margin-left: 24px;
+  min-width: 200px;
+  text-align: right;
+}
+
+.current-title {
+  margin: 0;
+  font-weight: normal;
+  white-space: nowrap;
+  color: var(--admin-text-secondary);
+}

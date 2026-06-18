@@ -1,0 +1,117 @@
+/* LessonContent.css */
+.lesson-content-container {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.lesson-card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-light);
+  background: var(--card-bg);
+}
+
+.empty-lesson-card {
+  text-align: center;
+  padding: 40px 20px;
+  max-width: 500px;
+  margin: 40px auto;
+  border: none;
+  box-shadow: var(--shadow-hover);
+  background: var(--card-bg);
+}
+
+.empty-icon {
+  font-size: 48px;
+  color: var(--primary-color);
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.empty-title {
+  margin-bottom: 8px;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.empty-description {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.lesson-header {
+  margin-bottom: 20px;
+}
+
+.lesson-title {
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.lesson-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.time-spent {
+  color: var(--primary-color);
+  font-size: 12px;
+}
+
+.completed-badge {
+  color: #52c41a;
+  font-size: 12px;
+}
+
+.lesson-body {
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.lesson-html {
+  line-height: 1.6;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.lesson-resources {
+  margin-top: 20px;
+}
+
+.complete-button-wrapper {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.complete-lesson-btn {
+  font-size: 14px;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+/* CSS-переменные для светлой/тёмной темы */
+:root {
+  --border-color: #f0f0f0;
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --card-bg: #ffffff;
+  --primary-color: #1890ff;
+  --text-primary: #1f1f1f;
+  --text-secondary: #666;
+}
+
+body.dark-theme {
+  --border-color: #303030;
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --card-bg: #1f1f1f;
+  --primary-color: #177ddc;
+  --text-primary: #e8e8e8;
+  --text-secondary: #a6a6a6;
+}

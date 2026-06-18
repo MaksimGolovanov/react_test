@@ -17,6 +17,7 @@ export const getBookingTableColumns = ({
   getCellColor,
   TIME_SLOTS,
   departments,
+  token,
 }) => {
   const renderBookingsCell = (_, record) => {
     const date = selectedDate.format('YYYY-MM-DD');
@@ -161,8 +162,8 @@ export const getBookingTableColumns = ({
     if (vehicleBookings.length === 0) {
       return (
         <Space size={4}>
-          <UserOutlined style={{ fontSize: '12px', color: '#d9d9d9' }} />
-          <span style={{ fontSize: '12px', color: '#d9d9d9' }}>—</span>
+          <UserOutlined style={{ fontSize: '12px', color: token.colorTextDisabled }} />
+          <span style={{ fontSize: '12px', color: token.colorTextDisabled }}>—</span>
         </Space>
       );
     }
@@ -201,7 +202,7 @@ export const getBookingTableColumns = ({
             }}
           >
             <Space size={4}>
-              <UserOutlined style={{ fontSize: '12px', color: '#1890ff' }} />
+              <UserOutlined style={{ fontSize: '12px', color: token.colorPrimary }} />
               <span style={{ fontSize: '12px' }}>{driver || '—'}</span>
             </Space>
           </div>

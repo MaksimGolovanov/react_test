@@ -1,102 +1,54 @@
-import React, { useState } from 'react';
-import { Modal, Form, Button } from 'react-bootstrap';
+// src/features/ius-pt/components/SpravRole/AddRoleModal.jsx
+import React from 'react';
+import { Modal, Form, Input, Button, Space, message } from 'antd';
 
-const AddRoleModal = ({ show, onHide, onSave }) => {
-    const [newRole, setNewRole] = useState({
-        typename: '',
-        type: '',
-        name: '',
-        code: '',
-        mandat: '',
-        business_process: '',
-    });
+const AddRoleModal = ({ visible, onCancel, onSave }) => {
+  const [form] = Form.useForm();
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewRole((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      await onSave(values);
+      form.resetFields();
+      onCancel();
+    } catch (error) {
+      message.error('Ошибка валидации формы');
+    }
+  };
 
-    const handleSubmit = () => {
-        onSave(newRole); // Передаем данные новой роли в родительский компонент
-        onHide(); // Закрываем модальное окно
-    };
-
-    return (
-        <Modal show={show} onHide={onHide}>
-            <Modal.Header closeButton>
-                <Modal.Title>Добавить новую роль</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Form>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Тип</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="typename"
-                            value={newRole.typename}
-                            onChange={handleInputChange}
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>SID</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="type"
-                            value={newRole.type}
-                            onChange={handleInputChange}
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Функциональная роль/Бизнес-роль</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="name"
-                            value={newRole.name}
-                            onChange={handleInputChange}
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Код роли</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="code"
-                            value={newRole.code}
-                            onChange={handleInputChange}
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Мандат</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="mandat"
-                            value={newRole.mandat}
-                            onChange={handleInputChange}
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Бизнес процесс</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="business_process"
-                            value={newRole.business_process}
-                            onChange={handleInputChange}
-                        />
-                    </Form.Group>
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    Закрыть
-                </Button>
-                <Button variant="primary" onClick={handleSubmit}>
-                    Сохранить
-                </Button>
-            </Modal.Footer>
-        </Modal>
-    );
+  return (
+    <Modal
+      title="Добавить новую роль"
+      open={visible}
+      onCancel={onCancel}
+      footer={[
+        <Button key="cancel" onClick={onCancel}>Отмена</Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit}>Сохранить</Button>,
+      ]}
+      width={600}
+    >
+      <Form form={form} layout="vertical">
+        <Form.Item name="typename" label="Тип" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="type" label="SID" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="name" label="Функциональная роль/Бизнес-роль" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="code" label="Код роли" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="mandat" label="Мандат">
+          <Input />
+        </Form.Item>
+        <Form.Item name="business_process" label="Бизнес процесс">
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
 };
 
 export default AddRoleModal;

@@ -16,7 +16,7 @@
 .statisticCard {
   border-radius: 6px;
   background-color: #fafafa;
-  transition: all 0.3s ease;
+  
 }
 
 .statisticCard:hover {

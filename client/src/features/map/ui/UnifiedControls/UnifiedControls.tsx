@@ -1,22 +1,31 @@
 // src/modules/Map/ui/UnifiedControls/UnifiedControls.tsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMap, Polyline, Polygon, Rectangle, Circle, CircleMarker } from 'react-leaflet';
-import { Button, Tooltip, message, Popconfirm } from 'antd';
-import {
-  CheckOutlined,
-  CloseOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  MinusOutlined,
-  CompassOutlined,
-  RotateLeftOutlined,
-} from '@ant-design/icons';
+import { Button, Tooltip, message, Popconfirm, theme } from 'antd';
 import { useMapMeasure } from '../../hooks/useMapMeasure';
 import { useDrawing } from '../../hooks/useDrawing';
+import { useMouseCoordinates } from '../../hooks/useMouseCoordinates';
 import DrawingModal from '../DrawingModal/DrawingModal';
+import MapToPDF from '../../components/MapToPDF';
 import { DrawingType, EditMode } from '../../types/map.types';
 import './UnifiedControls.css';
+
+// Material Icons
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
+import StraightenIcon from '@mui/icons-material/Straighten';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import PentagonIcon from '@mui/icons-material/Pentagon';
+import CropSquareIcon from '@mui/icons-material/CropSquare';
+import CircleIcon from '@mui/icons-material/Circle';
+import TitleIcon from '@mui/icons-material/Title';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
+
+const { useToken } = theme;
 
 interface UnifiedControlsProps {
   editMode: EditMode;
@@ -26,6 +35,7 @@ interface UnifiedControlsProps {
   onSaveEdit?: () => void;
   onCancelEdit?: () => void;
   selectedLayerId: number | null;
+  mapWrapperRef?: React.RefObject<HTMLDivElement>;
 }
 
 const UnifiedControls: React.FC<UnifiedControlsProps> = ({
@@ -36,13 +46,12 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
   onSaveEdit,
   onCancelEdit,
   selectedLayerId,
+  mapWrapperRef,
 }) => {
+  const { token } = useToken();
   const map = useMap();
+  const mouseLatLng = useMouseCoordinates();
   const [zoom, setZoom] = useState(map.getZoom());
-  const [rotationAngle, setRotationAngle] = useState<number>(() => {
-    // Попытка получить угол через getAngle, если он есть
-    return typeof (map as any).getAngle === 'function' ? (map as any).getAngle() : 0;
-  });
 
   const { isMeasuring, totalDistance, polylinePoints, points: measurePoints, toggleMeasure } = useMapMeasure();
 
@@ -67,43 +76,17 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
     },
   });
 
-  // Подписываемся на события карты (zoomend и rotate)
   useEffect(() => {
     if (!map) return;
-
-    const onZoomEnd = () => setZoom(map.getZoom());
-    const onRotate = () => {
-      if (typeof (map as any).getAngle === 'function') {
-        setRotationAngle((map as any).getAngle());
-      }
-    };
-
-    map.on('zoomend', onZoomEnd);
-    map.on('rotate', onRotate);
-
-    // Устанавливаем начальный угол
-    if (typeof (map as any).getAngle === 'function') {
-      setRotationAngle((map as any).getAngle());
-    }
-
+    const handleZoomEnd = () => setZoom(map.getZoom());
+    map.on('zoomend', handleZoomEnd);
     return () => {
-      map.off('zoomend', onZoomEnd);
-      map.off('rotate', onRotate);
+      map.off('zoomend', handleZoomEnd);
     };
   }, [map]);
 
   const zoomIn = () => map.zoomIn();
   const zoomOut = () => map.zoomOut();
-
-  const resetRotation = () => {
-    if (typeof (map as any).setAngle === 'function') {
-      (map as any).setAngle(0);
-      setRotationAngle(0);
-      message.success('Поворот карты сброшен на Север');
-    } else {
-      message.warning('Поворот карты не поддерживается');
-    }
-  };
 
   const formatDistance = (meters: number) => {
     if (meters >= 1000) return `${(meters / 1000).toFixed(2)} км`;
@@ -150,181 +133,150 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
 
   const isEditModeActive = editMode.kind !== 'none';
 
-  // --- Refs и позиционирование блока расстояния (оставляем без изменений) ---
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [distanceBlockStyle, setDistanceBlockStyle] = useState<React.CSSProperties | null>(null);
-
-  const updateDistanceBlockPosition = () => {
-    if (panelRef.current && isMeasuring) {
-      const rect = panelRef.current.getBoundingClientRect();
-      const blockWidth = 130;
-      const offset = 12;
-      setDistanceBlockStyle({
-        position: 'fixed',
-        left: rect.left - blockWidth - offset,
-        top: rect.top + 10,
-        zIndex: 1001,
-      });
-    } else {
-      setDistanceBlockStyle(null);
-    }
+  const panelStyle: React.CSSProperties = {
+    background: `${token.colorBgElevated}cc`,
+    backdropFilter: 'blur(20px)',
+    border: `0.5px solid ${token.colorBorder}`,
+    boxShadow: token.boxShadow,
   };
 
-  useEffect(() => {
-    updateDistanceBlockPosition();
-    window.addEventListener('resize', updateDistanceBlockPosition);
-    window.addEventListener('scroll', updateDistanceBlockPosition);
-    return () => {
-      window.removeEventListener('resize', updateDistanceBlockPosition);
-      window.removeEventListener('scroll', updateDistanceBlockPosition);
-    };
-  }, [isMeasuring]);
+  const editPanelStyle: React.CSSProperties = {
+    background: `${token.colorBgElevated}cc`,
+    backdropFilter: 'blur(20px)',
+    border: `0.5px solid ${token.colorBorder}`,
+    boxShadow: token.boxShadow,
+  };
 
-  useEffect(() => {
-    const observer = new ResizeObserver(() => updateDistanceBlockPosition());
-    if (panelRef.current) observer.observe(panelRef.current);
-    return () => observer.disconnect();
-  }, []);
-  // --- конец блока расстояния ---
+  const getButtonClass = (active: boolean) => `control-btn ${active ? 'active' : ''}`;
 
   return (
     <>
-      <div className="unified-controls" ref={panelRef}>
+      {/* Основная панель инструментов (справа) */}
+      <div className="unified-controls" style={panelStyle}>
         <Tooltip title="Приблизить" placement="left">
-          <Button className="control-btn" icon={<PlusOutlined />} onClick={zoomIn} />
+          <Button className="control-btn" icon={<ZoomInIcon />} onClick={zoomIn} />
         </Tooltip>
-        <div className="zoom-value">{zoom}</div>
+        <div className="zoom-value" style={{ color: token.colorText, background: `${token.colorBgContainer}80` }}>
+          {zoom}
+        </div>
         <Tooltip title="Отдалить" placement="left">
-          <Button className="control-btn" icon={<MinusOutlined />} onClick={zoomOut} />
+          <Button className="control-btn" icon={<ZoomOutIcon />} onClick={zoomOut} />
         </Tooltip>
 
-        <div className="divider" />
+        <div className="divider" style={{ background: token.colorBorder }} />
 
         <Tooltip title="Линейка" placement="left">
           <Button
-            className={`control-btn ${isMeasuring ? 'active' : ''}`}
+            className={getButtonClass(isMeasuring)}
+            style={{
+              backgroundColor: isMeasuring ? token.colorPrimary : 'transparent',
+              color: isMeasuring ? '#fff' : token.colorText,
+            }}
             onClick={toggleMeasure}
-            icon={
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill="currentColor" d="M3.56 14.363 14.363 3.56a1.91 1.91 0 0 1 2.7 0l3.377 3.376a1.91 1.91 0 0 1 0 2.7L9.636 20.442a1.91 1.91 0 0 1-2.7 0l-3.377-3.377a1.91 1.91 0 0 1 0-2.7m4.12-.743 1.282-1.282 1.823 1.824a.764.764 0 1 0 1.08-1.082l-1.824-1.822 1.216-1.215 1.148 1.145a.763.763 0 0 0 1.318-.534.77.77 0 0 0-.237-.545l-1.148-1.147 1.282-1.283 1.824 1.824a.764.764 0 0 0 1.08-1.082l-1.825-1.824 1.014-1.012a.478.478 0 1 0-.676-.675L4.91 15.038a.478.478 0 0 0 .675.675l1.012-1.012 1.15 1.146a.764.764 0 1 0 1.08-1.079z" />
-              </svg>
-            }
+            icon={<StraightenIcon />}
           />
         </Tooltip>
 
-        <div className="divider" />
+        <div className="divider" style={{ background: token.colorBorder }} />
 
-        {/* Компас и сброс */}
-        <div className="rotation-control">
-          <Tooltip title={`Текущий угол: ${Math.round(rotationAngle)}°`} placement="left">
-            <div className="rotation-angle">
-              <CompassOutlined style={{ fontSize: 14, marginRight: 2 }} />
-              {Math.round(rotationAngle)}°
-            </div>
-          </Tooltip>
-          <Tooltip title="Сбросить поворот на Север" placement="left">
-            <Button className="control-btn" onClick={resetRotation} icon={<RotateLeftOutlined />} />
-          </Tooltip>
-        </div>
-
-        <div className="divider" />
-
-        {/* Кнопки рисования (оставлены как в исходном коде) */}
         <Tooltip title="Линия (полилиния)" placement="left">
           <Button
-            className={`control-btn ${drawingType === 'polyline' ? 'active' : ''}`}
+            className={getButtonClass(drawingType === 'polyline')}
             onClick={() => handleStartDrawing('polyline')}
             disabled={!isLayerSelected}
-            icon={
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 3L21 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M7 4L4 7" stroke="currentColor" strokeWidth="2" />
-                <path d="M20 17L17 20" stroke="currentColor" strokeWidth="2" />
-              </svg>
-            }
+            icon={<TimelineIcon />}
           />
         </Tooltip>
 
         <Tooltip title="Полигон" placement="left">
           <Button
-            className={`control-btn ${drawingType === 'polygon' ? 'active' : ''}`}
+            className={getButtonClass(drawingType === 'polygon')}
             onClick={() => handleStartDrawing('polygon')}
             disabled={!isLayerSelected}
-            icon={
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <polygon points="12,3 22,8 22,16 12,21 2,16 2,8 12,3" stroke="currentColor" strokeWidth="2" fill="none" />
-              </svg>
-            }
+            icon={<PentagonIcon />}
           />
         </Tooltip>
 
         <Tooltip title="Прямоугольник" placement="left">
           <Button
-            className={`control-btn ${drawingType === 'rectangle' ? 'active' : ''}`}
+            className={getButtonClass(drawingType === 'rectangle')}
             onClick={() => handleStartDrawing('rectangle')}
             disabled={!isLayerSelected}
-            icon={
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="3" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" />
-              </svg>
-            }
+            icon={<CropSquareIcon />}
           />
         </Tooltip>
 
         <Tooltip title="Круг" placement="left">
           <Button
-            className={`control-btn ${drawingType === 'circle' ? 'active' : ''}`}
+            className={getButtonClass(drawingType === 'circle')}
             onClick={() => handleStartDrawing('circle')}
             disabled={!isLayerSelected}
-            icon={
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
-              </svg>
-            }
+            icon={<CircleIcon />}
           />
         </Tooltip>
 
         <Tooltip title="Текстовая надпись" placement="left">
           <Button
-            className={`control-btn ${drawingType === 'text' ? 'active' : ''}`}
+            className={getButtonClass(drawingType === 'text')}
             onClick={() => handleStartDrawing('text')}
             disabled={!isLayerSelected}
-            icon={
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="2" fill="none" />
-                <path d="M8 8H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M12 8V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M8 16H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            }
+            icon={<TitleIcon />}
           />
         </Tooltip>
 
         {isDrawing && (drawingType === 'polyline' || drawingType === 'polygon') && drawingPoints.length >= 2 && (
           <>
-            <div className="divider" />
+            <div className="divider" style={{ background: token.colorBorder }} />
             <Tooltip title="Завершить рисование" placement="left">
-              <Button className="control-btn complete-btn" onClick={forceComplete} icon={<CheckOutlined />} />
+              <Button
+                className="control-btn complete-btn"
+                onClick={forceComplete}
+                icon={<SaveIcon style={{ color: '#fff' }} />}
+                style={{ backgroundColor: token.colorSuccess, color: '#fff' }}
+              />
             </Tooltip>
           </>
         )}
+
+        <div className="divider" style={{ background: token.colorBorder }} />
+        
+        <MapToPDF mapWrapperRef={mapWrapperRef} />
       </div>
 
-      {/* Блок расстояния (запасной вариант) */}
+      {/* Плавающий блок расстояния (если активна линейка) */}
       {isMeasuring && totalDistance > 0 && (
-        <div className="measure-distance-floating" style={{ position: 'absolute', bottom: 670, right: 80, zIndex: 1001 }}>
+        <div
+          className="measure-distance-floating"
+          style={{
+            position: 'absolute',
+            bottom: 670,
+            right: 80,
+            zIndex: 1001,
+            background: `${token.colorBgElevated}cc`,
+            backdropFilter: 'blur(8px)',
+            color: token.colorText,
+            border: `0.5px solid ${token.colorBorder}`,
+            borderRadius: 20,
+            padding: '6px 12px',
+            fontSize: 12,
+            fontFamily: 'monospace',
+            fontWeight: 500,
+            whiteSpace: 'nowrap',
+            boxShadow: token.boxShadow,
+          }}
+        >
           📏 {formatDistance(totalDistance)}
         </div>
       )}
 
-      {/* Панель редактирования */}
+      {/* Панель редактирования (слева) */}
       {isEditModeActive && (
-        <div className="edit-controls">
+        <div className="edit-controls" style={editPanelStyle}>
           <Tooltip title="Отменить редактирование" placement="right">
-            <Button className="control-btn" onClick={handleCancelEdit} icon={<CloseOutlined />} />
+            <Button className="control-btn" onClick={handleCancelEdit} icon={<CloseIcon />} />
           </Tooltip>
           <Tooltip title="Свойства" placement="right">
-            <Button className="control-btn" onClick={onEditProperties} icon={<EditOutlined />} />
+            <Button className="control-btn" onClick={onEditProperties} icon={<EditIcon />} />
           </Tooltip>
           {onDeleteCurrent && (
             <Popconfirm
@@ -336,50 +288,113 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
               okType="danger"
             >
               <Tooltip title="Удалить" placement="right">
-                <Button className="control-btn danger-btn" icon={<DeleteOutlined />} />
+                <Button
+                  className="control-btn danger-btn"
+                  icon={<DeleteIcon style={{ color: '#fff' }} />}
+                  style={{ backgroundColor: token.colorError }}
+                />
               </Tooltip>
             </Popconfirm>
           )}
           {editMode.kind === 'geometry' && (
             <>
               <Tooltip title="Сохранить изменения" placement="right">
-                <Button className="control-btn success-btn" onClick={onSaveEdit} icon={<CheckOutlined />} />
+                <Button
+                  className="control-btn success-btn"
+                  onClick={onSaveEdit}
+                  icon={<SaveIcon style={{ color: '#fff' }} />}
+                  style={{ backgroundColor: token.colorSuccess }}
+                />
               </Tooltip>
               <Tooltip title="Отменить изменения" placement="right">
-                <Button className="control-btn danger-btn" onClick={onCancelEdit} icon={<CloseOutlined />} />
+                <Button
+                  className="control-btn danger-btn"
+                  onClick={onCancelEdit}
+                  icon={<CancelIcon style={{ color: '#fff' }} />}
+                  style={{ backgroundColor: token.colorError }}
+                />
               </Tooltip>
             </>
           )}
         </div>
       )}
 
-      {/* Линия измерения */}
-      {isMeasuring && polylinePoints.length >= 2 && <Polyline positions={polylinePoints} color="#ff4d4f" weight={4} opacity={0.8} />}
+      {/* Временные фигуры при измерении */}
+      {isMeasuring && polylinePoints.length >= 2 && (
+        <Polyline positions={polylinePoints} color={token.colorError} weight={4} opacity={0.8} />
+      )}
       {isMeasuring && measurePoints.map((point, idx) => (
-        <CircleMarker key={idx} center={[point[1], point[0]]} radius={5} pathOptions={{ color: '#ff4d4f', fillColor: '#ff4d4f', fillOpacity: 1 }} />
+        <CircleMarker
+          key={idx}
+          center={[point[1], point[0]]}
+          radius={5}
+          pathOptions={{ color: token.colorError, fillColor: token.colorError, fillOpacity: 1 }}
+        />
       ))}
 
-      {/* Временная фигура */}
+      {/* Временная фигура из хука useDrawing */}
       {isDrawing && tempFigure && (
         <>
           {tempFigure.type === 'polyline' && tempFigure.points && tempFigure.points.length >= 2 && (
-            <Polyline positions={tempFigure.points.map(p => [p[1], p[0]])} pathOptions={{ color: '#ff4d4f', weight: 3 }} />
+            <Polyline
+              positions={tempFigure.points.map((p: number[]) => [p[1], p[0]])}
+              pathOptions={{ color: token.colorPrimary, weight: 3 }}
+            />
           )}
           {tempFigure.type === 'polygon' && tempFigure.points && tempFigure.points.length >= 3 && (
-            <Polygon positions={tempFigure.points.map(p => [p[1], p[0]])} pathOptions={{ color: '#ff4d4f', weight: 3, fillOpacity: 0.1 }} />
+            <Polygon
+              positions={tempFigure.points.map((p: number[]) => [p[1], p[0]])}
+              pathOptions={{ color: token.colorPrimary, weight: 3, fillOpacity: 0.1 }}
+            />
           )}
           {tempFigure.type === 'rectangle' && tempFigure.bounds && tempFigure.bounds.length === 2 && (
-            <Rectangle bounds={[[tempFigure.bounds[0][1], tempFigure.bounds[0][0]], [tempFigure.bounds[1][1], tempFigure.bounds[1][0]]]} pathOptions={{ color: '#ff4d4f', weight: 3 }} />
+            <Rectangle
+              bounds={[[tempFigure.bounds[0][1], tempFigure.bounds[0][0]], [tempFigure.bounds[1][1], tempFigure.bounds[1][0]]]}
+              pathOptions={{ color: token.colorPrimary, weight: 3 }}
+            />
           )}
           {tempFigure.type === 'circle' && tempFigure.center && tempFigure.radius && (
-            <Circle center={[tempFigure.center[1], tempFigure.center[0]]} radius={tempFigure.radius} pathOptions={{ color: '#ff4d4f', weight: 3, fillOpacity: 0.1 }} />
+            <Circle
+              center={[tempFigure.center[1], tempFigure.center[0]]}
+              radius={tempFigure.radius}
+              pathOptions={{ color: token.colorPrimary, weight: 3, fillOpacity: 0.1 }}
+            />
           )}
         </>
       )}
 
-      {/* Подсказка при рисовании */}
+      {/* Резиновая линия для полилинии/полигона */}
+      {isDrawing && (drawingType === 'polyline' || drawingType === 'polygon') && drawingPoints.length >= 1 && mouseLatLng && (
+        <Polyline
+          positions={[
+            [drawingPoints[drawingPoints.length - 1][1], drawingPoints[drawingPoints.length - 1][0]],
+            [mouseLatLng.lat, mouseLatLng.lng],
+          ]}
+          pathOptions={{ color: token.colorPrimary, weight: 3, opacity: 0.8 }}
+        />
+      )}
+
+      {/* Подсказка внизу экрана во время рисования */}
       {isDrawing && (
-        <div className="drawing-hint">
+        <div
+          className="drawing-hint"
+          style={{
+            background: `${token.colorBgElevated}cc`,
+            backdropFilter: 'blur(8px)',
+            color: token.colorText,
+            border: `0.5px solid ${token.colorBorder}`,
+            borderRadius: 40,
+            padding: '8px 16px',
+            fontSize: 12,
+            whiteSpace: 'nowrap',
+            position: 'absolute',
+            bottom: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 2000,
+            pointerEvents: 'none',
+          }}
+        >
           {drawingType === 'polyline' && '🔹 Линия: клик – точка, двойной клик или кнопка ✅ – завершить, ESC – отмена'}
           {drawingType === 'polygon' && '🔹 Полигон: клик – точка, двойной клик или кнопка ✅ – завершить, ESC – отмена'}
           {drawingType === 'rectangle' && '🔹 Прямоугольник: первый клик – угол, второй клик – завершить, ESC – отмена'}

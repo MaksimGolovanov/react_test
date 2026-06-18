@@ -1,4 +1,3 @@
-// src/features/knowledge-base/ui/ArticleFormPage/ArticleFormPage.jsx
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -11,6 +10,7 @@ import {
   Col,
   Space,
   Spin,
+  theme,
 } from 'antd';
 import {
   SaveOutlined,
@@ -23,8 +23,10 @@ import styles from './ArticleFormPage.module.css';
 
 const { TextArea } = Input;
 const { Option } = Select;
+const { useToken } = theme;
 
 const ArticleFormPage = () => {
+  const { token } = useToken();
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -105,26 +107,17 @@ const ArticleFormPage = () => {
   if (loading) return <Spin size="large" className={styles.spinner} />;
 
   return (
-    <div className={styles.container}>
-      <div
-        className={styles.card}
-      >
-        <div className={styles.cardHeader}>
-          <div className={styles.cardTitle}>
+    <div className={styles.container} style={{ backgroundColor: token.colorBgLayout }}>
+      <div className={styles.card} style={{ background: token.colorBgContainer }}>
+        <div className={styles.cardHeader} style={{ borderBottomColor: token.colorBorder }}>
+          <div className={styles.cardTitle} style={{ color: token.colorText }}>
             {isEdit ? 'Редактирование статьи' : 'Создание новой статьи'}
           </div>
           <Space>
-            <Button
-              icon={<RollbackOutlined />}
-              onClick={() => navigate('/knowledge')}
-            >
+            <Button icon={<RollbackOutlined />} onClick={() => navigate('/knowledge')}>
               Отмена
             </Button>
-            <Button
-              type="primary"
-              icon={<SaveOutlined />}
-              onClick={() => form.submit()}
-            >
+            <Button type="primary" icon={<SaveOutlined />} onClick={() => form.submit()}>
               Сохранить
             </Button>
           </Space>
@@ -137,7 +130,6 @@ const ArticleFormPage = () => {
           onFinish={handleSubmit}
           className={styles.horizontalForm}
         >
-          {/* Заголовок */}
           <Form.Item
             label="Заголовок"
             name="title"
@@ -147,7 +139,6 @@ const ArticleFormPage = () => {
             <Input placeholder="Заголовок статьи" />
           </Form.Item>
 
-          {/* Категория и тип контента */}
           <Form.Item label="Категория / Тип" className={styles.formItemCompact}>
             <Row gutter={16}>
               <Col span={12}>
@@ -175,7 +166,6 @@ const ArticleFormPage = () => {
             </Row>
           </Form.Item>
 
-          {/* Краткое описание */}
           <Form.Item
             label="Описание"
             name="description"
@@ -189,7 +179,6 @@ const ArticleFormPage = () => {
             />
           </Form.Item>
 
-          {/* Теги */}
           <Form.Item
             label="Теги"
             name="tags"
@@ -206,7 +195,6 @@ const ArticleFormPage = () => {
             />
           </Form.Item>
 
-          {/* Редактор контента */}
           <Form.Item
             label="Содержание"
             name="content"

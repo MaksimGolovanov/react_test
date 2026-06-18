@@ -1,3 +1,4 @@
+// features/navbar/NavBar.jsx
 import React from 'react';
 import { Layout } from 'antd';
 import { observer } from 'mobx-react';
@@ -20,16 +21,14 @@ const NavBar = observer(({ collapsed, onCollapseChange }) => {
       collapsible
       collapsed={collapsed}
       width={240}
-      collapsedWidth={80}
+      collapsedWidth={67}
       className={styles.sider}
-      theme="dark"
     >
       <LogoSection collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
       <MenuSection userRolesAuth={userStore.userRolesAuth} />
       <UserInfoSection
         collapsed={collapsed}
         userName={userStore.userName}
-        userRolesAuth={userStore.userRolesAuth}
         tabNumber={userStore.tabNumber}
         onLogout={() => {
           if (window.confirm('Вы уверены, что хотите выйти?')) {

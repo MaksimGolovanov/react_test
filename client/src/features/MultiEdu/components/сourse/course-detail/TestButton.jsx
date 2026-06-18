@@ -1,19 +1,19 @@
 import React from 'react';
 import { Button, Modal, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import './TestButton.css';
 
 const { Text } = Typography;
 
 const TestButton = ({ courseId, lessons, userProgress, isCourseCompleted }) => {
   const navigate = useNavigate();
-  
   const completedLessonsCount = userProgress?.completedLessons?.length || 0;
   const totalLessons = lessons.length || 0;
   const canTakeTest = completedLessonsCount === totalLessons;
 
   const handleStartTest = () => {
     if (canTakeTest || isCourseCompleted) {
-      navigate(`/multiedu/test/${courseId}`);
+      navigate(`/multiedu/test/${courseId}`); // путь соответствует роутингу в App
     } else {
       Modal.warning({
         title: 'Доступ к тесту ограничен',
@@ -24,32 +24,19 @@ const TestButton = ({ courseId, lessons, userProgress, isCourseCompleted }) => {
   };
 
   return (
-    <div style={{ marginTop: '16px', padding: '0 4px' }}>
+    <div className="test-button-wrapper">
       <Button
         type={isCourseCompleted ? "default" : "primary"}
         block
         size="middle"
         onClick={handleStartTest}
         disabled={!canTakeTest && !isCourseCompleted}
-        style={{
-          fontSize: '14px',
-          height: '36px',
-          borderRadius: '6px',
-        }}
+        className="test-button"
       >
         {isCourseCompleted ? 'Повторить тест' : 'Пройти тест'}
       </Button>
-
       {!canTakeTest && !isCourseCompleted && (
-        <Text 
-          type="secondary" 
-          style={{ 
-            display: 'block', 
-            marginTop: '6px', 
-            fontSize: '11px',
-            textAlign: 'center'
-          }}
-        >
+        <Text type="secondary" className="test-hint">
           Завершите все уроки для доступа к тесту
         </Text>
       )}

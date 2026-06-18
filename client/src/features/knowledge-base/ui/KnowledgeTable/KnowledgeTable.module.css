@@ -7,10 +7,6 @@
   transition: background-color 0.2s;
 }
 
-.tableRow:hover :global(.ant-table-cell) {
-  background-color: #fafafa !important;
-}
-
 .titleCell {
   display: flex;
   flex-direction: column;
@@ -25,7 +21,6 @@
 
 .category {
   font-size: 12px;
-  color: #8c8c8c;
   margin-top: 2px;
 }
 
@@ -36,7 +31,6 @@
 }
 
 .contentPreview {
-  color: #595959;
   font-size: 13px;
   line-height: 1.4;
   display: -webkit-box;
@@ -48,7 +42,6 @@
 .dateCell {
   display: flex;
   align-items: center;
-  color: #8c8c8c;
   font-size: 12px;
   white-space: nowrap;
 }
@@ -57,7 +50,6 @@
   padding: 16px;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
   .table {
     font-size: 12px;
@@ -68,21 +60,4 @@
   .contentPreview {
     -webkit-line-clamp: 1;
   }
-}
-
-/* ===== ТЁМНАЯ ТЕМА ===== */
-body.dark-theme .tableRow:hover :global(.ant-table-cell) {
-  background-color: rgba(24, 144, 255, 0.15) !important;
-}
-
-body.dark-theme .category {
-  color: #aaa;
-}
-
-body.dark-theme .contentPreview {
-  color: #ccc;
-}
-
-body.dark-theme .dateCell {
-  color: #aaa;
 }

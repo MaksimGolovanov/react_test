@@ -1,6 +1,5 @@
 .container {
   padding: 0;
-
   height: calc(100vh - 61px);
 }
 
@@ -9,7 +8,6 @@
   box-shadow: none;
   border: none;
   margin: 0;
-  background: #fff;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -20,7 +18,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid transparent;
   background: #fff;
   flex-shrink: 0;
 }
@@ -59,22 +57,4 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-
-/* ===== ТЁМНАЯ ТЕМА ===== */
-:global(body.dark-theme) .container {
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(12px);
-}
-
-:global(body.dark-theme) .card,
-:global(body.dark-theme) .cardHeader {
-  background: rgba(20, 25, 35, 0.85) !important;
-  backdrop-filter: blur(12px);
-  border-bottom-color: rgba(255, 255, 255, 0.1);
-  color: #e0e0e0;
-}
-
-:global(body.dark-theme) .cardTitle {
-  color: #f0f0f0;
 }

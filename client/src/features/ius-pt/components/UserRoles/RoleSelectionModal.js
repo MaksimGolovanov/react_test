@@ -1,147 +1,216 @@
-import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { Modal, Button } from 'react-bootstrap';
-import styles from './style.module.css';
-import iusPtStore from "../../store/IusPtStore";
+// src/features/ius-pt/components/UserRoles/RoleSelectionModal.jsx
+import React, { useState, useEffect } from 'react';
+import { Modal, Table, Button, message, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import iusPtStore from '../../store/IusPtStore';
 
-const RoleSelectionModal = memo(({ show, onHide, roles, userRoles, stopRoles, userInfo, selectedUser }) => {
-    const [selectedRoles, setSelectedRoles] = useState([]);
-    const navigate = useNavigate();
+const { useToken } = theme;
 
-    // Мемоизированные функции проверки ролей
-    const hasRole = useCallback((role) => {
-        return userRoles.some(
-            (userRole) => userRole.IusSpravRole?.id === role.IusSpravRole?.id
-        );
-    }, [userRoles]);
+const RoleSelectionModal = ({ visible, onClose, targetUser, sourceRoles, sourceUser }) => {
+  const { token } = useToken();
+  const navigate = useNavigate();
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [rolesData, setRolesData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isDataReady, setIsDataReady] = useState(false);
 
-    const findStopRole = useCallback((role) => {
-        return stopRoles.find(
-            (stopRole) => stopRole.CodName.trim() === role.IusSpravRole?.code.trim()
-        );
-    }, [stopRoles]);
+  // Загрузка данных: стоп-роли, справочник ролей, роли целевого пользователя
+  useEffect(() => {
+    if (!visible || !targetUser || !sourceRoles?.length) {
+      setRolesData([]);
+      setIsDataReady(false);
+      return;
+    }
 
-    const isStopRole = useCallback((role) => {
-        return !!findStopRole(role);
-    }, [findStopRole]);
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        // 1. Справочник ролей
+        if (iusPtStore.roles.length === 0) await iusPtStore.fetchRoles();
+        // 2. Стоп-роли
+        if (iusPtStore.stopRoles.length === 0) await iusPtStore.fetchStopRoles();
+        // 3. Роли целевого пользователя
+        await iusPtStore.fetchUserRoles(targetUser.tabNumber);
 
-    // Инициализация selectedRoles
-    useEffect(() => {
-        const initialSelectedRoles = roles
-            .filter(role => !hasRole(role) && !isStopRole(role))
-            .map(role => role.IusSpravRole?.id);
-        setSelectedRoles(initialSelectedRoles);
-    }, [roles, hasRole, isStopRole]);
-
-    // Мемоизированный обработчик изменения чекбокса
-    const handleCheckboxChange = useCallback((role) => {
-        if (hasRole(role)) return;
-
-        setSelectedRoles(prev => {
-            const roleId = role.IusSpravRole?.id;
-            return prev.includes(roleId)
-                ? prev.filter(id => id !== roleId)
-                : [...prev, roleId];
+        const userRoleIds = new Set(iusPtStore.userRoles.map(r => r.IusSpravRole?.id).filter(Boolean));
+        const stopRoleMap = new Map();
+        iusPtStore.stopRoles.forEach(sr => {
+          const code = sr.CodName?.trim();
+          if (code) stopRoleMap.set(code, sr);
         });
-    }, [hasRole]);
 
-    // Мемоизированная функция сохранения
-    const saveSelectedRoles = useCallback(async () => {
-        const tabNumber = selectedUser.tabNumber;
-        
-        if (!tabNumber) {
-            console.error("Ошибка: табельный номер не указан.");
-            alert("Ошибка: табельный номер не указан.");
-            return;
-        }
+        const rolesList = sourceRoles
+          .map(id => iusPtStore.roles.find(r => r.id === id))
+          .filter(Boolean)
+          .map(role => {
+            const roleCode = role.code?.trim();
+            const stopRole = stopRoleMap.get(roleCode);
+            const isStopRole = !!stopRole;
+            const alreadyHas = userRoleIds.has(role.id);
+            return {
+              id: role.id,
+              code: role.code,
+              typename: role.typename || '—',
+              isStopRole,
+              alreadyHas,
+              canDoWithoutApproval: stopRole?.CanDoWithoutApproval || '—',
+              disabled: alreadyHas, // только уже имеющиеся роли нельзя выбрать
+            };
+          });
 
-        try {
-            await iusPtStore.addRolesToUser(tabNumber, selectedRoles);
-            alert("Роли успешно сохранены!");
-            onHide();
-            navigate(`/iuspt/user/${tabNumber}`);
-        } catch (error) {
-            console.error("Ошибка при сохранении ролей:", error);
-            alert("Ошибка при сохранении ролей.");
-        }
-    }, [selectedRoles, selectedUser, onHide, navigate]);
+        setRolesData(rolesList);
+        // Автоматически отмечаем только те, которые не disabled (т.е. ещё не назначены пользователю)
+        const preSelected = rolesList.filter(r => !r.disabled).map(r => r.id);
+        setSelectedRowKeys(preSelected);
+        setIsDataReady(true);
+      } catch (error) {
+        console.error(error);
+        message.error('Ошибка загрузки данных');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [visible, targetUser, sourceRoles]);
 
-    // Мемоизированное вычисление классов строк
-    const getRowClass = useCallback((role) => {
-        if (isStopRole(role)) return styles.stopRoleRow;
-        if (hasRole(role)) return styles.disabledRow;
-        return '';
-    }, [isStopRole, hasRole]);
+  const columns = [
+    {
+      title: 'Код',
+      dataIndex: 'code',
+      key: 'code',
+    },
+    {
+      title: 'Система',
+      dataIndex: 'typename',
+      key: 'typename',
+    },
+    {
+      title: 'Запрещено',
+      key: 'stopFlag',
+      width: 100,
+      render: (_, record) => record.isStopRole ? 'Запрещено' : null,
+    },
+    {
+      title: 'Кому можно без согласования',
+      dataIndex: 'canDoWithoutApproval',
+      key: 'canDoWithoutApproval',
+      ellipsis: true,
+    },
+  ];
 
-    // Мемоизированный рендеринг строк таблицы
-    const renderRoleRow = useCallback((role) => {
-        const stopRole = findStopRole(role);
-        const isRoleSelected = selectedRoles.includes(role.IusSpravRole?.id);
-        const isDisabled = hasRole(role);
-        const isStopRoleActive = isStopRole(role);
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (keys) => setSelectedRowKeys(keys),
+    getCheckboxProps: (record) => ({
+      disabled: record.disabled,
+    }),
+  };
 
-        return (
-            <tr
-                key={role.IusSpravRole?.id || role.code}
-                className={`${styles.bodyTableTr} ${getRowClass(role)}`}
-            >
-                <td className={styles.code}>
-                    <p>{role.IusSpravRole?.code || 'Нет названия'}</p>
-                </td>
-                <td className={styles.typename}>
-                    {role.IusSpravRole?.typename || 'Нет типа'}
-                </td>
-                <td>
-                    {isStopRoleActive ? 'Запрещено' : ''}
-                </td>
-                <td>
-                    {stopRole ? stopRole.CanDoWithoutApproval : ''}
-                </td>
-                <td>
-                    <input
-                        type="checkbox"
-                        checked={isRoleSelected}
-                        disabled={isDisabled}
-                        onChange={() => handleCheckboxChange(role)}
-                    />
-                </td>
-            </tr>
-        );
-    }, [selectedRoles, findStopRole, hasRole, isStopRole, getRowClass, handleCheckboxChange]);
+  const getRowClassName = (record) => {
+    if (record.isStopRole) return 'stop-role-row';
+    if (record.alreadyHas) return 'already-has-role-row';
+    return '';
+  };
 
-    // Мемоизированный список ролей
-    const roleRows = useMemo(() => {
-        return roles.map(role => renderRoleRow(role));
-    }, [roles, renderRoleRow]);
+  // Добавляем глобальные стили для подсветки строк с улучшенным контрастом
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .stop-role-row td {
+        background-color: ${token.colorErrorBg} !important;
+      }
+      .already-has-role-row td {
+        background-color: ${token.colorBgContainerDisabled || token.colorFillTertiary || '#f5f5f5'} !important;
+        color: ${token.colorTextDisabled} !important;
+      }
+      .already-has-role-row td .ant-checkbox-wrapper {
+        opacity: 0.5;
+      }
+    `;
+    if (visible) document.head.appendChild(style);
+    return () => { if (style.parentNode) style.parentNode.removeChild(style); };
+  }, [visible, token.colorErrorBg, token.colorBgContainerDisabled, token.colorFillTertiary, token.colorTextDisabled]);
 
+  const handleSubmit = async () => {
+    if (!targetUser) {
+      message.error('Пользователь не выбран');
+      return;
+    }
+    if (selectedRowKeys.length === 0) {
+      message.warning('Не выбрано ни одной роли');
+      return;
+    }
+
+    // Дополнительная проверка: исключаем роли, которые уже есть у пользователя (на всякий случай)
+    const userRoleIds = new Set(iusPtStore.userRoles.map(r => r.IusSpravRole?.id).filter(Boolean));
+    const finalRoleIds = selectedRowKeys.filter(id => !userRoleIds.has(id));
+    if (finalRoleIds.length === 0) {
+      message.warning('Все выбранные роли уже назначены пользователю');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await iusPtStore.addRolesToUser(targetUser.tabNumber, finalRoleIds);
+      message.success('Роли успешно добавлены');
+      onClose();
+      navigate(`/iuspt/user/${targetUser.tabNumber}`);
+    } catch (error) {
+      console.error('Ошибка добавления ролей:', error);
+      if (error.response) {
+        console.error('Статус:', error.response.status);
+        console.error('Данные ответа:', error.response.data);
+        message.error(`Ошибка: ${error.response.data?.message || 'сервер вернул ошибку'}`);
+      } else if (error.request) {
+        message.error('Нет ответа от сервера');
+      } else {
+        message.error(error.message || 'Ошибка добавления ролей');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading || !isDataReady) {
     return (
-        <Modal show={show} onHide={onHide} size="lg">
-            <Modal.Header closeButton className={styles.modalHeader}>
-                <Modal.Title className={styles.modalTitle}>Выбранные роли</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div className={styles.tablehead}>
-                    <p className={styles.tableheadfio}>Код</p>
-                    <p className={styles.tableheadname}>Система</p>
-                </div>
-                <div className={styles.tableContainer}>
-                    <table className={styles.table}>
-                        <tbody>
-                            {roleRows}
-                        </tbody>
-                    </table>
-                </div>
-            </Modal.Body>
-            <Modal.Footer className={styles.modalFooter}>
-                <Button variant="secondary" onClick={onHide} className={styles.buttonSecondary}>
-                    Закрыть
-                </Button>
-                <Button variant="primary" onClick={saveSelectedRoles} className={styles.buttonPrimary}>
-                    Подтвердить
-                </Button>
-            </Modal.Footer>
-        </Modal>
+      <Modal
+        title={`Выберите роли для пользователя ${targetUser?.fio || ''}`}
+        open={visible}
+        onCancel={onClose}
+        footer={null}
+        width={900}
+      >
+        <div style={{ textAlign: 'center', padding: 40, color: token.colorText }}>
+          Загрузка данных...
+        </div>
+      </Modal>
     );
-});
+  }
+
+  return (
+    <Modal
+      title={`Выберите роли для пользователя ${targetUser?.fio || ''}`}
+      open={visible}
+      onCancel={onClose}
+      footer={[
+        <Button key="cancel" onClick={onClose}>Отмена</Button>,
+        <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
+          Подтвердить
+        </Button>,
+      ]}
+      width={900}
+    >
+      <Table
+        columns={columns}
+        dataSource={rolesData}
+        rowKey="id"
+        rowSelection={rowSelection}
+        pagination={false}
+        size="small"
+        rowClassName={getRowClassName}
+      />
+    </Modal>
+  );
+};
 
 export default RoleSelectionModal;

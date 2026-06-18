@@ -1,4 +1,3 @@
-// src/pages/CategoriesPage.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
@@ -12,6 +11,7 @@ import {
   message,
   Popconfirm,
   Typography,
+  theme,
 } from 'antd';
 import {
   PlusOutlined,
@@ -26,8 +26,10 @@ import styles from './CategoriesPage.module.css';
 
 const { Title } = Typography;
 const { Option } = Select;
+const { useToken } = theme;
 
 const CategoriesPage = observer(() => {
+  const { token } = useToken();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -119,7 +121,9 @@ const CategoriesPage = observer(() => {
         <div className={styles.categoryName}>
           <span>{text}</span>
           {record.parent_id === null && (
-            <span className={styles.rootBadge}>Корневая</span>
+            <span className={styles.rootBadge} style={{ background: token.colorPrimaryBg, color: token.colorPrimary }}>
+              Корневая
+            </span>
           )}
         </div>
       ),
@@ -129,7 +133,7 @@ const CategoriesPage = observer(() => {
       dataIndex: 'parent_id',
       key: 'parent_id',
       render: (parentId) => {
-        if (!parentId) return <span className={styles.noParent}>—</span>;
+        if (!parentId) return <span className={styles.noParent} style={{ color: token.colorTextSecondary }}>—</span>;
         const parent = categories.find((c) => c.id === parentId);
         return parent?.name || '—';
       },
@@ -140,17 +144,8 @@ const CategoriesPage = observer(() => {
       width: 120,
       render: (_, record) => (
         <Space>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          />
-          <Popconfirm
-            title="Удалить категорию?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Да"
-            cancelText="Нет"
-          >
+          <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
+          <Popconfirm title="Удалить категорию?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
             <Button type="link" danger icon={<DeleteOutlined />} />
           </Popconfirm>
         </Space>
@@ -159,17 +154,14 @@ const CategoriesPage = observer(() => {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
+    <div className={styles.container} style={{ backgroundColor: token.colorBgLayout }}>
+      <div className={styles.card} style={{ background: token.colorBgContainer, boxShadow: token.boxShadow }}>
         <div className={styles.header}>
           <div className={styles.leftGroup}>
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={() => navigate('/knowledge')}
-            >
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/knowledge')}>
               Назад к статьям
             </Button>
-            <Title level={3} className={styles.title}>
+            <Title level={3} className={styles.title} style={{ color: token.colorText }}>
               Управление категориями
             </Title>
           </div>

@@ -14,9 +14,10 @@ const Role = sequelize.define('roles', {
      description: { type: DataTypes.STRING },
 })
 const Dolgnost = sequelize.define('dolgnost', {
-  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  dolgn: { type: DataTypes.STRING },
-  dolgn_s: { type: DataTypes.STRING },
+     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+     dolgn: { type: DataTypes.STRING },
+     dolgn_s: { type: DataTypes.STRING },
+     confidential_points: { type: DataTypes.TEXT, allowNull: true },
 })
 const Staff = sequelize.define('stafs', {
      tabNumber: { type: DataTypes.STRING, primaryKey: true },
@@ -60,7 +61,7 @@ const Usb = sequelize.define('usb', {
      department: { type: DataTypes.STRING },
      data_prov: { type: DataTypes.DATE },
      log: { type: DataTypes.STRING },
-}) 
+})
 const Card = sequelize.define('card', {
      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
      ser_num: { type: DataTypes.STRING },
@@ -70,7 +71,7 @@ const Card = sequelize.define('card', {
      department: { type: DataTypes.STRING },
      data_prov: { type: DataTypes.DATE },
      log: { type: DataTypes.STRING },
-}) 
+})
 
 const PrintsModel = sequelize.define('printsmodels', {
      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -112,6 +113,25 @@ const IP_addresses = sequelize.define('ip_addresses', {
      description: { type: DataTypes.TEXT },
 })
 
+const PositionAccess = sequelize.define(
+     'position_access',
+     {
+          id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+          department_id: { type: DataTypes.INTEGER, allowNull: false },
+          dolgnost_id: { type: DataTypes.INTEGER, allowNull: false },
+          confidential_points: { type: DataTypes.TEXT, allowNull: true },
+     },
+     {
+          timestamps: true,
+          tableName: 'position_access',
+     }
+)
+
+PositionAccess.belongsTo(Department, { foreignKey: 'department_id', as: 'department' })
+PositionAccess.belongsTo(Dolgnost, { foreignKey: 'dolgnost_id', as: 'dolgnost' })
+Department.hasMany(PositionAccess, { foreignKey: 'department_id', as: 'positionAccess' })
+Dolgnost.hasMany(PositionAccess, { foreignKey: 'dolgnost_id', as: 'positionAccess' })
+
 Prints.belongsToMany(PrintsModel, { through: 'print_models' })
 PrintsModel.belongsToMany(Prints, { through: 'print_models' })
 
@@ -149,5 +169,6 @@ module.exports = {
      IP_addresses,
      Dolgnost,
      Usb,
-     Card
+     Card,
+     PositionAccess,
 }

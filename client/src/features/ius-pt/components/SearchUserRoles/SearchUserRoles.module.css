@@ -1,0 +1,19 @@
+.userListScroll {
+  flex: 1;
+  overflow-y: auto; /* вертикальная прокрутка */
+  overflow-x: hidden; 
+  padding: 8px;
+  scrollbar-width: thin;
+  max-height: calc(100vh - 180px); /* подберите под свою шапку */
+  width: 100%;
+}
+.userListScroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.userListScroll::-webkit-scrollbar-track {
+  background: var(--scrollbar-track, #f1f1f1);
+}
+.userListScroll::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, #c1c1c1);
+}

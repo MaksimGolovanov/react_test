@@ -1,0 +1,8 @@
+/* PageHeader.css */
+.page-header {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}

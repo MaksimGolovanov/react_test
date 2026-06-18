@@ -1,11 +1,10 @@
+/* src/features/usb/ui/UsbHeader/UsbHeader.module.css */
 .header {
-  background: #fff;
   padding: 16px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 16px;
+  border: 1px solid;
 }
-
 .actionsRow {
   display: flex;
   justify-content: space-between;
@@ -13,7 +12,6 @@
   flex-wrap: wrap;
   gap: 16px;
 }
-
 .searchStatsRow {
   display: flex;
   justify-content: space-between;
@@ -21,53 +19,31 @@
   flex-wrap: wrap;
   gap: 16px;
   padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid;
 }
-
 .statsContainer {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .statItem {
   font-size: 14px;
-  color: #666;
 }
-
-.statItem strong {
-  font-weight: 600;
-  margin-left: 4px;
-}
-
-.statInWork {
-  color: #52c41a;
-}
-
-.statNotInWork {
-  color: #fa8c16;
-}
-
 .switchContainer {
   margin-left: auto;
 }
-
 .switchLabel {
   display: flex;
   align-items: center;
   cursor: pointer;
   gap: 8px;
 }
-
 .switchInput {
   margin: 0;
 }
-
 .switchText {
   font-size: 14px;
-  color: #666;
 }
-
 @media (max-width: 768px) {
   .searchStatsRow {
     flex-direction: column;
@@ -76,61 +52,4 @@
   .statsContainer {
     justify-content: center;
   }
-}
-
-/* ===== ТЁМНАЯ ТЕМА (исправленная) ===== */
-
-:global(body.dark-theme) .header {
-  background: rgba(18, 22, 35, 0.85) !important;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
-}
-
-body.dark-theme .header,
-body.dark-theme div.header {
-   background: rgba(18, 22, 35, 0.85) !important;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
-}
-
-body.dark-theme .searchStatsRow {
-  border-top-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-body.dark-theme .statItem {
-  color: #aaa !important;
-}
-
-body.dark-theme .statInWork {
-  color: #52c41a !important;
-}
-
-body.dark-theme .statNotInWork {
-  color: #fa8c16 !important;
-}
-
-body.dark-theme .switchText {
-  color: #ccc !important;
-}
-
-body.dark-theme .switchInput {
-  accent-color: #1890ff;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-theme .ant-input-affix-wrapper {
-  background: rgba(0, 0, 0, 0.5) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
-}
-
-body.dark-theme .ant-input-affix-wrapper input {
-  background: transparent;
-  color: white;
-}
-
-body.dark-theme .ant-input-affix-wrapper .ant-input-prefix {
-  color: rgba(255, 255, 255, 0.6);
 }

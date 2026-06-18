@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// features/navbar/components/MenuSection/MenuSection.jsx
+import React, { useState, useMemo } from 'react';
 import { Menu } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -18,285 +19,159 @@ import {
   ReconciliationOutlined,
   KubernetesOutlined,
   CarOutlined,
+  InboxOutlined
 } from '@ant-design/icons';
+import { useTheme } from '../../../../context/ThemeContext';
+import { theme as antdTheme } from 'antd';
 import styles from './MenuSection.module.css';
+
+const { useToken } = antdTheme;
 
 const MenuSection = ({ userRolesAuth }) => {
   const location = useLocation();
-  const [selectedKeys, setSelectedKeys] = useState([location.pathname]);
-  const [openKeys, setOpenKeys] = useState([]);
+  const { token } = useToken();
+  const { currentTheme } = useTheme();
 
-  const hasAccess = (role) => {
-    return userRolesAuth.includes(role) || userRolesAuth.includes('ADMIN');
+  const siderTextColor = currentTheme?.siderTextColor || token.colorText;
+  const primaryColor = token.colorPrimary;
+  const isDark = currentTheme?.isDark || false;
+  const hoverBg = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+  const selectedBg = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)';
+
+  const menuVariables = {
+    '--menu-text-color': siderTextColor,
+    '--menu-primary-color': primaryColor,
+    '--menu-hover-bg': hoverBg,
+    '--menu-selected-bg': selectedBg,
   };
 
-  useEffect(() => {
-    setSelectedKeys([location.pathname]);
+  const hasAccess = (role) => userRolesAuth.includes(role) || userRolesAuth.includes('ADMIN');
 
-    // Автоматически открываем соответствующее меню
-    const path = location.pathname;
-    const newOpenKeys = [];
-
-    if (
-      path.startsWith('/multiedu') &&
-      (hasAccess('ADMIN') || hasAccess('ST-ADMIN'))
-    ) {
-      newOpenKeys.push('multi-edu-group');
-    } else if (
-      path.startsWith('/admin') &&
-      !path.startsWith('/multiedu/admin') &&
-      userRolesAuth.includes('ADMIN')
-    ) {
-      newOpenKeys.push('admin');
+  // Функция для определения openKeys
+  const getOpenKeys = useMemo(() => (path) => {
+    const keys = [];
+    if (path.startsWith('/multiedu') && (hasAccess('ADMIN') || hasAccess('ST-ADMIN'))) {
+      keys.push('multi-edu-group');
     }
+    if (path.startsWith('/admin') && !path.startsWith('/multiedu/admin') && userRolesAuth.includes('ADMIN')) {
+      keys.push('admin');
+    }
+    return keys;
+  }, [hasAccess, userRolesAuth]);
 
-    setOpenKeys(newOpenKeys);
-  }, [location.pathname, userRolesAuth]);
+  const [openKeys, setOpenKeys] = useState(() => getOpenKeys(location.pathname));
 
   const onOpenChange = (keys) => {
-    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
-
-    if (latestOpenKey) {
-      setOpenKeys([latestOpenKey]);
-    } else {
-      setOpenKeys([]);
-    }
+    const latestOpenKey = keys.find(key => openKeys.indexOf(key) === -1);
+    setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
   };
 
-  // Функция для определения selectedKeys
-  const getActualSelectedKeys = () => {
+  const getActualSelectedKeys = useMemo(() => () => {
     const path = location.pathname;
-
-    // 1. Админка обучения
-    if (path === '/multiedu/admin') {
-      return ['/multiedu/admin'];
-    }
-
-    // 2. Главная страница обучения
-    if (path === '/multiedu' || path === '/multiedu/') {
-      return ['/multiedu'];
-    }
-
-    // 3. Любые другие страницы обучения
+    
+    if (path === '/multiedu/admin') return ['/multiedu/admin'];
+    if (path === '/multiedu' || path === '/multiedu/') return ['/multiedu'];
     if (path.startsWith('/multiedu/')) {
-      // Для обычных пользователей подсвечиваем /multiedu
-      if (hasAccess('ST') && !hasAccess('ADMIN') && !hasAccess('ST-ADMIN')) {
-        return ['/multiedu'];
-      }
-      // Для админов: если мы в подменю обучения, подсвечиваем главную
+      if (hasAccess('ST') && !hasAccess('ADMIN') && !hasAccess('ST-ADMIN')) return ['/multiedu'];
       return ['/multiedu'];
     }
-
-    // 4. Для системного админ-меню
     if (path.startsWith('/admin') && !path.startsWith('/multiedu/admin')) {
-      // Если это конкретный подпункт админ-меню, возвращаем его
-      if (path === '/admin/' || path === '/admin') {
-        return ['/admin/'];
-      }
-      if (path === '/admin/roles') {
-        return ['/admin/roles'];
-      }
-      if (path === '/admin/create') {
-        return ['/admin/create'];
-      }
+      if (path === '/admin/' || path === '/admin') return ['/admin/'];
+      if (path === '/admin/roles') return ['/admin/roles'];
+      if (path === '/admin/create') return ['/admin/create'];
     }
-
-    // 5. Для остальных страниц
+    
     const basePath = `/${path.split('/')[1]}`;
     return [basePath];
-  };
+  }, [location.pathname, hasAccess]);
 
   const actualSelectedKeys = getActualSelectedKeys();
 
-  const menuItems = [
-    // Пользователи
-    ...(hasAccess('USER')
-      ? [
-          {
-            key: '/staff',
-            icon: <TeamOutlined />,
-            label: <Link to="/staff">ПОЛЬЗОВАТЕЛИ</Link>,
-          },
-        ]
-      : []),
-
-    // Учет IP
-    ...(hasAccess('IP')
-      ? [
-          {
-            key: '/ipaddress',
-            icon: <KubernetesOutlined />,
-            label: <Link to="/ipaddress">УЧЕТ IP</Link>,
-          },
-        ]
-      : []),
-
-    // Принтеры
-    ...(hasAccess('PRINT')
-      ? [
-          {
-            key: '/prints',
-            icon: <PrinterOutlined />,
-            label: <Link to="/prints">ПРИНТЕРЫ</Link>,
-          },
-        ]
-      : []),
-
-    // Учет USB
-    ...(hasAccess('USB')
-      ? [
-          {
-            key: '/usb',
-            icon: <UsbOutlined />,
-            label: <Link to="/usb">УЧЕТ USB</Link>,
-          },
-        ]
-      : []),
-
-    // Учет карт доступа
-    ...(hasAccess('CARD')
-      ? [
-          {
-            key: '/card',
-            icon: <IdcardOutlined />,
-            label: <Link to="/card">УЧЕТ КАРТ ДОСТУПА</Link>,
-          },
-        ]
-      : []),
-
-    // Бейджики
-    ...(hasAccess('BADGES')
-      ? [
-          {
-            key: '/badges',
-            icon: <TagOutlined />,
-            label: <Link to="/badges">БЕЙДЖИКИ</Link>,
-          },
-        ]
-      : []),
-
-    // Заметки
-    ...(hasAccess('NOTES')
-      ? [
-          {
-            key: '/knowledge',
-            icon: <FileTextOutlined />,
-            label: <Link to="/knowledge">ЗАМЕТКИ</Link>,
-          },
-        ]
-      : []),
-    // Заметки
-
-    ...(hasAccess('TRANSPORT') || hasAccess('TRANSPORT-ORDER')
-      ? [
-          {
-            key: '/transport',
-            icon: <CarOutlined />,
-            label: <Link to="/transport">ЗАЯВКА НА ТРАНСПОРТ</Link>,
-          },
-        ]
-      : []),
-
-    // Карта
-    ...(hasAccess('MAP')
-      ? [
-          {
-            key: '/map',
-            icon: <GlobalOutlined />,
-            label: <Link to="/map">КАРТА</Link>,
-          },
-        ]
-      : []),
-    // ИУС П Т
-    ...(hasAccess('IUSPT')
-      ? [
-          {
-            key: '/iuspt',
-            icon: <DashboardOutlined />,
-            label: <Link to="/iuspt">ИУС П Т</Link>,
-          },
-        ]
-      : []),
-
-    // JSON
-    ...(hasAccess('JSON')
-      ? [
-          {
-            key: '/json',
-            icon: <CodeOutlined />,
-            label: <Link to="/json">JSON</Link>,
-          },
-        ]
-      : []),
-
+  const menuItems = useMemo(() => {
+    const items = [];
+    
+    if (hasAccess('USER')) {
+      items.push({ key: '/staff', icon: <TeamOutlined />, label: <Link to="/staff">ПОЛЬЗОВАТЕЛИ</Link> });
+    }
+    if (hasAccess('CONSUMABLES')) {
+      items.push({ key: '/consumables', icon: <InboxOutlined />, label: <Link to="/consumables">РАСХОДНЫЕ МАТЕРИАЛЫ</Link> });
+    }
+    if (hasAccess('IP')) {
+      items.push({ key: '/ipaddress', icon: <KubernetesOutlined />, label: <Link to="/ipaddress">УЧЕТ IP</Link> });
+    }
+    if (hasAccess('PRINT')) {
+      items.push({ key: '/prints', icon: <PrinterOutlined />, label: <Link to="/prints">ПРИНТЕРЫ</Link> });
+    }
+    if (hasAccess('USB')) {
+      items.push({ key: '/usb', icon: <UsbOutlined />, label: <Link to="/usb">УЧЕТ USB</Link> });
+    }
+    if (hasAccess('CARD')) {
+      items.push({ key: '/card', icon: <IdcardOutlined />, label: <Link to="/card">УЧЕТ КАРТ ДОСТУПА</Link> });
+    }
+    if (hasAccess('BADGES')) {
+      items.push({ key: '/badges', icon: <TagOutlined />, label: <Link to="/badges">БЕЙДЖИКИ</Link> });
+    }
+    if (hasAccess('NOTES')) {
+      items.push({ key: '/knowledge', icon: <FileTextOutlined />, label: <Link to="/knowledge">БАЗА ЗНАНИЙ</Link> });
+    }
+    if (hasAccess('TRANSPORT') || hasAccess('TRANSPORT-ORDER')) {
+      items.push({ key: '/transport', icon: <CarOutlined />, label: <Link to="/transport">ЗАЯВКА НА ТРАНСПОРТ</Link> });
+    }
+    if (hasAccess('MAP')) {
+      items.push({ key: '/map', icon: <GlobalOutlined />, label: <Link to="/map">КАРТА</Link> });
+    }
+    if (hasAccess('IUSPT')) {
+      items.push({ key: '/iuspt', icon: <DashboardOutlined />, label: <Link to="/iuspt">ИУС П Т</Link> });
+    }
+    if (hasAccess('JSON')) {
+      items.push({ key: '/json', icon: <CodeOutlined />, label: <Link to="/json">JSON</Link> });
+    }
+    
     // Обучение
-    ...(hasAccess('ST') || hasAccess('ADMIN') || hasAccess('ST-ADMIN')
-      ? [
-          hasAccess('ADMIN') || hasAccess('ST-ADMIN')
-            ? {
-                key: 'multi-edu-group',
-                icon: <ReconciliationOutlined />,
-                label: 'Обучение',
-                children: [
-                  {
-                    key: '/multiedu',
-                    label: <Link to="/multiedu">Обучение</Link>,
-                    icon: <BookOutlined />,
-                  },
-                  {
-                    key: '/multiedu/admin',
-                    label: <Link to="/multiedu/admin">Администрирование</Link>,
-                    icon: <SettingOutlined />,
-                  },
-                ],
-              }
-            : {
-                key: '/multiedu',
-                icon: <ReconciliationOutlined />,
-                label: <Link to="/multiedu">Обучение</Link>,
-              },
-        ]
-      : []),
-
-    // Системное админ-меню
-    ...(userRolesAuth.includes('ADMIN')
-      ? [
-          {
-            key: 'admin',
-            icon: <SettingOutlined />,
-            label: 'АДМИН',
-            children: [
-              {
-                key: '/admin/',
-                icon: <TeamOutlined />,
-                label: <Link to="/admin/">Пользователи</Link>,
-              },
-              {
-                key: '/admin/roles',
-                icon: <SafetyOutlined />,
-                label: <Link to="/admin/roles">Справочник ролей</Link>,
-              },
-              {
-                key: '/admin/create',
-                icon: <UserOutlined />,
-                label: <Link to="/admin/create">Создание пользователя</Link>,
-              },
-            ],
-          },
-        ]
-      : []),
-  ];
+    if (hasAccess('ST') || hasAccess('ADMIN') || hasAccess('ST-ADMIN')) {
+      if (hasAccess('ADMIN') || hasAccess('ST-ADMIN')) {
+        items.push({
+          key: 'multi-edu-group',
+          icon: <ReconciliationOutlined />,
+          label: 'Обучение',
+          children: [
+            { key: '/multiedu', label: <Link to="/multiedu">Обучение</Link>, icon: <BookOutlined /> },
+            { key: '/multiedu/admin', label: <Link to="/multiedu/admin">Администрирование</Link>, icon: <SettingOutlined /> },
+          ],
+        });
+      } else {
+        items.push({ key: '/multiedu', icon: <ReconciliationOutlined />, label: <Link to="/multiedu">Обучение</Link> });
+      }
+    }
+    
+    // Админ
+    if (userRolesAuth.includes('ADMIN')) {
+      items.push({
+        key: 'admin',
+        icon: <SettingOutlined />,
+        label: 'АДМИН',
+        children: [
+          { key: '/admin/', icon: <TeamOutlined />, label: <Link to="/admin/">Пользователи</Link> },
+          { key: '/admin/roles', icon: <SafetyOutlined />, label: <Link to="/admin/roles">Справочник ролей</Link> },
+          { key: '/admin/create', icon: <UserOutlined />, label: <Link to="/admin/create">Создание пользователя</Link> },
+        ],
+      });
+    }
+    
+    return items;
+  }, [hasAccess, userRolesAuth]);
 
   return (
-    <Menu
-      theme="dark"
-      mode="inline"
-      selectedKeys={actualSelectedKeys}
-      openKeys={openKeys}
-      onOpenChange={onOpenChange}
-      items={menuItems}
-      className={styles.menu}
-    />
+    <div style={menuVariables}>
+      <Menu
+        mode="inline"
+        selectedKeys={actualSelectedKeys}
+        openKeys={openKeys}
+        onOpenChange={onOpenChange}
+        items={menuItems}
+        className={styles.menu}
+      />
+    </div>
   );
 };
 

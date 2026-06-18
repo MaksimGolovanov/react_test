@@ -1,14 +1,16 @@
 // src/modules/IpAddress/ui/IpModal/IpModal.tsx
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, Select, message } from 'antd';
+import { Modal, Form, Input, Select, message, theme } from 'antd';
 import { DEVICE_TYPES, SWITCH_TYPES } from '../../lib/constants';
 import IpStore from '../../store/IpStore';
 import { IpModalProps, IpAddressInput } from '../../types/ip.types';
 
 const { TextArea } = Input;
+const { useToken } = theme;
 const IP_PATTERN = /^(\d{1,3}\.){3}\d{1,3}$/;
 
 const IpModal: React.FC<IpModalProps> = ({ visible, currentIp, onCancel, onSuccess }) => {
+  const { token } = useToken();
   const [form] = Form.useForm<IpAddressInput>();
 
   useEffect(() => {
@@ -60,8 +62,6 @@ const IpModal: React.FC<IpModalProps> = ({ visible, currentIp, onCancel, onSucce
       width={600}
       okText="Сохранить"
       cancelText="Отмена"
-      okButtonProps={{ style: { borderRadius: 40, padding: '4px 20px' } }}
-      cancelButtonProps={{ style: { borderRadius: 40 } }}
       destroyOnClose
     >
       <Form form={form} layout="vertical">

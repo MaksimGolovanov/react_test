@@ -1,21 +1,15 @@
-/* src/modules/Map/ui/UnifiedControls/UnifiedControls.css */
-
-/* Основная панель инструментов (справа) */
+/* UnifiedControls.css */
 .unified-controls {
   position: absolute;
   top: 20px;
   right: 20px;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px);
   border-radius: 32px;
   padding: 8px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
-  border: 0.5px solid rgba(255, 255, 255, 0.5);
 }
 
 .control-btn {
@@ -24,7 +18,6 @@
   border-radius: 24px !important;
   background: transparent !important;
   border: none !important;
-  color: #2c3e50 !important;
   font-size: 18px;
   display: flex;
   align-items: center;
@@ -42,20 +35,9 @@
   color: white !important;
 }
 
-.control-btn.success-btn {
-  background: #52c41a !important;
-  color: white !important;
-}
-
-.control-btn.danger-btn {
-  background: #ff4d4f !important;
-  color: white !important;
-}
-
 .zoom-value {
   font-size: 12px;
   font-weight: 600;
-  color: #2c3e50;
   text-align: center;
   width: 36px;
   font-feature-settings: 'tnum';
@@ -67,181 +49,18 @@
 .divider {
   width: 24px;
   height: 1px;
-  background: rgba(0, 0, 0, 0.1);
   margin: 4px 0;
 }
 
-/* Панель редактирования (слева) */
 .edit-controls {
   position: absolute;
   top: 20px;
   left: 20px;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px);
   border-radius: 32px;
   padding: 8px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 0.5px solid rgba(255, 255, 255, 0.5);
-}
-
-/* Отображение расстояния (левый нижний угол) */
-
-/* Подсказка при рисовании */
-.drawing-hint {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 40px;
-  font-size: 12px;
-  font-family: sans-serif;
-  white-space: nowrap;
-  z-index: 2000;
-  pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  border: 0.5px solid rgba(255, 255, 255, 0.2);
-}
-
-@media (max-width: 768px) {
-  .drawing-hint {
-    font-size: 10px;
-    white-space: normal;
-    width: 90%;
-    text-align: center;
-    border-radius: 20px;
-  }
-}
-
-.measure-distance-inline {
-  font-size: 11px;
-  font-weight: 500;
-  font-family: monospace;
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 20px;
-  padding: 4px 8px;
-  margin: 4px 0;
-  text-align: center;
-  white-space: nowrap;
-  color: #1a73e8;
-}
-.measure-distance-floating {
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-family: monospace;
-  font-weight: 500;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 0.5px solid rgba(255, 255, 255, 0.2);
-  pointer-events: none;
-  letter-spacing: 0.5px;
-}
-
-.control-btn.complete-btn {
-  background: #52c41a !important;
-  color: white !important;
-}
-
-.control-btn.success-btn {
-  background: #52c41a !important;
-  color: white !important;
-}
-
-.control-btn.danger-btn {
-  background: #ff4d4f !important;
-  color: white !important;
-}
-
-/* ===== ТЁМНАЯ ТЕМА ===== */
-body.dark-theme .unified-controls,
-body.dark-theme .edit-controls {
-  background: rgba(18, 22, 35, 0.85) !important;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-body.dark-theme .control-btn {
-  color: #e0e0e0 !important;
-}
-body.dark-theme .control-btn:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
-}
-body.dark-theme .control-btn.active {
-  background: #1890ff !important;
-  color: white !important;
-}
-body.dark-theme .control-btn.success-btn {
-  background: #52c41a !important;
-  color: white !important;
-}
-body.dark-theme .control-btn.danger-btn {
-  background: #ff4d4f !important;
-  color: white !important;
-}
-body.dark-theme .zoom-value {
-  color: #e0e0e0;
-  background: rgba(255, 255, 255, 0.1);
-}
-body.dark-theme .divider {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* 🔹 Важно: стили для плавающего блока расстояния */
-body.dark-theme .measure-distance-floating {
-  background: rgba(0, 0, 0, 0.85) !important;
-  backdrop-filter: blur(8px);
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-  font-weight: 500;
-  z-index: 1001;
-  pointer-events: none;
-}
-
-body.dark-theme .drawing-hint {
-  background: rgba(0, 0, 0, 0.9);
-  color: #e0e0e0;
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-/* в UnifiedControls.css */
-.rotation-control {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  margin: 4px 0;
-}
-
-.rotation-angle {
-  font-size: 12px;
-  font-weight: 600;
-  font-family: monospace;
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: 20px;
-  padding: 4px 8px;
-  text-align: center;
-  white-space: nowrap;
-  color: #2c3e50;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-body.dark-theme .rotation-angle {
-  background: rgba(255, 255, 255, 0.1);
-  color: #e0e0e0;
 }

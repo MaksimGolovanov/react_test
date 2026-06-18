@@ -1,133 +1,171 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import { observer } from 'mobx-react-lite'
-import iusPtStore from '../../store/IusPtStore'
-import styles from './style.module.css'
-import SearchInput from '../SearchInput/SearchInput'
-import RoleTableHeader from './RoleTableHeader'
-import RoleGroup from './RoleGroup'
-import ButtonAll from '../ButtonAll/ButtonAll'
-import { MdDeleteForever } from 'react-icons/md'
-import { toJS } from 'mobx'
-import { GoChecklist } from 'react-icons/go'
-import AddOverRoleModal from './AddOverRoleModal'
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { observer } from 'mobx-react-lite';
+import { Tree, Button, Space, Input, message, theme } from 'antd';
+import { DeleteOutlined, CopyOutlined } from '@ant-design/icons';
+import iusPtStore from '../../store/IusPtStore';
+import AddOverRoleModal from './AddOverRoleModal';
+
+const { useToken } = theme;
 
 const RoleTable = observer(({ info }) => {
-     const { userRoles, fetchUserRoles, isLoading, error, deleteUserRole } = iusPtStore
-     const [expandedGroups, setExpandedGroups] = useState({})
-     const [searchQuery, setSearchQuery] = useState('')
-     const [selectedRoles, setSelectedRoles] = useState([])
-     const [showModal, setShowModal] = useState(false) // Состояние для отображения модального окна
+  const { token } = useToken();
+  const { userRoles, fetchUserRoles, isLoading, error, deleteUserRole } = iusPtStore;
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRoleKeys, setSelectedRoleKeys] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [copyRoleIds, setCopyRoleIds] = useState([]);
 
-     useEffect(() => {
-          fetchUserRoles(info.tabNumber)
-     }, [fetchUserRoles, info.tabNumber]) 
+  useEffect(() => {
+    fetchUserRoles(info.tabNumber);
+  }, [fetchUserRoles, info.tabNumber]);
 
-     const toggleGroup = useCallback((key) => {
-          setExpandedGroups((prev) => ({
-               ...prev,
-               [key]: !prev[key],
-          }))
-     }, [])
+  // Построение дерева (группы имеют строковые ключи, роли – числовые ID)
+  const treeData = useMemo(() => {
+    const groups = {};
+    (userRoles || []).forEach(role => {
+      const typename = role.IusSpravRole?.typename || 'Без типа';
+      const type = role.IusSpravRole?.type || 'Без типа';
+      const code = role.IusSpravRole?.code || '';
+      const name = role.IusSpravRole?.name || '';
+      const searchLower = searchQuery.toLowerCase();
+      if (searchQuery && !(typename.toLowerCase().includes(searchLower) ||
+          type.toLowerCase().includes(searchLower) ||
+          code.toLowerCase().includes(searchLower) ||
+          name.toLowerCase().includes(searchLower))) {
+        return;
+      }
+      if (!groups[typename]) groups[typename] = {};
+      if (!groups[typename][type]) groups[typename][type] = [];
+      groups[typename][type].push(role);
+    });
+    return Object.entries(groups)
+      .filter(([_, types]) => Object.keys(types).length > 0)
+      .map(([typename, types]) => ({
+        title: typename,
+        key: `group-${typename}`,
+        children: Object.entries(types)
+          .filter(([_, roles]) => roles.length > 0)
+          .map(([typeName, roles]) => ({
+            title: typeName,
+            key: `subgroup-${typename}-${typeName}`,
+            children: roles.map(role => ({
+              title: `${role.IusSpravRole.code} - ${role.IusSpravRole.name}`,
+              key: role.IusSpravRole.id,
+              isLeaf: true,
+            })),
+          })),
+      }));
+  }, [userRoles, searchQuery]);
 
-     const filterRoles = useCallback((roles, query) => {
-          return roles.filter((role) =>
-               Object.values(role.IusSpravRole || {}).some((value) =>
-                    String(value).toLowerCase().includes(query.toLowerCase())
-               )
-          )
-     }, [])
+  // Рекурсивный сбор всех листовых ключей под заданным узлом
+  const getAllLeafKeysUnder = useCallback((targetKey, nodes) => {
+    const leafIds = [];
+    const findAndCollect = (nodeList) => {
+      for (const node of nodeList) {
+        if (node.key === targetKey) {
+          const collect = (n) => {
+            if (n.isLeaf) leafIds.push(n.key);
+            else if (n.children) n.children.forEach(collect);
+          };
+          collect(node);
+          return true;
+        }
+        if (node.children && findAndCollect(node.children)) return true;
+      }
+      return false;
+    };
+    findAndCollect(nodes);
+    return leafIds;
+  }, []);
 
-     const groupRoles = useCallback((roles) => {
-          return roles.reduce((acc, role) => {
-               const typename = role.IusSpravRole?.typename || 'Без типа'
-               const type = role.IusSpravRole?.type || 'Без типа'
+  const handleCheck = (checkedKeysValue, { checked, node }) => {
+    let newCheckedKeys = Array.isArray(checkedKeysValue) ? checkedKeysValue : checkedKeysValue.checked;
 
-               if (!acc[typename]) acc[typename] = {}
-               if (!acc[typename][type]) acc[typename][type] = []
+    if (!node.isLeaf) {
+      const leafIds = getAllLeafKeysUnder(node.key, treeData);
+      if (checked) {
+        // Добавляем все ID ролей из группы/подгруппы
+        newCheckedKeys = [...new Set([...newCheckedKeys, ...leafIds])];
+      } else {
+        // Удаляем все ID ролей группы/подгруппы
+        newCheckedKeys = newCheckedKeys.filter(k => !leafIds.includes(k));
+      }
+    }
+    setSelectedRoleKeys(newCheckedKeys);
+  };
 
-               acc[typename][type].push(role)
-               return acc
-          }, {})
-     }, [])
+  const handleDelete = async () => {
+    const ids = selectedRoleKeys.filter(key => typeof key === 'number');
+    if (ids.length === 0) return;
+    try {
+      for (const id of ids) await deleteUserRole(info.tabNumber, id);
+      await fetchUserRoles(info.tabNumber);
+      setSelectedRoleKeys([]);
+      message.success('Роли удалены');
+    } catch (error) {
+      console.error(error);
+      message.error('Ошибка удаления');
+    }
+  };
 
-     const handleSelectRole = (role, isChecked) => {
-          setSelectedRoles((prev) => (isChecked ? [...prev, role] : prev.filter((r) => r !== role)))
-     }
+  const handleCopy = () => {
+    const numericIds = selectedRoleKeys.filter(key => typeof key === 'number');
+    if (numericIds.length === 0) {
+      message.warning('Выберите хотя бы одну роль');
+      return;
+    }
+    setCopyRoleIds(numericIds);
+    setShowModal(true);
+  };
 
-     const handleDeleteRoles = async () => {
-          try {
-               // Преобразуем Proxy-объекты в обычные объекты
-               const rolesToDelete = selectedRoles.map((role) => toJS(role))
+  if (isLoading) return <div style={{ color: token.colorText }}>Загрузка...</div>;
+  if (error) return <div style={{ color: token.colorError }}>Ошибка: {error}</div>;
 
-               // Удаляем каждую выбранную роль
-               for (const role of rolesToDelete) {
-                    if (!role.IusSpravRole?.id) {
-                         console.error('ID роли не найден:', role)
-                         continue // Пропускаем роль, если ID отсутствует
-                    }
+  return (
+    <div>
+      <Space style={{ marginBottom: 16 }}>
+        <Button
+          icon={<DeleteOutlined />}
+          danger
+          disabled={selectedRoleKeys.length === 0}
+          onClick={handleDelete}
+        >
+          Удалить
+        </Button>
+        <Button
+          icon={<CopyOutlined />}
+          disabled={selectedRoleKeys.length === 0}
+          onClick={handleCopy}
+        >
+          Создать по образцу
+        </Button>
+      </Space>
 
-                    await deleteUserRole(info.tabNumber, role.IusSpravRole.id)
-               }
+      <Input.Search
+        placeholder="Поиск ролей..."
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
+        style={{ marginBottom: 16 }}
+        allowClear
+      />
 
-               // Вызываем обновление данных после удаления
-               await fetchUserRoles(info.tabNumber)
+      <Tree
+        checkable
+        checkStrictly
+        treeData={treeData}
+        checkedKeys={selectedRoleKeys}
+        onCheck={handleCheck}
+        style={{ background: token.colorBgContainer }}
+      />
 
-               // Очищаем список выбранных ролей
-               setSelectedRoles([])
-          } catch (error) {
-               console.error('Ошибка при удалении ролей:', error)
-          }
-     }
+      <AddOverRoleModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        selectedRoles={copyRoleIds}
+        sourceUser={info}
+      />
+    </div>
+  );
+});
 
-     if (isLoading) return <div>Загрузка...</div>
-     if (error) return <div>Ошибка: {error}</div>
-
-     const rolesArray = Array.isArray(userRoles) ? userRoles : [userRoles]
-     const filteredRoles = filterRoles(rolesArray, searchQuery)
-     const groupedData = groupRoles(filteredRoles)
-
-     return (
-          <>
-               <div className="d-flex">
-                    <ButtonAll
-                         icon={MdDeleteForever}
-                         text="Удалить"
-                         disabled={selectedRoles.length === 0}
-                         onClick={handleDeleteRoles}
-                    />
-                    <ButtonAll
-                         icon={GoChecklist}
-                         text="Создать по образцу"
-                         disabled={selectedRoles.length === 0}
-                         onClick={() => setShowModal(true)}
-                    />
-               </div>
-
-               <SearchInput
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                    placeholder="Поиск ролей..."
-                    className={styles.search}
-               />
-
-               <div className={styles.container}>
-                    <RoleTableHeader />
-                    <div className={styles.tableBody}>
-                         {Object.keys(groupedData).map((typename) => (
-                              <RoleGroup
-                                   key={typename}
-                                   typename={typename}
-                                   types={groupedData[typename]}
-                                   expandedGroups={expandedGroups}
-                                   toggleGroup={toggleGroup}
-                                   onSelectRole={handleSelectRole}
-                              />
-                         ))}
-                    </div>
-               </div>
-               <AddOverRoleModal show={showModal} onHide={() => setShowModal(false)} role={selectedRoles} />
-          </>
-     )
-})
-
-export default RoleTable
+export default RoleTable;

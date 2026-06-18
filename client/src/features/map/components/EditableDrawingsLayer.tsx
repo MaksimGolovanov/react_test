@@ -1,14 +1,16 @@
-// src/modules/Map/components/EditableDrawingsLayer.tsx
-import React, { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useEffect, useRef, useCallback, forwardRef, useImperativeHandle, useState } from 'react';
 import { useMap, Polyline, Polygon, Rectangle, Circle } from 'react-leaflet';
+import { theme } from 'antd';
 import L from 'leaflet';
 import 'leaflet-editable';
 import { Drawing, EditMode } from '../types/map.types';
 
+const { useToken } = theme;
+
 interface EditableDrawingsLayerProps {
   drawings: Drawing[];
   editMode: EditMode;
-  onDrawingChange: (drawingId: number, newCoordinates: any) => void;
+  onDrawingChange: (drawingId: number, newCoordinates: any) => Promise<void>;
   onDrawingClick?: (drawing: Drawing) => void;
   onEditDrawingFromMap: (drawing: Drawing) => void;
   onEditSaved?: () => void;
@@ -27,385 +29,312 @@ const EditableDrawingsLayer = forwardRef<EditableDrawingsLayerRef, EditableDrawi
   onEditDrawingFromMap,
   onEditSaved,
 }, ref) => {
+  const { token } = useToken();
   const map = useMap();
+  
   const layerRefs = useRef<Record<number, L.Layer>>({});
-  const editCommitHandlersRef = useRef<Record<number, (e: any) => void>>({});
   const originalCoordinatesRef = useRef<Record<number, any>>({});
-  const cleanupRef = useRef<(() => void) | null>(null);
-  const retryTimersRef = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+  
+  // Флаг блокировки
+  const isLockedRef = useRef<Record<number, boolean>>({});
+  // Флаг, что сохранение завершено и нужно игнорировать следующие изменения editMode
+  const justSavedRef = useRef<Record<number, boolean>>({});
+  
+  // Счетчик для принудительного пересоздания
+  const [remountKeys, setRemountKeys] = useState<Record<number, number>>({});
 
-  // Для кастомного перетаскивания
-  const dragMarkerRef = useRef<L.Marker | null>(null);
-  const dragCleanupRefs = useRef<Record<number, () => void>>({});
-  const dragStateRef = useRef<{
-    startLatLng: L.LatLng;
-    startBoundsOrCenter: any;
-    type: 'rectangle' | 'circle';
-    drawingId: number;
-  } | null>(null);
+  // УНИЧТОЖЕНИЕ маркеров leaflet-editable
+  const destroyAllEditIcons = useCallback(() => {
+    const container = map.getContainer();
+    if (!container) return;
+    
+    const selectors = [
+      '.leaflet-marker-icon.leaflet-editable-icon',
+      '.leaflet-editable-vertex',
+      '.leaflet-editable-marker',
+      '.leaflet-div-icon',
+      '.leaflet-vertex-icon',
+      '.leaflet-move-icon',
+      '.leaflet-editable-move',
+    ];
+    
+    selectors.forEach(selector => {
+      container.querySelectorAll(selector).forEach(el => {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      });
+    });
+  }, [map]);
 
-  const updateLayerCoordinates = useCallback((layer: L.Layer, newCoordinates: any) => {
-    if (layer instanceof L.Polyline || layer instanceof L.Polygon) {
-      const latlngs = newCoordinates.map((p: [number, number]) => [p[1], p[0]]);
-      layer.setLatLngs(latlngs);
-      layer.redraw();
-    } else if (layer instanceof L.Rectangle) {
-      const bounds = L.latLngBounds(
-        [newCoordinates[0][1], newCoordinates[0][0]],
-        [newCoordinates[1][1], newCoordinates[1][0]]
-      );
-      layer.setBounds(bounds);
-      layer.redraw();
-    } else if (layer instanceof L.Circle) {
-      layer.setLatLng([newCoordinates.center[1], newCoordinates.center[0]]);
-      layer.setRadius(newCoordinates.radius);
-      layer.redraw();
+  // Функция принудительной перерисовки (без бесконечного цикла)
+  const forceMapRedraw = useCallback(() => {
+    if (!map) return;
+    
+    // Сохраняем состояние
+    const center = map.getCenter();
+    const zoom = map.getZoom();
+    const bearing = typeof (map as any).getBearing === 'function' ? (map as any).getBearing() : 0;
+    
+    // Принудительная перерисовка
+    map.invalidateSize({ animate: false });
+    
+    // Перерисовка только Path слоев
+    map.eachLayer((layer) => {
+      if (layer instanceof L.Path) {
+        layer.redraw();
+      }
+    });
+    
+    // Восстанавливаем позицию БЕЗ триггера событий
+    if (typeof (map as any).setBearing === 'function') {
+      (map as any).setBearing(bearing, { animate: false });
+    }
+    map.setView(center, zoom, { animate: false });
+  }, [map]);
+
+  // Отключение редактирования
+  const hardDisableEditing = useCallback((layer: L.Layer | null | undefined) => {
+    if (!layer) return;
+    
+    try {
+      if ((layer as any).editing) {
+        (layer as any).editing.disable();
+      }
+    } catch (e) {
+      // Игнорируем
     }
   }, []);
 
+  const findLayerOnMap = useCallback((id: number): L.Layer | null => {
+    let found: L.Layer | null = null;
+    map.eachLayer((layer) => {
+      if ((layer as any).drawingId === id) found = layer;
+    });
+    return found;
+  }, [map]);
+
   const getCurrentCoordinates = useCallback((layer: L.Layer): any => {
     if (layer instanceof L.Rectangle) {
-      const bounds = (layer as L.Rectangle).getBounds();
-      const sw = bounds.getSouthWest();
-      const ne = bounds.getNorthEast();
-      return [[sw.lng, sw.lat], [ne.lng, ne.lat]];
+      const bounds = layer.getBounds();
+      return [[bounds.getSouthWest().lng, bounds.getSouthWest().lat], [bounds.getNorthEast().lng, bounds.getNorthEast().lat]];
     }
-    if (layer instanceof L.Polygon) {
-      const latlngs = (layer as L.Polygon).getLatLngs();
+    if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+      const latlngs = layer.getLatLngs();
       const points = Array.isArray(latlngs[0]) ? latlngs[0] : latlngs;
       let coords = (points as L.LatLng[]).map(p => [p.lng, p.lat]);
-      if (coords.length > 1 && (coords[0][0] !== coords[coords.length - 1][0] || coords[0][1] !== coords[coords.length - 1][1])) {
-        coords.push([coords[0][0], coords[0][1]]);
+      if (layer instanceof L.Polygon && coords.length > 1) {
+        if (coords[0][0] !== coords[coords.length-1][0] || coords[0][1] !== coords[coords.length-1][1]) {
+          coords.push([coords[0][0], coords[0][1]]);
+        }
       }
       return coords;
     }
-    if (layer instanceof L.Polyline) {
-      const latlngs = (layer as L.Polyline).getLatLngs();
-      const points = Array.isArray(latlngs[0]) ? latlngs[0] : latlngs;
-      return (points as L.LatLng[]).map(p => [p.lng, p.lat]);
-    }
     if (layer instanceof L.Circle) {
-      const center = (layer as L.Circle).getLatLng();
-      const radius = (layer as L.Circle).getRadius();
-      return { center: [center.lng, center.lat], radius };
+      const center = layer.getLatLng();
+      return { center: [center.lng, center.lat], radius: layer.getRadius() };
     }
     return null;
   }, []);
 
-  const createDragMarker = useCallback((id: number, layer: L.Layer) => {
-    if (dragMarkerRef.current) {
-      dragMarkerRef.current.remove();
-      dragMarkerRef.current = null;
-    }
-
-    let centerLatLng: L.LatLng | null = null;
-    let shapeType: 'rectangle' | 'circle' | null = null;
-
-    if (layer instanceof L.Rectangle) {
-      centerLatLng = layer.getBounds().getCenter();
-      shapeType = 'rectangle';
-    } else if (layer instanceof L.Circle) {
-      centerLatLng = layer.getLatLng();
-      shapeType = 'circle';
-    } else {
-      return null;
-    }
-
-    const dragIcon = L.divIcon({
-      className: 'custom-drag-marker',
-      html: '<div style="background-color:#ffaa00; width:12px; height:12px; border-radius:50%; border:2px solid white; box-shadow:0 0 4px black; cursor:move;"></div>',
-      iconSize: [12, 12],
-      iconAnchor: [6, 6],
-    });
-    const marker = L.marker(centerLatLng, { icon: dragIcon, interactive: true, zIndexOffset: 1000 });
-    marker.addTo(map);
-    dragMarkerRef.current = marker;
-
-    let isDragging = false;
-
-    const onMouseDown = (e: L.LeafletMouseEvent) => {
-      L.DomEvent.stopPropagation(e);
-      isDragging = true;
-      dragStateRef.current = {
-        startLatLng: e.latlng,
-        startBoundsOrCenter: layer instanceof L.Rectangle ? layer.getBounds() : layer.getLatLng(),
-        type: shapeType!,
-        drawingId: id,
-      };
-      map.dragging.disable();
-      map.doubleClickZoom.disable();
-    };
-
-    const onMouseMove = (e: L.LeafletMouseEvent) => {
-      if (!isDragging || !dragStateRef.current) return;
-      const deltaLat = e.latlng.lat - dragStateRef.current.startLatLng.lat;
-      const deltaLng = e.latlng.lng - dragStateRef.current.startLatLng.lng;
-      const { type, startBoundsOrCenter } = dragStateRef.current;
-
-      if (type === 'rectangle') {
-        const bounds = startBoundsOrCenter as L.LatLngBounds;
-        const newSouthWest = L.latLng(bounds.getSouthWest().lat + deltaLat, bounds.getSouthWest().lng + deltaLng);
-        const newNorthEast = L.latLng(bounds.getNorthEast().lat + deltaLat, bounds.getNorthEast().lng + deltaLng);
-        const newBounds = L.latLngBounds(newSouthWest, newNorthEast);
-        (layer as L.Rectangle).setBounds(newBounds);
-        marker.setLatLng(newBounds.getCenter());
-      } else if (type === 'circle') {
-        const center = startBoundsOrCenter as L.LatLng;
-        const newCenter = L.latLng(center.lat + deltaLat, center.lng + deltaLng);
-        (layer as L.Circle).setLatLng(newCenter);
-        marker.setLatLng(newCenter);
-      }
-      layer.redraw();
-    };
-
-    const onMouseUp = () => {
-      if (!isDragging) return;
-      isDragging = false;
-      dragStateRef.current = null;
-      map.dragging.enable();
-      map.doubleClickZoom.enable();
-    };
-
-    marker.on('mousedown', onMouseDown);
-    map.on('mousemove', onMouseMove);
-    map.on('mouseup', onMouseUp);
-
-    const cleanup = () => {
-      marker.off('mousedown', onMouseDown);
-      map.off('mousemove', onMouseMove);
-      map.off('mouseup', onMouseUp);
-      if (dragMarkerRef.current) dragMarkerRef.current.remove();
-      dragMarkerRef.current = null;
-    };
-    return cleanup;
-  }, [map]);
-
-  const disableEditingForLayer = useCallback((id: number, layer?: L.Layer) => {
-    if (retryTimersRef.current[id]) {
-      clearTimeout(retryTimersRef.current[id]);
-      delete retryTimersRef.current[id];
-    }
-    const targetLayer = layer || layerRefs.current[id];
-    // Удаляем кастомный маркер перетаскивания
-    if (dragCleanupRefs.current[id]) {
-      dragCleanupRefs.current[id]();
-      delete dragCleanupRefs.current[id];
-    }
-    if (targetLayer && (targetLayer as any).editing) {
-      try { (targetLayer as any).editing.disable(); } catch (err) { }
-    }
-    if (editCommitHandlersRef.current[id]) {
-      const handler = editCommitHandlersRef.current[id];
-      if (targetLayer) targetLayer.off('editable:drawing:commit', handler);
-      delete editCommitHandlersRef.current[id];
-    }
-  }, []);
-
+  // СОХРАНЕНИЕ - исправленный порядок
   const saveCurrentGeometry = useCallback(async (id: number) => {
-    let targetLayer: L.Layer | null = null;
-    map.eachLayer((layer) => {
-      if ((layer as any).drawingId === id) targetLayer = layer;
-    });
-    if (!targetLayer) {
-      console.error(`Layer ${id} not found`);
+    // Защита от повторного вызова
+    if (isLockedRef.current[id]) {
+      console.log('Save already in progress, skipping');
       return;
     }
-    const newCoords = getCurrentCoordinates(targetLayer);
-    if (newCoords) {
-      // Выходим из режима редактирования (сбрасываем editMode)
-      onEditSaved?.();
-
-      // Принудительно удаляем все маркеры перетаскивания с карты
-      const container = map.getContainer();
-      // Удаляем кастомные маркеры
-      document.querySelectorAll('.custom-drag-marker').forEach(el => {
-        if (el.parentNode) el.parentNode.removeChild(el);
-      });
-      // Удаляем стандартные маркеры leaflet-editable-move (если есть)
-      document.querySelectorAll('.leaflet-editable-move').forEach(el => {
-        if (el.parentNode) el.parentNode.removeChild(el);
-      });
-
-      // Сохраняем координаты на сервер
-      await onDrawingChange(id, newCoords);
+    
+    isLockedRef.current[id] = true;
+    justSavedRef.current[id] = true;
+    
+    const layer = layerRefs.current[id] || findLayerOnMap(id);
+    const newCoords = layer ? getCurrentCoordinates(layer) : null;
+    
+    // 1. Отключаем редактирование
+    if (layer) {
+      hardDisableEditing(layer);
     }
-  }, [map, onDrawingChange, getCurrentCoordinates, onEditSaved]);
+    
+    // 2. Удаляем иконки
+    destroyAllEditIcons();
+    
+    // 3. Сохраняем данные (ВАЖНО: до вызова onEditSaved)
+    let saveError = null;
+    if (layer && newCoords) {
+      try {
+        await onDrawingChange(id, newCoords);
+      } catch (err) {
+        console.error('Save failed', err);
+        saveError = err;
+      }
+    }
+    
+    // 4. ТОЛЬКО после успешного сохранения выходим из режима
+    if (!saveError && onEditSaved) {
+      onEditSaved();
+    }
+    
+    delete originalCoordinatesRef.current[id];
+    
+    // 5. Принудительно пересоздаем слой
+    setRemountKeys(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+    
+    // 6. Перерисовываем карту с задержкой
+    setTimeout(() => {
+      forceMapRedraw();
+      // Дополнительная очистка
+      destroyAllEditIcons();
+    }, 50);
+    
+    // 7. Снимаем блокировку через более длительную задержку
+    setTimeout(() => {
+      isLockedRef.current[id] = false;
+      // Сбрасываем флаг justSaved через секунду
+      setTimeout(() => {
+        justSavedRef.current[id] = false;
+      }, 1000);
+    }, 200);
+    
+  }, [onDrawingChange, getCurrentCoordinates, hardDisableEditing, onEditSaved, findLayerOnMap, destroyAllEditIcons, forceMapRedraw]);
 
   const cancelEditing = useCallback((id: number) => {
-    let targetLayer: L.Layer | null = layerRefs.current[id];
-    if (!targetLayer) {
-      map.eachLayer((layer) => {
-        if ((layer as any).drawingId === id) targetLayer = layer;
+    if (isLockedRef.current[id]) return;
+    
+    isLockedRef.current[id] = true;
+    
+    const layer = layerRefs.current[id] || findLayerOnMap(id);
+    if (layer) {
+      hardDisableEditing(layer);
+    }
+    
+    destroyAllEditIcons();
+    delete originalCoordinatesRef.current[id];
+    
+    if (onEditSaved) {
+      onEditSaved();
+    }
+    
+    setRemountKeys(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+    
+    setTimeout(() => {
+      forceMapRedraw();
+      destroyAllEditIcons();
+    }, 50);
+    
+    setTimeout(() => {
+      isLockedRef.current[id] = false;
+    }, 200);
+  }, [hardDisableEditing, onEditSaved, findLayerOnMap, destroyAllEditIcons, forceMapRedraw]);
+
+  useImperativeHandle(ref, () => ({ saveCurrentGeometry, cancelEditing }), [saveCurrentGeometry, cancelEditing]);
+
+  // Глобальный контроль режима редактирования - ИСПРАВЛЕН
+  useEffect(() => {
+    // Если режим не geometry - отключаем все
+    if (editMode.kind !== 'geometry') {
+      Object.values(layerRefs.current).forEach(layer => {
+        hardDisableEditing(layer);
       });
-    }
-    if (originalCoordinatesRef.current[id]) {
-      if (targetLayer) updateLayerCoordinates(targetLayer, originalCoordinatesRef.current[id]);
-      delete originalCoordinatesRef.current[id];
-    }
-    disableEditingForLayer(id, targetLayer);
-  }, [map, updateLayerCoordinates, disableEditingForLayer]);
-
-  const enableEditingForLayer = useCallback((id: number, layer: L.Layer, retryCount = 0) => {
-    if (!layer || typeof (layer as any).enableEdit !== 'function') return false;
-    if ((layer as any).editing) return true;
-
-    const drawing = drawings.find(d => d.id === id);
-    if (drawing && !originalCoordinatesRef.current[id]) {
-      originalCoordinatesRef.current[id] = JSON.parse(JSON.stringify(drawing.coordinates));
+      destroyAllEditIcons();
+      return;
     }
 
-    try {
-      (layer as any).enableEdit();
-      // Для прямоугольников и кругов добавляем кастомный маркер перетаскивания
-      if (layer instanceof L.Rectangle || layer instanceof L.Circle) {
-        const cleanup = createDragMarker(id, layer);
-        if (cleanup) dragCleanupRefs.current[id] = cleanup;
+    const id = editMode.drawingId;
+    
+    // ПРОВЕРКА: если недавно сохраняли - игнорируем
+    if (justSavedRef.current[id]) {
+      console.log('Just saved, ignoring edit mode enable');
+      return;
+    }
+    
+    if (isLockedRef.current[id]) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      // Повторная проверка
+      if (justSavedRef.current[id] || isLockedRef.current[id]) {
+        return;
       }
-      return true;
-    } catch (err) {
-      console.error(err);
-      if (retryCount < 5) {
-        const timer = setTimeout(() => {
-          enableEditingForLayer(id, layer, retryCount + 1);
-        }, 200);
-        retryTimersRef.current[id] = timer;
+      
+      const layer = layerRefs.current[id] || findLayerOnMap(id);
+      const drawing = drawings.find(d => d.id === id);
+
+      if (layer && drawing) {
+        if (!originalCoordinatesRef.current[id]) {
+          originalCoordinatesRef.current[id] = JSON.parse(JSON.stringify(drawing.coordinates));
+        }
+        
+        // Чистим перед включением
+        destroyAllEditIcons();
+        
+        try {
+          if (typeof (layer as any).enableEdit === 'function') {
+            (layer as any).enableEdit();
+          }
+        } catch (e) {
+          console.warn('Enable edit error:', e);
+        }
       }
-      return false;
-    }
-  }, [drawings, createDragMarker]);
+    }, 100); // Увеличенная задержка
 
-  useImperativeHandle(ref, () => ({
-    saveCurrentGeometry,
-    cancelEditing,
-  }), [saveCurrentGeometry, cancelEditing]);
+    return () => clearTimeout(timer);
+  }, [editMode, drawings, findLayerOnMap, hardDisableEditing, destroyAllEditIcons]);
 
+  // Очистка при размонтировании
   useEffect(() => {
     return () => {
-      if (cleanupRef.current) cleanupRef.current();
-      Object.entries(layerRefs.current).forEach(([idStr, layer]) => {
-        const id = parseInt(idStr);
-        disableEditingForLayer(id, layer);
-      });
+      Object.values(layerRefs.current).forEach(layer => hardDisableEditing(layer));
+      destroyAllEditIcons();
     };
-  }, [disableEditingForLayer]);
-
-  useEffect(() => {
-    Object.entries(layerRefs.current).forEach(([idStr, layer]) => {
-      const id = parseInt(idStr);
-      disableEditingForLayer(id, layer);
-    });
-    if (cleanupRef.current) {
-      cleanupRef.current();
-      cleanupRef.current = null;
-    }
-    if (editMode.kind === 'geometry') {
-      const id = editMode.drawingId;
-      const layer = layerRefs.current[id];
-      if (layer) {
-        const waitForLayer = () => {
-          if (map.hasLayer(layer)) {
-            enableEditingForLayer(id, layer);
-          } else {
-            const onAdd = (e: L.LayerEvent) => {
-              if (e.layer === layer) {
-                map.off('layeradd', onAdd);
-                enableEditingForLayer(id, layer);
-              }
-            };
-            map.on('layeradd', onAdd);
-            cleanupRef.current = () => map.off('layeradd', onAdd);
-          }
-        };
-        waitForLayer();
-      }
-    }
-  }, [editMode, map, enableEditingForLayer, disableEditingForLayer]);
+  }, [hardDisableEditing, destroyAllEditIcons]);
 
   const setLayerRef = useCallback((id: number) => (el: L.Layer | null) => {
     if (el) {
       (el as any).drawingId = id;
       layerRefs.current[id] = el;
-      if (editMode.kind === 'geometry' && editMode.drawingId === id && map.hasLayer(el)) {
-        enableEditingForLayer(id, el);
-      }
     } else {
       delete layerRefs.current[id];
     }
-  }, [editMode, map, enableEditingForLayer]);
+  }, []);
 
   return (
     <>
       {drawings.map(drawing => {
         if (drawing.type === 'text') return null;
-        const { type, coordinates, style, id } = drawing;
+        const { type, style, id } = drawing;
         const isEditing = editMode.kind === 'geometry' && editMode.drawingId === id;
+        
+        const coords = drawing.coordinates;
+        if (!coords) return null;
+        
         const finalStyle = {
           ...style,
-          color: isEditing ? '#ffaa00' : style.color,
-          weight: isEditing ? (style.weight || 2) + 2 : style.weight,
+          color: isEditing ? token.colorPrimary : (style.color || token.colorPrimary),
+          weight: isEditing ? (style.weight || 2) + 2 : (style.weight || 2),
           opacity: 1,
         };
+        
         const eventHandlers = {
           click: () => onDrawingClick?.(drawing),
           contextmenu: (e: L.LeafletMouseEvent) => {
             L.DomEvent.stopPropagation(e);
+            e.originalEvent.preventDefault();
             onEditDrawingFromMap(drawing);
           },
         };
-        if (!coordinates) return null;
-
+        
+        const layerKey = `${id}-${remountKeys[id] || 0}`;
+        
         switch (type) {
           case 'polyline':
-            if (!Array.isArray(coordinates) || coordinates.length < 2) return null;
-            return (
-              <Polyline
-                key={id}
-                positions={coordinates.map(p => [p[1], p[0]])}
-                pathOptions={finalStyle}
-                eventHandlers={eventHandlers}
-                ref={setLayerRef(id)}
-              />
-            );
+            return <Polyline key={layerKey} positions={coords.map((p: [number, number]) => [p[1], p[0]])} pathOptions={finalStyle} eventHandlers={eventHandlers} ref={setLayerRef(id)} />;
           case 'polygon':
-            if (!Array.isArray(coordinates) || coordinates.length < 3) return null;
-            return (
-              <Polygon
-                key={id}
-                positions={coordinates.map(p => [p[1], p[0]])}
-                pathOptions={finalStyle}
-                eventHandlers={eventHandlers}
-                ref={setLayerRef(id)}
-              />
-            );
+            return <Polygon key={layerKey} positions={coords.map((p: [number, number]) => [p[1], p[0]])} pathOptions={finalStyle} eventHandlers={eventHandlers} ref={setLayerRef(id)} />;
           case 'rectangle':
-            if (!Array.isArray(coordinates) || coordinates.length !== 2) return null;
-            const bounds: [[number, number], [number, number]] = [
-              [coordinates[0][1], coordinates[0][0]],
-              [coordinates[1][1], coordinates[1][0]],
-            ];
-            return (
-              <Rectangle
-                key={id}
-                bounds={bounds}
-                pathOptions={finalStyle}
-                eventHandlers={eventHandlers}
-                ref={setLayerRef(id)}
-              />
-            );
+            return <Rectangle key={layerKey} bounds={[[coords[0][1], coords[0][0]], [coords[1][1], coords[1][0]]]} pathOptions={finalStyle} eventHandlers={eventHandlers} ref={setLayerRef(id)} />;
           case 'circle':
-            if (!coordinates.center || typeof coordinates.radius !== 'number') return null;
-            return (
-              <Circle
-                key={id}
-                center={[coordinates.center[1], coordinates.center[0]]}
-                radius={coordinates.radius}
-                pathOptions={finalStyle}
-                eventHandlers={eventHandlers}
-                ref={setLayerRef(id)}
-              />
-            );
-          default:
-            return null;
+            return <Circle key={layerKey} center={[coords.center[1], coords.center[0]]} radius={coords.radius} pathOptions={finalStyle} eventHandlers={eventHandlers} ref={setLayerRef(id)} />;
+          default: return null;
         }
       })}
     </>

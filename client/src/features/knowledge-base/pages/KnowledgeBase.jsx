@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Spin, Layout } from 'antd';
+import { Alert, Spin, Layout, theme } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import KnowledgeStore from '../store/KnowledgeStore';
 import styles from './KnowledgeBase.module.css';
@@ -11,8 +11,10 @@ import KnowledgeTable from '../ui/KnowledgeTable/KnowledgeTable';
 import KnowledgeCategoryTree from '../ui/KnowledgeCategoryTree/KnowledgeCategoryTree';
 
 const { Content } = Layout;
+const { useToken } = theme;
 
 const KnowledgeBase = observer(() => {
+  const { token } = useToken();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -130,7 +132,7 @@ const KnowledgeBase = observer(() => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} >
       <KnowledgeHeader
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -158,7 +160,7 @@ const KnowledgeBase = observer(() => {
 
         {/* Таблица справа */}
         <div className={styles.tableContent}>
-          <div className={styles.tableCard}>
+          <div className={styles.tableCard} style={{ background: token.colorBgContainer, boxShadow: token.boxShadow }}>
             <div className={styles.articleListScroll}>
               <KnowledgeTable
                 data={sortedArticles}

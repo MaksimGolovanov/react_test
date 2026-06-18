@@ -23,6 +23,7 @@ import {
   Flex,
   Checkbox,
   message,
+  theme,
 } from 'antd';
 import { FilePdfOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 
@@ -33,6 +34,7 @@ import HeliosCondC_ from '../fonts/helioscondc.ttf';
 
 const { Text } = Typography;
 const { Option } = Select;
+const { useToken } = theme;
 const API_URL = process.env.REACT_APP_API_URL;
 
 Font.register({
@@ -135,6 +137,7 @@ const PhotoPDF = ({ badges }) => {
 };
 
 function BadgePage() {
+  const { token } = useToken();
   const [staffList, setStaffList] = useState([]);
   const [selectedBadges, setSelectedBadges] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -310,7 +313,7 @@ function BadgePage() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} >
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Flex gap="middle" align="center" wrap="wrap">
           <Button type="primary" icon={<FilePdfOutlined />} onClick={handleGeneratePDF}>
@@ -325,8 +328,10 @@ function BadgePage() {
         <Row gutter={[16, 16]}>
           <Col xs={24} md={12}>
             {/* Блок "Сотрудники" */}
-            <div className={styles.sectionCard}>
-              <div className={styles.sectionTitle}>Сотрудники</div>
+            <div className={styles.sectionCard} style={{ background: token.colorBgContainer, borderColor: token.colorBorder }}>
+              <div className={styles.sectionTitle} style={{ borderBottomColor: token.colorBorder, color: token.colorText }}>
+                Сотрудники
+              </div>
               <Input.Search
                 placeholder="Поиск по ФИО, должности, отделу, табельному номеру..."
                 value={searchQuery}
@@ -348,8 +353,10 @@ function BadgePage() {
             </div>
 
             {/* Блок "Выбранные сотрудники" */}
-            <div className={styles.sectionCard} style={{ marginTop: 16 }}>
-              <div className={styles.sectionTitle}>Выбранные сотрудники</div>
+            <div className={styles.sectionCard} style={{ marginTop: 16, background: token.colorBgContainer, borderColor: token.colorBorder }}>
+              <div className={styles.sectionTitle} style={{ borderBottomColor: token.colorBorder, color: token.colorText }}>
+                Выбранные сотрудники
+              </div>
               <div className={styles.scrollableContainer}>
                 <Table
                   columns={selectedColumns}
@@ -366,37 +373,39 @@ function BadgePage() {
 
           <Col xs={24} md={12}>
             {/* Блок "Предпросмотр" */}
-            <div className={styles.sectionCard}>
-              <div className={styles.sectionTitle}>Предпросмотр</div>
+            <div className={styles.sectionCard} style={{ background: token.colorBgContainer, borderColor: token.colorBorder }}>
+              <div className={styles.sectionTitle} style={{ borderBottomColor: token.colorBorder, color: token.colorText }}>
+                Предпросмотр
+              </div>
               <div className={styles.previewContainer}>
                 {outputType === 'badges' ? (
                   <Flex vertical gap={4} align="center">
                     {selectedBadges.map((badge) => (
-                      <div key={badge.uid} className={styles.badgePair}>
-                        <div className={styles.badge}>
-                          <div className={styles.badgeHeader}>
+                      <div key={badge.uid} className={styles.badgePair} style={{ borderBottomColor: token.colorBorder }}>
+                        <div className={styles.badge} style={{ background: token.colorBgContainer, borderColor: token.colorBorder }}>
+                          <div className={styles.badgeHeader} style={{ backgroundColor: '#003366', color: '#fff' }}>
                             <img src={logoImage} alt="Логотип" className={styles.badgeLogo} />
-                            <div className={styles.badgeCompanyName}>Вуктыльское ЛПУМГ</div>
+                            <div className={styles.badgeCompanyName} style={{ color: '#fff', fontSize: '14px' }}>Вуктыльское ЛПУМГ</div>
                           </div>
-                          <div className={styles.badgeNameSection}>
-                            <div className={styles.badgeFullName}>{badge.fio}</div>
+                          <div className={styles.badgeNameSection} style={{backgroundColor: '#fff'}}>
+                            <div className={styles.badgeFullName} style={{ color: '#000', fontSize: '20px' }}>{badge.fio}</div>
                           </div>
-                          <div className={styles.badgeFooter}>
+                          <div className={styles.badgeFooter} style={{ backgroundColor: '#0079C2', color: '#fff', fontSize: '16px' }}>
                             <div>{`${getDolgnostByCode(badge.post)}, ${getDepartmentById(badge.department)}`}</div>
-                            {badge.isSafetyOfficer && <div className={styles.safetyOfficer}>Уполномоченный по ОТ</div>}
+                            {badge.isSafetyOfficer && <div className={styles.safetyOfficer} style={{ color: '#FFD700' }}>Уполномоченный по ОТ</div>}
                           </div>
                         </div>
-                        <div className={styles.badge}>
-                          <div className={styles.badgeHeader}>
+                        <div className={styles.badge} style={{ background: token.colorBgContainer, borderColor: token.colorBorder }}>
+                          <div className={styles.badgeHeader} style={{ backgroundColor: '#003366', color: '#fff' }}>
                             <img src={logoImage} alt="Логотип" className={styles.badgeLogo} />
-                            <div className={styles.badgeCompanyName}>Вуктыльское ЛПУМГ</div>
+                            <div className={styles.badgeCompanyName} style={{ color: '#fff', fontSize: '14px' }}>Вуктыльское ЛПУМГ</div>
                           </div>
-                          <div className={styles.badgeNameSection}>
-                            <div className={styles.badgeFullName}>{badge.fio}</div>
+                          <div className={styles.badgeNameSection} style={{backgroundColor: '#fff'}}>
+                            <div className={styles.badgeFullName} style={{ color: '#000', fontSize: '20px' }}>{badge.fio}</div>
                           </div>
-                          <div className={styles.badgeFooter}>
+                          <div className={styles.badgeFooter} style={{ backgroundColor: '#0079C2', color: '#fff', fontSize: '16px' }}>
                             <div>{`${getDolgnostByCode(badge.post)}, ${getDepartmentById(badge.department)}`}</div>
-                            {badge.isSafetyOfficer && <div className={styles.safetyOfficer}>Уполномоченный по ОТ</div>}
+                            {badge.isSafetyOfficer && <div className={styles.safetyOfficer} style={{ color: '#FFD700' }}>Уполномоченный по ОТ</div>}
                           </div>
                         </div>
                       </div>
@@ -408,13 +417,15 @@ function BadgePage() {
                     {selectedBadges
                       .filter((badge) => photoStatus[badge.tabNumber] === 'photo')
                       .map((badge) => (
-                        <div key={badge.uid} className={styles.photoItem}>
+                        <div key={badge.uid} className={styles.photoItem} style={{ borderColor: token.colorBorder, background: token.colorBgLayout }}>
                           <img
                             src={`${API_URL}static/photo/${badge.tabNumber}.jpg`}
                             alt={badge.fio}
                             className={styles.photoImage}
                           />
-                          <div className={styles.photoCaption}>{badge.fio.split(' ')[0]}</div>
+                          <div className={styles.photoCaption} style={{ background: token.colorBgLayout, color: token.colorTextSecondary }}>
+                            {badge.fio.split(' ')[0]}
+                          </div>
                         </div>
                       ))}
                     {selectedBadges.length > 0 && selectedBadges.filter((b) => photoStatus[b.tabNumber] === 'photo').length === 0 && (

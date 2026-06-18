@@ -1,16 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { Tree, Input, Button, Empty } from 'antd';
+import { Tree, Input, Button, Empty, theme } from 'antd';
 import { FolderOutlined, FolderOpenOutlined } from '@ant-design/icons';
 import styles from './KnowledgeCategoryTree.module.css';
 
 const { Search } = Input;
+const { useToken } = theme;
 
 const KnowledgeCategoryTree = ({ categories, selectedCategory, onSelect }) => {
+  const { token } = useToken();
   const [searchValue, setSearchValue] = useState('');
   const [expandedKeys, setExpandedKeys] = useState([]);
   const [autoExpandParent, setAutoExpandParent] = useState(true);
 
-  // Преобразование категорий в структуру дерева
   const treeData = useMemo(() => {
     if (!categories) return [];
 
@@ -36,7 +37,6 @@ const KnowledgeCategoryTree = ({ categories, selectedCategory, onSelect }) => {
     return buildTree(categories);
   }, [categories, expandedKeys]);
 
-  // Поиск по дереву
   const getParentKey = (key, tree) => {
     let parentKey;
     for (let i = 0; i < tree.length; i++) {
@@ -54,12 +54,10 @@ const KnowledgeCategoryTree = ({ categories, selectedCategory, onSelect }) => {
 
   const handleSearch = (value) => {
     setSearchValue(value);
-
     if (!value) {
       setExpandedKeys([]);
       return;
     }
-
     const expandKeys = treeData
       .map((item) => {
         if (item.title.toLowerCase().includes(value.toLowerCase())) {
@@ -68,7 +66,6 @@ const KnowledgeCategoryTree = ({ categories, selectedCategory, onSelect }) => {
         return null;
       })
       .filter((item, i, self) => item && self.indexOf(item) === i);
-
     setExpandedKeys(expandKeys);
     setAutoExpandParent(true);
   };
@@ -89,16 +86,13 @@ const KnowledgeCategoryTree = ({ categories, selectedCategory, onSelect }) => {
   if (!categories || categories.length === 0) {
     return (
       <div className={styles.emptyContainer}>
-        <Empty
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description="Нет категорий"
-        />
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Нет категорий" />
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ background: token.colorBgContainer, borderColor: token.colorBorder }}>
       <div className={styles.searchBox}>
         <Search
           placeholder="Поиск категорий..."
@@ -122,13 +116,8 @@ const KnowledgeCategoryTree = ({ categories, selectedCategory, onSelect }) => {
         />
       </div>
 
-      <div className={styles.footer}>
-        <Button
-          type="link"
-          size="small"
-          onClick={() => onSelect(null)}
-          disabled={!selectedCategory}
-        >
+      <div className={styles.footer} style={{ borderTopColor: token.colorBorder }}>
+        <Button type="link" size="small" onClick={() => onSelect(null)} disabled={!selectedCategory}>
           Сбросить фильтр
         </Button>
       </div>

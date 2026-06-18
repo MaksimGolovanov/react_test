@@ -1,0 +1,52 @@
+/* src/features/security-training/pages/CourseDetailPage.css */
+
+.course-detail-layout {
+  height: calc(100vh - 64px);
+}
+
+.course-detail-sider {
+  background: var(--sidebar-bg, #fff);
+  border-right: 1px solid var(--border-color, #f0f0f0);
+  padding: 16px;
+  overflow: auto;
+  height: 100%;
+}
+
+.course-detail-content {
+  overflow: auto;
+  height: calc(100vh - 64px);
+}
+
+.course-detail-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.course-detail-error {
+  padding: 50px;
+  text-align: center;
+}
+
+.error-back-btn {
+  margin-top: 20px;
+}
+
+/* Тёмная тема */
+body.dark-theme {
+  --sidebar-bg: #1f1f1f;
+  --border-color: #303030;
+}
+
+body.dark-theme .course-detail-sider {
+  background: var(--sidebar-bg);
+  border-right-color: var(--border-color);
+}
+
+.course-detail-layout .ant-layout-sider {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+}

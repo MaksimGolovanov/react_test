@@ -1,176 +1,133 @@
+// src/features/ius-pt/components/UserTable/EditUserModal.jsx
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Dropdown } from 'react-bootstrap';
-import styles from './style.module.css';
-import IusPtService from '../../services/IusPtService'; // Импорт сервиса для работы с API
+import { Modal, Form, Input, Select, Space, Button, message, theme } from 'antd';
+import IusPtService from '../../services/IusPtService';
 
-const EditUserModal = ({ show, handleClose, user, onSave, isLoading, error }) => {
-    const [formData, setFormData] = useState({
-        name: user.IusUser ? user.IusUser.name : '-',
-        fio: user.fio || '-',
-        email: user.email || '-',
-        department: user.department?.slice(13) || '-',
-        post: user.post || '-',
-        tabNumber: user.tabNumber || '-',
-        contractDetails: user.IusUser ? user.IusUser.contractDetails : '-',
-        location: user.IusUser ? user.IusUser.location : '-',
-        computerName: user.IusUser ? user.IusUser.computerName : '-',
-        telephone: user.telephone || '-',
-        ip: user.ip || '-',
-        manager: user.IusUser ? user.IusUser.manager : '-',
-        managerEmail: user.IusUser ? user.IusUser.managerEmail : '-',
-    });
+const { useToken } = theme;
 
-    const [staffList, setStaffList] = useState([]); // Список сотрудников для выбора руководителя
-    const [searchQuery, setSearchQuery] = useState(''); // Поисковый запрос
-    const [isSearching, setIsSearching] = useState(false); // Состояние загрузки поиска
+const EditUserModal = ({ visible, onCancel, user, onSave }) => {
+  const { token } = useToken();
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [staffList, setStaffList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-    // Загрузка списка сотрудников при открытии модального окна
-    useEffect(() => {
-        if (show) {
-            fetchStaff();
-        }
-    }, [show]);
+  useEffect(() => {
+    if (visible) {
+      IusPtService.fetchStaffWithIusUser().then(setStaffList).catch(console.error);
+      form.setFieldsValue({
+        name: user.IusUser?.name,
+        fio: user.fio,
+        email: user.email,
+        department: user.department?.slice(13),
+        post: user.post,
+        tabNumber: user.tabNumber,
+        contractDetails: user.IusUser?.contractDetails,
+        location: user.IusUser?.location,
+        computerName: user.IusUser?.computerName,
+        telephone: user.telephone,
+        ip: user.ip,
+        manager: user.IusUser?.manager,
+        managerEmail: user.IusUser?.managerEmail,
+      });
+    }
+  }, [visible, user, form]);
 
-    // Загрузка списка сотрудников
-    const fetchStaff = async () => {
-        setIsSearching(true);
-        try {
-            const response = await IusPtService.fetchStaffWithIusUser(); // Загрузка сотрудников
-            setStaffList(response);
-            
-        } catch (error) {
-            console.error('Ошибка при загрузке сотрудников:', error);
-        } finally {
-            setIsSearching(false);
-        }
-    };
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      await onSave({
+        tabNumber: user.tabNumber,
+        name: values.name,
+        contractDetails: values.contractDetails,
+        computerName: values.computerName,
+        location: values.location,
+        manager: values.manager,
+        managerEmail: values.managerEmail,
+      });
+      message.success('Сохранено');
+      onCancel();
+    } catch (e) {
+      message.error('Ошибка сохранения');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Обработчик изменения поискового запроса
-    const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
-    };
+  const filteredStaff = staffList.filter(s => s.fio.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    // Обработчик выбора руководителя
-    const handleManagerSelect = (staffUser) => {
-        setFormData((prev) => ({
-            ...prev,
-            manager: staffUser.fio,
-            managerEmail: staffUser.email,
-        }));
-    };
-
-    // Фильтрация списка сотрудников по поисковому запросу
-    const filteredStaff = staffList.filter((staffUser) =>
-        staffUser.fio.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    // Остальные обработчики и поля формы
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSave(formData);
-    };
-
-    const fields = [
-        { id: 'name', label: 'Имя пользователя', type: 'text', readOnly: false },
-        { id: 'fio', label: 'Фамилия Имя Отчество', type: 'text', readOnly: true },
-        { id: 'email', label: 'Электронная почта', type: 'email', readOnly: true },
-        { id: 'department', label: 'Подразделение', type: 'text', readOnly: true },
-        { id: 'post', label: 'Должность', type: 'text', readOnly: true },
-        { id: 'tabNumber', label: 'Табельный номер', type: 'text', readOnly: true },
-        { id: 'contractDetails', label: 'Реквизиты договора о конфиденциальности', type: 'text', readOnly: false },
-        { id: 'location', label: 'Расположение (город, адрес)', type: 'text', readOnly: false },
-        { id: 'computerName', label: 'Имя компьютера', type: 'text', readOnly: false },
-        { id: 'telephone', label: 'Контактный телефон', type: 'text', readOnly: true },
-        { id: 'ip', label: 'IP адрес', type: 'text', readOnly: true },
-    ];
-
-    return (
-        <Modal show={show} onHide={handleClose} size="lg" backdropClassName={styles.backdrop}>
-            <Modal.Header closeButton>
-                <Modal.Title>Редактирование данных пользователя</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Form onSubmit={handleSubmit}>
-                    {/* Динамическое создание полей формы */}
-                    {fields.map((field) => (
-                        <Form.Group controlId={`form${field.id}`} key={field.id}>
-                            <Form.Label className={styles.formlabel}>{field.label}</Form.Label>
-                            <Form.Control
-                                className={styles.formcontrol}
-                                type={field.type}
-                                name={field.id}
-                                value={formData[field.id]}
-                                onChange={handleChange}
-                                readOnly={field.readOnly}
-                                disabled={isLoading}
-                            />
-                        </Form.Group>
-                    ))}
-
-                    {/* Поле для выбора руководителя */}
-                    <Form.Group controlId="formManager">
-                        <Form.Label className={styles.formlabel}>Ф.И.О. руководителя</Form.Label>
-                        <Dropdown>
-                            <Dropdown.Toggle variant="light" id="dropdown-manager" className={styles.formcontrol}>
-                                {formData.manager || 'Выберите руководителя'}
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu style={{ width: '100%' }} className={styles.dropdownMenu} >
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Поиск руководителя..."
-                                    value={searchQuery}
-                                    onChange={handleSearchChange}
-                                    className={styles.formcontrol}
-                                />
-                                {isSearching ? (
-                                    <Dropdown.Item>Загрузка...</Dropdown.Item>
-                                ) : (
-                                    filteredStaff.map((staffUser) => (
-                                        <Dropdown.Item
-                                            key={staffUser.tabNumber}
-                                            onClick={() => handleManagerSelect(staffUser)}
-                                            className={styles.dropdownItem}
-                                        >
-                                            {staffUser.fio} ({staffUser.email})
-                                        </Dropdown.Item>
-                                    ))
-                                )}
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </Form.Group>
-
-                    {/* Поле для email руководителя */}
-                    <Form.Group controlId="formManagerEmail">
-                        <Form.Label className={styles.formlabel}>E-mail руководителя</Form.Label>
-                        <Form.Control
-                            className={styles.formcontrol}
-                            type="text"
-                            name="managerEmail"
-                            value={formData.managerEmail}
-                            readOnly
-                        />
-                    </Form.Group>
-
-                    {/* Отображение ошибки */}
-                    {error && <div className={styles.errorMessage}>{error}</div>}
-
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose} disabled={isLoading}>
-                            Закрыть
-                        </Button>
-                        <Button variant="primary" type="submit" disabled={isLoading}>
-                            {isLoading ? 'Сохранение...' : 'Сохранить изменения'}
-                        </Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal.Body>
-        </Modal>
-    );
+  return (
+    <Modal
+      title="Редактирование данных пользователя"
+      open={visible}
+      onCancel={onCancel}
+      footer={null}
+      width={600}
+    >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form.Item name="name" label="Имя пользователя">
+          <Input />
+        </Form.Item>
+        <Form.Item name="fio" label="ФИО">
+          <Input readOnly />
+        </Form.Item>
+        <Form.Item name="email" label="Email">
+          <Input readOnly />
+        </Form.Item>
+        <Form.Item name="department" label="Подразделение">
+          <Input readOnly />
+        </Form.Item>
+        <Form.Item name="post" label="Должность">
+          <Input readOnly />
+        </Form.Item>
+        <Form.Item name="tabNumber" label="Табельный номер">
+          <Input readOnly />
+        </Form.Item>
+        <Form.Item name="contractDetails" label="Реквизиты договора о конфиденциальности">
+          <Input />
+        </Form.Item>
+        <Form.Item name="location" label="Расположение (город, адрес)">
+          <Input />
+        </Form.Item>
+        <Form.Item name="computerName" label="Имя компьютера">
+          <Input />
+        </Form.Item>
+        <Form.Item name="telephone" label="Телефон">
+          <Input readOnly />
+        </Form.Item>
+        <Form.Item name="ip" label="IP адрес">
+          <Input readOnly />
+        </Form.Item>
+        <Form.Item name="manager" label="Руководитель">
+          <Select
+            showSearch
+            placeholder="Выберите руководителя"
+            filterOption={false}
+            onSearch={setSearchQuery}
+            onSelect={(val, option) => {
+              form.setFieldsValue({ manager: option.label, managerEmail: option.email });
+            }}
+            notFoundContent={null}
+          >
+            {filteredStaff.map(s => (
+              <Select.Option key={s.tabNumber} value={s.tabNumber} label={s.fio} email={s.email}>
+                {s.fio} ({s.email})
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item name="managerEmail" label="E-mail руководителя">
+          <Input readOnly />
+        </Form.Item>
+        <Form.Item>
+          <Space>
+            <Button type="primary" htmlType="submit" loading={loading}>Сохранить</Button>
+            <Button onClick={onCancel}>Отмена</Button>
+          </Space>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
 };
 
 export default EditUserModal;

@@ -1,11 +1,12 @@
+// features/admin/routes.js
 import { Routes, Route } from 'react-router-dom';
-import PrivateRoute from '../../shared/PrivateRoute'; // Импортируем PrivateRoute
+import PrivateRoute from '../../shared/PrivateRoute';
 import Admin from './pages/Admin';
 import RoleSprav from './pages/RoleSprav';
 import AdminCreate from './pages/AdminCreate';
 import AdminEditUser from './pages/AdminEditUser';
 
-const IusPtRoutes = () => {
+const AdminRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<PrivateRoute requiredRole={['ADMIN']}><Admin /></PrivateRoute>} />
@@ -16,4 +17,4 @@ const IusPtRoutes = () => {
   );
 };
 
-export default IusPtRoutes;
+export default AdminRoutes;

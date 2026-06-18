@@ -47,3 +47,18 @@ export interface IpHeaderProps {
   onEdit: (ip: IpAddress) => void;
   onDelete: () => void;
 }
+
+// src/modules/IpAddress/types/ip.types.ts
+// Добавить в конец файла:
+
+export interface IpTableProps {
+  data: IpAddress[];
+  sortConfig: SortConfig;
+  onSort: (key: keyof IpAddress) => void;
+  selectedRowKeys: React.Key[];
+  onSelectionChange: (keys: React.Key[], rows: IpAddress[]) => void;
+  currentPage?: number;
+  pageSize?: number;
+  total?: number;
+  onPaginationChange?: (page: number, pageSize: number) => void;
+}

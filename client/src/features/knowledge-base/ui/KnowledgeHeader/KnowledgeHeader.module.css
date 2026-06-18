@@ -1,10 +1,9 @@
 .header {
-  background: white;
   padding: 16px;
   border-radius: 8px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   flex-shrink: 0;
+  border: 1px solid transparent;
 }
 
 .header :global(.ant-space) {
@@ -17,12 +16,4 @@
   .header {
     padding: 12px;
   }
-}
-
-/* ===== ТЁМНАЯ ТЕМА ===== */
-:global(body.dark-theme) .header {
-  background: rgba(18, 22, 35, 0.85) !important;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
 }

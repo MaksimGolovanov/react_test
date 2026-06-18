@@ -1,47 +1,65 @@
-// src/pages/IusPt/components/SearchUserRoles/SearchUserRoles.js
-import React, { useEffect, useState, useMemo } from 'react';
+// src/features/ius-pt/components/SearchUserRoles/SearchUserRoles.jsx
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Select, Table, Typography, Space, Tag } from 'antd';
+import { Select, Table, Typography, Space, theme, message } from 'antd';
 import iusPtStore from '../../store/IusPtStore';
-import styles from './style.module.css';
 
-const { Option } = Select;
+const { useToken } = theme;
 const { Title } = Typography;
 
 const SearchUserRoles = observer(() => {
+  const { token } = useToken();
   const [loading, setLoading] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState(null);
   const [usersWithRole, setUsersWithRole] = useState([]);
+  const [tableKey, setTableKey] = useState(0);
+  const containerRef = useRef(null);
 
-  // Загружаем роли, если их нет
+  // Загрузка справочников
   useEffect(() => {
-    if (iusPtStore.roles.length === 0) {
-      iusPtStore.fetchRoles();
-    }
-    if (iusPtStore.staffWithIusUsers.length === 0) {
-      iusPtStore.fetchStaffWithIusUsers();
-    }
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          iusPtStore.fetchRoles(),
+          iusPtStore.fetchStaffWithIusUsers(),
+        ]);
+      } catch (err) {
+        console.error(err);
+        message.error('Ошибка загрузки данных');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
   }, []);
 
-  // При изменении выбранной роли фильтруем пользователей
+  // Отслеживание изменения размера контейнера
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const resizeObserver = new ResizeObserver(() => {
+      setTableKey(prev => prev + 1);
+    });
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  // Фильтрация пользователей по выбранной роли
   useEffect(() => {
     if (!selectedRoleId) {
       setUsersWithRole([]);
       return;
     }
-
-    // Находим выбранную роль
-    const selectedRole = iusPtStore.roles.find((r) => r.id === selectedRoleId);
+    const selectedRole = iusPtStore.roles.find(r => r.id === selectedRoleId);
     if (!selectedRole) return;
 
-    // Собираем пользователей, у которых есть эта роль
-    const users = iusPtStore.staffWithIusUsers.filter((staff) => {
+    const allUsers = iusPtStore.staffWithIusUsers || [];
+    const users = allUsers.filter(staff => {
       const userRoles = staff.IusUser?.IusSpravRoles || [];
-      return userRoles.some((role) => role.id === selectedRoleId);
+      return userRoles.some(role => role.id === selectedRoleId);
     });
 
-    // Формируем данные для таблицы
-    const tableData = users.map((user) => ({
+    const tableData = users.map(user => ({
       key: user.tabNumber,
       fio: user.fio,
       tabNumber: user.tabNumber,
@@ -51,12 +69,13 @@ const SearchUserRoles = observer(() => {
       iusName: user.IusUser?.name || '-',
     }));
     setUsersWithRole(tableData);
+    setTableKey(prev => prev + 1);
   }, [selectedRoleId, iusPtStore.roles, iusPtStore.staffWithIusUsers]);
 
-  // Опции для выбора роли (сгруппированы по typename)
   const roleOptions = useMemo(() => {
     const groups = {};
-    iusPtStore.roles.forEach((role) => {
+    (iusPtStore.roles || []).forEach(role => {
+      if (!role) return;
       const group = role.typename || 'Без системы';
       if (!groups[group]) groups[group] = [];
       groups[group].push(role);
@@ -65,91 +84,71 @@ const SearchUserRoles = observer(() => {
   }, [iusPtStore.roles]);
 
   const columns = [
-    {
-      title: 'ФИО',
-      dataIndex: 'fio',
-      key: 'fio',
-      sorter: (a, b) => a.fio.localeCompare(b.fio),
-    },
-    {
-      title: 'Табельный номер',
-      dataIndex: 'tabNumber',
-      key: 'tabNumber',
-    },
-    {
-      title: 'Подразделение',
-      dataIndex: 'department',
-      key: 'department',
-      ellipsis: true,
-    },
-    {
-      title: 'Должность',
-      dataIndex: 'post',
-      key: 'post',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-    },
-    {
-      title: 'Имя входа',
-      dataIndex: 'iusName',
-      key: 'iusName',
-    },
+    { title: 'ФИО', dataIndex: 'fio', sorter: (a, b) => a.fio.localeCompare(b.fio) },
+    { title: 'Табельный номер', dataIndex: 'tabNumber' },
+    { title: 'Подразделение', dataIndex: 'department', ellipsis: true },
+    { title: 'Должность', dataIndex: 'post' },
+    { title: 'Email', dataIndex: 'email' },
+    { title: 'Имя входа', dataIndex: 'iusName' },
   ];
 
   return (
-    <div className={styles.container}>
-      <Title level={4} style={{ marginBottom: 16 }}>
+    <div
+      ref={containerRef}
+      style={{
+        padding: 16,
+        background: token.colorBgContainer,
+        borderRadius: 8,
+        width: '100%',
+      }}
+    >
+      <Title level={4} style={{ color: token.colorText, marginBottom: 16 }}>
         Поиск пользователей по роли
       </Title>
-      <Space direction="vertical" size="small" style={{ width: 'calc(100% - 10px)' }}>
-        <div>
-          <span style={{ marginRight: 8 }}>Выберите роль:</span>
-          <Select
-            showSearch
-            placeholder="Поиск роли по коду или названию"
-            style={{ width: 800 }}
-            optionFilterProp="children"
-            onChange={setSelectedRoleId}
-            value={selectedRoleId}
-            allowClear
-            filterOption={(input, option) => {
-              const role = option?.role;
-              if (!role) return false;
-              const code = role.code || '';
-              const name = role.name || '';
-              return (
-                code.toLowerCase().includes(input.toLowerCase()) ||
-                name.toLowerCase().includes(input.toLowerCase())
-              );
-            }}
-          >
-            {Object.entries(roleOptions).map(([groupName, roles]) => (
-              <Select.OptGroup key={groupName} label={groupName}>
-                {roles.map((role) => (
-                  <Option key={role.id} value={role.id} role={role}>
-                    <Space>
-                      <span style={{color:'#1677ff'}}>{role.code}</span>
-                      <span>{role.name}</span>
-                    </Space>
-                  </Option>
-                ))}
-              </Select.OptGroup>
-            ))}
-          </Select>
-        </div>
+      <Space direction="vertical" size="small" style={{ width: '100%' }}>
+        <Select
+          showSearch
+          placeholder="Выберите роль"
+          style={{ width: '100%', maxWidth: 800 }}
+          onChange={setSelectedRoleId}
+          value={selectedRoleId}
+          allowClear
+          loading={loading}
+          filterOption={(input, option) => {
+            const role = option?.role;
+            if (!role) return false;
+            const searchString = `${role.code || ''} ${role.name || ''}`.toLowerCase();
+            return searchString.includes(input.toLowerCase());
+          }}
+        >
+          {Object.entries(roleOptions).map(([groupName, roles]) => (
+            <Select.OptGroup key={groupName} label={groupName}>
+              {roles.map(role => (
+                <Select.Option key={role.id} value={role.id} role={role}>
+                  <Space>
+                    <span style={{ color: token.colorPrimary }}>{role.code}</span>
+                    <span>{role.name}</span>
+                  </Space>
+                </Select.Option>
+              ))}
+            </Select.OptGroup>
+          ))}
+        </Select>
 
         {selectedRoleId && (
-          <Table
-            columns={columns}
-            dataSource={usersWithRole}
-            loading={loading}
-            pagination={false}  // Отключаем пагинацию
-            scroll={{ x: 700, y: 550 }} // Добавляем вертикальный скролл при необходимости
-            bordered
-          />
+          <div style={{ width: '100%', overflowX: 'auto' }}>
+            <Table
+              key={tableKey}
+              columns={columns}
+              dataSource={usersWithRole}
+              loading={loading}
+              pagination={false}
+              scroll={{ y: 550 }}
+              bordered
+              style={{ width: '100%' }}
+              tableLayout="auto"
+            />
+          </div>
         )}
       </Space>
     </div>

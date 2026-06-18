@@ -1,11 +1,13 @@
 // src/modules/Map/ui/MapHeader/MapHeader.tsx
 import React from 'react';
-import { Button, Tooltip, Space, message, Modal } from 'antd';
-import { PlusOutlined, DeleteOutlined, EditOutlined, CloseOutlined, EnvironmentOutlined, AppstoreOutlined } from '@ant-design/icons';
+import { Button, Tooltip, Space, message, Modal, theme } from 'antd';
+import { PlusOutlined, DeleteOutlined, EditOutlined, CloseOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import mapStore from '../../store/MapStore';
 import TileSourceSwitcher from '../TileSourceSwitcher/TileSourceSwitcher';
 import styles from './MapHeader.module.css';
+
+const { useToken } = theme;
 
 interface MapSource {
   id: string;
@@ -35,6 +37,7 @@ const MapHeader: React.FC<MapHeaderProps> = observer(({
   onSwitchTileSource,
   selectedLayerId,
 }) => {
+  const { token } = useToken();
   const { deleteLayer } = mapStore;
 
   const handleDeleteLayer = () => {
@@ -70,10 +73,16 @@ const MapHeader: React.FC<MapHeaderProps> = observer(({
     }
   };
 
+  const headerStyle: React.CSSProperties = {
+    background: `${token.colorBgElevated}cc`,
+    backdropFilter: 'blur(20px)',
+    border: `0.5px solid ${token.colorBorder}`,
+    boxShadow: token.boxShadow,
+  };
+
   return (
-    <div className={styles.header}>
+    <div className={styles.header} style={headerStyle}>
       <Space size="small">
-        {/* Группа управления слоями */}
         <Button.Group>
           <Tooltip title="Добавить слой" placement="bottom">
             <Button type="primary" icon={<PlusOutlined />} onClick={onAddLayer} />
@@ -86,7 +95,6 @@ const MapHeader: React.FC<MapHeaderProps> = observer(({
           </Tooltip>
         </Button.Group>
 
-        {/* Группа работы с маркерами */}
         <Tooltip title={isAddMarkerMode ? "Отменить добавление метки" : "Добавить метку"} placement="bottom">
           <Button
             type={isAddMarkerMode ? 'default' : 'primary'}
@@ -97,7 +105,6 @@ const MapHeader: React.FC<MapHeaderProps> = observer(({
           />
         </Tooltip>
 
-        {/* Группа переключения подложек */}
         <div className={styles.tileGroup}>
           <TileSourceSwitcher
             sources={tileSources}

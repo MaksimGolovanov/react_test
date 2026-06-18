@@ -1,6 +1,6 @@
-import  { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { observer } from "mobx-react-lite";
-import { Card,  Alert, Spin, message, Form } from "antd"; // Добавили Form
+import { Card, Alert, Spin, message, Form, theme } from "antd";
 
 import CardStore from "../store/CardStore";
 import CardHeader from "../ui/CardHeader/CardHeader";
@@ -12,7 +12,10 @@ import { useCardFilter } from "../hooks/useCardFilter";
 import { useCardSelection } from "../hooks/useCardSelection";
 import styles from "./style.module.css";
 
+const { useToken } = theme;
+
 const CardPage = observer(() => {
+  const { token } = useToken();
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [currentCard, setCurrentCard] = useState(null);
@@ -23,9 +26,8 @@ const CardPage = observer(() => {
     key: null,
     direction: "ascending",
   });
-  const [form] = Form.useForm(); // Создаем форму
+  const [form] = Form.useForm();
 
-  // Используем кастомные хуки
   const { handleDeleteCards, handleSaveCard } = useCardActions();
   const { sortedItems, fioSuggestions, cardStatistics } = useCardFilter(
     searchTerm,
@@ -33,7 +35,6 @@ const CardPage = observer(() => {
     showNotInWorkOnly,
     sortConfig
   );
-
   const {
     selectedIds,
     handleCheckboxChange,
@@ -64,7 +65,7 @@ const CardPage = observer(() => {
 
   const handleAddNew = useCallback(() => {
     setCurrentCard(null);
-    form.resetFields(); // Сбрасываем форму
+    form.resetFields();
     setShowModal(true);
   }, [form]);
 
@@ -77,8 +78,6 @@ const CardPage = observer(() => {
     if (!card) return;
 
     setCurrentCard(card);
-
-    // Заполняем форму данными выбранной карты
     form.setFieldsValue({
       ser_num: card.ser_num || "",
       type: card.type || "",
@@ -88,7 +87,6 @@ const CardPage = observer(() => {
       data_prov: card.data_prov || "",
       log: card.log || "Да",
     });
-
     setShowModal(true);
   }, [selectedIds, form]);
 
@@ -107,38 +105,15 @@ const CardPage = observer(() => {
         setShowModal(false);
         clearSelection();
         setCurrentCard(null);
-        form.resetFields(); // Сбрасываем форму после сохранения
+        form.resetFields();
       }
     },
     [currentCard, handleSaveCard, clearSelection, form]
   );
 
   const handleClearFio = useCallback(() => {
-    form.setFieldsValue({
-      fio: "",
-      department: "",
-    });
+    form.setFieldsValue({ fio: "", department: "" });
   }, [form]);
-
-  const handleValuesChange = useCallback((changedValues, allValues) => {
-    // Можно добавить логику при изменении значений формы
-    console.log("Form values changed:", changedValues);
-  }, []);
-
-  // Подготавливаем данные для формы
-  const formData = useMemo(() => {
-    if (!currentCard) return {};
-
-    return {
-      ser_num: currentCard.ser_num || "",
-      type: currentCard.type || "",
-      description: currentCard.description || "",
-      fio: currentCard.fio || "",
-      department: currentCard.department || "",
-      data_prov: currentCard.data_prov || "",
-      log: currentCard.log || "Да",
-    };
-  }, [currentCard]);
 
   if (CardStore.error) {
     return (
@@ -157,9 +132,7 @@ const CardPage = observer(() => {
     return (
       <div className={styles.loadingContainer}>
         <Spin size="large" />
-        <p className={styles.loadingText}>
-          Загрузка данных о картах доступа...
-        </p>
+        <p className={styles.loadingText}>Загрузка данных о картах доступа...</p>
       </div>
     );
   }
@@ -181,8 +154,8 @@ const CardPage = observer(() => {
         stats={cardStatistics}
       />
 
-      <div className={styles.tableCard}>
-        <div className={styles.userListScroll}> 
+      <div className={styles.tableCard} >
+        <div className={styles.userListScroll}>
           <CardTable
             data={sortedItems}
             selectedIds={selectedIds}
@@ -206,8 +179,7 @@ const CardPage = observer(() => {
         onClearFio={handleClearFio}
         fioSuggestions={fioSuggestions}
         staffData={CardStore.staff || []}
-        formData={formData}
-        onValuesChange={handleValuesChange}
+        formData={currentCard || {}}
       />
 
       <DeleteModal

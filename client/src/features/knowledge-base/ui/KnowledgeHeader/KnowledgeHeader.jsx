@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Input, Space, message, Modal, Select } from 'antd'; // добавлен Select
+import { Button, Input, Space, message, Modal, Select, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {
   SearchOutlined,
@@ -12,6 +12,7 @@ import KnowledgeStore from '../../store/KnowledgeStore';
 import styles from './KnowledgeHeader.module.css';
 
 const { Option } = Select;
+const { useToken } = theme;
 
 const KnowledgeHeader = ({
   searchTerm,
@@ -20,14 +21,14 @@ const KnowledgeHeader = ({
   selectedRow,
   onEdit,
   onDelete,
-  selectedTag, // текущий выбранный тег
-  onTagChange, // колбэк при смене тега
+  selectedTag,
+  onTagChange,
   allTags,
-  
 }) => {
+  const { token } = useToken();
   const navigate = useNavigate();
+
   const handleDelete = async () => {
-    
     if (selectedRow) {
       Modal.confirm({
         title: 'Удаление статьи',
@@ -51,10 +52,8 @@ const KnowledgeHeader = ({
   };
 
   return (
-    <div className={styles.header}>
+    <div className={styles.header} style={{ background: token.colorBgContainer, borderColor: token.colorBorder }}>
       <Space wrap>
-        {' '}
-        {/* wrap для переноса на маленьких экранах */}
         <Button type="primary" icon={<PlusOutlined />} onClick={onAddNew}>
           Добавить статью
         </Button>
@@ -81,10 +80,7 @@ const KnowledgeHeader = ({
         >
           Удалить
         </Button>
-        <Button
-          icon={<SettingOutlined />}
-          onClick={() => navigate('/knowledge/categories')}
-        >
+        <Button icon={<SettingOutlined />} onClick={() => navigate('/knowledge/categories')}>
           Категории
         </Button>
         <Input

@@ -98,7 +98,7 @@ const DrawingModal: React.FC<DrawingModalProps> = ({ visible, drawing, initialDa
         const updateData: any = { ...values, style };
         if (isTextType) updateData.text = values.text;
         await mapStore.updateDrawing(drawing.id, updateData);
-        await mapStore.fetchDrawings();
+        // Удалён лишний fetchDrawings – store уже обновил локальный массив
       } else if (initialData) {
         const input: DrawingInput = {
           name: values.name,
@@ -110,7 +110,7 @@ const DrawingModal: React.FC<DrawingModalProps> = ({ visible, drawing, initialDa
           ...(isTextType && { text: values.text })
         };
         await mapStore.createDrawing(input);
-        await mapStore.fetchDrawings();
+        // Удалён лишний fetchDrawings
       }
       onSuccess();
     } catch (err) {

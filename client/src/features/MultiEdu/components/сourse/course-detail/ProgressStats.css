@@ -1,0 +1,92 @@
+/* ProgressStats.css */
+.progress-stats-card {
+  margin-bottom: 16px;
+  background: var(--stats-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.progress-header-icon {
+  color: #faad14;
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.progress-header-text {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.progress-stats-row {
+  margin-bottom: 8px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-icon {
+  margin-bottom: 4px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-time {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+.icon-lessons {
+  color: #52c41a;
+  font-size: 16px;
+}
+
+.icon-cert-success {
+  color: #52c41a;
+  font-size: 16px;
+}
+
+.icon-cert-warning {
+  color: #fa8c16;
+  font-size: 16px;
+}
+
+.stat-value {
+  margin-bottom: 2px;
+}
+
+.stat-value-text {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+/* CSS-переменные для карточки */
+:root {
+  --stats-bg: #fafafa;
+  --border-color: #e0e0e0;
+  --text-primary: #1f1f1f;
+}
+
+body.dark-theme {
+  --stats-bg: #1f1f1f;
+  --border-color: #303030;
+  --text-primary: #e8e8e8;
+}
+
+body.dark-theme .progress-stats-card {
+  background: var(--stats-bg);
+  border-color: var(--border-color);
+}

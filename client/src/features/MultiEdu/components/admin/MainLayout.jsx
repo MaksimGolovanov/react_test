@@ -1,31 +1,15 @@
 // src/features/security-training/components/admin/MainLayout.jsx
-
 import { Layout } from 'antd';
 import AdminHeader from './AdminHeader';
+import './MainLayout.css';
 
 const { Content } = Layout;
 
-const MainLayout = ({ 
-  children, 
-  selectedMenu, 
-  onMenuSelect,
-  onAddCourse,
-  showAddCourseButton = false 
-}) => {
+const MainLayout = ({ children, selectedMenu, onMenuSelect }) => {
   return (
-    <Layout style={{ minHeight: "calc(100vh - 64px)" }}>
-      <AdminHeader 
-        selectedMenu={selectedMenu}
-        onMenuSelect={onMenuSelect}
-        onAddCourse={onAddCourse}
-        showAddButton={showAddCourseButton}
-      />
-      
-      <Content style={{ 
-        padding: "24px", 
-        overflow: "auto" ,
-        marginTop: 64,
-        }}>
+    <Layout className="admin-main-layout">
+      <AdminHeader selectedMenu={selectedMenu} onMenuSelect={onMenuSelect} />
+      <Content className="admin-main-content">
         {children}
       </Content>
     </Layout>

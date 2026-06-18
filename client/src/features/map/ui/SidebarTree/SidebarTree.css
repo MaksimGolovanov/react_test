@@ -1,85 +1,49 @@
-/* src/modules/Map/ui/SidebarTree/SidebarTree.css */
-
-/* Основной контейнер */
+/* SidebarTree.css — только позиционирование и скролл */
 .sidebar-tree {
-  width: 280px;
-  background: #ffffff;
-  border-right: none;
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  transition: width 0.2s ease;
+  /* все цветовые свойства удалены — они задаются инлайн-стилями */
 }
 
-/* Заголовок */
 .sidebar-header {
-  padding: 12px 16px;
-  background: #fafbfc;
-  border-bottom: 1px solid #eff2f5;
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 8px;
 }
 
 .sidebar-header .ant-input-affix-wrapper {
   flex: 1;
-  border-radius: 20px;
 }
 
 .sidebar-actions {
   flex-shrink: 0;
 }
 
-/* Фильтры (чипсы) */
 .sidebar-filters {
-  padding: 8px 16px;
-  border-bottom: 1px solid #f0f2f5;
-  background: #ffffff;
+  /* фоны и границы — инлайн */
 }
 
-.sidebar-filters .ant-btn-sm {
-  border-radius: 20px;
-  font-size: 12px;
-}
-
-.sidebar-filters .ant-btn-primary {
-  background: #1890ff;
-  box-shadow: none;
-}
-
-/* Чекбокс "Все слои" */
 .sidebar-all-checkbox {
-  padding: 8px 16px;
-  border-bottom: 1px solid #f0f2f5;
-  background: #fafbfc;
+  /* фоны и границы — инлайн */
 }
 
-.sidebar-all-checkbox .ant-checkbox-wrapper {
-  font-weight: 500;
-}
-
-/* Область скролла */
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
   padding: 8px 8px 16px 8px;
 }
 
-/* Стили дерева */
+/* Дерево */
 .ant-tree .ant-tree-node-content-wrapper {
   display: flex;
   align-items: center;
   font-size: 13px;
-   padding-inline: 0 !important;
+  padding-inline: 0 !important;
   border-radius: 8px;
   transition: background 0.1s;
   width: 100%;
 }
 
 .ant-tree .ant-tree-node-content-wrapper:hover {
-  background: #f5f7fa;
+  background: var(--tree-hover, rgba(0,0,0,0.06));
 }
 
 .ant-tree-treenode {
@@ -87,7 +51,6 @@
   padding: 1px 0;
 }
 
-/* Заголовок слоя */
 .tree-layer-title {
   display: flex;
   align-items: center;
@@ -113,22 +76,6 @@
 
 .layer-name.selected {
   font-weight: 600;
-  color: #1890ff;
-}
-
-.layer-badge {
-  margin-left: 4px;
-}
-
-.layer-badge .ant-badge-count {
-  background: #e9ecef;
-  color: #495057;
-  font-size: 10px;
-  height: 18px;
-  line-height: 18px;
-  min-width: 18px;
-  border-radius: 12px;
-  box-shadow: none;
 }
 
 .layer-actions {
@@ -140,7 +87,6 @@
   display: flex;
 }
 
-/* Маркеры */
 .tree-marker-title {
   cursor: pointer;
   display: flex;
@@ -152,7 +98,7 @@
 }
 
 .tree-marker-title:hover {
-  background: #f5f7fa;
+  background: var(--tree-hover, rgba(0,0,0,0.06));
 }
 
 .marker-name {
@@ -162,7 +108,6 @@
   text-overflow: ellipsis;
 }
 
-/* Объекты рисования */
 .tree-drawing-title {
   cursor: pointer;
   display: flex;
@@ -175,12 +120,12 @@
 }
 
 .tree-drawing-title:hover {
-  background: #f5f7fa;
+  background: var(--tree-hover, rgba(0,0,0,0.06));
 }
 
 .tree-drawing-title.editing {
-  background: #e6f7ff;
-  border-left: 3px solid #1890ff;
+  background: var(--tree-selected, #e6f7ff);
+  border-left: 3px solid var(--tree-primary, #1890ff);
 }
 
 .drawing-icon {
@@ -201,16 +146,11 @@
   padding: 0 6px;
   line-height: 16px;
   border-radius: 12px;
-  background: #f0f2f5;
-  border: none;
-  color: #5a6874;
   text-transform: lowercase;
 }
 
-/* Группа объектов */
 .drawings-group-title {
   font-weight: 500;
-  color: #6c757d;
   font-size: 12px;
   letter-spacing: 0.3px;
   display: flex;
@@ -219,7 +159,6 @@
   padding: 4px 0;
 }
 
-/* Подсветка поиска */
 .search-highlight {
   background: #ffe58f;
   color: #d48806;
@@ -227,113 +166,18 @@
   padding: 0 1px;
 }
 
-/* Свёрнутый режим */
-.sidebar-collapsed {
-  width: 48px;
-  background: #ffffff;
-  border-right: 1px solid #eff2f5;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: width 0.2s;
-}
-
-.collapsed-header {
-  padding: 12px 0;
-  border-bottom: 1px solid #eff2f5;
-}
-
-.collapsed-layers {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.collapsed-layer {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 18px;
-  transition: background 0.1s;
-}
-
-.collapsed-layer:hover {
-  background: #f5f7fa;
-}
-
-.collapsed-layer.active {
-  background: #e6f7ff;
-  color: #1890ff;
-}
-
-/* Кастомный скролл */
+/* Скролл */
 .sidebar-content::-webkit-scrollbar {
   width: 4px;
 }
-
 .sidebar-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--tree-scrollbar-track, #f1f1f1);
   border-radius: 2px;
 }
-
 .sidebar-content::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--tree-scrollbar-thumb, #c1c1c1);
   border-radius: 2px;
 }
-
 .sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* ===== ТЁМНАЯ ТЕМА ===== */
-body.dark-theme .sidebar-tree {
-  background: rgba(20, 25, 35, 0.85) !important;
-  backdrop-filter: blur(12px);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-body.dark-theme .sidebar-header {
-  background: rgba(0, 0, 0, 0.3);
-  border-bottom-color: rgba(255, 255, 255, 0.1);
-}
-body.dark-theme .sidebar-filters {
-  background: transparent;
-  border-bottom-color: rgba(255, 255, 255, 0.1);
-}
-body.dark-theme .sidebar-all-checkbox {
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom-color: rgba(255, 255, 255, 0.1);
-}
-body.dark-theme .ant-tree .ant-tree-node-content-wrapper:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-body.dark-theme .layer-name.selected {
-  color: #69c0ff;
-}
-body.dark-theme .layer-badge .ant-badge-count {
-  background: rgba(255, 255, 255, 0.2);
-  color: #e0e0e0;
-}
-body.dark-theme .tree-marker-title:hover,
-body.dark-theme .tree-drawing-title:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-body.dark-theme .tree-drawing-title.editing {
-  background: rgba(24, 144, 255, 0.2);
-  border-left-color: #1890ff;
-}
-body.dark-theme .drawing-type-badge {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ccc;
-}
-body.dark-theme .sidebar-content::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-body.dark-theme .sidebar-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 255, 0.25);
+  background: var(--tree-scrollbar-thumb-hover, #a8a8a8);
 }

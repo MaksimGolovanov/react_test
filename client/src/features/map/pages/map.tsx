@@ -1,8 +1,8 @@
 // src/modules/Map/pages/map.tsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Alert, Skeleton, message } from 'antd';
-import { MapContainer, TileLayer, ScaleControl, useMapEvents } from 'react-leaflet';
+import { Alert, Skeleton, message, theme } from 'antd';
+import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
 import 'leaflet-rotate';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-editable';
@@ -19,9 +19,12 @@ import SidebarTree from '../ui/SidebarTree/SidebarTree';
 import MarkersLayer from '../components/MarkersLayer';
 import EditableDrawingsLayer, { EditableDrawingsLayerRef } from '../components/EditableDrawingsLayer';
 import CanvasTextLayer from '../components/CanvasTextLayer';
+import CompassControl from '../ui/CompassControl/CompassControl';
 import { Drawing, EditMode, Layer } from '../types/map.types';
 import { DEFAULT_CENTER, DEFAULT_ZOOM, MIN_ZOOM, MAX_ZOOM } from '../lib/constants';
 import styles from './style.module.css';
+
+const { useToken } = theme;
 
 interface MapSource {
   id: string;
@@ -43,6 +46,7 @@ const AddMarkerClickHandler: React.FC<{
 };
 
 const MapPage: React.FC = observer(() => {
+  const { token } = useToken();
   const { layers, markers, drawings, layersLoading, layersError, markersError, selectedLayerId } = mapStore;
 
   const [layerModalVisible, setLayerModalVisible] = useState(false);
@@ -60,18 +64,40 @@ const MapPage: React.FC = observer(() => {
   const [currentTileSourceId, setCurrentTileSourceId] = useState<string>('');
 
   const [editMode, setEditMode] = useState<EditMode>({ kind: 'none' });
-  const [originalGeometry, setOriginalGeometry] = useState<any>(null);
+
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('map_sidebar_collapsed');
+    return saved === 'true';
+  });
 
   const VISIBLE_LAYERS_KEY = 'map_visible_layers';
 
   const mapRef = useRef<L.Map | null>(null);
+  const mapWrapperRef = useRef<HTMLDivElement>(null);
   const editableDrawingsLayerRef = useRef<EditableDrawingsLayerRef>(null);
+  
+  const isSavingRef = useRef<boolean>(false);
 
-  // Загрузка сохранённых настроек видимости слоёв
+  const toggleSidebar = useCallback(() => {
+    setSidebarCollapsed(prev => {
+      const newVal = !prev;
+      localStorage.setItem('map_sidebar_collapsed', String(newVal));
+      return newVal;
+    });
+  }, []);
+
+  const forceMapRedraw = useCallback(() => {
+    if (!mapRef.current) return;
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize({ animate: false });
+      }
+    }, 10);
+  }, []);
+
   const loadVisibleLayersFromStorage = useCallback((layersList: Layer[]): Record<number, boolean> => {
     const saved = localStorage.getItem(VISIBLE_LAYERS_KEY);
     if (!saved) {
-      // По умолчанию все слои невидимы
       return layersList.reduce((acc, layer) => {
         acc[layer.id] = false;
         return acc;
@@ -81,7 +107,6 @@ const MapPage: React.FC = observer(() => {
       const parsed = JSON.parse(saved) as Record<number, boolean>;
       const result: Record<number, boolean> = {};
       layersList.forEach(layer => {
-        // Если есть сохранённое значение – используем его, иначе false
         result[layer.id] = parsed[layer.id] !== undefined ? parsed[layer.id] : false;
       });
       return result;
@@ -92,6 +117,22 @@ const MapPage: React.FC = observer(() => {
       }, {} as Record<number, boolean>);
     }
   }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--map-bg', token.colorBgContainer);
+    root.style.setProperty('--map-sidebar-bg', token.colorBgElevated);
+    root.style.setProperty('--map-border', token.colorBorder);
+    root.style.setProperty('--map-text', token.colorText);
+    root.style.setProperty('--map-primary', token.colorPrimary);
+    root.style.setProperty('--map-primary-bg', token.colorPrimaryBg);
+    root.style.setProperty('--map-hover-bg', token.controlItemBgHover);
+    root.style.setProperty('--map-selected-bg', token.colorPrimaryBg);
+    root.style.setProperty('--map-shadow', token.boxShadow);
+    root.style.setProperty('--map-header-bg', token.colorBgElevated);
+    root.style.setProperty('--map-control-bg', token.colorBgElevated);
+    root.style.setProperty('--map-control-border', token.colorBorder);
+  }, [token]);
 
   useEffect(() => {
     mapStore.fetchLayers();
@@ -116,7 +157,6 @@ const MapPage: React.FC = observer(() => {
       });
   }, []);
 
-  // Инициализация visibleLayers с учётом сохранённых настроек
   useEffect(() => {
     if (layers.length) {
       const initial = loadVisibleLayersFromStorage(layers);
@@ -124,34 +164,23 @@ const MapPage: React.FC = observer(() => {
     }
   }, [layers, loadVisibleLayersFromStorage]);
 
-  // Сохранение настроек при изменении
   useEffect(() => {
     if (Object.keys(visibleLayers).length > 0) {
       localStorage.setItem(VISIBLE_LAYERS_KEY, JSON.stringify(visibleLayers));
     }
   }, [visibleLayers]);
 
-  // Включение поворота через leaflet-rotate
-useEffect(() => {
-  if (!mapRef.current) return;
-  const map = mapRef.current;
-
-  // Дождёмся готовности карты
-  map.whenReady(() => {
-    // Принудительно включаем поворот (если метод существует)
-    if (typeof (map as any).rotateEnable === 'function') {
-      (map as any).rotateEnable(true);
-    }
-    // Убедимся, что метод setAngle есть
-    if (typeof (map as any).setAngle === 'function') {
-      (map as any).setAngle(0);
-    } else {
-      console.warn('leaflet-rotate не установлен или не загрузился. Проверьте npm install leaflet-rotate');
-    }
-  });
-}, [mapRef.current]);
-
-  
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const initRotate = () => {
+      if (typeof (map as any).setBearing === 'function') {
+        (map as any).setBearing(0);
+        console.log('Поворот карты инициализирован');
+      }
+    };
+    map.whenReady(initRotate);
+  }, []);
 
   const toggleLayerVisibility = (layerId: number, visible: boolean) => {
     setVisibleLayers(prev => ({ ...prev, [layerId]: visible }));
@@ -178,8 +207,8 @@ useEffect(() => {
     try {
       await mapStore.deleteDrawing(drawingId);
       setEditMode({ kind: 'none' });
-      setOriginalGeometry(null);
       message.success('Объект удалён');
+      forceMapRedraw();
     } catch (err) {
       message.error('Ошибка удаления');
     }
@@ -194,31 +223,55 @@ useEffect(() => {
     }
   };
 
+  const handleEditSaved = useCallback(() => {
+    setEditMode({ kind: 'none' });
+  }, []);
+
   const handleSaveEdit = async () => {
+    if (isSavingRef.current) {
+      console.log('Save already in progress');
+      return;
+    }
+    
     if (editMode.kind === 'geometry') {
-      if (editableDrawingsLayerRef.current) {
-        await editableDrawingsLayerRef.current.saveCurrentGeometry(editMode.drawingId);
+      isSavingRef.current = true;
+      
+      try {
+        if (editableDrawingsLayerRef.current) {
+          await editableDrawingsLayerRef.current.saveCurrentGeometry(editMode.drawingId);
+        }
+        message.success('Изменения сохранены');
+        
+        setTimeout(() => {
+          forceMapRedraw();
+        }, 100);
+        
+      } catch (err) {
+        console.error('Save error:', err);
+        message.error('Ошибка при сохранении');
+      } finally {
+        setTimeout(() => {
+          isSavingRef.current = false;
+        }, 500);
       }
-      setOriginalGeometry(null);
-      message.success('Изменения сохранены');
+      
     } else if (editMode.kind === 'text') {
       setEditMode({ kind: 'none' });
       message.success('Редактирование текста завершено');
     }
   };
 
-  const handleCancelEdit = async () => {
+  const handleCancelEdit = useCallback(() => {
     if (editMode.kind === 'geometry') {
       if (editableDrawingsLayerRef.current) {
         editableDrawingsLayerRef.current.cancelEditing(editMode.drawingId);
       }
-      setEditMode({ kind: 'none' });
-      setOriginalGeometry(null);
       message.info('Изменения отменены');
+      forceMapRedraw();
     } else if (editMode.kind === 'text') {
       setEditMode({ kind: 'none' });
     }
-  };
+  }, [editMode, forceMapRedraw]);
 
   const onLayerSuccess = () => {
     setLayerModalVisible(false);
@@ -236,14 +289,15 @@ useEffect(() => {
     setDrawingModalVisible(true);
   };
 
-  const handleDrawingChange = async (drawingId: number, newCoordinates: any) => {
+  const handleDrawingChange = useCallback(async (drawingId: number, newCoordinates: any) => {
     try {
       await mapStore.updateDrawing(drawingId, { coordinates: newCoordinates } as any);
       message.success('Изменения сохранены');
     } catch (err) {
       message.error('Ошибка обновления фигуры');
+      throw err;
     }
-  };
+  }, []);
 
   const handleStartEditText = (id: number) => {
     const drawing = drawings.find(d => d.id === id);
@@ -254,7 +308,7 @@ useEffect(() => {
     message.info('Режим редактирования текста: перетаскивайте маркеры');
   };
 
-  const handleUpdateText = async (id: number, newLngLat: [number, number], newRotation: number) => {
+  const handleUpdateText = useCallback(async (id: number, newLngLat: [number, number], newRotation: number) => {
     const drawing = drawings.find(d => d.id === id);
     if (!drawing) return;
     try {
@@ -262,11 +316,11 @@ useEffect(() => {
         coordinates: newLngLat,
         style: { ...drawing.style, rotation: newRotation },
       } as any);
-      await mapStore.fetchDrawings();
+      forceMapRedraw();
     } catch (err) {
       message.error('Ошибка обновления текста');
     }
-  };
+  }, [drawings, forceMapRedraw]);
 
   const handleStopEditText = () => {
     setEditMode({ kind: 'none' });
@@ -294,7 +348,7 @@ useEffect(() => {
     setEditingMarker(null);
     setPendingMarkerCoords(null);
     setIsAddMarkerMode(false);
-    mapStore.fetchMarkers();
+    forceMapRedraw();
   };
 
   const onMarkerCancel = () => {
@@ -307,7 +361,7 @@ useEffect(() => {
   const onDrawingSuccess = () => {
     setDrawingModalVisible(false);
     setEditingDrawing(null);
-    mapStore.fetchDrawings();
+    forceMapRedraw();
   };
 
   const onDrawingCancel = () => {
@@ -318,7 +372,7 @@ useEffect(() => {
   const handleSelectMarker = (marker: any) => {
     if (!marker?.geojson?.coordinates) return;
     const [lng, lat] = marker.geojson.coordinates;
-    mapRef.current?.flyTo([lat, lng], 16, { duration: 1.0 });
+    mapRef.current?.flyTo([lat, lng], 17, { duration: 1.0 });
   };
 
   const handleSelectDrawing = (drawing: Drawing) => {
@@ -333,9 +387,13 @@ useEffect(() => {
     } else if (drawing.type === 'polyline' || drawing.type === 'polygon') {
       const coords = drawing.coordinates;
       if (coords.length) {
-        const sumLat = coords.reduce((s: number, p: number[]) => s + p[1], 0);
-        const sumLng = coords.reduce((s: number, p: number[]) => s + p[0], 0);
-        center = [sumLat / coords.length, sumLng / coords.length];
+        const lats = coords.map((p: number[]) => p[1]);
+        const lngs = coords.map((p: number[]) => p[0]);
+        const minLat = Math.min(...lats);
+        const maxLat = Math.max(...lats);
+        const minLng = Math.min(...lngs);
+        const maxLng = Math.max(...lngs);
+        center = [(minLat + maxLat) / 2, (minLng + maxLng) / 2];
       }
     } else if (drawing.type === 'text') {
       const [lng, lat] = drawing.coordinates as [number, number];
@@ -355,16 +413,15 @@ useEffect(() => {
     message.info('Режим добавления меток активирован. Кликните по карте для установки метки.');
   };
 
-  const handleEditDrawingFromSidebarOrMap = (drawing: Drawing) => {
+  const handleEditDrawingFromSidebarOrMap = useCallback((drawing: Drawing) => {
     if (drawing.type !== 'text') {
-      setOriginalGeometry(JSON.parse(JSON.stringify(drawing.coordinates)));
       setEditMode({ kind: 'geometry', drawingId: drawing.id });
       message.info('Режим редактирования фигуры активирован');
     } else {
       setEditMode({ kind: 'text', drawingId: drawing.id });
       message.info('Режим редактирования текста активирован');
     }
-  };
+  }, []);
 
   const disableAddMarkerMode = () => {
     setIsAddMarkerMode(false);
@@ -401,6 +458,7 @@ useEffect(() => {
       <div className={styles.mapLayout}>
         <div className={styles.userListScroll}>
           <SidebarTree
+            key={token.colorBgContainer}
             selectedLayerId={selectedLayerId}
             onSelectLayer={(id) => mapStore.setSelectedLayerId(id)}
             onSelectMarker={handleSelectMarker}
@@ -409,10 +467,12 @@ useEffect(() => {
             onToggleLayerVisibility={toggleLayerVisibility}
             onEditDrawing={handleEditDrawingFromSidebarOrMap}
             editMode={editMode}
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={toggleSidebar}
           />
         </div>
 
-        <div className={styles.mapWrapper}>
+        <div className={styles.mapWrapper} ref={mapWrapperRef}>
           <MapContainer
             center={DEFAULT_CENTER}
             zoom={DEFAULT_ZOOM}
@@ -432,6 +492,8 @@ useEffect(() => {
               <TileLayer
                 key={currentTileSourceId}
                 url={tileUrl}
+                maxNativeZoom={18}
+                maxZoom={MAX_ZOOM}
               />
             )}
             <CanvasTextLayer
@@ -442,7 +504,7 @@ useEffect(() => {
               onStopEdit={handleStopEditText}
               onEditTextProperties={handleDoubleClickText}
             />
-            <ScaleControl position="bottomleft" />
+
             <UnifiedControls
               editMode={editMode}
               setEditMode={setEditMode}
@@ -451,8 +513,10 @@ useEffect(() => {
               onSaveEdit={handleSaveEdit}
               onCancelEdit={handleCancelEdit}
               selectedLayerId={selectedLayerId}
+              mapWrapperRef={mapWrapperRef}
             />
             <CoordinatesDisplay />
+            <CompassControl />
 
             <AddMarkerClickHandler
               isActive={isAddMarkerMode}
@@ -467,14 +531,13 @@ useEffect(() => {
                 <React.Fragment key={layer.id}>
                   <MarkersLayer markers={layerMarkers} onMarkerClick={handleMarkerClick} />
                   <EditableDrawingsLayer
-                    key={editMode.kind === 'geometry' ? `editing-${editMode.drawingId}` : 'none'}
                     ref={editableDrawingsLayerRef}
                     drawings={layerDrawings}
                     editMode={editMode}
                     onDrawingChange={handleDrawingChange}
                     onDrawingClick={handleDrawingClick}
                     onEditDrawingFromMap={handleEditDrawingFromSidebarOrMap}
-                    onEditSaved={() => setEditMode({ kind: 'none' })}
+                    onEditSaved={handleEditSaved}
                   />
                 </React.Fragment>
               );

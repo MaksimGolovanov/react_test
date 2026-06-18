@@ -10,6 +10,7 @@ import {
   Tag,
   Popconfirm,
   Space,
+  theme,
 } from 'antd';
 import {
   PlusOutlined,
@@ -38,7 +39,8 @@ const VehicleWeek = observer(() => {
   const [myDepartmentShortName, setMyDepartmentShortName] = useState(null);
   const [myDepartmentUuid, setMyDepartmentUuid] = useState(null);
   const [selectedVehicleTypeId, setSelectedVehicleTypeId] = useState(null);
-
+  const { useToken } = theme;
+  const { token } = useToken();
   // Загрузка справочников
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -63,25 +65,11 @@ const VehicleWeek = observer(() => {
     fetchInitialData();
   }, []);
 
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-    .request-row-cancelled {
-      background-color: #fff1f0 !important;
-    }
-    .request-row-cancelled:hover > td {
-      background-color: #ffccc7 !important;
-    }
-  `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
-
-  const getRowClassName = (record) => {
+  const getRowStyle = (record) => {
     if (record.status === 'cancelled') {
-      return 'request-row-cancelled';
+      return { backgroundColor: token.colorErrorBg };
     }
-    return '';
+    return {};
   };
 
   useEffect(() => {
@@ -300,8 +288,7 @@ const VehicleWeek = observer(() => {
       <div
         style={{
           padding: 16,
-          
-          border: '1px solid #f0f0f0',
+          border: `1px solid ${token.colorBorder}`,
           borderRadius: 8,
         }}
       >
@@ -483,7 +470,7 @@ const VehicleWeek = observer(() => {
             pagination={false}
             bordered
             size="small"
-            rowClassName={getRowClassName}
+            onRow={(record) => ({ style: getRowStyle(record) })}
           />
         )}
       </div>

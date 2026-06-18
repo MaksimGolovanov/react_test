@@ -1,70 +1,44 @@
+// src/features/usb/ui/UsbTable/UsbTable.jsx
 import React from 'react';
-import { Table, Tooltip } from 'antd';
-import {
-  SortAscendingOutlined,
-  SortDescendingOutlined,
-} from '@ant-design/icons';
-import styles from './UsbTable.module.css';
+import { Table, Tooltip, theme } from 'antd';
+import { SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
+
+const { useToken } = theme;
 
 const UsbTable = ({
   data,
   sortConfig,
   onSort,
-  selectedIds,
+  selectedId,
   onSelectionChange,
   formatDate,
   getNextCheckDate,
 }) => {
-  // Функция для определения класса для ячейки с датой следующей проверки
-  const getDateCellColor = (record) => {
-    if (!record.data_prov || record.log?.toLowerCase()?.trim() === 'нет') {
-      return '';
-    }
+  const { token } = useToken();
 
-    const nextCheckDate = getNextCheckDate(record.data_prov);
-    if (!nextCheckDate) return '';
-
+  const getDateCellStyle = (record) => {
+    if (!record.data_prov || record.log?.toLowerCase()?.trim() === 'нет')
+      return { backgroundColor: 'transparent' };
+    const nextCheck = getNextCheckDate(record.data_prov);
+    if (!nextCheck) return {};
     const now = new Date();
-    const nextCheck = new Date(nextCheckDate);
-
-    // Если дата просрочена
-    if (nextCheck < now) {
-      return styles.nextCheckOverdue;
+    const diffDays = Math.ceil((nextCheck - now) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) {
+      return { backgroundColor: token.colorErrorBg, color: token.colorError };
     }
-
-    // Вычисляем разницу в днях
-    const diffTime = nextCheck - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    // Если осталось 7 дней или меньше
-    if (diffDays <= 7 && diffDays >= 0) {
-      return styles.nextCheckWarning;
+    if (diffDays <= 7) {
+      return { backgroundColor: token.colorWarningBg, color: token.colorWarning };
     }
-
-    return '';
+    return {};
   };
 
-  // Функция для получения подсказки
-  const getDateTooltip = (record) => {
+  const getTooltip = (record) => {
     if (!record.data_prov) return 'Дата проверки не указана';
-
-    const nextCheckDate = getNextCheckDate(record.data_prov);
+    const nextCheck = getNextCheckDate(record.data_prov);
     const now = new Date();
-    const nextCheck = new Date(nextCheckDate);
-
-    if (nextCheck < now) {
-      const diffTime = now - nextCheck;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return `Просрочено на ${diffDays} дней`;
-    }
-
-    const diffTime = nextCheck - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays <= 7) {
-      return `Осталось ${diffDays} дней`;
-    }
-
+    const diffDays = Math.ceil((nextCheck - now) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return `Просрочено на ${-diffDays} дней`;
+    if (diffDays <= 7) return `Осталось ${diffDays} дней`;
     return `Осталось ${diffDays} дней`;
   };
 
@@ -79,166 +53,103 @@ const UsbTable = ({
 
   const columns = [
     {
-      title: (
-        <span onClick={() => onSort('num_form')} style={{ cursor: 'pointer' }}>
-          Форма {getSortIcon('num_form')}
-        </span>
-      ),
+      title: <span onClick={() => onSort('num_form')} style={{ cursor: 'pointer' }}>Форма {getSortIcon('num_form')}</span>,
       dataIndex: 'num_form',
       key: 'num_form',
-      width: 50,
       render: (text) => text || '-',
     },
     {
-      title: (
-        <span onClick={() => onSort('ser_num')} style={{ cursor: 'pointer' }}>
-          Серийный номер {getSortIcon('ser_num')}
-        </span>
-      ),
+      title: <span onClick={() => onSort('ser_num')} style={{ cursor: 'pointer' }}>Серийный номер {getSortIcon('ser_num')}</span>,
       dataIndex: 'ser_num',
       key: 'ser_num',
-      width: 100,
+      ellipsis: true,
       render: (text) => text || '-',
     },
     {
-      title: (
-        <span onClick={() => onSort('volume')} style={{ cursor: 'pointer' }}>
-          Объем {getSortIcon('volume')}
-        </span>
-      ),
+      title: <span onClick={() => onSort('volume')} style={{ cursor: 'pointer' }}>Объем {getSortIcon('volume')}</span>,
       dataIndex: 'volume',
       key: 'volume',
-      width: 40,
       render: (text) => text || '-',
     },
     {
-      title: (
-        <span onClick={() => onSort('data_uch')} style={{ cursor: 'pointer' }}>
-          Дата регистрации {getSortIcon('data_uch')}
-        </span>
-      ),
+      title: <span onClick={() => onSort('data_uch')} style={{ cursor: 'pointer' }}>Дата регистрации {getSortIcon('data_uch')}</span>,
       dataIndex: 'data_uch',
       key: 'data_uch',
-      width: 120,
-      render: (text) => formatDate(text) || '-',
+      render: (text) => formatDate(text),
     },
     {
-      title: (
-        <span onClick={() => onSort('email')} style={{ cursor: 'pointer' }}>
-          Email {getSortIcon('email')}
-        </span>
-      ),
+      title: <span onClick={() => onSort('email')} style={{ cursor: 'pointer' }}>Email {getSortIcon('email')}</span>,
       dataIndex: 'email',
       key: 'email',
-      width: 150,
+      ellipsis: true,
       render: (text) => text || '-',
     },
     {
-      title: (
-        <span onClick={() => onSort('fio')} style={{ cursor: 'pointer' }}>
-          ФИО {getSortIcon('fio')}
-        </span>
-      ),
+      title: <span onClick={() => onSort('fio')} style={{ cursor: 'pointer' }}>ФИО {getSortIcon('fio')}</span>,
       dataIndex: 'fio',
       key: 'fio',
-      width: 150,
+      ellipsis: true,
       render: (text) => text || '-',
     },
     {
-      title: (
-        <span
-          onClick={() => onSort('department')}
-          style={{ cursor: 'pointer' }}
-        >
-          Служба {getSortIcon('department')}
-        </span>
-      ),
+      title: <span onClick={() => onSort('department')} style={{ cursor: 'pointer' }}>Служба {getSortIcon('department')}</span>,
       dataIndex: 'department',
       key: 'department',
-      width: 180,
+      ellipsis: true,
       render: (text) => text || '-',
     },
     {
-      title: (
-        <span onClick={() => onSort('data_prov')} style={{ cursor: 'pointer' }}>
-          Дата проверки {getSortIcon('data_prov')}
-        </span>
-      ),
+      title: <span onClick={() => onSort('data_prov')} style={{ cursor: 'pointer' }}>Дата проверки {getSortIcon('data_prov')}</span>,
       dataIndex: 'data_prov',
       key: 'data_prov',
-      width: 120,
-      render: (text) => formatDate(text) || '-',
+      render: (text) => formatDate(text),
     },
     {
       title: 'Дата следующей проверки',
-      key: 'next_check_date',
-      width: 120,
+      key: 'next_check',
       render: (_, record) => {
-        const nextCheckDate = getNextCheckDate(record.data_prov);
-        const tooltip = getDateTooltip(record);
-
+        const nextCheck = getNextCheckDate(record.data_prov);
         return (
-          <Tooltip title={tooltip}>
-            <span>{record.data_prov ? formatDate(nextCheckDate) : '-'}</span>
+          <Tooltip title={getTooltip(record)}>
+            <span>{nextCheck ? formatDate(nextCheck) : '-'}</span>
           </Tooltip>
         );
       },
-      // Важно: добавляем className на уровне колонки
       onCell: (record) => ({
-        className: getDateCellColor(record),
+        style: getDateCellStyle(record),
       }),
     },
     {
-      title: (
-        <span onClick={() => onSort('log')} style={{ cursor: 'pointer' }}>
-          В работе {getSortIcon('log')}
-        </span>
-      ),
+      title: <span onClick={() => onSort('log')} style={{ cursor: 'pointer' }}>В работе {getSortIcon('log')}</span>,
       dataIndex: 'log',
       key: 'log',
-      width: 60,
+      render: (text) => (text === 'Да' ? 'Да' : 'Нет'),
     },
   ];
 
-  const rowSelection = {
-    selectedRowKeys: selectedIds,
-    onChange: (selectedKeys) => {
-      const newSelectedIds = data
-        .filter((item) => selectedKeys.includes(item.key || item.id))
-        .map((item) => item.id);
+  const dataWithKeys = data.map((item) => ({ ...item, key: item.id }));
 
-      if (newSelectedIds.length > 0) {
-        onSelectionChange(newSelectedIds[0]);
-      } else {
-        onSelectionChange([]);
-      }
+  const rowSelection = {
+    selectedRowKeys: selectedId ? [selectedId] : [],
+    onChange: (selectedRowKeys) => {
+      const newId = selectedRowKeys[0] || null;
+      onSelectionChange(newId);
     },
     type: 'radio',
     columnWidth: 60,
   };
 
-  const dataWithKeys = data.map((item) => ({
-    ...item,
-    key: item.id || item.key,
-  }));
-
   return (
-    <div style={{ overflowX: 'auto', width: '100%' }}> 
-      <Table
-        size="small"
-        rowSelection={rowSelection}
-        columns={columns}
-        dataSource={dataWithKeys}
-        rowKey="id"
-        pagination={false}
-        
-        
-        rowClassName={(record) => {
-          const isNotInWork = record.log?.toLowerCase()?.trim() === 'нет';
-          return isNotInWork ? styles.notInWorkRow : '';
-        }}
-      />
-    </div>
+    <Table
+      size="small"
+      rowSelection={rowSelection}
+      columns={columns}
+      dataSource={dataWithKeys}
+      rowKey="id"
+      pagination={false}
+      
+      rowClassName={(record) => (record.log?.toLowerCase() === 'нет' ? 'not-in-work-row' : '')}
+    />
   );
 };
 

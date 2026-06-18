@@ -1,0 +1,64 @@
+/* CertificateModal.css */
+:root {
+  --cert-border: #1890ff;
+  --cert-bg: #ffffff;
+  --cert-text-primary: #1f1f1f;
+  --cert-text-secondary: #666;
+}
+
+body.dark-theme {
+  --cert-border: #177ddc;
+  --cert-bg: #1f1f1f;
+  --cert-text-primary: #e8e8e8;
+  --cert-text-secondary: #a6a6a6;
+}
+
+.certificate-card {
+  border: 2px solid var(--cert-border);
+  text-align: center;
+  background: var(--cert-bg);
+}
+
+.certificate-title {
+  color: var(--cert-border);
+  margin-bottom: 20px;
+}
+
+.certificate-text {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: var(--cert-text-primary);
+}
+
+.certificate-name {
+  margin-bottom: 30px;
+  color: var(--cert-text-primary);
+}
+
+.certificate-course {
+  color: var(--cert-border);
+  margin-bottom: 30px;
+}
+
+.certificate-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+}
+
+.certificate-date,
+.certificate-id {
+  text-align: left;
+}
+
+.certificate-issuer {
+  margin-top: 40px;
+  border-top: 1px solid var(--cert-border);
+  padding-top: 20px;
+  color: var(--cert-text-secondary);
+}
+
+.certificate-note {
+  margin-top: 20px;
+  text-align: center;
+}

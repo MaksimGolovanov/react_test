@@ -12,6 +12,7 @@ import {
   Input,
   message,
   Tooltip,
+  theme,
 } from 'antd';
 import {
   CheckOutlined,
@@ -24,6 +25,7 @@ import {
 import { BookingTableFilters } from './BookingTableFilters';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
+import styles from '../../pages/VehicleBooking.module.css';
 
 dayjs.extend(isBetween);
 
@@ -57,7 +59,8 @@ export const BookingTableTab = ({
   const [rescheduleModalVisible, setRescheduleModalVisible] = useState(false);
   const [currentRequest, setCurrentRequest] = useState(null);
   const [rescheduleForm] = Form.useForm();
-
+  const { useToken } = theme;
+  const { token } = useToken();
   // Состояния для модального окна создания заявки
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [createForm] = Form.useForm();
@@ -300,7 +303,6 @@ export const BookingTableTab = ({
                     <div style={{ fontSize: 12, color: '#666' }}>
                       {d.post} | {d.department}
                     </div>
-                   
                   </Space>
                 </Option>
               );
@@ -488,6 +490,7 @@ export const BookingTableTab = ({
         searchText={''}
         setSearchText={() => {}}
         showStatusFilter={true}
+        token={token}
       />
       <Button
         type="primary"
@@ -501,17 +504,18 @@ export const BookingTableTab = ({
 
   return (
     <>
-      <Table
-        columns={columns}
-        dataSource={filteredRequests}
-        rowKey="id"
-        loading={loading}
-        scroll={{ x: 1150 }}
-        pagination={false}
-        size="small"
-        bordered
-        title={tableTitle}
-      />
+      <div className={styles.userListScroll}>
+        <Table
+          columns={columns}
+          dataSource={filteredRequests}
+          rowKey="id"
+          loading={loading}
+          pagination={false}
+          size="small"
+          bordered
+          title={tableTitle}
+        />
+      </div>
 
       {/* Модальное окно переноса заявки (уже существовало) */}
       <Modal

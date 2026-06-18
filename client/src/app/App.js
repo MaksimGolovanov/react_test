@@ -1,11 +1,12 @@
+// app/App.js
 import React, { useState, useEffect } from 'react';
-import { useLocation, Routes, Route, Navigate } from 'react-router-dom';
+import { useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
+import { Space, theme, Spin } from 'antd';
+import { observer } from 'mobx-react-lite';
 import Clock from '../Components/Clock';
 import NavBar from '../Components/NavBar/NavBar';
 import PrivateRoute from '../shared/PrivateRoute';
 import { Prints } from '../features/prints';
-import { useTheme } from '../context/ThemeContext';
-import { NotesRoutes } from '../features/notes';
 import { IusPtRoutes } from '../features/ius-pt';
 import { StaffRoutes } from '../features/staff';
 import { AdminRoutes } from '../features/admin';
@@ -17,290 +18,141 @@ import { MultiEduRouters } from '../features/MultiEdu';
 import { TransportRoutes } from '../features/transport';
 import { KnowledgeRoutes } from '../features/knowledge-base';
 import { MapRoutes } from '../features/map';
-import { Switch, Space } from 'antd';
-import { BulbOutlined, BulbFilled } from '@ant-design/icons';
 import LoginPage from '../features/admin/pages/LoginPage';
+import ThemeSwitcher from '../Components/ThemeSwitcher';
 import Json from '../features/json/pages/JsonViewer';
 import './App.css';
 import userStore from '../features/admin/store/UserStore';
-import { observer } from 'mobx-react-lite';
+import { getFirstAvailablePath } from '../shared/routesConfig';
+import { ConsumablesRoutes } from '../features/consumables';
 
-// Ключ для localStorage
+const { useToken } = theme;
 const SIDEBAR_STORAGE_KEY = 'sidebarCollapsed';
 
-// Компонент для определения первой доступной страницы
+// Компонент-редирект на первую доступную страницу
 const FirstAvailablePage = observer(() => {
-  const userRoles = userStore.userRolesAuth || [];
-
-  const routesPriority = [
-    { path: '/staff', roles: ['ADMIN', 'USER'] },
-    { path: '/ipaddress', roles: ['ADMIN', 'IP'] },
-    { path: '/prints', roles: ['ADMIN', 'PRINT'] },
-    { path: '/badges', roles: ['ADMIN', 'BADGES'] },
-    { path: '/usb', roles: ['ADMIN', 'USB'] },
-    { path: '/card', roles: ['ADMIN', 'CARD'] },
-    { path: '/notes', roles: ['ADMIN', 'NOTES'] },
-    { path: '/iuspt', roles: ['ADMIN', 'IUSPT'] },
-    { path: '/admin', roles: ['ADMIN'] },
-    { path: '/json', roles: ['ADMIN'] },
-    { path: '/multiedu', roles: ['ADMIN', 'ST', 'ST-ADMIN'] },
-    { path: '/transport', roles: ['ADMIN', 'TRANSPORT', 'TRANSPORT-ORDER'] },
-    { path: '/knowledge', roles: ['ADMIN'] },
-    { path: '/map', roles: ['ADMIN', 'MAP'] },
-  ];
-
-  const getFirstAvailablePath = () => {
-    for (const route of routesPriority) {
-      if (route.roles.some((role) => userRoles.includes(role))) {
-        return route.path;
-      }
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Ждем полной загрузки данных
+    if (!userStore.initialized || userStore.loading) {
+      return;
     }
-    return '/login';
-  };
-
-  const firstPath = getFirstAvailablePath();
-  return <Navigate to={firstPath} replace />;
+    
+    if (!userStore.isAuthenticated) {
+      navigate('/login', { replace: true });
+      return;
+    }
+    
+    const firstPath = getFirstAvailablePath(userStore.userRolesAuth);
+    navigate(firstPath, { replace: true });
+  }, [userStore.initialized, userStore.loading, userStore.isAuthenticated, userStore.userRolesAuth, navigate]);
+  
+  return <Spin size="large" style={{ position: 'fixed', top: '50%', left: '50%' }} />;
 });
 
-function App() {
+const App = observer(() => {
+  const { token } = useToken();
   const location = useLocation();
-
-  // ✅ Синхронное чтение из localStorage при инициализации (без прыжков)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
     return saved === 'true';
   });
-  const { isDark, toggleTheme } = useTheme();
-  // Сохраняем изменения в localStorage
+
   useEffect(() => {
     localStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
-  useEffect(() => {
-    userStore.fetchUsers();
-  }, []);
-
   const getPageTitle = () => {
-    switch (true) {
-      case location.pathname === '/' || location.pathname === '/staff':
-        return 'ПОЛЬЗОВАТЕЛИ';
-      case location.pathname.startsWith('/staff/'):
-        return 'ПОЛЬЗОВАТЕЛИ';
-      case location.pathname.startsWith('/ipaddress'):
-        return 'УЧЁТ IP';
-      case location.pathname.startsWith('/prints'):
-        return 'УЧЁТ ПРИНТЕРОВ';
-      case location.pathname.startsWith('/badges'):
-        return 'БЭЙДЖИКИ';
-      case location.pathname.startsWith('/usb'):
-        return 'УЧЕТ USB';
-      case location.pathname.startsWith('/card'):
-        return 'УЧЕТ КАРТ ДОСТУПА';
-      case location.pathname.startsWith('/notes'):
-        return 'ЗАПИСНАЯ КНИЖКА';
-      case location.pathname.startsWith('/knowledge'):
-        return 'БАЗА ЗНАНИЙ';
-      case location.pathname.startsWith('/transport'):
-        return 'ЗАЯВКА НА ТРАНСПОРТ';
-      case location.pathname.startsWith('/create-post'):
-        return 'СОЗДАНИЕ ЗАПИСИ';
-      case location.pathname.startsWith('/edit-post/'):
-        return 'РЕДАКТИРОВАНИЕ ЗАПИСИ';
-      case location.pathname.startsWith('/admin'):
-        return 'АДМИНИСТРИРОВАНИЕ';
-      case location.pathname.startsWith('/map'):
-        return 'КАРТА';
-      case location.pathname.startsWith('/iuspt'):
-        return 'ИУС П Т';
-      case location.pathname.startsWith('/json'):
-        return 'JSON Viewer';
-      case location.pathname.startsWith('/multiedu'):
-        return 'ОБУЧЕНИЕ';
-      default:
-        return 'ГЛАВНАЯ';
-    }
+    const path = location.pathname;
+    
+    if (path === '/' || path === '/staff') return 'ПОЛЬЗОВАТЕЛИ';
+    if (path.startsWith('/staff/')) return 'ПОЛЬЗОВАТЕЛИ';
+    if (path.startsWith('/consumables')) return 'РАСХОДНЫЕ МАТЕРИАЛЫ';
+    if (path.startsWith('/ipaddress')) return 'УЧЁТ IP';
+    if (path.startsWith('/prints')) return 'УЧЁТ ПРИНТЕРОВ';
+    if (path.startsWith('/badges')) return 'БЭЙДЖИКИ';
+    if (path.startsWith('/usb')) return 'УЧЕТ USB';
+    if (path.startsWith('/card')) return 'УЧЕТ КАРТ ДОСТУПА';
+    if (path.startsWith('/knowledge')) return 'БАЗА ЗНАНИЙ';
+    if (path.startsWith('/transport')) return 'ЗАЯВКА НА ТРАНСПОРТ';
+    if (path.startsWith('/map')) return 'КАРТА';
+    if (path.startsWith('/iuspt')) return 'ИУС П Т';
+    if (path.startsWith('/json')) return 'JSON Viewer';
+    if (path.startsWith('/multiedu')) return 'ОБУЧЕНИЕ';
+    if (path.startsWith('/admin')) return 'АДМИНИСТРИРОВАНИЕ';
+    
+    return 'ГЛАВНАЯ';
   };
 
+  // Показываем спиннер пока данные загружаются
+  if (!userStore.initialized) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        <Spin size="large" tip="Загрузка..." />
+      </div>
+    );
+  }
+
+  // Если не авторизован - показываем страницу логина без сайдбара
+  if (!userStore.isAuthenticated) {
+    return <LoginPage />;
+  }
+
   return (
-    <div className="app-container">
-      {/* Передаём состояние и функцию изменения в NavBar */}
-      <NavBar
-        collapsed={sidebarCollapsed}
-        onCollapseChange={setSidebarCollapsed}
-      />
+    <div className="app-container" style={{ backgroundColor: token.colorBgLayout }}>
+      <NavBar collapsed={sidebarCollapsed} onCollapseChange={setSidebarCollapsed} />
       <div className={`main-content ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <div className="page-header sticky-header">
+        <div
+          className="page-header sticky-header"
+          style={{
+            backgroundColor: token.colorBgContainer,
+            borderBottom: `1px solid ${token.colorBorder}`,
+            boxShadow: token.boxShadowTertiary,
+          }}
+        >
           <div className="header-content">
-            <h1 className="page-title">{getPageTitle()}</h1>
+            <h1
+              className="page-title"
+              style={{ color: token.colorTextHeading || token.colorText }}
+            >
+              {getPageTitle()}
+            </h1>
             <Space size="middle" className="header-actions">
               <div className="header-clock">
                 <Clock />
               </div>
-              <Switch
-                checkedChildren={<BulbFilled />}
-                unCheckedChildren={<BulbOutlined />}
-                checked={isDark}
-                onChange={toggleTheme}
-              />
+              <ThemeSwitcher />
             </Space>
           </div>
         </div>
 
-        <div className="content-container">
+        <div className="content-container" style={{ backgroundColor: token.colorBgLayout }}>
           <Routes>
-            <Route
-              path="/"
-              element={
-                <PrivateRoute
-                  requiredRole={[
-                    'ADMIN',
-                    'USER',
-                    'IP',
-                    'PRINT',
-                    'BADGES',
-                    'USB',
-                    'CARD',
-                    'NOTES',
-                    'IUSPT',
-                    'ST',
-                    'ST-ADMIN',
-                    'TRANSPORT',
-                    'TRANSPORT-ORDER',
-                    'MAP',
-                  ]}
-                >
-                  <FirstAvailablePage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/staff/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'USER']}>
-                  <StaffRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/ipaddress/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'IP']}>
-                  <IpRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/prints"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'PRINT']}>
-                  <Prints />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/usb/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'USB']}>
-                  <UsbRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/card/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'CARD']}>
-                  <CardRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/badges/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'BADGES']}>
-                  <BadgesRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/knowledge/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'NOTES']}>
-                  <KnowledgeRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/transport/*"
-              element={
-                <PrivateRoute
-                  requiredRole={['ADMIN', 'TRANSPORT', 'TRANSPORT-ORDER']}
-                >
-                  <TransportRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/map/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'MAP']}>
-                  <MapRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/admin/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN']}>
-                  <AdminRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/iuspt/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'IUSPT']}>
-                  <IusPtRoutes />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/json"
-              element={
-                <PrivateRoute requiredRole={['ADMIN']}>
-                  <Json />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/multiedu/*"
-              element={
-                <PrivateRoute requiredRole={['ADMIN', 'ST', 'ST-ADMIN']}>
-                  <MultiEduRouters />
-                </PrivateRoute>
-              }
-            />
+            <Route path="/" element={<FirstAvailablePage />} />
+            <Route path="/staff/*" element={<PrivateRoute requiredRole={['ADMIN','USER']}><StaffRoutes /></PrivateRoute>} />
+            <Route path="/consumables/*" element={<PrivateRoute requiredRole={['ADMIN', 'CONSUMABLES']}><ConsumablesRoutes /></PrivateRoute>} />
+            <Route path="/ipaddress/*" element={<PrivateRoute requiredRole={['ADMIN','IP']}><IpRoutes /></PrivateRoute>} />
+            <Route path="/prints/*" element={<PrivateRoute requiredRole={['ADMIN','PRINT']}><Prints /></PrivateRoute>} />
+            <Route path="/usb/*" element={<PrivateRoute requiredRole={['ADMIN','USB']}><UsbRoutes /></PrivateRoute>} />
+            <Route path="/card/*" element={<PrivateRoute requiredRole={['ADMIN','CARD']}><CardRoutes /></PrivateRoute>} />
+            <Route path="/badges/*" element={<PrivateRoute requiredRole={['ADMIN','BADGES']}><BadgesRoutes /></PrivateRoute>} />
+            <Route path="/knowledge/*" element={<PrivateRoute requiredRole={['ADMIN','NOTES']}><KnowledgeRoutes /></PrivateRoute>} />
+            <Route path="/transport/*" element={<PrivateRoute requiredRole={['ADMIN','TRANSPORT','TRANSPORT-ORDER']}><TransportRoutes /></PrivateRoute>} />
+            <Route path="/map/*" element={<PrivateRoute requiredRole={['ADMIN','MAP']}><MapRoutes /></PrivateRoute>} />
+            <Route path="/admin/*" element={<PrivateRoute requiredRole={['ADMIN']}><AdminRoutes /></PrivateRoute>} />
+            <Route path="/iuspt/*" element={<PrivateRoute requiredRole={['ADMIN','IUSPT']}><IusPtRoutes /></PrivateRoute>} />
+            <Route path="/json" element={<PrivateRoute requiredRole={['ADMIN']}><Json /></PrivateRoute>} />
+            <Route path="/multiedu/*" element={<PrivateRoute requiredRole={['ADMIN','ST','ST-ADMIN']}><MultiEduRouters /></PrivateRoute>} />
             <Route
               path="*"
               element={
-                <PrivateRoute
-                  requiredRole={[
-                    'ADMIN',
-                    'USER',
-                    'IP',
-                    'PRINT',
-                    'BADGES',
-                    'USB',
-                    'CARD',
-                    'NOTES',
-                    'IUSPT',
-                    'ST',
-                    'ST-ADMIN',
-                    'TRANSPORT',
-                    'TRANSPORT-ORDER',
-                    'MAP',
-                  ]}
-                >
+                <PrivateRoute requiredRole={['ADMIN','USER','IP','PRINT','BADGES','USB','CARD','NOTES','IUSPT','ST','ST-ADMIN','TRANSPORT','TRANSPORT-ORDER','MAP','CONSUMABLES']}>
                   <Navigate to="/" replace />
                 </PrivateRoute>
               }
@@ -310,6 +162,6 @@ function App() {
       </div>
     </div>
   );
-}
+});
 
 export default App;

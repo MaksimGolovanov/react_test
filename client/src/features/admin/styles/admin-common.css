@@ -1,0 +1,42 @@
+/* features/admin/styles/admin-common.css - только структура */
+.admin-page-container {
+  padding: 20px;
+}
+
+.admin-card {
+  border-radius: 8px;
+}
+
+.users-table .ant-table-tbody > tr:hover > td {
+  background: var(--ant-table-row-hover-bg, rgba(0, 0, 0, 0.04)) !important;
+}
+
+.edit-icon {
+  font-size: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.edit-icon:hover {
+  opacity: 0.8;
+}
+
+.login-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.roles-container {
+  padding: 20px;
+}

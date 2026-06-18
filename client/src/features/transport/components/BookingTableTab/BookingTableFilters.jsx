@@ -29,6 +29,7 @@ export const BookingTableFilters = ({
   searchText,
   setSearchText,
   showStatusFilter = false,
+  token,
 }) => {
   const hasActiveFilters =
     filters.filterStatus !== 'all' ||
@@ -67,7 +68,7 @@ export const BookingTableFilters = ({
         />
 
         {isPastDate && (
-          <span style={{ fontSize: '11px', color: '#faad14' }}>
+          <span style={{  color: token.colorWarning}}>
             ⚠️ Просмотр
           </span>
         )}
@@ -84,7 +85,7 @@ export const BookingTableFilters = ({
       >
         <Input
           placeholder="Поиск по модели, госномеру, типу, подтипу..."
-          prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+          prefix={<SearchOutlined style={{ color: token.colorTextDisabled  }} />}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           allowClear
@@ -94,7 +95,7 @@ export const BookingTableFilters = ({
         />
 
         <Space size="small" wrap>
-          <FilterOutlined style={{ color: '#1890ff', fontSize: 12 }} />
+          <FilterOutlined style={{  color: token.colorPrimary  }} />
 
           <Select
             value={filters.filterType}

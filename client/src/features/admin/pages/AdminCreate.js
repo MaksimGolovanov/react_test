@@ -10,7 +10,8 @@ import {
     Row,
     Col,
     message,
-    Space
+    Space,
+    Spin
 } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,9 +21,17 @@ const AdminCreate = observer(() => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const [rolesLoading, setRolesLoading] = useState(true);
 
     useEffect(() => {
-        userStore.fetchUsers();
+        const loadRoles = async () => {
+            // Если роли ещё не загружены, загружаем
+            if (userStore.roles.length === 0) {
+                await userStore.fetchRoles();
+            }
+            setRolesLoading(false);
+        };
+        loadRoles();
     }, []);
 
     const handleSubmit = async (values) => {
@@ -31,6 +40,8 @@ const AdminCreate = observer(() => {
         const selectedRoleIds = userStore.roles
             .filter(role => values.roles?.includes(role.role))
             .map(role => role.id);
+
+        console.log('Отправка ролей (ID):', selectedRoleIds);
 
         try {
             const success = await userStore.createUser(
@@ -46,7 +57,7 @@ const AdminCreate = observer(() => {
                 navigate('/admin');
             }
         } catch (error) {
-            message.error('Ошибка при создании пользователя');
+            message.error(error.response?.data?.message || 'Ошибка при создании пользователя');
         } finally {
             setLoading(false);
         }
@@ -57,76 +68,52 @@ const AdminCreate = observer(() => {
         value: role.role,
     }));
 
+    if (rolesLoading) {
+        return (
+            <Row justify="center" style={{ padding: '20px' }}>
+                <Col xs={24} sm={20} md={16} lg={12}>
+                    <Card style={{ borderRadius: '8px', textAlign: 'center' }}>
+                        <Spin tip="Загрузка списка ролей..." />
+                    </Card>
+                </Col>
+            </Row>
+        );
+    }
+
     return (
         <Row justify="center" style={{ padding: '20px' }}>
             <Col xs={24} sm={20} md={16} lg={12}>
-                <Card
-                    title="Создание пользователя"
-                    style={{ borderRadius: '8px' }}
-                >
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        onFinish={handleSubmit}
-                        autoComplete="off"
-                    >
+                <Card title="Создание пользователя" style={{ borderRadius: '8px' }}>
+                    <Form form={form} layout="vertical" onFinish={handleSubmit} autoComplete="off">
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item
-                                    label="Логин"
-                                    name="login"
-                                    rules={[{ required: true, message: 'Введите логин' }]}
-                                >
+                                <Form.Item label="Логин" name="login" rules={[{ required: true, message: 'Введите логин' }]}>
                                     <Input placeholder="Введите логин" />
                                 </Form.Item>
                             </Col>
-
                             <Col span={12}>
-                                <Form.Item
-                                    label="Пароль"
-                                    name="password"
-                                    rules={[{ required: true, message: 'Введите пароль' }]}
-                                >
+                                <Form.Item label="Пароль" name="password" rules={[{ required: true, message: 'Введите пароль' }]}>
                                     <Input.Password placeholder="Введите пароль" />
                                 </Form.Item>
                             </Col>
                         </Row>
 
-                        <Form.Item
-                            label="Описание"
-                            name="description"
-                        >
-                            <TextArea
-                                rows={3}
-                                placeholder="Введите описание"
-                            />
+                        <Form.Item label="Описание" name="description">
+                            <TextArea rows={3} placeholder="Введите описание" />
                         </Form.Item>
 
-                        <Form.Item
-                            label="Табельный номер"
-                            name="tabNumber"
-                        >
+                        <Form.Item label="Табельный номер" name="tabNumber">
                             <Input placeholder="Введите табельный номер" />
                         </Form.Item>
 
-                        <Form.Item
-                            label="Роли"
-                            name="roles"
-                            rules={[{ required: true, message: 'Выберите хотя бы одну роль' }]}
-                        >
+                        <Form.Item label="Роли" name="roles" rules={[{ required: true, message: 'Выберите хотя бы одну роль' }]}>
                             <Checkbox.Group options={roleOptions} />
                         </Form.Item>
 
                         <Form.Item>
                             <Space style={{ float: 'right' }}>
-                                <Button onClick={() => navigate('/admin')}>
-                                    Отмена
-                                </Button>
-                                <Button
-                                    type="primary"
-                                    htmlType="submit"
-                                    loading={loading}
-                                >
+                                <Button onClick={() => navigate('/admin')}>Отмена</Button>
+                                <Button type="primary" htmlType="submit" loading={loading}>
                                     Создать
                                 </Button>
                             </Space>

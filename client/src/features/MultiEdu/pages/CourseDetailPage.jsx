@@ -5,10 +5,9 @@ import { observer } from 'mobx-react-lite';
 import trainingStore from '../store/SecurityTrainingStore';
 import CourseService from '../api/CourseService';
 import userStore from '../../admin/store/UserStore';
-
 import CourseSidebar from '../components/сourse/course-detail/CourseSidebar';
-
 import LessonContent from '../components/сourse/course-detail/LessonContent';
+import './CourseDetailPage.css'; // новый файл стилей
 
 const { Content, Sider } = Layout;
 
@@ -151,7 +150,6 @@ const CourseDetailPage = observer(() => {
     const localStorageKey = `userProgress_${courseId}_${tabNumber || 'anonymous'}`;
     localStorage.setItem(localStorageKey, JSON.stringify(progressData));
 
-    // Очищаем временное время урока
     const savedTimes = JSON.parse(
       localStorage.getItem('lessonTimes') || '[]'
     ).filter((item) => item.lessonId !== selectedLesson?.id);
@@ -200,16 +198,32 @@ const CourseDetailPage = observer(() => {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="course-detail-loading">
+        <Spin size="large" tip="Загрузка курса..." />
+      </div>
+    );
   }
 
   if (error || !course) {
-    return <ErrorState error={error} onBack={handleBackToCourses} />;
+    return (
+      <div className="course-detail-error">
+        <Alert
+          message="Курс не найден"
+          description={error || 'Запрошенный курс не существует или был удален'}
+          type="error"
+          showIcon
+        />
+        <Button type="primary" onClick={handleBackToCourses} className="error-back-btn">
+          Вернуться к списку курсов
+        </Button>
+      </div>
+    );
   }
 
   return (
-    <Layout style={{ height: 'calc(100vh - 64px)' }}>
-      <Sider width={320} style={styles.sider}>
+    <Layout className="course-detail-layout">
+      <Sider width={320} className="course-detail-sider">
         <CourseSidebar
           course={course}
           lessons={lessons}
@@ -222,7 +236,7 @@ const CourseDetailPage = observer(() => {
       </Sider>
 
       <Layout>
-        <Content style={styles.content}>
+        <Content className="course-detail-content">
           <LessonContent
             selectedLesson={selectedLesson}
             userProgress={userProgress}
@@ -233,52 +247,5 @@ const CourseDetailPage = observer(() => {
     </Layout>
   );
 });
-
-const LoadingSpinner = () => (
-  <div style={styles.loadingContainer}>
-    <Spin size="large" tip="Загрузка курса..." />
-  </div>
-);
-
-const ErrorState = ({ error, onBack }) => (
-  <div style={styles.errorContainer}>
-    <Alert
-      message="Курс не найден"
-      description={error || 'Запрошенный курс не существует или был удален'}
-      type="error"
-      showIcon
-    />
-    <Button type="primary" onClick={onBack} style={styles.backButton}>
-      Вернуться к списку курсов
-    </Button>
-  </div>
-);
-
-const styles = {
-  sider: {
-    height: 'calc(100vh - 64px)',
-    background: '#fff',
-    borderRight: '1px solid #f0f0f0',
-    padding: '16px',
-    overflow: 'auto',
-  },
-  content: {
-    overflow: 'auto',
-    height: 'calc(100vh - 64px)',
-  },
-  loadingContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-  },
-  errorContainer: {
-    padding: '50px',
-    textAlign: 'center',
-  },
-  backButton: {
-    marginTop: '20px',
-  },
-};
 
 export default CourseDetailPage;

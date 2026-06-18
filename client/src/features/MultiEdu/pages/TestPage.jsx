@@ -27,7 +27,7 @@ import CourseService from '../api/CourseService';
 import TestComponent from '../components/admin/TestComponent';
 import userStore from '../../admin/store/UserStore';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 const TestPage = observer(() => {
   const { courseId } = useParams();
@@ -44,7 +44,6 @@ const TestPage = observer(() => {
   const [testSubmitted, setTestSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Получаем данные пользователя из store
   const isUserAuthenticated = userStore.isAuthenticated;
   const tabNumber = userStore.tabNumber || '';
   const progress = trainingStore.userProgress[courseId] || {};
@@ -63,11 +62,9 @@ const TestPage = observer(() => {
       setLoading(true);
       setError(null);
 
-      // Загружаем курс
       const courseData = await CourseService.getCourseById(courseId);
       setCourse(courseData);
 
-      // Загружаем вопросы теста
       const questionsData = await CourseService.getCourseQuestions(courseId);
       setQuestions(questionsData || []);
 
@@ -87,7 +84,7 @@ const TestPage = observer(() => {
       Modal.warning({
         title: 'Доступ к тесту ограничен',
         content: 'Для прохождения теста необходимо завершить все уроки курса.',
-        onOk: () => navigate(`/security-training/${courseId}`),
+        onOk: () => navigate(`/security-training/course/${courseId}`),
         okText: 'Вернуться к урокам',
       });
     }
@@ -98,16 +95,13 @@ const TestPage = observer(() => {
       setSubmitting(true);
 
       if (!isUserAuthenticated || !tabNumber) {
-        console.warn(
-          'User not authenticated, test results will be saved locally only'
-        );
+        console.warn('User not authenticated, test results will be saved locally only');
         return { success: false, message: 'Пользователь не авторизован' };
       }
 
       const passingScore = course?.passing_score || 70;
       const passed = score >= passingScore;
 
-      // Формируем данные для отправки
       const testData = {
         answers: answers,
         score: score,
@@ -117,19 +111,12 @@ const TestPage = observer(() => {
 
       console.log('Test data to send:', testData);
 
-      // Отправляем результаты теста
-      const result = await CourseService.submitTest(
-        tabNumber,
-        courseId,
-        testData
-      );
-
+      const result = await CourseService.submitTest(tabNumber, courseId, testData);
       console.log('Server response:', result);
 
       if (result && result.success) {
         message.success('Результаты теста успешно сохранены');
 
-        // Пробуем обновить прогресс, но не критично если не получится
         try {
           const progressData = {
             test_score: score,
@@ -141,24 +128,15 @@ const TestPage = observer(() => {
             progressData.completed_at = new Date().toISOString();
           }
 
-          await CourseService.updateUserProgress(
-            tabNumber,
-            courseId,
-            progressData
-          );
+          await CourseService.updateUserProgress(tabNumber, courseId, progressData);
           console.log('Progress updated successfully');
         } catch (progressError) {
-          console.warn(
-            'Warning: Progress update failed, but test was saved:',
-            progressError
-          );
-          // Не показываем ошибку пользователю, так как основной тест сохранен
+          console.warn('Warning: Progress update failed, but test was saved:', progressError);
         }
 
         return { success: true, data: result };
       } else {
-        const errorMsg =
-          result?.message || 'Результаты не были сохранены на сервере';
+        const errorMsg = result?.message || 'Результаты не были сохранены на сервере';
         message.warning(errorMsg);
         return { success: false, message: errorMsg };
       }
@@ -169,17 +147,12 @@ const TestPage = observer(() => {
         status: error.response?.status,
       });
 
-      // Показываем понятное сообщение об ошибке
       if (error.response?.status === 404) {
-        message.error(
-          'Ошибка подключения к серверу. Результаты сохранены локально.'
-        );
+        message.error('Ошибка подключения к серверу. Результаты сохранены локально.');
       } else if (error.code === 'ERR_NETWORK') {
         message.error('Ошибка сети. Результаты сохранены локально.');
       } else {
-        message.error(
-          'Не удалось сохранить результаты теста на сервере. Они сохранены локально.'
-        );
+        message.error('Не удалось сохранить результаты теста на сервере. Они сохранены локально.');
       }
 
       return {
@@ -191,20 +164,13 @@ const TestPage = observer(() => {
       setSubmitting(false);
     }
   };
+
   const handleTestComplete = async (answers, score, timeSpent = 0) => {
-    console.log(
-      'Test completed with score:',
-      score,
-      'Answers:',
-      answers,
-      'Time:',
-      timeSpent
-    );
+    console.log('Test completed with score:', score, 'Answers:', answers, 'Time:', timeSpent);
 
     const passingScore = course?.passing_score || 70;
     const passed = score >= passingScore;
 
-    // Сохраняем результат в локальном store
     trainingStore.submitTest(courseId, answers, score);
     trainingStore.updateTestResult(courseId, {
       score,
@@ -214,7 +180,6 @@ const TestPage = observer(() => {
       completed_at: passed ? new Date().toISOString() : null,
     });
 
-    // Обновляем статистику
     if (isUserAuthenticated && tabNumber) {
       trainingStore.updateStatisticsAfterTest(tabNumber, courseId, {
         score,
@@ -223,7 +188,6 @@ const TestPage = observer(() => {
       });
     }
 
-    // Отправляем результаты на сервер
     let serverSaved = false;
 
     if (isUserAuthenticated && tabNumber) {
@@ -231,14 +195,10 @@ const TestPage = observer(() => {
       serverSaved = result.success;
 
       if (!serverSaved) {
-        message.info(
-          'Результаты сохранены локально. Для синхронизации с сервером проверьте подключение.'
-        );
+        message.info('Результаты сохранены локально. Для синхронизации с сервером проверьте подключение.');
       }
     } else {
-      message.info(
-        'Результаты сохранены локально. Для сохранения на сервере необходимо авторизоваться.'
-      );
+      message.info('Результаты сохранены локально. Для сохранения на сервере необходимо авторизоваться.');
     }
 
     setTestScore(score);
@@ -255,7 +215,7 @@ const TestPage = observer(() => {
   };
 
   const handleReturnToCourse = () => {
-    navigate(`/security-training/${courseId}`);
+    navigate(`/security-training/course/${courseId}`);
   };
 
   const handleViewResults = () => {
@@ -282,14 +242,7 @@ const TestPage = observer(() => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Spin size="large" tip="Загрузка теста..." />
       </div>
     );
@@ -303,10 +256,7 @@ const TestPage = observer(() => {
           title="Тест не доступен"
           subTitle={error}
           extra={[
-            <Button
-              key="back"
-              onClick={() => navigate(`/security-training/${courseId}`)}
-            >
+            <Button key="back" onClick={() => navigate(`/security-training/course/${courseId}`)}>
               Вернуться к курсу
             </Button>,
           ]}
@@ -322,16 +272,14 @@ const TestPage = observer(() => {
           description={
             <div>
               <Title level={4}>Тест не настроен</Title>
-              <Text type="secondary">
-                Вопросы для тестирования еще не добавлены к этому курсу
-              </Text>
+              <Text type="secondary">Вопросы для тестирования еще не добавлены к этому курсу</Text>
             </div>
           }
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         />
         <Button
           type="primary"
-          onClick={() => navigate(`/security-training/${courseId}`)}
+          onClick={() => navigate(`/security-training/course/${courseId}`)}
           style={{ marginTop: '20px' }}
         >
           Вернуться к курсу
@@ -345,11 +293,7 @@ const TestPage = observer(() => {
 
     return (
       <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
-        <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={handleReturnToCourse}
-          style={{ marginBottom: '24px' }}
-        >
+        <Button icon={<ArrowLeftOutlined />} onClick={handleReturnToCourse} style={{ marginBottom: '24px' }}>
           Вернуться к курсу
         </Button>
 
@@ -359,27 +303,14 @@ const TestPage = observer(() => {
           subTitle={getResultMessage(testScore)}
           extra={[
             !isCourseCompleted && (
-              <Button
-                key="retake"
-                onClick={handleRetakeTest}
-                icon={<ClockCircleOutlined />}
-                loading={submitting}
-              >
+              <Button key="retake" onClick={handleRetakeTest} icon={<ClockCircleOutlined />} loading={submitting}>
                 Пройти тест заново
               </Button>
             ),
-            <Button
-              key="results"
-              type="primary"
-              onClick={handleViewResults}
-              icon={<SafetyOutlined />}
-            >
+            <Button key="results" type="primary" onClick={handleViewResults} icon={<SafetyOutlined />}>
               Подробные результаты
             </Button>,
-            <Button
-              key="courses"
-              onClick={() => navigate('/security-training')}
-            >
+            <Button key="courses" onClick={() => navigate('/security-training')}>
               К списку курсов
             </Button>,
           ].filter(Boolean)}
@@ -389,29 +320,21 @@ const TestPage = observer(() => {
           <Title level={5}>Статистика теста</Title>
           <Row gutter={[24, 24]}>
             <Col span={8}>
-              <Statistic
-                title="Минимальный балл"
-                value={passingScore}
-                suffix="%"
-              />
+              <Statistic title="Минимальный балл" value={passingScore} suffix="%" />
             </Col>
             <Col span={8}>
               <Statistic
                 title="Ваш результат"
                 value={testScore}
                 suffix="%"
-                valueStyle={{
-                  color: testScore >= passingScore ? '#3f8600' : '#cf1322',
-                }}
+                valueStyle={{ color: testScore >= passingScore ? '#3f8600' : '#cf1322' }}
               />
             </Col>
             <Col span={8}>
               <Statistic
                 title="Статус"
                 value={testScore >= passingScore ? 'Сдан' : 'Не сдан'}
-                valueStyle={{
-                  color: testScore >= passingScore ? '#3f8600' : '#cf1322',
-                }}
+                valueStyle={{ color: testScore >= passingScore ? '#3f8600' : '#cf1322' }}
               />
             </Col>
           </Row>
@@ -465,38 +388,24 @@ const TestPage = observer(() => {
   }
 
   const passingScore = course.passing_score || 70;
-  const timeLimit = 30; // минут
+  const timeLimit = course.time_limit || 30; // берём из настроек курса, если нет — 30 минут
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
       <Space direction="vertical" style={{ width: '100%' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button icon={<ArrowLeftOutlined />} onClick={handleReturnToCourse}>
             Вернуться к курсу
           </Button>
 
           <div style={{ textAlign: 'center' }}>
-            <Title level={3} style={{ margin: 0 }}>
-              Тестирование по курсу
-            </Title>
+            <Title level={3} style={{ margin: 0 }}>Тестирование по курсу</Title>
             <Text type="secondary">{course.title}</Text>
           </div>
 
           <Space>
-            {isCourseCompleted && (
-              <Tag color="green">
-                Предыдущий результат: {progress.testScore}%
-              </Tag>
-            )}
-            {!isUserAuthenticated && (
-              <Tag color="orange">Результаты не будут сохранены</Tag>
-            )}
+            {isCourseCompleted && <Tag color="green">Предыдущий результат: {progress.testScore}%</Tag>}
+            {!isUserAuthenticated && <Tag color="orange">Результаты не будут сохранены</Tag>}
           </Space>
         </div>
 
@@ -532,17 +441,9 @@ const TestPage = observer(() => {
               description={
                 <Space direction="vertical" size="small">
                   <Text>• Отвечайте на вопросы внимательно и без спешки</Text>
-                  <Text>
-                    • Не переключайтесь между вкладками браузера во время теста
-                  </Text>
-                  <Text>
-                    • После завершения теста вы сможете увидеть подробные
-                    результаты
-                  </Text>
-                  <Text>
-                    • При успешной сдаче теста курс будет отмечен как пройденный
-                  </Text>
-                  <Text>-</Text>
+                  <Text>• Не переключайтесь между вкладками браузера во время теста</Text>
+                  <Text>• После завершения теста вы сможете увидеть подробные результаты</Text>
+                  <Text>• При успешной сдаче теста курс будет отмечен как пройденный</Text>
                 </Space>
               }
               type="info"
@@ -554,7 +455,7 @@ const TestPage = observer(() => {
         {questions.length > 0 ? (
           <TestComponent
             questions={questions}
-            timeLimit={30}
+            timeLimit={timeLimit}
             onComplete={handleTestComplete}
           />
         ) : (

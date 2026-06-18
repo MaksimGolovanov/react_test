@@ -14,7 +14,8 @@ import {
   Space,
   Alert,
   Timeline,
-  Modal
+  Modal,
+  Spin,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -23,14 +24,14 @@ import {
   HistoryOutlined,
   BarChartOutlined,
   DownloadOutlined,
-  PrinterOutlined
+  PrinterOutlined,
 } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import trainingStore from '../store/SecurityTrainingStore';
 import { courses } from '../data/coursesData';
 import CertificateModal from '../components/admin/CertificateModal';
-
 const { Title, Text, Paragraph } = Typography;
+
 const { Panel } = Collapse;
 
 const ResultsPage = observer(() => {
@@ -38,6 +39,7 @@ const ResultsPage = observer(() => {
   const navigate = useNavigate();
   const [showCertificate, setShowCertificate] = useState(false);
   const [detailedResults, setDetailedResults] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const course = courses.find(c => c.id === courseId);
   const test = course?.test;
@@ -70,6 +72,7 @@ const ResultsPage = observer(() => {
       
       setDetailedResults(detailed);
     }
+    setLoading(false);
   }, [course, progress, testHistory, navigate, courseId]);
 
   const checkAnswer = (question, userAnswer) => {
@@ -106,12 +109,19 @@ const ResultsPage = observer(() => {
   };
 
   const getExplanation = (question) => {
-    // В реальном приложении здесь может быть объяснение из базы данных
     return question.explanation || 'Объяснение к вопросу будет добавлено в следующем обновлении.';
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+        <Spin size="large" tip="Загрузка результатов..." />
+      </div>
+    );
+  }
+
   if (!course || !progress?.completed) {
-    return null;
+    return null; // Редирект уже сработал
   }
 
   const columns = [
@@ -186,7 +196,6 @@ const ResultsPage = observer(() => {
         <Button
           type="link"
           onClick={() => {
-            // Показать результаты конкретной попытки
             Modal.info({
               title: `Результат от ${new Date(record.date).toLocaleDateString()}`,
               content: `Счет: ${record.score}% (${record.score >= test.passingScore ? 'Сдан' : 'Не сдан'})`,
@@ -306,7 +315,7 @@ const ResultsPage = observer(() => {
                     )}
                   </Card>
                 ),
-                rowExpandable: (record) => true
+                rowExpandable: () => true
               }}
             />
           </Panel>
@@ -324,7 +333,7 @@ const ResultsPage = observer(() => {
                 <Timeline>
                   {testHistory.map((attempt, index) => (
                     <Timeline.Item
-                      key={index}
+                      key={attempt.date || index}
                       color={attempt.score >= test.passingScore ? 'green' : 'red'}
                     >
                       <Text strong>

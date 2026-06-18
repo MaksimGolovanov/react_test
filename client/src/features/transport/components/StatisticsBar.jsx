@@ -1,34 +1,21 @@
 import React from 'react';
-import { Space, Divider } from 'antd';
-import styles from './StatisticsBar.module.css';
+import { Space, Divider, theme } from 'antd';
+
+const { useToken } = theme;
 
 const StatisticsBar = ({ statistics, selectedDate }) => {
+  const { token } = useToken();
   return (
     <Space size="middle" wrap>
-      <div>
-        <span className={styles.statLabel}>Дата:</span>
-        <span className={styles.statValue}>{selectedDate?.format('DD.MM.YYYY')}</span>
-      </div>
-      <Divider type="vertical" className={styles.divider} />
-      <div>
-        <span className={styles.statLabel}>Всего:</span>
-        <span className={styles.statNumber}>{statistics.total}</span>
-      </div>
-      <Divider type="vertical" className={styles.divider} />
-      <div>
-        <span className={styles.statLabel}>Исправны:</span>
-        <span className={`${styles.statNumber} ${styles.statAvailable}`}>{statistics.available}</span>
-      </div>
-      <Divider type="vertical" className={styles.divider} />
-      <div>
-        <span className={styles.statLabel}>Забронировано:</span>
-        <span className={`${styles.statNumber} ${styles.statBooked}`}>{statistics.booked}</span>
-      </div>
-      <Divider type="vertical" className={styles.divider} />
-      <div>
-        <span className={styles.statLabel}>Неисправны:</span>
-        <span className={`${styles.statNumber} ${styles.statUnavailable}`}>{statistics.unavailable}</span>
-      </div>
+      <div><span style={{ color: token.colorTextSecondary, fontSize: 12, marginRight: 8 }}>Дата:</span><span style={{ color: token.colorText }}>{selectedDate?.format('DD.MM.YYYY')}</span></div>
+      <Divider type="vertical" style={{ borderColor: token.colorBorder, height: 24, margin: 0 }} />
+      <div><span style={{ color: token.colorTextSecondary, fontSize: 12, marginRight: 8 }}>Всего:</span><span style={{ color: token.colorText, fontSize: 16, fontWeight: 500 }}>{statistics.total}</span></div>
+      <Divider type="vertical" style={{ borderColor: token.colorBorder, height: 24, margin: 0 }} />
+      <div><span style={{ color: token.colorTextSecondary, fontSize: 12, marginRight: 8 }}>Исправны:</span><span style={{ color: token.colorSuccess, fontSize: 16, fontWeight: 500 }}>{statistics.available}</span></div>
+      <Divider type="vertical" style={{ borderColor: token.colorBorder, height: 24, margin: 0 }} />
+      <div><span style={{ color: token.colorTextSecondary, fontSize: 12, marginRight: 8 }}>Забронировано:</span><span style={{ color: token.colorPrimary, fontSize: 16, fontWeight: 500 }}>{statistics.booked}</span></div>
+      <Divider type="vertical" style={{ borderColor: token.colorBorder, height: 24, margin: 0 }} />
+      <div><span style={{ color: token.colorTextSecondary, fontSize: 12, marginRight: 8 }}>Неисправны:</span><span style={{ color: token.colorError, fontSize: 16, fontWeight: 500 }}>{statistics.unavailable}</span></div>
     </Space>
   );
 };

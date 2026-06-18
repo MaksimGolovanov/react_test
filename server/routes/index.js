@@ -16,6 +16,9 @@ const docRoutes = require('./docRoutes');
 const transportRouter = require('./TransportRouter')
 const knowledgeRouter = require('./knowledgeRoutes')
 const mapRouter = require('./mapRouter');
+const consumableRouter = require('./consumableRouter');
+const confidentialRouter = require('./confidentialRouter');
+const positionAccessRouter = require('./positionAccessRouter');
 
 router.use('/user', userRouter)
 router.use('/staff', staffRouter)
@@ -33,6 +36,9 @@ router.use('/docs', docRoutes);
 router.use('/transport', transportRouter)
 router.use('/knowledge', knowledgeRouter)
 router.use('/map', mapRouter);
+router.use('/consumables', consumableRouter);
+router.use('/confidential', confidentialRouter);
+router.use('/position-access', positionAccessRouter);
 
 
 module.exports = router;  

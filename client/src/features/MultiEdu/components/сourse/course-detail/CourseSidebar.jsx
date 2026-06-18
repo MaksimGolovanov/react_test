@@ -8,6 +8,7 @@ import {
 import ProgressStats from './ProgressStats';
 import LessonsList from './LessonsList';
 import TestButton from './TestButton';
+import './CourseSidebar.css';
 
 const { Title } = Typography;
 
@@ -29,24 +30,43 @@ const CourseSidebar = ({
   const isCourseCompleted = userProgress?.completed || false;
 
   return (
-    <div style={{ marginBottom: '16px' }}>
-      <BackButton onBackToCourses={onBackToCourses} />
+    <div className="course-sidebar">
+      <Button
+        icon={<ArrowLeftOutlined />}
+        onClick={onBackToCourses}
+        type="text"
+        className="back-button"
+      >
+        Назад к курсам
+      </Button>
       
-      <CourseTitle title={course.title} />
+      <Title level={4} className="course-title">
+        {course.title}
+      </Title>
       
       <Space direction="vertical" style={{ width: '100%' }}>
-        <ProgressSection
-          userProgress={userProgress}
-          lessons={lessons}
-          progressPercentage={progressPercentage}
-          completedLessonsCount={completedLessonsCount}
-          totalLessons={totalLessons}
-          course={course}
-          isCourseCompleted={isCourseCompleted}
-        />
+        <div className="progress-section">
+          <ProgressStats
+            userProgress={userProgress}
+            lessons={lessons}
+            progressPercentage={progressPercentage}
+            completedLessonsCount={completedLessonsCount}
+            totalLessons={totalLessons}
+            compact
+          />
+
+          <div className="course-tags-wrapper">
+            <CourseTags
+              course={course}
+              isCourseCompleted={isCourseCompleted}
+              totalTimeSpent={userProgress?.totalTimeSpent || 0}
+              userProgress={userProgress}
+            />
+          </div>
+        </div>
       </Space>
 
-      <Divider orientation="left" style={styles.divider}>
+      <Divider orientation="left" className="lessons-divider">
         Уроки курса
       </Divider>
 
@@ -67,60 +87,11 @@ const CourseSidebar = ({
   );
 };
 
-const BackButton = ({ onBackToCourses }) => (
-  <Button
-    icon={<ArrowLeftOutlined />}
-    onClick={onBackToCourses}
-    type="text"
-    style={styles.backButton}
-  >
-    Назад к курсам
-  </Button>
-);
-
-const CourseTitle = ({ title }) => (
-  <Title level={4} style={styles.courseTitle}>
-    {title}
-  </Title>
-);
-
-const ProgressSection = ({
-  userProgress,
-  lessons,
-  progressPercentage,
-  completedLessonsCount,
-  totalLessons,
-  course,
-  isCourseCompleted,
-}) => (
-  <div style={{ marginBottom: '12px' }}>
-    <ProgressStats
-      userProgress={userProgress}
-      lessons={lessons}
-      progressPercentage={progressPercentage}
-      completedLessonsCount={completedLessonsCount}
-      totalLessons={totalLessons}
-      compact
-    />
-
-    <div style={{ marginTop: '8px' }}>
-      <CourseTags
-        course={course}
-        isCourseCompleted={isCourseCompleted}
-        totalTimeSpent={userProgress?.totalTimeSpent || 0}
-        userProgress={userProgress}
-      />
-    </div>
-  </div>
-);
-
 const CourseTags = ({ course, isCourseCompleted, totalTimeSpent, userProgress }) => {
   const calculateTotalTimeFromLessons = () => {
     if (!userProgress?.lessonTimeSpent) return totalTimeSpent;
-
     const totalMinutes = Object.values(userProgress.lessonTimeSpent || {})
       .reduce((sum, minutes) => sum + (minutes || 0), 0);
-
     return Math.max(totalMinutes, totalTimeSpent || 0);
   };
 
@@ -129,18 +100,10 @@ const CourseTags = ({ course, isCourseCompleted, totalTimeSpent, userProgress })
 
   const formatTimeFromMinutes = (minutes) => {
     if (!minutes || minutes === 0) return '0 мин';
-
-    if (minutes < 60) {
-      return `${minutes} мин`;
-    }
-
+    if (minutes < 60) return `${minutes} мин`;
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-
-    if (mins === 0) {
-      return `${hours} ч`;
-    }
-
+    if (mins === 0) return `${hours} ч`;
     return `${hours} ч ${mins} мин`;
   };
 
@@ -154,22 +117,21 @@ const CourseTags = ({ course, isCourseCompleted, totalTimeSpent, userProgress })
 
   return (
     <Space wrap size={[6, 6]}>
-      <Tag size="small" color="blue" style={styles.tag}>
+      <Tag color="blue" className="course-tag">
         {getLevelLabel(course.level)}
       </Tag>
 
       {shouldShowTimeSpent ? (
         <Tag
-          size="small"
           color="geekblue"
-          icon={<ClockCircleOutlined style={styles.iconSmall} />}
-          style={styles.tag}
+          icon={<ClockCircleOutlined className="tag-icon" />}
+          className="course-tag"
         >
           {formatTimeFromMinutes(actualTotalTimeSpent)}
         </Tag>
       ) : course.duration && (
-        <Tag size="small" style={styles.tag}>
-          <ClockCircleOutlined style={styles.iconSmall} />
+        <Tag className="course-tag">
+          <ClockCircleOutlined className="tag-icon" />
           {typeof course.duration === 'number'
             ? formatTimeFromMinutes(course.duration)
             : course.duration}
@@ -178,38 +140,15 @@ const CourseTags = ({ course, isCourseCompleted, totalTimeSpent, userProgress })
 
       {isCourseCompleted && (
         <Tag
-          size="small"
           color="success"
           icon={<SafetyCertificateOutlined />}
-          style={styles.tag}
+          className="course-tag"
         >
           Пройден
         </Tag>
       )}
     </Space>
   );
-};
-
-const styles = {
-  backButton: {
-    marginBottom: '12px',
-    padding: '4px 0',
-  },
-  courseTitle: {
-    marginBottom: '6px',
-    fontSize: '18px',
-  },
-  divider: {
-    fontSize: '14px',
-    margin: '16px 0',
-  },
-  tag: {
-    fontSize: '11px',
-    padding: '1px 6px',
-  },
-  iconSmall: {
-    fontSize: '10px',
-  },
 };
 
 export default CourseSidebar;

@@ -1,4 +1,4 @@
-// src/features/security-training/components/CourseCard.jsx
+// src/features/security-training/components/admin/CourseCard.jsx
 import React from 'react';
 import { Card, Progress, Tag, Button, Row, Col } from 'antd';
 import { 
@@ -7,11 +7,11 @@ import {
   ArrowRightOutlined,
   WarningOutlined,
   LockOutlined,
-  
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import trainingStore from '../store/SecurityTrainingStore';
+import trainingStore from '../../store/SecurityTrainingStore';
+import './CourseCard.css';
 
 const CourseCard = observer(({ course }) => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const CourseCard = observer(({ course }) => {
       SafetyOutlined: <SafetyOutlined />,
       WarningOutlined: <WarningOutlined />,
       LockOutlined: <LockOutlined />,
-      ShieldOutlined: <LockOutlined /> // Исправлено
+      ShieldOutlined: <LockOutlined />
     };
     return icons[iconName] || <SafetyOutlined />;
   };
@@ -31,16 +31,11 @@ const CourseCard = observer(({ course }) => {
   return (
     <Card
       hoverable
-      style={{ height: '100%' }}
+      className="admin-course-card"
       cover={
-        <div style={{ 
-          backgroundColor: '#1890ff', 
-          padding: '20px', 
-          textAlign: 'center',
-          color: 'white'
-        }}>
+        <div className="course-cover">
           {getIcon(course.icon)}
-          <h3 style={{ margin: '10px 0 0', color: 'white' }}>{course.title}</h3>
+          <h3 className="course-cover-title">{course.title}</h3>
         </div>
       }
       actions={[
@@ -48,45 +43,28 @@ const CourseCard = observer(({ course }) => {
           type="primary" 
           onClick={() => navigate(`/security-training/course/${course.id}`)}
           key="start"
+          className="course-action-btn"
         >
           {isCompleted ? 'Повторить' : 'Начать обучение'} 
           <ArrowRightOutlined />
         </Button>
       ]}
     >
-      <div style={{ minHeight: '150px' }}>
-        <p>{course.description}</p>
-        
-        <Row gutter={[8, 8]} style={{ marginBottom: '16px' }}>
+      <div className="course-card-body">
+        <p className="course-description">{course.description}</p>
+        <Row gutter={[8, 8]} className="course-tags-row">
           <Col span={12}>
-            <Tag icon={<ClockCircleOutlined />} color="blue">
-              {course.duration}
-            </Tag>
+            <Tag icon={<ClockCircleOutlined />} color="blue">{course.duration}</Tag>
           </Col>
           <Col span={12}>
-            <Tag color={course.level === 'Начальный' ? 'green' : 'orange'}>
-              {course.level}
-            </Tag>
+            <Tag color={course.level === 'Начальный' ? 'green' : 'orange'}>{course.level}</Tag>
           </Col>
         </Row>
-
-        <div style={{ marginTop: '16px' }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            marginBottom: '8px' 
-          }}>
-            <span>Прогресс:</span>
-            <span>{progress}%</span>
-          </div>
+        <div className="course-progress">
+          <div className="progress-label">Прогресс: <span>{progress}%</span></div>
           <Progress percent={progress} size="small" />
         </div>
-
-        {isCompleted && (
-          <Tag color="success" style={{ marginTop: '10px' }}>
-            Курс пройден
-          </Tag>
-        )}
+        {isCompleted && <Tag color="success" className="completed-tag">Курс пройден</Tag>}
       </div>
     </Card>
   );
