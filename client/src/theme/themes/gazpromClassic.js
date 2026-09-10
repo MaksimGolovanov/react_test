@@ -46,6 +46,7 @@ const gazpromClassicTheme = {
       Switch: { colorPrimary: '#0079C1' },
       Checkbox: { colorPrimary: '#0079C1' },
       Radio: { colorPrimary: '#0079C1' },
+      Form: { itemMarginBottom: 8, labelColor: '#888', },
     },
   },
 };

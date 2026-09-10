@@ -15,6 +15,9 @@ import {
   Tabs,
   Popconfirm,
   theme,
+  Spin,
+  Select,
+  Input,
 } from 'antd';
 import {
   PhoneOutlined,
@@ -32,11 +35,11 @@ import {
 } from '@ant-design/icons';
 import StaffService from '../../services/StaffService';
 import PositionAccessService from '../../services/PositionAccessService';
+import AdService from '../../services/AdService';
 import styles from './style.module.css';
 import AvatarWithFallback from '../AvatarWithFallback/AvatarWithFallback';
 
 const { Text, Title } = Typography;
-const { TabPane } = Tabs;
 const { useToken } = theme;
 
 function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
@@ -55,11 +58,18 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
   const [confidentialPoints, setConfidentialPoints] = useState([]);
   const [loadingConfidential, setLoadingConfidential] = useState(false);
 
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+  const [passwordResult, setPasswordResult] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordForm] = Form.useForm();
+
   useEffect(() => {
     if (!user || !user.department || !user.post) {
       setConfidentialPoints([]);
       return;
     }
+
     const loadPoints = async () => {
       setLoadingConfidential(true);
       try {
@@ -68,11 +78,14 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
           user.department, // теперь это полная строка
           user.post
         );
+
         setConfidentialPoints(points);
       } catch (error) {
         console.error('Ошибка загрузки пунктов КТ:', error);
         setConfidentialPoints([]);
-        message.error('Не удалось загрузить пункты конфиденциальной информации');
+        message.error(
+          'Не удалось загрузить пункты конфиденциальной информации'
+        );
       } finally {
         setLoadingConfidential(false);
       }
@@ -166,18 +179,63 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
 
   const overlayBg = token.colorBgContainer + 'cc';
 
+  const handlePasswordCheck = async (values) => {
+    setPasswordLoading(true);
+    setPasswordError(null);
+    setPasswordResult(null);
+    try {
+      const data = await AdService.checkPasswordExpiry(
+        values.adminLogin,
+        values.adminPassword,
+        user.login
+      );
+      setPasswordResult(data);
+      message.success('Проверка выполнена');
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Ошибка проверки';
+      setPasswordError(msg);
+      message.error(msg);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  // Закрытие модалки с очисткой состояния
+  const closePasswordModal = () => {
+    setPasswordModalVisible(false);
+    setPasswordResult(null);
+    setPasswordError(null);
+    passwordForm.resetFields();
+  };
+
   if (!user) {
     return (
       <div className={styles.profileContainer}>
         <Card className={styles.profileHeader}>
-          <div className={styles.headerTopHalf} style={{ background: token.colorPrimary }} />
+          <div
+            className={styles.headerTopHalf}
+            style={{ background: token.colorPrimary }}
+          />
           <div className={styles.avatarWrapper}>
-            <Skeleton.Avatar active size={150} shape="circle" style={{ border: `3px solid ${token.colorBgContainer}` }} />
+            <Skeleton.Avatar
+              active
+              size={150}
+              shape="circle"
+              style={{ border: `3px solid ${token.colorBgContainer}` }}
+            />
           </div>
           <div className={styles.userInfoOverlay}>
-            <Skeleton.Input active size="small" style={{ width: '60%', height: 24 }} />
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: '60%', height: 24 }}
+            />
             <div style={{ marginTop: 8 }}>
-              <Skeleton.Input active size="small" style={{ width: '40%', height: 16 }} />
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: '40%', height: 16 }}
+              />
             </div>
           </div>
         </Card>
@@ -213,10 +271,23 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
     return (
       <div className={styles.tableContainer}>
         <table className={styles.deviceTable}>
-          <thead style={{ background: token.colorBgLayout, borderBottom: `1px solid ${token.colorBorder}` }}>
+          <thead
+            style={{
+              background: token.colorBgLayout,
+              borderBottom: `1px solid ${token.colorBorder}`,
+            }}
+          >
             <tr>
               {columns.map((col, idx) => (
-                <th key={idx} style={{ color: token.colorText, fontWeight: 600, padding: '10px 12px', textAlign: 'left' }}>
+                <th
+                  key={idx}
+                  style={{
+                    color: token.colorText,
+                    fontWeight: 600,
+                    padding: '10px 12px',
+                    textAlign: 'left',
+                  }}
+                >
                   {col}
                 </th>
               ))}
@@ -224,9 +295,16 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
           </thead>
           <tbody>
             {devices.slice(0, 5).map((device, idx) => {
-              const rowBackground = idx % 2 === 0 ? token.colorBgContainer : token.colorBgLayout;
+              const rowBackground =
+                idx % 2 === 0 ? token.colorBgContainer : token.colorBgLayout;
               return (
-                <tr key={device.id} style={{ background: rowBackground, borderBottom: `1px solid ${token.colorBorder}` }}>
+                <tr
+                  key={device.id}
+                  style={{
+                    background: rowBackground,
+                    borderBottom: `1px solid ${token.colorBorder}`,
+                  }}
+                >
                   {renderRow(device)}
                 </tr>
               );
@@ -283,22 +361,41 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
         >
           <div className={styles.userInfoHeader}>
             <div className={styles.userInfoText}>
-              <Title level={3} className={styles.userName} style={{ color: token.colorText }}>
+              <Title
+                level={3}
+                className={styles.userName}
+                style={{ color: token.colorText }}
+              >
                 {user.fio || 'Неизвестный сотрудник'}
               </Title>
               <div className={styles.userInfoDetails}>
-                <Text strong className={styles.userPosition} style={{ color: token.colorTextSecondary }}>
+                <Text
+                  strong
+                  className={styles.userPosition}
+                  style={{ color: token.colorTextSecondary }}
+                >
                   {user.post || 'Должность не указана'}
                 </Text>
-                <Text className={styles.userDepartment} style={{ color: token.colorPrimary }}>
+                <Text
+                  className={styles.userDepartment}
+                  style={{ color: token.colorPrimary }}
+                >
                   {user.departmentName || 'Не указано'}
                 </Text>
               </div>
             </div>
             <div className={styles.userActions}>
-              <Button type="link" icon={<EditOutlined />} onClick={onEdit} title="Редактировать" style={{ color: token.colorTextSecondary }} />
+              <Button
+                type="link"
+                icon={<EditOutlined />}
+                onClick={onEdit}
+                title="Редактировать"
+                style={{ color: token.colorTextSecondary }}
+              />
               <Popconfirm
-                title={isDeleted ? 'Окончательное удаление' : 'Удаление сотрудника'}
+                title={
+                  isDeleted ? 'Окончательное удаление' : 'Удаление сотрудника'
+                }
                 description={`Вы уверены, что хотите ${isDeleted ? 'окончательно удалить' : 'удалить'} ${user.fio}?`}
                 open={deleteConfirmVisible}
                 onConfirm={onDelete}
@@ -307,7 +404,13 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
                 cancelText="Отмена"
                 okType="danger"
               >
-                <Button type="link" icon={<DeleteOutlined />} danger onClick={() => setDeleteConfirmVisible(true)} style={{ color: token.colorError }} />
+                <Button
+                  type="link"
+                  icon={<DeleteOutlined />}
+                  danger
+                  onClick={() => setDeleteConfirmVisible(true)}
+                  style={{ color: token.colorError }}
+                />
               </Popconfirm>
             </div>
           </div>
@@ -318,57 +421,159 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
         <Row gutter={[16, 12]}>
           <Col xs={24} md={12}>
             <div className={styles.infoSection}>
-              <div className={styles.sectionTitle} style={{ borderBottomColor: token.colorBorder }}>
-                <IdcardOutlined className={styles.sectionIcon} style={{ color: token.colorPrimary }} />
-                <Text strong className={styles.sectionTitleText}>Основная информация</Text>
+              <div
+                className={styles.sectionTitle}
+                style={{ borderBottomColor: token.colorBorder }}
+              >
+                <IdcardOutlined
+                  className={styles.sectionIcon}
+                  style={{ color: token.colorPrimary }}
+                />
+                <Text strong className={styles.sectionTitleText}>
+                  Основная информация
+                </Text>
               </div>
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
-                  <div className={styles.infoLabel} style={{ color: token.colorTextSecondary }}>Табельный номер</div>
-                  <Text className={styles.infoValue} style={{ color: token.colorText }}>{user.tabNumber || '-'}</Text>
+                  <div
+                    className={styles.infoLabel}
+                    style={{ color: token.colorTextSecondary }}
+                  >
+                    Табельный номер
+                  </div>
+                  <Text
+                    className={styles.infoValue}
+                    style={{ color: token.colorText }}
+                  >
+                    {user.tabNumber || '-'}
+                  </Text>
                 </div>
                 <div className={styles.infoItem}>
-                  <div className={styles.infoLabel} style={{ color: token.colorTextSecondary }}>Логин</div>
-                  <Text className={styles.infoValue} style={{ color: token.colorText }}>{user.login || '-'}</Text>
+                  <div
+                    className={styles.infoLabel}
+                    style={{ color: token.colorTextSecondary }}
+                  >
+                    Логин
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                    }}
+                  >
+                    <Text
+                      className={styles.infoValue}
+                      style={{ color: token.colorText }}
+                    >
+                      {user.login || '-'}
+                    </Text>
+                    {user.login && (
+                      <Button
+                        type="link"
+                        icon={<LockOutlined />}
+                        onClick={() => setPasswordModalVisible(true)}
+                        title="Проверить срок действия пароля"
+                        size="small"
+                        style={{
+                          padding: '0 4px',
+                          height: 'auto',
+                          lineHeight: 1,
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
                 <div className={styles.infoItem}>
-                  <div className={styles.infoLabel} style={{ color: token.colorTextSecondary }}>Служба/Отдел</div>
-                  <Text className={styles.infoValue} style={{ color: token.colorText }}>{user.departmentName || 'Не указано'}</Text>
+                  <div
+                    className={styles.infoLabel}
+                    style={{ color: token.colorTextSecondary }}
+                  >
+                    Служба/Отдел
+                  </div>
+                  <Text
+                    className={styles.infoValue}
+                    style={{ color: token.colorText }}
+                  >
+                    {user.departmentName || 'Не указано'}
+                  </Text>
                 </div>
               </div>
             </div>
           </Col>
           <Col xs={24} md={12}>
             <div className={styles.infoSection}>
-              <div className={styles.sectionTitle} style={{ borderBottomColor: token.colorBorder }}>
-                <ContactsOutlined className={styles.sectionIcon} style={{ color: token.colorPrimary }} />
-                <Text strong className={styles.sectionTitleText}>Контактная информация</Text>
+              <div
+                className={styles.sectionTitle}
+                style={{ borderBottomColor: token.colorBorder }}
+              >
+                <ContactsOutlined
+                  className={styles.sectionIcon}
+                  style={{ color: token.colorPrimary }}
+                />
+                <Text strong className={styles.sectionTitleText}>
+                  Контактная информация
+                </Text>
               </div>
               <div className={styles.infoGrid}>
                 {user.telephone && (
                   <div className={styles.infoItem}>
-                    <div className={styles.infoLabel} style={{ color: token.colorTextSecondary }}>Телефон</div>
-                    <a href={`tel:${user.telephone}`} className={styles.contactLink} style={{ color: token.colorPrimary }}>
-                      <PhoneOutlined className={styles.contactIcon} /> {user.telephone}
+                    <div
+                      className={styles.infoLabel}
+                      style={{ color: token.colorTextSecondary }}
+                    >
+                      Телефон
+                    </div>
+                    <a
+                      href={`tel:${user.telephone}`}
+                      className={styles.contactLink}
+                      style={{ color: token.colorPrimary }}
+                    >
+                      <PhoneOutlined className={styles.contactIcon} />{' '}
+                      {user.telephone}
                     </a>
                   </div>
                 )}
                 {user.email && (
                   <div className={styles.infoItem}>
-                    <div className={styles.infoLabel} style={{ color: token.colorTextSecondary }}>Email</div>
-                    <a href={`mailto:${user.email}`} className={styles.contactLink} style={{ color: token.colorPrimary }}>
-                      <MailOutlined className={styles.contactIcon} /> {user.email}
+                    <div
+                      className={styles.infoLabel}
+                      style={{ color: token.colorTextSecondary }}
+                    >
+                      Email
+                    </div>
+                    <a
+                      href={`mailto:${user.email}`}
+                      className={styles.contactLink}
+                      style={{ color: token.colorPrimary }}
+                    >
+                      <MailOutlined className={styles.contactIcon} />{' '}
+                      {user.email}
                     </a>
                   </div>
                 )}
                 {user.ip && user.ip !== '-' && (
                   <div className={styles.infoItem}>
-                    <div className={styles.infoLabel} style={{ color: token.colorTextSecondary }}>IP адрес</div>
+                    <div
+                      className={styles.infoLabel}
+                      style={{ color: token.colorTextSecondary }}
+                    >
+                      IP адрес
+                    </div>
                     <div className={styles.ipContainer}>
-                      <Text className={styles.ipText} style={{ color: token.colorText }}>
+                      <Text
+                        className={styles.ipText}
+                        style={{ color: token.colorText }}
+                      >
                         <LaptopOutlined /> {user.ip}
                       </Text>
-                      <Button type="link" size="small" icon={<CopyOutlined />} onClick={copyIpToClipboard} loading={copyLoading} />
+                      <Button
+                        type="link"
+                        size="small"
+                        icon={<CopyOutlined />}
+                        onClick={copyIpToClipboard}
+                        loading={copyLoading}
+                      />
                     </div>
                   </div>
                 )}
@@ -379,90 +584,275 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
       </Card>
 
       <Card className={styles.devicesCard}>
-        <Tabs activeKey={activeTab} onChange={setActiveTab} className={styles.devicesTabs}>
-          <TabPane
-            tab={<span><KeyOutlined /> Карты доступа <Badge count={accessCards.length} size="small" /></span>}
-            key="cards"
-          >
-            <div className={styles.tabContent}>
-              {loadingCards ? (
-                <Skeleton active paragraph={{ rows: 3 }} />
-              ) : (
-                renderDeviceTable('Карты доступа', accessCards, cardColumns, (card) => (
-                  <>
-                    <td className={styles.tableCellBold} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>{card.ser_num || '-'}</td>
-                    <td className={styles.tableCell} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>{card.type || '-'}</td>
-                    <td className={styles.tableCell} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>{card.description || '-'}</td>
-                    <td className={styles.tableCell} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>{formatDate(card.data_prov)}</td>
-                    <td className={styles.tableCell} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>
-                      <Badge status={card.log === 'Да' ? 'success' : 'default'} text={card.log === 'Да' ? 'Активна' : 'Не активна'} />
-                    </td>
-                  </>
-                ))
-              )}
-            </div>
-          </TabPane>
-          <TabPane
-            tab={<span><UsbOutlined /> USB устройства <Badge count={usbDevices.length} size="small" /></span>}
-            key="usb"
-          >
-            <div className={styles.tabContent}>
-              {loadingUsb ? (
-                <Skeleton active paragraph={{ rows: 3 }} />
-              ) : (
-                renderDeviceTable('USB устройства', usbDevices, usbColumns, (dev) => (
-                  <>
-                    <td className={styles.tableCellBold} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>{dev.num_form || '-'}</td>
-                    <td className={styles.tableCell} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>{dev.ser_num || '-'}</td>
-                    <td className={styles.tableCell} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>{dev.volume || '-'}</td>
-                    <td className={styles.tableCell} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>{formatDate(dev.data_prov)}</td>
-                    <td className={styles.tableCell} style={{ color: token.colorText, borderBottom: `1px solid ${token.colorBorder}` }}>
-                      <Badge status={dev.log === 'Да' ? 'success' : 'default'} text={dev.log === 'Да' ? 'Активно' : 'Не активно'} />
-                    </td>
-                  </>
-                ))
-              )}
-            </div>
-          </TabPane>
-          <TabPane
-            tab={<span><LockOutlined /> Пункты КТ <Badge count={confidentialPoints.length} size="small" /></span>}
-            key="confidential"
-          >
-            <div className={styles.tabContent}>
-              {loadingConfidential ? (
-                <Skeleton active paragraph={{ rows: 3 }} />
-              ) : confidentialPoints.length === 0 ? (
-                <Alert message="Нет назначенных пунктов" description="Для должности данного сотрудника не указаны пункты конфиденциальной информации." type="info" showIcon className={styles.emptyAlert} />
-              ) : (
-                <div className={styles.tableContainer}>
-                  <table className={styles.deviceTable}>
-                    <thead style={{ background: token.colorBgLayout, borderBottom: `1px solid ${token.colorBorder}` }}>
-                      <tr>
-                        <th style={{ color: token.colorText, padding: '10px 12px' }}>№ пункта</th>
-                        <th style={{ color: token.colorText, padding: '10px 12px' }}>Описание информации</th>
-                        <th style={{ color: token.colorText, padding: '10px 12px' }}>Гриф</th>
-                        <th style={{ color: token.colorText, padding: '10px 12px' }}>Срок доступа</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {confidentialPoints.map((point, idx) => {
-                        const rowBackground = idx % 2 === 0 ? token.colorBgContainer : token.colorBgLayout;
-                        return (
-                          <tr key={point.id} style={{ background: rowBackground, borderBottom: `1px solid ${token.colorBorder}` }}>
-                            <td className={styles.tableCellBold} style={{ color: token.colorText }}>{point.item_number || '-'}</td>
-                            <td className={styles.tableCell} style={{ color: token.colorText }}>{point.information_description || '-'}</td>
-                            <td className={styles.tableCell} style={{ color: token.colorText }}>{point.confidentiality_mark || '-'}</td>
-                            <td className={styles.tableCell} style={{ color: token.colorText }}>{point.access_period || '-'}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          className={styles.devicesTabs}
+          items={[
+            {
+              key: 'cards',
+              label: (
+                <span>
+                  <KeyOutlined /> Карты доступа{' '}
+                  <Badge count={accessCards.length} size="small" />
+                </span>
+              ),
+              children: (
+                <div className={styles.tabContent}>
+                  {loadingCards ? (
+                    <Skeleton active paragraph={{ rows: 3 }} />
+                  ) : (
+                    renderDeviceTable(
+                      'Карты доступа',
+                      accessCards,
+                      cardColumns,
+                      (card) => (
+                        <>
+                          <td
+                            className={styles.tableCellBold}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            {card.ser_num || '-'}
+                          </td>
+                          <td
+                            className={styles.tableCell}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            {card.type || '-'}
+                          </td>
+                          <td
+                            className={styles.tableCell}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            {card.description || '-'}
+                          </td>
+                          <td
+                            className={styles.tableCell}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            {formatDate(card.data_prov)}
+                          </td>
+                          <td
+                            className={styles.tableCell}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            <Badge
+                              status={card.log === 'Да' ? 'success' : 'default'}
+                              text={
+                                card.log === 'Да' ? 'Активна' : 'Не активна'
+                              }
+                            />
+                          </td>
+                        </>
+                      )
+                    )
+                  )}
                 </div>
-              )}
-            </div>
-          </TabPane>
-        </Tabs>
+              ),
+            },
+            {
+              key: 'usb',
+              label: (
+                <span>
+                  <UsbOutlined /> USB устройства{' '}
+                  <Badge count={usbDevices.length} size="small" />
+                </span>
+              ),
+              children: (
+                <div className={styles.tabContent}>
+                  {loadingUsb ? (
+                    <Skeleton active paragraph={{ rows: 3 }} />
+                  ) : (
+                    renderDeviceTable(
+                      'USB устройства',
+                      usbDevices,
+                      usbColumns,
+                      (dev) => (
+                        <>
+                          <td
+                            className={styles.tableCellBold}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            {dev.num_form || '-'}
+                          </td>
+                          <td
+                            className={styles.tableCell}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            {dev.ser_num || '-'}
+                          </td>
+                          <td
+                            className={styles.tableCell}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            {dev.volume || '-'}
+                          </td>
+                          <td
+                            className={styles.tableCell}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            {formatDate(dev.data_prov)}
+                          </td>
+                          <td
+                            className={styles.tableCell}
+                            style={{
+                              color: token.colorText,
+                              borderBottom: `1px solid ${token.colorBorder}`,
+                            }}
+                          >
+                            <Badge
+                              status={dev.log === 'Да' ? 'success' : 'default'}
+                              text={dev.log === 'Да' ? 'Активно' : 'Не активно'}
+                            />
+                          </td>
+                        </>
+                      )
+                    )
+                  )}
+                </div>
+              ),
+            },
+            {
+              key: 'confidential',
+              label: (
+                <span>
+                  <LockOutlined /> Пункты КТ{' '}
+                  <Badge count={confidentialPoints.length} size="small" />
+                </span>
+              ),
+              children: (
+                <div className={styles.tabContent}>
+                  {loadingConfidential ? (
+                    <Skeleton active paragraph={{ rows: 3 }} />
+                  ) : confidentialPoints.length === 0 ? (
+                    <Alert
+                      message="Нет назначенных пунктов"
+                      description="Для должности данного сотрудника не указаны пункты конфиденциальной информации."
+                      type="info"
+                      showIcon
+                      className={styles.emptyAlert}
+                    />
+                  ) : (
+                    <div className={styles.tableContainer}>
+                      <table className={styles.deviceTable}>
+                        <thead
+                          style={{
+                            background: token.colorBgLayout,
+                            borderBottom: `1px solid ${token.colorBorder}`,
+                          }}
+                        >
+                          <tr>
+                            <th
+                              style={{
+                                color: token.colorText,
+                                padding: '10px 12px',
+                              }}
+                            >
+                              № пункта
+                            </th>
+                            <th
+                              style={{
+                                color: token.colorText,
+                                padding: '10px 12px',
+                              }}
+                            >
+                              Описание информации
+                            </th>
+                            <th
+                              style={{
+                                color: token.colorText,
+                                padding: '10px 12px',
+                              }}
+                            >
+                              Гриф
+                            </th>
+                            <th
+                              style={{
+                                color: token.colorText,
+                                padding: '10px 12px',
+                              }}
+                            >
+                              Срок доступа
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {confidentialPoints.map((point, idx) => {
+                            const rowBackground =
+                              idx % 2 === 0
+                                ? token.colorBgContainer
+                                : token.colorBgLayout;
+                            return (
+                              <tr
+                                key={point.id}
+                                style={{
+                                  background: rowBackground,
+                                  borderBottom: `1px solid ${token.colorBorder}`,
+                                }}
+                              >
+                                <td
+                                  className={styles.tableCellBold}
+                                  style={{ color: token.colorText }}
+                                >
+                                  {point.item_number || '-'}
+                                </td>
+                                <td
+                                  className={styles.tableCell}
+                                  style={{ color: token.colorText }}
+                                >
+                                  {point.information_description || '-'}
+                                </td>
+                                <td
+                                  className={styles.tableCell}
+                                  style={{ color: token.colorText }}
+                                >
+                                  {point.confidentiality_mark || '-'}
+                                </td>
+                                <td
+                                  className={styles.tableCell}
+                                  style={{ color: token.colorText }}
+                                >
+                                  {point.access_period || '-'}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ),
+            },
+          ]}
+        />
       </Card>
 
       <Modal
@@ -474,8 +864,17 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
           setPreviewImage(null);
         }}
         footer={[
-          <Button key="cancel" onClick={() => setPhotoModalVisible(false)}>Отмена</Button>,
-          <Button key="upload" type="primary" onClick={handlePhotoUpload} disabled={!selectedFile}>Сохранить фото</Button>,
+          <Button key="cancel" onClick={() => setPhotoModalVisible(false)}>
+            Отмена
+          </Button>,
+          <Button
+            key="upload"
+            type="primary"
+            onClick={handlePhotoUpload}
+            disabled={!selectedFile}
+          >
+            Сохранить фото
+          </Button>,
         ]}
       >
         <Form layout="vertical">
@@ -496,10 +895,127 @@ function UserProfilePanel({ user, onUpdate, onEdit, onDelete }) {
           </Form.Item>
           {previewImage && (
             <Form.Item label="Предпросмотр">
-              <img src={previewImage} alt="Предпросмотр" className={styles.previewImage} />
+              <img
+                src={previewImage}
+                alt="Предпросмотр"
+                className={styles.previewImage}
+              />
             </Form.Item>
           )}
         </Form>
+      </Modal>
+      <Modal
+        title="Проверка срока действия пароля"
+        open={passwordModalVisible}
+        onCancel={closePasswordModal}
+        footer={null}
+        width={600}
+        destroyOnClose
+      >
+        <Form
+          form={passwordForm}
+          layout="vertical"
+          onFinish={handlePasswordCheck}
+        >
+          <Form.Item
+            label="Логин администратора (доменный)"
+            name="adminLogin"
+            rules={[{ required: true, message: 'Выберите логин' }]}
+          >
+            <Select placeholder="Выберите администратора">
+              <Select.Option value="golovanov_ks3">golovanov_ks3</Select.Option>
+              <Select.Option value="saraev_ks3">saraev_ks3</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Пароль администратора"
+            name="adminPassword"
+            rules={[{ required: true, message: 'Введите пароль' }]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder="Пароль" />
+          </Form.Item>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={passwordLoading}
+              icon={<KeyOutlined />}
+            >
+              Проверить
+            </Button>
+          </Form.Item>
+        </Form>
+
+        {passwordLoading && (
+          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <Spin tip="Выполняется запрос..." />
+          </div>
+        )}
+
+        {passwordError && (
+          <Alert
+            message="Ошибка"
+            description={passwordError}
+            type="error"
+            showIcon
+            style={{ marginTop: 16 }}
+          />
+        )}
+
+        {passwordResult && (
+          <Card
+            size="small"
+            style={{ marginTop: 16, background: token.colorBgLayout }}
+          >
+            <p>
+              <Text strong>Пользователь:</Text> {passwordResult.targetUser}
+            </p>
+            <p>
+              <Text strong>Полное имя:</Text> {passwordResult.fullName || '-'}
+            </p>
+            <p>
+              <Text strong>Дата последней смены пароля:</Text>{' '}
+              {passwordResult.passwordLastSet
+                ? new Date(passwordResult.passwordLastSet).toLocaleString()
+                : '-'}
+            </p>
+            <p>
+              <Text strong>Дата обязательной смены пароля:</Text>{' '}
+              {passwordResult.passwordMustChange
+                ? new Date(passwordResult.passwordMustChange).toLocaleString()
+                : '-'}
+            </p>
+            {passwordResult.passwordMustChange && (
+              <p>
+                <Text strong>Дней до истечения:</Text>{' '}
+                {Math.max(
+                  0,
+                  Math.floor(
+                    (new Date(passwordResult.passwordMustChange) - Date.now()) /
+                      (1000 * 60 * 60 * 24)
+                  )
+                )}
+              </p>
+            )}
+            <details>
+              <summary style={{ cursor: 'pointer', color: token.colorPrimary }}>
+                Подробный вывод
+              </summary>
+              <pre
+                style={{
+                  maxHeight: 200,
+                  overflow: 'auto',
+                  background: '#f5f5f5',
+                  padding: 8,
+                  marginTop: 8,
+                  fontSize: 11,
+                }}
+              >
+                {passwordResult.raw}
+              </pre>
+            </details>
+          </Card>
+        )}
       </Modal>
     </div>
   );

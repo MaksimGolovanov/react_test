@@ -1,0 +1,31 @@
+/* src/modules/Monitoring/ui/MonitoringLogs/MonitoringLogs.module.css */
+.logsContainer {
+  max-height: 350px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  padding: 4px;
+  background: #fafafa;
+  scrollbar-width: thin;
+}
+
+.logsContainer::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.logsContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.logsContainer::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.logError td {
+  background-color: #fff1f0 !important;
+}
+.logWarn td {
+  background-color: #fff7e6 !important;
+}

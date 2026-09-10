@@ -1,0 +1,9 @@
+/* src/modules/Monitoring/ui/MonitoringHeader/MonitoringHeader.module.css */
+.header {
+  padding: 16px 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}

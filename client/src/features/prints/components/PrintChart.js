@@ -20,6 +20,7 @@ const PrintChart = ({ serialNumber }) => {
   const [maxSliderPosition, setMaxSliderPosition] = useState(0);
   const chartRef = useRef(null);
 
+  // Генерация всех меток месяцев на основе данных
   const generateAllMonthLabels = () => {
     if (!allData.length) return [];
     const timestamps = allData.map(item => item.clock * 1000);
@@ -44,13 +45,13 @@ const PrintChart = ({ serialNumber }) => {
     tooltipTextColor: token.colorText,
   });
 
+  // Загрузка данных по серийному номеру
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await PrintsService.fetchPrintStatistic(serialNumber);
         if (data && Array.isArray(data) && data.length) {
           setAllData(data);
-          // последнее значение
           const sorted = [...data].sort((a, b) => a.clock - b.clock);
           setLastValue(sorted[sorted.length - 1].value);
         }
@@ -61,6 +62,39 @@ const PrintChart = ({ serialNumber }) => {
     if (serialNumber) fetchData();
   }, [serialNumber]);
 
+  // ===== ВЫЧИСЛЕНИЕ СУММЫ ЗА ПОСЛЕДНИЕ 12 МЕСЯЦЕВ (ПРАВИЛЬНЫЙ ПОДСЧЁТ) =====
+  useEffect(() => {
+    if (!allData.length) {
+      setTotalCopies(0);
+      return;
+    }
+    // Сортируем по времени
+    const sorted = [...allData].sort((a, b) => a.clock - b.clock);
+    // Определяем дату последнего замера
+    const lastDate = moment(sorted[sorted.length - 1].clock * 1000);
+    // Начало периода – 12 месяцев назад от последнего замера
+    const startDate = lastDate.clone().subtract(12, 'months');
+
+    // Фильтруем данные за последние 12 месяцев
+    const filtered = sorted.filter(item =>
+      moment(item.clock * 1000).isSameOrAfter(startDate)
+    );
+
+    if (filtered.length < 2) {
+      setTotalCopies(0);
+      return;
+    }
+
+    // Суммируем все положительные приросты между соседними записями
+    let total = 0;
+    for (let i = 1; i < filtered.length; i++) {
+      const diff = filtered[i].value - filtered[i - 1].value;
+      if (diff > 0) total += diff;
+    }
+    setTotalCopies(total);
+  }, [allData]); // <-- только при изменении данных
+
+  // ===== ОБНОВЛЕНИЕ ОТОБРАЖАЕМЫХ МЕСЯЦЕВ И ДАННЫХ ГРАФИКА (ЗАВИСИТ ОТ СЛАЙДЕРА) =====
   useEffect(() => {
     if (!allData.length) return;
     const allLabels = generateAllMonthLabels();
@@ -68,36 +102,15 @@ const PrintChart = ({ serialNumber }) => {
     const start = Math.max(0, allLabels.length - 12 - sliderPosition);
     const visible = allLabels.slice(start, start + 12);
     setMonthLabels(visible);
-
-    const monthlyData = {};
-    allData.forEach(item => {
-      const date = moment(item.clock * 1000);
-      const key = date.format('MMM YYYY');
-      if (!monthlyData[key]) monthlyData[key] = [];
-      monthlyData[key].push({ date, value: item.value });
-    });
-
-    const differences = visible.map(label => {
-      const vals = monthlyData[label] || [];
-      if (vals.length > 1) {
-        vals.sort((a, b) => a.date - b.date);
-        return vals[vals.length - 1].value - vals[0].value;
-      }
-      return 0;
-    });
-    const sum = differences.reduce((a, b) => a + b, 0);
-    setTotalCopies(sum);
   }, [sliderPosition, allData]);
 
+  // Подготовка данных для графика (остаётся без изменений)
   const chartData = {
     labels: monthLabels,
     datasets: [{
       label: 'Количество копий в месяц',
       data: (() => {
-        if (!allData.length) return [];
-        const allLabels = generateAllMonthLabels();
-        const start = Math.max(0, allLabels.length - 12 - sliderPosition);
-        const visible = allLabels.slice(start, start + 12);
+        if (!allData.length || !monthLabels.length) return [];
         const monthlyData = {};
         allData.forEach(item => {
           const date = moment(item.clock * 1000);
@@ -105,11 +118,12 @@ const PrintChart = ({ serialNumber }) => {
           if (!monthlyData[key]) monthlyData[key] = [];
           monthlyData[key].push({ date, value: item.value });
         });
-        return visible.map(label => {
+        return monthLabels.map(label => {
           const vals = monthlyData[label] || [];
           if (vals.length > 1) {
             vals.sort((a, b) => a.date - b.date);
-            return vals[vals.length - 1].value - vals[0].value;
+            const diff = vals[vals.length - 1].value - vals[0].value;
+            return Math.max(0, diff);
           }
           return 0;
         });
@@ -140,12 +154,23 @@ const PrintChart = ({ serialNumber }) => {
       }
     },
     scales: {
-      x: { title: { display: true, text: 'Месяц', color: getChartColors().textColor }, ticks: { color: getChartColors().textColor }, grid: { color: getChartColors().gridColor } },
-      y: { title: { display: true, text: 'Количество копий', color: getChartColors().textColor }, ticks: { color: getChartColors().textColor }, grid: { color: getChartColors().gridColor }, beginAtZero: true }
+      x: {
+        title: { display: true, text: 'Месяц', color: getChartColors().textColor },
+        ticks: { color: getChartColors().textColor },
+        grid: { color: getChartColors().gridColor }
+      },
+      y: {
+        title: { display: true, text: 'Количество копий', color: getChartColors().textColor },
+        ticks: { color: getChartColors().textColor },
+        grid: { color: getChartColors().gridColor },
+        beginAtZero: true
+      }
     }
   };
 
-  if (!allData.length) return <div style={{ textAlign: 'center', padding: 20, color: token.colorTextSecondary }}>Нет данных для графика</div>;
+  if (!allData.length) {
+    return <div style={{ textAlign: 'center', padding: 20, color: token.colorTextSecondary }}>Нет данных для графика</div>;
+  }
 
   return (
     <div style={{ width: '100%', padding: 16 }}>
@@ -153,7 +178,7 @@ const PrintChart = ({ serialNumber }) => {
         <span>Текущий пробег: <strong>{lastValue}</strong> копий</span>
         <span>За последние 12 месяцев: <strong>{totalCopies}</strong> копий</span>
       </div>
-      <div style={{ height: 300 }}>
+      <div style={{ height: 240 }}>
         <Bar data={chartData} options={chartOptions} ref={chartRef} />
       </div>
       {maxSliderPosition > 0 && (
@@ -163,7 +188,7 @@ const PrintChart = ({ serialNumber }) => {
           max={maxSliderPosition}
           value={sliderPosition}
           onChange={(e) => setSliderPosition(Number(e.target.value))}
-          style={{ width: '100%', marginTop: 16 }}
+          style={{ width: '100%', marginTop: 5 }}
         />
       )}
     </div>

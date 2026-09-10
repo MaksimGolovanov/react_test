@@ -1,9 +1,255 @@
 /* app/App.css - только структурные стили */
+
+/* ===== Helvetica Neue (уже был) ===== */
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../shared/assets/fonts/HelveticaNeue/HelveticaNeue-Thin.otf')
+    format('opentype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../shared/assets/fonts/HelveticaNeue/HelveticaNeue-Light.otf')
+    format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../shared/assets/fonts/HelveticaNeue/HelveticaNeue-Roman.otf')
+    format('opentype');
+  font-weight: 400; /* normal */
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../shared/assets/fonts/HelveticaNeue/HelveticaNeue-Medium.otf')
+    format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../shared/assets/fonts/HelveticaNeue/HelveticaNeue-Bold.otf')
+    format('opentype');
+  font-weight: 700; /* bold */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===== SST (добавлено) ===== */
+/* ===== SST (путь к папке строчный: sst) ===== */
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-Heavy.eot');
+  src:
+    local('SST Heavy'),
+    local('SST-Heavy'),
+    url('../shared/assets/fonts/sst/SST-Heavy.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-Heavy.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-Heavy.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-Heavy.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-BoldItalic.eot');
+  src:
+    local('SST Bold Italic'),
+    local('SST-BoldItalic'),
+    url('../shared/assets/fonts/sst/SST-BoldItalic.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-BoldItalic.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-BoldItalic.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-Bold.eot');
+  src:
+    local('SST Bold'),
+    local('SST-Bold'),
+    url('../shared/assets/fonts/sst/SST-Bold.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-Bold.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-Bold.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-Medium.eot');
+  src:
+    local('SST Medium'),
+    local('SST-Medium'),
+    url('../shared/assets/fonts/sst/SST-Medium.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-Medium.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-Medium.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-MediumItalic.eot');
+  src:
+    local('SST Medium Italic'),
+    local('SST-MediumItalic'),
+    url('../shared/assets/fonts/sst/SST-MediumItalic.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-MediumItalic.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-MediumItalic.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'SST Ultra';
+  src: url('../shared/assets/fonts/sst/SST-UltraLightItalic.eot');
+  src:
+    local('SST Ultra Light Italic'),
+    local('SST-UltraLightItalic'),
+    url('../shared/assets/fonts/sst/SST-UltraLightItalic.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-UltraLightItalic.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-UltraLightItalic.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-UltraLightItalic.ttf')
+      format('truetype');
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-HeavyItalic.eot');
+  src:
+    local('SST Heavy Italic'),
+    local('SST-HeavyItalic'),
+    url('../shared/assets/fonts/sst/SST-HeavyItalic.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-HeavyItalic.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-HeavyItalic.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-HeavyItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-Roman.eot');
+  src:
+    local('SST Roman'),
+    local('SST-Roman'),
+    url('../shared/assets/fonts/sst/SST-Roman.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-Roman.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-Roman.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-Roman.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-LightItalic.eot');
+  src:
+    local('SST Light Italic'),
+    local('SST-LightItalic'),
+    url('../shared/assets/fonts/sst/SST-LightItalic.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-LightItalic.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-LightItalic.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-Italic.eot');
+  src:
+    local('SST Italic'),
+    local('SST-Italic'),
+    url('../shared/assets/fonts/sst/SST-Italic.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-Italic.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-Italic.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'SST Ultra';
+  src: url('../shared/assets/fonts/sst/SST-UltraLight.eot');
+  src:
+    local('SST Ultra Light'),
+    local('SST-UltraLight'),
+    url('../shared/assets/fonts/sst/SST-UltraLight.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-UltraLight.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-UltraLight.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-UltraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SST';
+  src: url('../shared/assets/fonts/sst/SST-Light.eot');
+  src:
+    local('SST Light'),
+    local('SST-Light'),
+    url('../shared/assets/fonts/sst/SST-Light.eot?#iefix')
+      format('embedded-opentype'),
+    url('../shared/assets/fonts/sst/SST-Light.woff2') format('woff2'),
+    url('../shared/assets/fonts/sst/SST-Light.woff') format('woff'),
+    url('../shared/assets/fonts/sst/SST-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'HeliosCond';
+  src: url('../../public/fonts/HeliosCond/HeliosCond_Regular.otf') format('opentype');
+}
+@font-face {
+  font-family: 'HeliosCond-Bold';
+  src: url('../../public/fonts/HeliosCond/helioscond_bold.otf') format('opentype');
+}
+/* ===== Структурные стили (были) ===== */
+
+
 .app-container {
   display: flex;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Oxygen-Sans,
-    Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  font-family:
+    'SST',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    sans-serif;
 }
 
 .main-content {
@@ -19,7 +265,9 @@
 .page-header {
   height: 60px;
   width: 100%;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 .sticky-header {
   position: sticky;
@@ -58,7 +306,8 @@
   flex: 1;
   overflow-y: auto;
 }
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }

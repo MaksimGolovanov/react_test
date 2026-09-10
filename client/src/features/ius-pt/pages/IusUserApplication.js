@@ -172,7 +172,7 @@ const IusUserApplication = observer(() => {
           <div style={{ color: token.colorTextSecondary }}>
             {user.IusUser?.name || '-'}
           </div>
-          <div>{user.department?.slice(13) || '-'}</div>
+          <div>{iusPtStore.getDepartmentNameByCode(user.department)}</div>
         </div>
       </div>
 

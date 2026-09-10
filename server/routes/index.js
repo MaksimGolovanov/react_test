@@ -1,5 +1,7 @@
 const Router = require('express');
 const router=new Router();
+const monitoringRouter = require('./monitoring');
+
 const userRouter = require('./userRouter');
 const staffRouter = require('./staffRouter');
 const printRouter = require('./printRouter')
@@ -19,7 +21,13 @@ const mapRouter = require('./mapRouter');
 const consumableRouter = require('./consumableRouter');
 const confidentialRouter = require('./confidentialRouter');
 const positionAccessRouter = require('./positionAccessRouter');
+const naryadGasHazardWorkRouter = require('./naryadGasHazardWorkRouter');
+const backgroundRouter = require('./backgroundRouter');
+const gramotaTemplateRouter = require('./gramotaTemplateRouter');
+const signatoryRouter = require('./signatoryRouter');
+const adRouter = require('./adRouter');
 
+router.use('/monitoring', monitoringRouter)
 router.use('/user', userRouter)
 router.use('/staff', staffRouter)
 router.use('/print', printRouter)
@@ -39,6 +47,11 @@ router.use('/map', mapRouter);
 router.use('/consumables', consumableRouter);
 router.use('/confidential', confidentialRouter);
 router.use('/position-access', positionAccessRouter);
+router.use('/naryad-gas-hazard-works', naryadGasHazardWorkRouter);
+router.use('/backgrounds', require('./backgroundRouter'));
+router.use('/gramota-templates', gramotaTemplateRouter);
+router.use('/signatories', signatoryRouter);
+router.use('/ad', adRouter);
 
 
 module.exports = router;  

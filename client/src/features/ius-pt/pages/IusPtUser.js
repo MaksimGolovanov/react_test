@@ -35,30 +35,75 @@ const IusPtUser = observer(() => {
     fetchUser();
   }, [tabNumber]);
 
-  if (isLoading) return <Spin tip="Загрузка..." style={{ display: 'block', margin: '50px auto' }} />;
-  if (error) return <Alert message="Ошибка" description={error} type="error" showIcon style={{ margin: 16 }} />;
-  if (!user) return <Alert message="Данные не найдены" type="warning" showIcon style={{ margin: 16 }} />;
+  if (isLoading)
+    return (
+      <Spin
+        tip="Загрузка..."
+        style={{ display: 'block', margin: '50px auto' }}
+      />
+    );
+  if (error)
+    return (
+      <Alert
+        message="Ошибка"
+        description={error}
+        type="error"
+        showIcon
+        style={{ margin: 16 }}
+      />
+    );
+  if (!user)
+    return (
+      <Alert
+        message="Данные не найдены"
+        type="warning"
+        showIcon
+        style={{ margin: 16 }}
+      />
+    );
 
   const items = [
-    { key: 'home', label: 'Карточка пользователя', children: <UserTable info={user} /> },
+    {
+      key: 'home',
+      label: 'Карточка пользователя',
+      children: <UserTable info={user} />,
+    },
     { key: 'role', label: 'Роли', children: <UserRoles info={user} /> },
-    { key: 'contact', label: 'Добавление ролей', children: <UserRolesPage info={user} /> },
+    {
+      key: 'contact',
+      label: 'Добавление ролей',
+      children: <UserRolesPage info={user} />,
+    },
   ];
 
   return (
     <div style={{ padding: 16 }}>
       <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/iuspt')}>Назад</Button>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(`/iuspt/user-application/${tabNumber}`)}>
+        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/iuspt')}>
+          Назад
+        </Button>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => navigate(`/iuspt/user-application/${tabNumber}`)}
+        >
           Создать заявку
         </Button>
       </Space>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16}}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <AvatarWithFallback tabNumber={user.tabNumber} size={100} />
         <div>
-          <div style={{ fontSize: 24, fontWeight: 500, color: token.colorText }}>{user.fio}</div>
-          <div style={{ color: token.colorTextSecondary }}>{user.IusUser?.name || '-'}</div>
-          <div style={{ color: token.colorTextSecondary }}>{user.department?.slice(13) || '-'}</div>
+          <div
+            style={{ fontSize: 24, fontWeight: 500, color: token.colorText }}
+          >
+            {user.fio}
+          </div>
+          <div style={{ color: token.colorTextSecondary }}>
+            {user.IusUser?.name || '-'}
+          </div>
+          <div style={{ color: token.colorTextSecondary }}>
+            {iusPtStore.getDepartmentNameByCode(user.department) || '-'}
+          </div>
         </div>
       </div>
       <Tabs defaultActiveKey="home" items={items} size="large" />

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, Select, Space, Button, message, theme } from 'antd';
 import IusPtService from '../../services/IusPtService';
-
+import iusPtStore from '../../store/IusPtStore';
 const { useToken } = theme;
 
 const EditUserModal = ({ visible, onCancel, user, onSave }) => {
@@ -19,7 +19,7 @@ const EditUserModal = ({ visible, onCancel, user, onSave }) => {
         name: user.IusUser?.name,
         fio: user.fio,
         email: user.email,
-        department: user.department?.slice(13),
+        department: iusPtStore.getDepartmentNameByCode(user.department),
         post: user.post,
         tabNumber: user.tabNumber,
         contractDetails: user.IusUser?.contractDetails,

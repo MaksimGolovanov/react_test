@@ -9,4 +9,4 @@ router.post('/', positionAccessController.create);
 router.put('/:id', positionAccessController.update);
 router.delete('/:id', positionAccessController.delete);
 
-module.exports = router;
+module.exports = router; 

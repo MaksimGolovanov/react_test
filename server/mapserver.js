@@ -19,7 +19,7 @@ module.exports = (app) => {
         const db = new Database(filePath, { readonly: true });
         tileDatabases.set(mapId, db);
         mapsList.push({ id: mapId, name: mapId.replace(/-/g, ' ') }); // человеко-читаемое имя
-        console.log(`Загружена карта: ${mapId} (${filePath})`);
+        
       } catch (e) {
         console.error(`Ошибка загрузки ${file}:`, e.message);
       }

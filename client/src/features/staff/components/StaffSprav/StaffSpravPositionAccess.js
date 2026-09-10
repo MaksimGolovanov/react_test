@@ -15,7 +15,6 @@ import {
   message,
   theme,
   Select,
-  Spin,
 } from 'antd';
 import {
   PlusOutlined,
@@ -50,7 +49,7 @@ const StaffSpravPositionAccess = observer(() => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [form] = Form.useForm();
   const [sortConfig, setSortConfig] = useState({
-    key: 'department.description',
+    key: 'department_description',
     direction: 'asc',
   });
 
@@ -146,6 +145,7 @@ const StaffSpravPositionAccess = observer(() => {
       };
       if (currentRecord) {
         await PositionAccessService.update(currentRecord.id, payload);
+        
         message.success('Запись обновлена');
       } else {
         await PositionAccessService.create(payload);
@@ -182,35 +182,35 @@ const StaffSpravPositionAccess = observer(() => {
     );
   };
 
+  // Безопасное получение строкового значения для сортировки
+  const getSortValue = (record, key) => {
+    if (key === 'department_description') {
+      return record.department?.description || '';
+    } else if (key === 'dolgnost_name') {
+      return record.dolgnost?.dolgn || '';
+    } else if (key === 'confidential_points') {
+      return record.confidential_points || '';
+    }
+    return '';
+  };
+
   const sortedItems = useMemo(() => {
     if (!records.length) return [];
     const filtered = records.filter((rec) => {
       const deptName = rec.department?.description || '';
       const posName = rec.dolgnost?.dolgn || '';
       const points = rec.confidential_points || '';
-      const search = searchTerm.toLowerCase();
+      const search = (searchTerm || '').toLowerCase();
       return (
-        deptName.toLowerCase().includes(search) ||
-        posName.toLowerCase().includes(search) ||
-        points.toLowerCase().includes(search)
+        (deptName || '').toLowerCase().includes(search) ||
+        (posName || '').toLowerCase().includes(search) ||
+        (points || '').toLowerCase().includes(search)
       );
     });
     if (!sortConfig.key) return filtered;
     return [...filtered].sort((a, b) => {
-      let aVal = '',
-        bVal = '';
-      if (sortConfig.key === 'department.description') {
-        aVal = a.department?.description || '';
-        bVal = b.department?.description || '';
-      } else if (sortConfig.key === 'dolgnost.dolgn') {
-        aVal = a.dolgnost?.dolgn || '';
-        bVal = b.dolgnost?.dolgn || '';
-      } else {
-        aVal = a[sortConfig.key] || '';
-        bVal = b[sortConfig.key] || '';
-      }
-      aVal = aVal.toString().toLowerCase();
-      bVal = bVal.toString().toLowerCase();
+      const aVal = getSortValue(a, sortConfig.key);
+      const bVal = getSortValue(b, sortConfig.key);
       const comparison = aVal.localeCompare(bVal, 'ru', {
         sensitivity: 'base',
       });
@@ -223,32 +223,39 @@ const StaffSpravPositionAccess = observer(() => {
       title: (
         <div
           style={{ cursor: 'pointer' }}
-          onClick={() => requestSort('department.description')}
+          onClick={() => requestSort('department_description')}
         >
-          Отдел {getSortIcon('department.description')}
+          Отдел {getSortIcon('department_description')}
         </div>
       ),
       dataIndex: ['department', 'description'],
-      key: 'department.description',
+      key: 'department_description',
       width: '30%',
-      render: (text, record) => record.department?.description || '-',
+      render: (text, record) => record.department?.description || '-', 
     },
     {
       title: (
         <div
           style={{ cursor: 'pointer' }}
-          onClick={() => requestSort('dolgnost.dolgn')}
+          onClick={() => requestSort('dolgnost_name')}
         >
-          Должность {getSortIcon('dolgnost.dolgn')}
+          Должность {getSortIcon('dolgnost_name')}
         </div>
       ),
       dataIndex: ['dolgnost', 'dolgn'],
-      key: 'dolgnost.dolgn',
+      key: 'dolgnost_name',
       width: '30%',
       render: (text, record) => record.dolgnost?.dolgn || '-',
     },
     {
-      title: 'Пункты КТ',
+      title: (
+        <div
+          style={{ cursor: 'pointer' }}
+          onClick={() => requestSort('confidential_points')}
+        >
+          Пункты КТ {getSortIcon('confidential_points')}
+        </div>
+      ),
       dataIndex: 'confidential_points',
       key: 'confidential_points',
       width: '40%',

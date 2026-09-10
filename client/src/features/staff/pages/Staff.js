@@ -23,6 +23,7 @@ const EXCLUDED_DEPARTMENTS = [
   'Вуктыльское отделение',
   'Врачебный здравпункт Вуктыльского ЛПУМГ',
   'Служба строительного контроля',
+  'АО "Центр Правовой Поддержки Группы Газпром"',
 ];
 
 function Staff() {
@@ -42,13 +43,16 @@ function Staff() {
   const [passwordCopied, setPasswordCopied] = useState(false);
   const [showPasswordField, setShowPasswordField] = useState(false);
   const [dataVersion, setDataVersion] = useState(0);
+  const [filterDepartment, setFilterDepartment] = useState(null);
 
   const navigate = useNavigate();
 
   // Функция стабильной сортировки (без изменений)
   const sortStaff = useCallback((staffArray) => {
     if (!Array.isArray(staffArray)) return [];
-    return [...staffArray].sort((a, b) => (a.fio || '').localeCompare(b.fio || ''));
+    return [...staffArray].sort((a, b) =>
+      (a.fio || '').localeCompare(b.fio || '')
+    );
   }, []);
 
   // Функция загрузки данных с сопоставлением отделов по полному совпадению
@@ -78,9 +82,10 @@ function Staff() {
           const hasPhoto = !!photoResults[item.tabNumber];
           const departmentCode = item.department || '';
           // Ищем отдел по полному совпадению
-          const dept = deptData.find(d => d.code === departmentCode);
+          const dept = deptData.find((d) => d.code === departmentCode);
           const departmentName = dept ? dept.description : departmentCode; // fallback – сам код
-          const isExcludedDepartment = EXCLUDED_DEPARTMENTS.includes(departmentName);
+          const isExcludedDepartment =
+            EXCLUDED_DEPARTMENTS.includes(departmentName);
 
           return {
             ...item,
@@ -133,26 +138,40 @@ function Staff() {
   }, [departments, fetchDataWithDepartments]);
 
   // Счётчики (без изменений)
-  const { activeCount, deletedCount, noPhotoCount, excludedCount } = useMemo(() => {
-    const mainStaff = staff.filter((user) => !user.isExcludedDepartment);
-    const active = mainStaff.filter((user) => !user.isDeleted);
-    const deleted = mainStaff.filter((user) => user.isDeleted);
-    const noPhoto = staff.filter((user) => !user.hasPhoto && !user.isDeleted);
-    const excluded = staff.filter((user) => user.isExcludedDepartment);
-    return {
-      activeCount: active.length,
-      deletedCount: deleted.length,
-      noPhotoCount: noPhoto.length,
-      excludedCount: excluded.length,
-    };
-  }, [staff]);
+  const { activeCount, deletedCount, noPhotoCount, excludedCount } =
+    useMemo(() => {
+      const mainStaff = staff.filter((user) => !user.isExcludedDepartment);
+      const active = mainStaff.filter((user) => !user.isDeleted);
+      const deleted = mainStaff.filter((user) => user.isDeleted);
+      const noPhoto = staff.filter((user) => !user.hasPhoto && !user.isDeleted);
+      const excluded = staff.filter((user) => user.isExcludedDepartment);
+      return {
+        activeCount: active.length,
+        deletedCount: deleted.length,
+        noPhotoCount: noPhoto.length,
+        excludedCount: excluded.length,
+      };
+    }, [staff]);
 
   // Фильтрация (без изменений)
   const filteredStaff = useMemo(() => {
     if (!Array.isArray(staff) || staff.length === 0) return [];
     let result = [...staff];
+
+    // Фильтр по отделу
+    if (filterDepartment) {
+      result = result.filter(
+        (user) =>
+          user.departmentName === filterDepartment ||
+          user.department === filterDepartment
+      );
+    }
+
+    // Остальные фильтры (уволенные, без фото, поиск)
     if (!showDeleted) {
-      result = result.filter((user) => !user.isDeleted || user.isExcludedDepartment);
+      result = result.filter(
+        (user) => !user.isDeleted || user.isExcludedDepartment
+      );
     }
     if (showNoPhoto) {
       result = result.filter((user) => !user.hasPhoto);
@@ -168,16 +187,28 @@ function Staff() {
           user.tabNumber,
           user.ip,
         ];
-        return fields.some((field) => field && field.toString().toLowerCase().includes(query));
+        return fields.some(
+          (field) => field && field.toString().toLowerCase().includes(query)
+        );
       });
     }
     return sortStaff(result);
-  }, [staff, searchQuery, showNoPhoto, showDeleted, sortStaff]);
+  }, [
+    staff,
+    searchQuery,
+    showNoPhoto,
+    showDeleted,
+    filterDepartment,
+    sortStaff,
+  ]);
 
   // Автовыбор (без изменений)
   useEffect(() => {
     if (filteredStaff.length > 0) {
-      if (selectedUser && filteredStaff.find((u) => u.tabNumber === selectedUser.tabNumber)) {
+      if (
+        selectedUser &&
+        filteredStaff.find((u) => u.tabNumber === selectedUser.tabNumber)
+      ) {
         return;
       }
       setSelectedUser(filteredStaff[0]);
@@ -234,9 +265,16 @@ function Staff() {
         const fioLower = (staffMember.fio || '').toLowerCase().trim();
         const devices = usbByFio.get(fioLower) || [];
         const activeDevices = devices.filter((d) => d.log === 'Да');
-        return activeDevices.map((d) => d.num_form || '').filter(Boolean).join(', ');
+        return activeDevices
+          .map((d) => d.num_form || '')
+          .filter(Boolean)
+          .join(', ');
       };
-      const exportResult = exportStaffToExcel(filteredStaff, EXCLUDED_DEPARTMENTS, getUsbList);
+      const exportResult = exportStaffToExcel(
+        filteredStaff,
+        EXCLUDED_DEPARTMENTS,
+        getUsbList
+      );
       downloadExcelFile(exportResult.workbook, exportResult.fileName);
       message.success('Экспорт успешно завершен');
     } catch {
@@ -247,7 +285,7 @@ function Staff() {
   }, [filteredStaff]);
 
   const handleDeleteUser = useCallback(async () => {
-    if (!selectedUser || selectedUser.isDeleted) return;
+    if (!selectedUser) return;
     try {
       await StaffService.deleteStaff(selectedUser.tabNumber);
       await fetchData();
@@ -258,22 +296,30 @@ function Staff() {
     }
   }, [selectedUser, fetchData]);
 
-  const handleToggleDeleted = useCallback((checked) => {
-    setShowDeleted(checked);
-    if (checked && !selectedUser && filteredStaff.length > 0) {
-      setSelectedUser(filteredStaff[0]);
-    } else if (!checked && selectedUser?.isDeleted) {
-      const firstActive = staff.find((u) => !u.isExcludedDepartment && !u.isDeleted);
-      setSelectedUser(firstActive || null);
-    }
-  }, [selectedUser, filteredStaff, staff]);
+  const handleToggleDeleted = useCallback(
+    (checked) => {
+      setShowDeleted(checked);
+      if (checked && !selectedUser && filteredStaff.length > 0) {
+        setSelectedUser(filteredStaff[0]);
+      } else if (!checked && selectedUser?.isDeleted) {
+        const firstActive = staff.find(
+          (u) => !u.isExcludedDepartment && !u.isDeleted
+        );
+        setSelectedUser(firstActive || null);
+      }
+    },
+    [selectedUser, filteredStaff, staff]
+  );
 
-  const handleToggleNoPhoto = useCallback((checked) => {
-    setShowNoPhoto(checked);
-    if (checked && !selectedUser && filteredStaff.length > 0) {
-      setSelectedUser(filteredStaff[0]);
-    }
-  }, [selectedUser, filteredStaff]);
+  const handleToggleNoPhoto = useCallback(
+    (checked) => {
+      setShowNoPhoto(checked);
+      if (checked && !selectedUser && filteredStaff.length > 0) {
+        setSelectedUser(filteredStaff[0]);
+      }
+    },
+    [selectedUser, filteredStaff]
+  );
 
   const handleUserUpdate = useCallback(async () => {
     if (selectedUser?.tabNumber) clearPhotoCache();
@@ -285,7 +331,8 @@ function Staff() {
   if (isLoading) {
     return (
       <div className={styles.loadingContainer}>
-        <Spin size="large" tip="Загрузка сотрудников..." />
+        <Spin size="large" description="Загрузка сотрудников..." />{' '}
+        {/* Исправлено */}
       </div>
     );
   }
@@ -299,7 +346,6 @@ function Staff() {
         onImport={handleImportUsers}
         onExport={handleExportClick}
         onSprav={handleSpravClick}
-        onPsw={handlePSW}
         onToggleDeleted={handleToggleDeleted}
         onToggleNoPhoto={handleToggleNoPhoto}
         selectedUser={selectedUser}
@@ -333,6 +379,8 @@ function Staff() {
             showDeleted={showDeleted}
             showNoPhoto={showNoPhoto}
             dataVersion={dataVersion}
+            filterDepartment={filterDepartment}
+            onDepartmentClick={setFilterDepartment}
           />
         </Col>
 
@@ -374,8 +422,12 @@ function Staff() {
         open={deleteModalVisible}
         onCancel={() => setDeleteModalVisible(false)}
         footer={[
-          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>Отмена</Button>,
-          <Button key="delete" type="primary" danger onClick={handleDeleteUser}>Удалить</Button>,
+          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
+            Отмена
+          </Button>,
+          <Button key="delete" type="primary" danger onClick={handleDeleteUser}>
+            Удалить
+          </Button>,
         ]}
       >
         <p>
@@ -385,7 +437,8 @@ function Staff() {
         </p>
         {selectedUser?.isDeleted && (
           <Text type="danger">
-            ВНИМАНИЕ: Этот сотрудник уже отмечен как уволенный. Удаление будет окончательным!
+            ВНИМАНИЕ: Этот сотрудник уже отмечен как уволенный. Удаление будет
+            окончательным!
           </Text>
         )}
         <Text type="secondary">Это действие нельзя отменить.</Text>

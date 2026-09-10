@@ -1,21 +1,20 @@
-const Router = require('express');
-const router = new Router();
-const printController=require('../controllers/PrintController')
+const Router = require('express')
+const router = new Router()
+const printController = require('../controllers/PrintController')
 
+router.get('/', printController.getAll)
+router.get('/print/:id', printController.getOne)
+router.put('/update', printController.update)
+router.get('/statistics/:itemid', printController.getStatistics)
+router.post('/statistics', printController.createStatistic) // новый
+router.put('/statistics/:id', printController.updateStatistic) // новый
+router.delete('/statistics/:id', printController.deleteStatistic) // новый
+router.post('/', printController.create)
+router.get('/department', printController.getAllDepartment)
+router.get('/location', printController.getAllLocation)
+router.post('/location', printController.createLocation)
+router.delete('/location/:id', printController.delete)
+router.delete('/:id', printController.deletePrint)
+router.get('/print/:id/pagecount', printController.getPrinterPageCount)
 
-
-
-
-router.get('/', printController.getAll);
-router.get('/print/:id', printController.getOne);
-router.put('/update',printController.update)
-router.get('/statistics/:itemid',printController.getStatistics);
-router.post('/', printController.create);
-router.get('/department',printController.getAllDepartment)
-router.get('/location',printController.getAllLocation)
-router.post('/location', printController.createLocation);
-router.delete('/location/:id', printController.delete);
-router.delete('/:id', printController.deletePrint);
-router.get('/print/:id/pagecount', printController.getPrinterPageCount);
-
-module.exports = router;
+module.exports = router

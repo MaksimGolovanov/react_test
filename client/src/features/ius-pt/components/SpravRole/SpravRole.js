@@ -1,9 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button, Input, Collapse, message, Space, theme } from 'antd';
+import {
+  Button,
+  Input,
+  Collapse,
+  message,
+  Space,
+  theme,
+  Popconfirm,
+  Modal,
+  Form,
+} from 'antd';
 import {
   PlusOutlined,
   FileExcelOutlined,
-  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import iusPtStore from '../../store/IusPtStore';
 import AddRoleModal from './AddRoleModal';
@@ -17,16 +28,23 @@ const SpravRole = () => {
   const [roles, setRoles] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingRole, setEditingRole] = useState(null);
+  const [form] = Form.useForm();
   const fileInputRef = useRef(null);
   const { token } = useToken();
 
+  // Загрузка ролей
+  const loadRoles = async () => {
+    await iusPtStore.fetchRoles();
+    setRoles(iusPtStore.roles);
+  };
+
   useEffect(() => {
-    iusPtStore.fetchRoles().then(() => {
-      setRoles(iusPtStore.roles);
-    });
+    loadRoles();
   }, []);
 
-  // Группировка данных по typename
+  // Группировка и фильтрация (без изменений)
   const groupedData = roles.reduce((acc, role) => {
     const key = role.typename;
     if (!acc[key]) acc[key] = [];
@@ -34,7 +52,6 @@ const SpravRole = () => {
     return acc;
   }, {});
 
-  // Фильтрация по поисковому запросу
   const filteredGroupedData = Object.keys(groupedData).reduce(
     (acc, typename) => {
       const filtered = groupedData[typename].filter(
@@ -52,10 +69,11 @@ const SpravRole = () => {
     {}
   );
 
+  // Добавление роли
   const handleSaveRole = async (newRole) => {
     try {
       await iusPtStore.createRole(newRole);
-      setRoles([...roles, newRole]);
+      await loadRoles();
       message.success('Роль добавлена');
     } catch (error) {
       console.error(error);
@@ -63,11 +81,12 @@ const SpravRole = () => {
     }
   };
 
+  // Импорт из Excel
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
@@ -84,19 +103,63 @@ const SpravRole = () => {
           mandat: row[4],
           business_process: row[5],
         }));
-      if (rolesImport.length) handleBulkSaveRoles(rolesImport);
+      if (rolesImport.length) {
+        try {
+          await iusPtStore.bulkCreateRoles(rolesImport);
+          await loadRoles();
+          message.success(`Импортировано ${rolesImport.length} ролей`);
+        } catch (error) {
+          console.error(error);
+          message.error('Ошибка импорта');
+        }
+      }
     };
     reader.readAsArrayBuffer(file);
   };
 
-  const handleBulkSaveRoles = async (rolesImport) => {
+  // Редактирование
+  const handleEdit = (role) => {
+    setEditingRole(role);
+    form.setFieldsValue({
+      typename: role.typename,
+      type: role.type,
+      name: role.name,
+      code: role.code,
+      mandat: role.mandat,
+      business_process: role.business_process,
+    });
+    setEditModalVisible(true);
+  };
+
+  const handleUpdateRole = async (values) => {
     try {
-      await iusPtStore.bulkCreateRoles(rolesImport);
-      setRoles([...roles, ...rolesImport]);
-      message.success(`Импортировано ${rolesImport.length} ролей`);
+      await iusPtStore.updateRole({ id: editingRole.id, ...values });
+      await loadRoles();
+      message.success('Роль обновлена');
+      setEditModalVisible(false);
+      setEditingRole(null);
+      form.resetFields();
     } catch (error) {
       console.error(error);
-      message.error('Ошибка импорта');
+      message.error('Ошибка обновления роли');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditModalVisible(false);
+    setEditingRole(null);
+    form.resetFields();
+  };
+
+  // Удаление
+  const handleDelete = async (roleId) => {
+    try {
+      await iusPtStore.deleteRole(roleId);
+      await loadRoles();
+      message.success('Роль удалена');
+    } catch (error) {
+      console.error(error);
+      message.error('Ошибка удаления роли');
     }
   };
 
@@ -151,24 +214,60 @@ const SpravRole = () => {
               >
                 <div style={{ width: '10%' }}>Тип</div>
                 <div style={{ width: '10%' }}>SID</div>
-                <div style={{ width: '40%' }}>
+                <div style={{ width: '35%' }}>
                   Функциональная роль/Бизнес-роль
                 </div>
-                <div style={{ width: '20%' }}>Код роли</div>
+                <div style={{ width: '15%' }}>Код роли</div>
                 <div style={{ width: '10%' }}>Мандат</div>
                 <div style={{ width: '10%' }}>Бизнес процесс</div>
+                <div style={{ width: '10%', textAlign: 'center' }}>
+                  Действия
+                </div>
               </div>
               {rolesList.map((role, idx) => (
                 <div
                   key={idx}
-                  style={{ display: 'flex', padding: '4px 0', color: token.colorText }}
+                  style={{
+                    display: 'flex',
+                    padding: '4px 0',
+                    color: token.colorText,
+                    alignItems: 'center',
+                  }}
                 >
                   <div style={{ width: '10%' }}>{role.typename}</div>
                   <div style={{ width: '10%' }}>{role.type}</div>
-                  <div style={{ width: '40%' }}>{role.name}</div>
-                  <div style={{ width: '20%' }}>{role.code}</div>
+                  <div style={{ width: '35%' }}>{role.name}</div>
+                  <div style={{ width: '15%' }}>{role.code}</div>
                   <div style={{ width: '10%' }}>{role.mandat}</div>
                   <div style={{ width: '10%' }}>{role.business_process}</div>
+                  <div
+                    style={{
+                      width: '10%',
+                      display: 'flex',
+                      gap: 4,
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Button
+                      type="link"
+                      icon={<EditOutlined />}
+                      onClick={() => handleEdit(role)}
+                      size="small"
+                    />
+                    <Popconfirm
+                      title="Удалить роль?"
+                      onConfirm={() => handleDelete(role.id)}
+                      okText="Да"
+                      cancelText="Нет"
+                    >
+                      <Button
+                        type="link"
+                        danger
+                        icon={<DeleteOutlined />}
+                        size="small"
+                      />
+                    </Popconfirm>
+                  </div>
                 </div>
               ))}
             </div>
@@ -176,11 +275,65 @@ const SpravRole = () => {
         ))}
       </Collapse>
 
+      {/* Модалка добавления */}
       <AddRoleModal
         visible={showModal}
         onCancel={() => setShowModal(false)}
         onSave={handleSaveRole}
       />
+
+      {/* Модалка редактирования */}
+      <Modal
+        title="Редактирование роли"
+        open={editModalVisible}
+        onCancel={handleCancelEdit}
+        footer={[
+          <Button key="cancel" onClick={handleCancelEdit}>
+            Отмена
+          </Button>,
+          <Button key="submit" type="primary" onClick={() => form.submit()}>
+            Сохранить
+          </Button>,
+        ]}
+        width={600}
+      >
+        <Form form={form} layout="vertical" onFinish={handleUpdateRole}>
+          <Form.Item
+            name="typename"
+            label="Тип"
+            rules={[{ required: true, message: 'Введите тип' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="type"
+            label="SID"
+            rules={[{ required: true, message: 'Введите SID' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="name"
+            label="Функциональная роль/Бизнес-роль"
+            rules={[{ required: true, message: 'Введите название' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="code"
+            label="Код роли"
+            rules={[{ required: true, message: 'Введите код' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="mandat" label="Мандат">
+            <Input />
+          </Form.Item>
+          <Form.Item name="business_process" label="Бизнес процесс">
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

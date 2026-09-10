@@ -13,6 +13,7 @@ class PositionAccessService {
   }
 
   static async update(id, data) {
+    
     const response = await axios.put(
       `${API_URL}api/position-access/${id}`,
       data

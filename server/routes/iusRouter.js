@@ -7,6 +7,7 @@ const IusUserController = require('../controllers/IusControllers/IusUserControll
 const IusUserRolesController = require('../controllers/IusControllers/IusUserRolesController')
 const StaffController = require('../controllers/IusControllers/StaffController')
 const IusStopRolesController = require('../controllers/IusControllers/IusStopRolesConroller')
+const IusTransactionController = require('../controllers/IusControllers/IusTransactionController');
 
 // Маршруты для администраторов
 router.get('/adm', IusSpravAdmController.getAll)
@@ -24,8 +25,10 @@ router.post('/roles/bulk', IusSpravRolesController.createbulk)
 // Маршруты для стоп ролей
 router.get('/stoproles', IusStopRolesController.getAll)
 router.post('/stoproles', IusStopRolesController.create)
-router.put('/stoproles/:id', IusStopRolesController.update)
-router.delete('/stoproles/:id', IusStopRolesController.delete)
+router.post('/stoproles/bulk', IusStopRolesController.createbulk)   // сначала bulk
+router.delete('/stoproles/bulk', IusStopRolesController.deletebulk) // сначала bulk
+router.put('/stoproles/:id', IusStopRolesController.update)         // потом :id
+router.delete('/stoproles/:id', IusStopRolesController.delete)      // потом :id
 
 // Маршруты для пользователей
 router.get('/users', IusUserController.getAll)
@@ -46,5 +49,22 @@ router.get('/staff-with-user', StaffController.getStaffWithUserIUS)
 router.get('/staff-with-iususer-simple', StaffController.getStaffWithIusUserSimple)
 router.get('/staff-with-iususer-simple-over', StaffController.getStaffWithIusUserSimpleOver)
 router.get('/staff-with-iususer-tabnumber/:tabNumber', StaffController.getStaffByTabNumber)
+
+router.get('/staff-by-role/:roleId', StaffController.getStaffByRole);
+
+// Маршруты для транзакций
+router.get('/transactions', IusTransactionController.getAll);
+router.post('/transactions', IusTransactionController.create);
+router.post('/transactions/bulk', IusTransactionController.createbulk);
+router.put('/transactions/:id', IusTransactionController.update);
+router.delete('/transactions/:id', IusTransactionController.delete);
+router.delete('/transactions/bulk', IusTransactionController.deletebulk);
+
+// Связи транзакций с ролями
+router.post('/transaction-role', IusTransactionController.addRoleToTransaction);
+router.delete('/transaction-role', IusTransactionController.removeRoleFromTransaction);
+
+
+
 
 module.exports = router

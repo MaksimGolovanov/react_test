@@ -1,0 +1,530 @@
+.gramotaContainer {
+  padding: 24px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  background: #f0f2f5;
+}
+
+.mainCard {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.settingsSection {
+  padding-right: 16px;
+}
+
+.uploadArea {
+  margin-bottom: 16px;
+}
+
+.backgroundPreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 8px;
+}
+
+.backgroundPreview img {
+  max-width: 100%;
+  max-height: 300px;
+  display: block;
+}
+
+.variablesHelp {
+  margin-bottom: 8px;
+}
+
+.textArea {
+  font-family: 'Courier New', monospace;
+}
+
+.staffSelection {
+  padding-left: 16px;
+}
+
+.staffListContainer {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 0 4px;
+}
+
+.staffItem {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 6px 8px !important;
+}
+
+.staffItem:last-child {
+  border-bottom: none;
+}
+
+.staffItem .ant-btn-sm {
+  font-size: 12px;
+  height: 24px;
+  padding: 0 8px;
+}
+
+.staffItem .ant-list-item-meta-description {
+  font-size: 12px;
+}
+
+.selectedStaff {
+  min-height: 40px;
+  padding: 8px 0;
+}
+
+.selectedStaff .ant-space-item {
+  width: 100%;
+}
+
+.selectedStaff .ant-select {
+  font-size: 12px;
+}
+
+.actions {
+  margin-top: 16px;
+}
+
+/* ===== ПРЕДПРОСМОТР ===== */
+.previewContainer {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.previewPage {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 1 / 1.414;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.previewBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewContent {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+  color: #006ba9;
+  font-family: 'HeliosCond', 'Arial', sans-serif;
+}
+
+.previewHeader {
+  font-size: 13pt;
+  line-height: 18pt;
+  width: 450px;
+  margin-top: 45px;
+  color: #006ba9;
+}
+
+.previewType {
+  font-size: 38pt;
+  font-weight: bold;
+  font-family: 'HeliosCond', 'Arial', sans-serif;
+  color: #006ba9;
+  margin-top: 130px;
+  width: 100%;
+}
+
+.previewNagr {
+  font-size: 24pt;
+  font-family: 'HeliosCond', 'Arial', sans-serif;
+  color: #006ba9;
+  margin-top: 40px;
+  width: 100%;
+}
+
+.previewFio {
+  font-size: 36pt;
+  font-family: 'HeliosCond', 'Arial', sans-serif;
+  color: #006ba9;
+  margin-top: 20px;
+  line-height: 20pt;
+  text-align: center;
+}
+
+.previewPost {
+  font-size: 17pt;
+  font-family: 'HeliosCond', 'Arial', sans-serif;
+  color: #006ba9;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.previewText {
+  font-size: 25pt;
+  line-height: 25pt;
+  margin-top: 20px;
+  white-space: pre-wrap;
+  color: #006ba9;
+  font-family: 'HeliosCond', 'Arial', sans-serif;
+  width: 540px;
+  text-align: center;
+}
+
+.previewSignatures {
+  margin-top: auto;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.previewSignatureRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 540px;
+  margin-bottom: 16px;
+  font-size: 14pt;
+  font-family: 'HeliosCond', 'Arial', sans-serif;
+  color: #006ba9;
+}
+
+.previewSignaturePos {
+  text-align: left;
+}
+
+.previewSignatureName {
+  text-align: right;
+}
+
+/* ===== КОМПАКТНЫЕ КАРТОЧКИ ФОНОВ ===== */
+.bgCardCompact {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.bgCardCompact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.bgImageWrapperCompact {
+  width: 100%;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.bgImageCompact {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background-color: #f5f5f5;
+}
+
+.bgCardContentCompact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px 8px;
+}
+
+.bgCardTitleCompact {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bgCardDescCompact {
+  font-size: 11px;
+  line-height: 1.2;
+  min-height: 26px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #999;
+}
+
+.bgCardActionsCompact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+  padding-top: 2px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.sectionCard {
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.sectionCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.sectionCard :global(.ant-card-head) {
+  border-bottom: none;
+  padding: 12px 16px;
+}
+
+.sectionCard :global(.ant-card-body) {
+  padding: 16px;
+}
+
+.staffListContainer {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 0 -8px;
+}
+
+.staffItem {
+  padding: 6px 8px !important;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.staffItem:last-child {
+  border-bottom: none;
+}
+
+.selectedStaff {
+  padding: 4px 0;
+}
+
+.selectedStaff .ant-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  border-radius: 12px;
+  padding: 2px 8px;
+}
+
+.uploadArea {
+  margin-bottom: 4px;
+}
+
+/* ===== КОМПАКТНЫЕ КАРТОЧКИ ШАБЛОНОВ ===== */
+.templateCardCompact {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+
+.templateCardCompact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.templateContentCompact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+}
+
+.templateHeaderCompact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.templateTitleCompact {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.templateDescCompact {
+  font-size: 12px;
+  line-height: 1.2;
+  color: #999;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 28px;
+}
+
+.templatePreviewCompact {
+  background: #f5f5f5;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.3;
+  max-height: 40px;
+  overflow: hidden;
+  color: #666;
+}
+
+.templateActionsCompact {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.templateSelector {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #fafafa;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+}
+
+/* Компактный блок фона */
+.backgroundCompact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.backgroundPreviewCompact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #fafafa;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+}
+
+.backgroundThumb {
+  width: 80px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.backgroundInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.backgroundInfo .ant-typography {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.templateBuilderContainer {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Drag and Drop */
+.dragHint {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #f0f5ff;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #1890ff;
+}
+
+.droppableArea {
+  min-height: 200px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.draggableCard {
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.draggableCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.dragging {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border-color: #1890ff !important;
+}
+
+.dragHandle {
+  cursor: grab;
+  color: #999;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.dragHandle:hover {
+  color: #1890ff;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+/* Предпросмотр */
+.previewCard {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.previewWrapper {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 40px;
+  border-radius: 8px;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'HeliosCond', 'Arial', sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.previewItem {
+  width: 100%;
+  text-align: center;
+}

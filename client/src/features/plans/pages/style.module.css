@@ -1,0 +1,46 @@
+/* src/features/usb/pages/style.module.css */
+.container {
+  height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow: hidden;
+  min-width: 0;
+}
+.tableCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 0;
+  width: 100%; 
+}
+
+.userListScroll {
+  flex: 1;
+  overflow-y: auto;      /* вертикальная прокрутка */
+  overflow-x: hidden;    /* горизонтальную убираем, т.к. таблица адаптивна */
+  padding: 8px;
+  scrollbar-width: thin;
+  max-height: calc(100vh - 260px); /* подберите под свою шапку */
+  width: 100%;
+}
+.userListScroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.userListScroll::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+.userListScroll::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+}
+
+.ant-table,
+.ant-table-wrapper {
+  transition: none !important;
+}
+.ant-table-cell {
+  transition: none !important;
+}

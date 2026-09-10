@@ -1,0 +1,366 @@
+{
+    "id": "gor_mg_vskr",
+    "code": "GOR_MG_VSKR",
+    "name": "ГОР: вскрытие шурфа на МГ",
+    "schema": [
+        {
+            "name": "structuralUnit",
+            "type": "select",
+            "label": "Структурное подразделение",
+            "options": [
+                "ЛЭС",
+                "СЗК"
+            ],
+            "required": true
+        },
+        {
+            "name": "workPlace",
+            "type": "text",
+            "label": "Место проведения",
+            "required": true
+        },
+        {
+            "name": "pipeNumber",
+            "type": "text",
+            "label": "Номер трубы"
+        },
+        {
+            "name": "workType",
+            "type": "select",
+            "label": "Пункт Перечня ГОР",
+            "required": true,
+            "dynamicOptions": {
+                "source": "gasHazardWorks",
+                "filterField": "structuralUnit",
+                "valueField": "code",
+                "labelField": "code"
+            }
+        },
+        {
+            "name": "workTypeDescription",
+            "type": "textarea",
+            "label": "Описание работ (из перечня)",
+            "readonly": true,
+            "rows": 3
+        },
+        {
+            "name": "responsiblePreparation",
+            "type": "text",
+            "label": "Ответственный за подготовку",
+            "required": true
+        },
+        {
+            "name": "responsibleConduct",
+            "type": "text",
+            "label": "Ответственный за проведение",
+            "required": true
+        },
+        {
+            "name": "plannedStart",
+            "type": "datetime",
+            "label": "Начало"
+        },
+        {
+            "name": "plannedEnd",
+            "type": "datetime",
+            "label": "Окончание"
+        },
+        {
+            "name": "tpa",
+            "type": "array",
+            "label": "Положение ТПА",
+            "subfields": [
+                {
+                    "name": "km",
+                    "type": "text",
+                    "label": "Километр"
+                },
+                {
+                    "name": "openValves",
+                    "type": "text",
+                    "label": "Открытые краны"
+                },
+                {
+                    "name": "closedValves",
+                    "type": "text",
+                    "label": "Закрытые краны"
+                }
+            ]
+        },
+        {
+            "name": "measures",
+            "type": "textarea",
+            "label": "Мероприятия по подготовке (п.7)",
+            "rows": 10
+        },
+        {
+            "name": "safetyMeasures",
+            "type": "textarea",
+            "label": "Мероприятия безопасности (п.9)",
+            "rows": 10
+        },
+        {
+            "name": "appendices",
+            "type": "textarea",
+            "label": "Приложения"
+        },
+        {
+            "name": "protection",
+            "type": "group",
+            "label": "СИЗ и режим",
+            "subfields": [
+                {
+                    "name": "ppe",
+                    "type": "textarea",
+                    "label": "СИЗ"
+                },
+                {
+                    "name": "fireExtinguishers",
+                    "type": "text",
+                    "label": "Огнетушители"
+                },
+                {
+                    "name": "firstAid",
+                    "type": "text",
+                    "label": "Аптечка"
+                },
+                {
+                    "name": "workRegime",
+                    "type": "text",
+                    "label": "Режим работы"
+                },
+                {
+                    "name": "gasAnalyzer",
+                    "type": "text",
+                    "label": "Газоанализатор"
+                }
+            ]
+        },
+        {
+            "name": "issuer",
+            "type": "text",
+            "label": "Выдал"
+        },
+        {
+            "name": "ds",
+            "type": "text",
+            "label": "ДС"
+        },
+        {
+            "name": "otSpecialist",
+            "type": "text",
+            "label": "ОТ"
+        },
+        {
+            "name": "workers",
+            "type": "array",
+            "label": "Исполнители",
+            "subfields": [
+                {
+                    "name": "fullName",
+                    "type": "text",
+                    "label": "ФИО"
+                },
+                {
+                    "name": "position",
+                    "type": "text",
+                    "label": "Должность"
+                },
+                {
+                    "name": "signed",
+                    "type": "checkbox",
+                    "label": "Подпись"
+                },
+                {
+                    "name": "signatureDate",
+                    "type": "text",
+                    "label": "Дата"
+                }
+            ]
+        },
+        {
+            "name": "prepResponsible",
+            "type": "text",
+            "label": "Ответственный за подготовку (инструктаж)"
+        },
+        {
+            "name": "conductResponsible",
+            "type": "text",
+            "label": "Ответственный за проведение (инструктаж)"
+        },
+        {
+            "name": "conductedBy",
+            "type": "text",
+            "label": "Инструктаж провёл"
+        },
+        {
+            "name": "airSamples",
+            "type": "array",
+            "label": "Анализы воздуха",
+            "subfields": [
+                {
+                    "name": "datetime",
+                    "type": "text",
+                    "label": "Дата/время"
+                },
+                {
+                    "name": "place",
+                    "type": "text",
+                    "label": "Место"
+                },
+                {
+                    "name": "substance",
+                    "type": "select",
+                    "label": "Вещество",
+                    "options": [
+                        "CH4",
+                        "O2"
+                    ]
+                },
+                {
+                    "name": "allowable",
+                    "type": "text",
+                    "label": "Допустимая"
+                },
+                {
+                    "name": "actual",
+                    "type": "text",
+                    "label": "Фактическая"
+                },
+                {
+                    "name": "inspector",
+                    "type": "text",
+                    "label": "Инспектор"
+                }
+            ]
+        },
+        {
+            "name": "completion",
+            "type": "group",
+            "label": "Закрытие",
+            "subfields": [
+                {
+                    "name": "prepReady",
+                    "type": "checkbox",
+                    "label": "Подготовка выполнена"
+                },
+                {
+                    "name": "prepSign",
+                    "type": "text",
+                    "label": "Подпись за подготовку"
+                },
+                {
+                    "name": "conductSign",
+                    "type": "text",
+                    "label": "Подпись за проведение"
+                },
+                {
+                    "name": "admission",
+                    "type": "text",
+                    "label": "Допуск"
+                },
+                {
+                    "name": "extensions",
+                    "type": "array",
+                    "label": "Продления",
+                    "subfields": [
+                        {
+                            "name": "date",
+                            "type": "text",
+                            "label": "Дата"
+                        },
+                        {
+                            "name": "responsible",
+                            "type": "text",
+                            "label": "Ответственный"
+                        },
+                        {
+                            "name": "approvals",
+                            "type": "text",
+                            "label": "Утверждения"
+                        }
+                    ]
+                },
+                {
+                    "name": "workFinished",
+                    "type": "checkbox",
+                    "label": "Работа завершена"
+                },
+                {
+                    "name": "closedBy",
+                    "type": "text",
+                    "label": "Закрыл"
+                },
+                {
+                    "name": "closedDate",
+                    "type": "text",
+                    "label": "Дата закрытия"
+                }
+            ]
+        }
+    ],
+    "sections": [
+        {
+            "title": "Основные данные",
+            "fields": [
+                "structuralUnit",
+                "workPlace",
+                "pipeNumber",
+                "workType",
+                "workTypeDescription",
+                "responsiblePreparation",
+                "responsibleConduct",
+                "plannedStart",
+                "plannedEnd"
+            ]
+        },
+        {
+            "title": "ТПА",
+            "fields": [
+                "tpa"
+            ]
+        },
+        {
+            "title": "Мероприятия",
+            "fields": [
+                "measures",
+                "safetyMeasures",
+                "appendices"
+            ]
+        },
+        {
+            "title": "СИЗ и режим",
+            "fields": [
+                "protection"
+            ]
+        },
+        {
+            "title": "Инструктажи",
+            "fields": [
+                "workers",
+                "prepResponsible",
+                "conductResponsible",
+                "conductedBy"
+            ]
+        },
+        {
+            "title": "Анализы",
+            "fields": [
+                "airSamples"
+            ]
+        },
+        {
+            "title": "Закрытие",
+            "fields": [
+                "completion"
+            ]
+        }
+    ],
+    "static_content": {
+        "section7": "Выполнить весь комплекс подготовительных работ предусмотренных наряд-допуском.\nПрименять средства видеофиксации работ во взрывозащищенном исполнении...",
+        "section9": "Обеспечить видеофиксацию проведения ГОР видеорегистратором во взрывозащищенном исполнении.\nК проведению ГОР следует приступать только после выполнения всех подготовительных работ..."
+    },
+    "docx_template": "gor_mg_vskr.docx",
+    "version": 1,
+    "is_active": true
+}

@@ -17,10 +17,14 @@ const IusPt = observer(() => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  // Загружаем данные при монтировании (без поиска на сервере – фильтруем на клиенте)
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
+        // Загружаем всех сотрудников (без поискового параметра)
         await iusPtStore.fetchStaffWithIusUserSimple();
+        setError(null);
       } catch (err) {
         setError(err);
       } finally {
@@ -28,37 +32,50 @@ const IusPt = observer(() => {
       }
     };
     fetchData();
-  }, []);
+  }, []); // Пустой массив – загружаем один раз
 
+  // Фильтрация на клиенте с учётом названия подразделения
   const filteredUsers = useMemo(() => {
-    const searchLower = searchQuery.toLowerCase();
-    return iusPtStore.staffWithIusUsersSimple.filter(staff =>
-      staff.tabNumber?.toLowerCase().includes(searchLower) ||
-      staff.fio?.toLowerCase().includes(searchLower) ||
-      staff.post?.toLowerCase().includes(searchLower) ||
-      staff.department?.toLowerCase().includes(searchLower) ||
-      staff.email?.toLowerCase().includes(searchLower) ||
-      staff.IusUser?.name?.toLowerCase().includes(searchLower)
-    );
+    const searchLower = searchQuery.toLowerCase().trim();
+    if (!searchLower) return iusPtStore.staffWithIusUsersSimple;
+
+    return iusPtStore.staffWithIusUsersSimple.filter((staff) => {
+      // Получаем название подразделения через метод стора
+      const departmentName = iusPtStore.getDepartmentNameByCode(staff.department) || '';
+
+      return (
+        staff.tabNumber?.toLowerCase().includes(searchLower) ||
+        staff.fio?.toLowerCase().includes(searchLower) ||
+        staff.post?.toLowerCase().includes(searchLower) ||
+        departmentName.toLowerCase().includes(searchLower) ||
+        staff.email?.toLowerCase().includes(searchLower) ||
+        staff.IusUser?.name?.toLowerCase().includes(searchLower)
+      );
+    });
   }, [iusPtStore.staffWithIusUsersSimple, searchQuery]);
 
-  const sortedUsers = useMemo(() => [...filteredUsers].sort((a, b) => a.fio?.localeCompare(b.fio)), [filteredUsers]);
+  // Сортировка
+  const sortedUsers = useMemo(
+    () => [...filteredUsers].sort((a, b) => a.fio?.localeCompare(b.fio)),
+    [filteredUsers]
+  );
 
   const columns = [
     {
       title: '',
       key: 'avatar',
       width: 60,
-      render: (_, record) => (
-        <AvatarWithFallback tabNumber={record.tabNumber} size={44} />
-      ),
+      render: (_, record) => <AvatarWithFallback tabNumber={record.tabNumber} size={44} />,
     },
     {
       title: 'ФИО',
       dataIndex: 'fio',
       sorter: (a, b) => (a.fio || '').localeCompare(b.fio || ''),
       render: (text, record) => (
-        <a onClick={() => navigate(`/iuspt/user/${record.tabNumber}`)} style={{ cursor: 'pointer', color: token.colorPrimary }}>
+        <a
+          onClick={() => navigate(`/iuspt/user/${record.tabNumber}`)}
+          style={{ cursor: 'pointer', color: token.colorPrimary }}
+        >
           {text}
         </a>
       ),
@@ -66,14 +83,18 @@ const IusPt = observer(() => {
     {
       title: 'Имя для входа',
       dataIndex: ['IusUser', 'name'],
-      render: name => name || '-',
+      render: (name) => name || '-',
     },
-    { title: 'Электронная почта', dataIndex: 'email', render: email => email || '-' },
+    {
+      title: 'Электронная почта',
+      dataIndex: 'email',
+      render: (email) => email || '-',
+    },
     { title: 'Табельный номер', dataIndex: 'tabNumber' },
-    { title: 'Должность', dataIndex: 'post', render: post => post || '-' },
+    { title: 'Должность', dataIndex: 'post', render: (post) => post || '-' },
     {
       title: 'Подразделение',
-      render: (_, record) => record.department?.length >= 13 ? record.department.slice(13) : record.department || '-',
+      render: (_, record) => iusPtStore.getDepartmentNameByCode(record.department),
     },
   ];
 
@@ -83,13 +104,17 @@ const IusPt = observer(() => {
   return (
     <div style={{ padding: '16px' }}>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Button type="primary" icon={<SettingOutlined />} onClick={() => navigate('/iuspt/sprav')}>
+        <Button
+          type="primary"
+          icon={<SettingOutlined />}
+          onClick={() => navigate('/iuspt/sprav')}
+        >
           Справочники
         </Button>
         <Input.Search
           placeholder="Поиск пользователей..."
           value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
+          onChange={(e) => setSearchQuery(e.target.value)}
           allowClear
           enterButton={<SearchOutlined />}
           onSearch={setSearchQuery}

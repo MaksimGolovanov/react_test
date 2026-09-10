@@ -1,5 +1,9 @@
 const sequelize = require('../db')
 const { DataTypes } = require('sequelize')
+const NaryadGasHazardWork = require('./naryadGasHazardWork')
+const Background = require('./Background');
+const GramotaTemplate = require('./GramotaTemplate');
+const Signatory = require('./Signatory');
 
 const User = sequelize.define('users', {
      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -154,6 +158,30 @@ const EsMtr = sequelize.define('EsMtr', {
      CurrentJustification: { type: DataTypes.STRING },
      Note: { type: DataTypes.STRING },
 })
+const Vacation = sequelize.define(
+     'vacation',
+     {
+          id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+          fio: { type: DataTypes.STRING, allowNull: false },
+          position: { type: DataTypes.STRING, allowNull: false },
+          totalDays: { type: DataTypes.INTEGER, allowNull: false },
+          parts: {
+               type: DataTypes.JSON,
+               allowNull: false,
+               defaultValue: [
+                    { start: '', end: '', days: 0 },
+                    { start: '', end: '', days: 0 },
+                    { start: '', end: '', days: 0 },
+               ],
+          }, // массив из 3 частей
+          delta: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+          year: { type: DataTypes.INTEGER, allowNull: false },
+     },
+     {
+          timestamps: true,
+          tableName: 'vacations',
+     }
+)
 
 module.exports = {
      User,
@@ -171,4 +199,10 @@ module.exports = {
      Usb,
      Card,
      PositionAccess,
+     NaryadGasHazardWork,
+     Vacation,
+     Background,
+     GramotaTemplate,
+     Signatory
+
 }

@@ -63,7 +63,7 @@ const SearchUserRoles = observer(() => {
       key: user.tabNumber,
       fio: user.fio,
       tabNumber: user.tabNumber,
-      department: user.department?.slice(13) || user.department || '-',
+      department: iusPtStore.getDepartmentNameByCode(user.department) || '-',
       post: user.post || '-',
       email: user.email,
       iusName: user.IusUser?.name || '-',

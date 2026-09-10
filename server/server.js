@@ -1,4 +1,5 @@
 require('dotenv').config()
+require('./utils/loggerCapture');
 const express = require('express')
 const sequelize = require('./db')
 
@@ -13,10 +14,10 @@ const TimeSlot = require('./models/TimeSlot')
 const VehicleType = require('./models/VehicleType')
 const VehicleSubtype = require('./models/VehicleSubtype')
 const Drivers = require('./models/Drivers')
-const { Consumable, Movement } = require('./models/consumableModels');
-const { ConfidentialInfo } = require('./models/confidentialModels');
-const {PositionAccess} = require('./models/models')
-require('./models/map');
+const { Consumable, Movement } = require('./models/consumableModels')
+const { ConfidentialInfo } = require('./models/confidentialModels')
+const { PositionAccess } = require('./models/models')
+require('./models/map')
 const knowledgeModels = require('./models/knowledgeModels')
 require('./models/associations')
 const cors = require('cors')
@@ -26,8 +27,8 @@ const path = require('path')
 const fs = require('fs')
 const PORT = process.env.PORT || 5000
 const snmpPoller = require('./snmpPoller')
-const initTileServer = require('./mapserver');
-const ApiError = require('./error/ApiError');
+const initTileServer = require('./mapserver')
+const ApiError = require('./error/ApiError')
 
 const app = express()
 
@@ -44,33 +45,32 @@ app.use(
           limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
           useTempFiles: true,
           tempFileDir: '/tmp/',
-          debug: true, // Добавьте для отладки
-          createParentPath: true // Создавать родительские папки
+          
+          createParentPath: true, // Создавать родительские папки
      })
 )
 
 // Определяем пути к папкам
 const photoDir = path.resolve(__dirname, 'static', 'photo')
 const documentsDir = path.resolve(__dirname, 'static', 'documents')
-
-
+const backgroundsDir = path.resolve(__dirname, 'static', 'backgrounds')
 
 // Создаем папки, если их нет
 const createDirectories = () => {
-    const dirs = [
-        { path: photoDir, name: 'photo' },
-        { path: documentsDir, name: 'documents' }
-    ]
-    
-    dirs.forEach(dir => {
-        if (!fs.existsSync(dir.path)) {
-          //  console.log(`Создаю папку ${dir.name}:`, dir.path)
-            fs.mkdirSync(dir.path, { recursive: true })
-        } else {
-           // console.log(`Папка ${dir.name} уже существует:`, dir.path)
-            
-        }
-    })
+     const dirs = [
+          { path: photoDir, name: 'photo' },
+          { path: documentsDir, name: 'documents' },
+          { path: backgroundsDir, name: 'backgrounds' },
+     ]
+
+     dirs.forEach((dir) => {
+          if (!fs.existsSync(dir.path)) {
+               //  console.log(`Создаю папку ${dir.name}:`, dir.path)
+               fs.mkdirSync(dir.path, { recursive: true })
+          } else {
+               // console.log(`Папка ${dir.name} уже существует:`, dir.path)
+          }
+     })
 }
 
 createDirectories()
@@ -90,39 +90,49 @@ app.use(
           },
      })
 )
+app.use(
+     '/static/backgrounds',
+     express.static(backgroundsDir, {
+          setHeaders: (res, filePath) => {
+               if (filePath.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+                    res.setHeader('Cache-Control', 'public, max-age=86400')
+               }
+          },
+     })
+)
 
 // Middleware для логирования запросов к документам (НЕ блокирующий)
 app.use('/static/documents/:filename', (req, res, next) => {
-    console.log(`[${new Date().toISOString()}] Запрос документа: ${req.params.filename}`)
-    next() // Всегда пропускаем дальше
+    // console.log(`[${new Date().toISOString()}] Запрос документа: ${req.params.filename}`)
+     next() // Всегда пропускаем дальше
 })
 
 // Middleware для логирования запросов к фото (НЕ блокирующий)
 app.use('/static/photo/:filename', (req, res, next) => {
-    console.log(`[${new Date().toISOString()}] Запрос фото: ${req.params.filename}`)
-    next() // Всегда пропускаем дальше
+     console.log(`[${new Date().toISOString()}] Запрос фото: ${req.params.filename}`)
+     next() // Всегда пропускаем дальше
 })
 
 // Тестовый маршрут для проверки файловой системы
 app.get('/api/debug/files', (req, res) => {
-    const result = {
-        server_dir: __dirname,
-        documents: {
-            path: documentsDir,
-            exists: fs.existsSync(documentsDir),
-            files: fs.existsSync(documentsDir) ? fs.readdirSync(documentsDir) : []
-        },
-        photo: {
-            path: photoDir,
-            exists: fs.existsSync(photoDir),
-            files: fs.existsSync(photoDir) ? fs.readdirSync(photoDir) : []
-        },
-        static: {
-            path: path.resolve(__dirname, 'static'),
-            exists: fs.existsSync(path.resolve(__dirname, 'static'))
-        }
-    }
-    res.json(result)
+     const result = {
+          server_dir: __dirname,
+          documents: {
+               path: documentsDir,
+               exists: fs.existsSync(documentsDir),
+               files: fs.existsSync(documentsDir) ? fs.readdirSync(documentsDir) : [],
+          },
+          photo: {
+               path: photoDir,
+               exists: fs.existsSync(photoDir),
+               files: fs.existsSync(photoDir) ? fs.readdirSync(photoDir) : [],
+          },
+          static: {
+               path: path.resolve(__dirname, 'static'),
+               exists: fs.existsSync(path.resolve(__dirname, 'static')),
+          },
+     }
+     res.json(result)
 })
 
 // Роуты API
@@ -130,12 +140,12 @@ app.get('/api/debug/files', (req, res) => {
 app.use('/api', route)
 
 app.use((err, req, res, next) => {
-    if (err instanceof ApiError) {
-        return res.status(err.status).json({ message: err.message });
-    }
-    console.error(err);
-    return res.status(500).json({ message: 'Внутренняя ошибка сервера' });
-});
+     if (err instanceof ApiError) {
+          return res.status(err.status).json({ message: err.message })
+     }
+     console.error(err)
+     return res.status(500).json({ message: 'Внутренняя ошибка сервера' })
+})
 
 // Запуск сервера
 const start = async () => {
@@ -145,12 +155,10 @@ const start = async () => {
           //console.log('База данных подключена')
 
           snmpPoller.start()
-          initTileServer(app);
+          initTileServer(app)
           //console.log('SNMP поллер запущен')
 
-          app.listen(PORT, () => {
-              
-          })
+          app.listen(PORT, () => {})
      } catch (e) {
           console.error('Ошибка при запуске сервера:', e)
           process.exit(1)

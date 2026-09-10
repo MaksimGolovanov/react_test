@@ -4,9 +4,9 @@ const ApiError = require('../error/ApiError')
 class DepartmentController {
      async getAllDepartments(req, res, next) {
           try {
-               console.log('Fetching departments...') // Добавьте лог
+              
                const departments = await Department.findAll()
-               console.log('Found departments:', departments.length) // Лог количества
+               
                return res.json(departments)
           } catch (err) {
                console.error('Error in getAllDepartments:', err)
@@ -30,7 +30,7 @@ class DepartmentController {
      async createDepartment(req, res, next) {
           try {
                const { code, description, short_name } = req.body
-               console.log('Creating department with:', { code, description, short_name })
+               
 
                const department = await Department.create({
                     code,

@@ -1,0 +1,55 @@
+/* src/features/usb/ui/UsbHeader/UsbHeader.module.css */
+.header {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid;
+}
+.actionsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.searchStatsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid;
+}
+.statsContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.statItem {
+  font-size: 14px;
+}
+.switchContainer {
+  margin-left: auto;
+}
+.switchLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 8px;
+}
+.switchInput {
+  margin: 0;
+}
+.switchText {
+  font-size: 14px;
+}
+@media (max-width: 768px) {
+  .searchStatsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .statsContainer {
+    justify-content: center;
+  }
+}

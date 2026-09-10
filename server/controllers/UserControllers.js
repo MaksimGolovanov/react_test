@@ -38,7 +38,7 @@ class userController {
         description,
         tabNumber,
       });
-      console.log('User created:', user.id);
+      
 
       // Обработка ролей
       if (roles && Array.isArray(roles)) {
@@ -93,7 +93,7 @@ class userController {
         ],
         attributes: ['id', 'login', 'description', 'tabNumber']
       });
-      console.log(JSON.stringify(users, null, 2)); // Форматируем вывод для удобочитаемости
+      
       return res.json(users);
     } catch (error) {
       console.error('Error:', error);
@@ -103,7 +103,7 @@ class userController {
 
   async deleteUser(req, res, next) {
     const { id } = req.params;
-    console.log(id);
+    
     try {
       const user = await User.findByPk(id);
 
@@ -185,7 +185,7 @@ class userController {
       const { id } = req.params;
       const { login, password, description, roles, tabNumber } = req.body;
 
-      console.log('Updating user:', { id, login, description, roles, tabNumber });
+      
 
       const user = await User.findByPk(id);
       if (!user) {

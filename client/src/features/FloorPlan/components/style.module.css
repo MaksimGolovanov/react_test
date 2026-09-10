@@ -1,0 +1,88 @@
+/* Основной контейнер страницы */
+.container {
+  height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+  padding: 16px;
+}
+
+/* Панель инструментов (карточка сверху) */
+.toolbar {
+  flex-shrink: 0;
+}
+
+/* Карточка с редактором (занимает всё оставшееся место) */
+.editorCard {
+  flex: 1;
+  overflow: hidden; /* меняем auto на hidden, чтобы не было лишнего скролла */
+  padding: 0;
+  border-radius: 8px;
+}
+
+.editorCard :global(.ant-card-body) {
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  overflow: hidden; /* добавляем */
+}
+
+/* Сам редактор (внутри карточки) */
+.editorContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #fafafa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.viewportWrapper {
+  width: 100%; /* будет переопределено через style */
+  position: relative; /* для позиционирования кнопок */
+  background: #f0f2f5;
+  border-radius: 8px;
+  overflow: hidden; /* обрезаем всё, что выходит за границы окна */
+}
+
+.scrollWrapper {
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.scrollArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  pointer-events: auto;
+}
+
+.scrollArrow:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.scrollArrowLeft {
+  left: 10px;
+}
+
+.scrollArrowRight {
+  right: 10px;
+}

@@ -8,7 +8,6 @@
 }
 
 .spravHeader {
-  
   border-radius: 8px;
   margin-bottom: 16px;
   flex-shrink: 0;
@@ -103,4 +102,99 @@
 }
 .userListScroll::-webkit-scrollbar-thumb {
   border-radius: 2px;
+}
+
+/* ===== ГАНТ-ДИАГРАММА (компактная) ===== */
+.ganttContainerCompact {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  font-size: 12px;
+}
+
+.ganttHeaderCompact {
+  display: flex;
+  background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.ganttLabelCompact {
+  width: 220px; /* увеличено с 120px */
+  min-width: 220px;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  font-weight: 500;
+  border-right: 1px solid #e8e8e8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.ganttTimelineCompact {
+  flex: 1;
+  display: flex;
+  padding: 4px 0;
+}
+
+.ganttMonthCompact {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.ganttBodyCompact {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ganttRowCompact {
+  display: flex;
+  border-bottom: 1px solid #f0f0f0;
+  height: 22px;
+}
+
+.ganttRowCompact:hover {
+  background: #f5f5f5;
+}
+
+.ganttBarsCompact {
+  flex: 1;
+  position: relative;
+  height: 22px;
+  padding: 2px 0;
+}
+
+.ganttBarCompact {
+  position: absolute;
+  top: 2px;
+  height: 18px;
+  border-radius: 3px;
+  opacity: 0.8;
+  transition: all 0.1s;
+}
+
+.ganttBarCompact:hover {
+  opacity: 1;
+  transform: scaleY(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.ganttHolidayLine {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  background: #ff4d4f;
+  opacity: 0.6;
+  pointer-events: none;
+  border-left: 1px dashed #ff4d4f;
+  z-index: 1;
+}
+
+.signatureCard {
+  margin-top: 16px;
 }

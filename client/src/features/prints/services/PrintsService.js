@@ -13,8 +13,8 @@ class PrintsService {
   }
   static async fetchLocation() {
     try {
-      const response = await axios.get(`${API_URL}api/print/location`)
-      return response.data
+      const response = await axios.get(`${API_URL}api/print/location`);
+      return response.data;
     } catch (error) {
       console.error(error);
       throw error;
@@ -33,42 +33,41 @@ class PrintsService {
 
   static async fetchPrintModel() {
     try {
-      const response = await axios.get(`${API_URL}api/printmodels`)
-      return response.data
+      const response = await axios.get(`${API_URL}api/printmodels`);
+      return response.data;
     } catch (error) {
       throw error;
     }
   }
 
   static async fetchPrintStatistic(itemid) {
-    
     try {
-      const response = await axios.get(`${API_URL}api/print/statistics/${itemid}`)
-      
-      return response.data
+      const response = await axios.get(
+        `${API_URL}api/print/statistics/${itemid}`
+      );
+
+      return response.data;
     } catch (error) {
       throw error;
     }
   }
 
- static async fetchPrint(id) {
-    
-     try {
-       const response = await axios.get(`${API_URL}api/print/print/${id}`)
-      
-       return response.data
-     } catch (error) {
-       throw error;
-     }
-   }
-
+  static async fetchPrint(id) {
+    try {
+      const response = await axios.get(`${API_URL}api/print/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Ошибка получения принтера:', error);
+      throw error;
+    }
+  }
 
   static async createPrintModel(formData) {
     try {
       const response = await axios.post(`${API_URL}api/printmodels`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
       return response.data;
     } catch (error) {
@@ -78,21 +77,21 @@ class PrintsService {
   }
   static async createLocation(formData) {
     if (!formData || !formData.location) {
-        throw new Error('Отсутствуют данные формы.');
+      throw new Error('Отсутствуют данные формы.');
     }
 
     try {
-        const response = await axios.post(
-            `${API_URL}api/print/location/`,
-            formData
-        );
+      const response = await axios.post(
+        `${API_URL}api/print/location/`,
+        formData
+      );
 
-        return response.data;
+      return response.data;
     } catch (error) {
-        console.error('Ошибка при создании локации:', error.message);
-        throw new Error(`Не удалось создать локацию: ${error.message}`);
+      console.error('Ошибка при создании локации:', error.message);
+      throw new Error(`Не удалось создать локацию: ${error.message}`);
     }
-}
+  }
 
   static async deleteLocation(id) {
     try {
@@ -125,49 +124,89 @@ class PrintsService {
   }
   // В PrintsService.js добавьте метод:
   static async createPrint(printData) {
-    console.log(printData)
+    console.log(printData);
     try {
       const response = await axios.post(`${API_URL}api/print/`, {
         print_model: printData.print_model,
         logical_name: printData.logical_name,
-        ip: printData.ip, 
+        ip: printData.ip,
         url: printData.url,
         department: printData.department,
         location: printData.location,
         serial_number: printData.serial_number,
-        description: printData.description
+        description: printData.description,
       });
       return response.data;
     } catch (error) {
-      console.error('Ошибка при создании принтера:', error.response?.data || error.message);
+      console.error(
+        'Ошибка при создании принтера:',
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
 
-
   static async updatePrint(printData) {
-    
     try {
       const response = await axios.put(`${API_URL}api/print/update`, {
         print_model: printData.print_model,
         logical_name: printData.logical_name,
-        ip: printData.ip, 
+        ip: printData.ip,
         url: printData.url,
         department: printData.department,
         location: printData.location,
         serial_number: printData.serial_number,
         id: printData.id,
         status: printData.status,
-        description: printData.description
+        description: printData.description,
       });
       return response.data;
     } catch (error) {
-      console.error('Ошибка при создании принтера:', error.response?.data || error.message);
+      console.error(
+        'Ошибка при создании принтера:',
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
 
+  // в PrintsService.js
 
+  static async updateStatistic(id, data) {
+    try {
+      const response = await axios.put(`${API_URL}api/print/statistics/${id}`, {
+        clock: data.clock,
+        value: data.value,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async deleteStatistic(id) {
+    try {
+      const response = await axios.delete(
+        `${API_URL}api/print/statistics/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  } 
+
+  static async createStatistic(serialNumber, data) {
+    try {
+      const response = await axios.post(`${API_URL}api/print/statistics`, {
+        itemid: serialNumber,
+        clock: data.clock,
+        value: data.value,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default PrintsService;

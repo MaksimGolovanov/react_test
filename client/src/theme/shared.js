@@ -20,7 +20,7 @@ export const commonTokens = {
     fontSizeSM: 12,
 
     // Семейство шрифтов – будет применяться ко всем текстовым элементам
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
+    fontFamily: "'SST', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
   },
 };
 

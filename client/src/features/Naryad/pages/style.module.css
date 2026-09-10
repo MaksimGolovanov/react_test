@@ -1,0 +1,33 @@
+/* src/modules/Naryad/pages/style.module.css */
+.container {
+  height: calc(100vh - 60px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.tableCard {
+  overflow: hidden;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.userListScroll {
+  overflow: auto;
+  scrollbar-width: thin;
+  height: 100%;
+}
+
+.userListScroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.userListScroll::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+.userListScroll::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+}

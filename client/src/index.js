@@ -17,7 +17,9 @@ const ThemedApp = observer(() => {
   const themeConfig = getThemeConfig(currentThemeKey);
 
   return (
-    <ConfigProvider locale={ruRU} theme={themeConfig}>
+    <ConfigProvider
+    
+    locale={ruRU} theme={themeConfig}>
       {userStore.isAuthenticated ? <App /> : <LoginPage />}
     </ConfigProvider>
   );

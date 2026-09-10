@@ -1,110 +1,143 @@
 const sequelize = require('../db')
 const { DataTypes } = require('sequelize')
-const { Staff } = require('./models');
-
+const { Staff } = require('./models')
 
 //const IusUser = sequelize.define('iususer', {
-
-
 
 //});
 
 const IusSpravAdm = sequelize.define('IusSpravAdm', {
-
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    iusadm: { type: DataTypes.STRING },
-    description: { type: DataTypes.STRING },
-    email: { type: DataTypes.STRING },
-    cod: { type: DataTypes.STRING },
-    
-});
-
+     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+     iusadm: { type: DataTypes.STRING },
+     description: { type: DataTypes.STRING },
+     email: { type: DataTypes.STRING },
+     cod: { type: DataTypes.STRING },
+})
 
 const IusSpravRoles = sequelize.define('IusSpravRoles', {
-
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    typename: { type: DataTypes.STRING },
-    type: { type: DataTypes.STRING },
-    name: { type: DataTypes.STRING },
-    code: { type: DataTypes.STRING },
-    mandat: { type: DataTypes.STRING },
-    business_process: { type: DataTypes.STRING },
-
-
-});
+     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+     typename: { type: DataTypes.STRING },
+     type: { type: DataTypes.STRING },
+     name: { type: DataTypes.STRING },
+     code: { type: DataTypes.STRING },
+     mandat: { type: DataTypes.STRING },
+     business_process: { type: DataTypes.STRING },
+})
 
 const IusUser = sequelize.define('IusUser', {
-
-    tabNumber: { type: DataTypes.STRING,primaryKey: true, },
-    name: { type: DataTypes.STRING },
-    contractDetails: { type: DataTypes.STRING },
-    computerName: { type: DataTypes.STRING },
-    location: {type: DataTypes.STRING},
-    manager: {type: DataTypes.STRING},
-    managerEmail: {type: DataTypes.STRING},
-});
+     tabNumber: { type: DataTypes.STRING, primaryKey: true },
+     name: { type: DataTypes.STRING },
+     contractDetails: { type: DataTypes.STRING },
+     computerName: { type: DataTypes.STRING },
+     location: { type: DataTypes.STRING },
+     manager: { type: DataTypes.STRING },
+     managerEmail: { type: DataTypes.STRING },
+})
 
 const StopRole = sequelize.define('StopRole', {
-
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    CodName: { type: DataTypes.STRING },
-    Description: { type: DataTypes.STRING },
-    CanDoWithoutApproval: { type: DataTypes.TEXT },
-    Owner: {type: DataTypes.STRING},
-    Note: {type: DataTypes.STRING}, 
-    Approvers: {type: DataTypes.TEXT},
-});
+     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+     CodName: { type: DataTypes.STRING },
+     Description: { type: DataTypes.STRING },
+     CanDoWithoutApproval: { type: DataTypes.TEXT },
+     Owner: { type: DataTypes.STRING },
+     Note: { type: DataTypes.STRING },
+     Approvers: { type: DataTypes.TEXT },
+})
 
 // Модель для промежуточной таблицы IusUserRoles
-const IusUserRoles = sequelize.define('IusUserRoles', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    tabNumber: { type: DataTypes.STRING, references: { model: 'IusUser', key: 'tabNumber' } },
-    roleId: { type: DataTypes.INTEGER, references: { model: 'IusSpravRoles', key: 'id' } },
-}, {
-    indexes: [ 
-        {
-            unique: true,
-            fields: ['tabNumber', 'roleId']
-        }
-    ]
-});
+const IusUserRoles = sequelize.define(
+     'IusUserRoles',
+     {
+          id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+          tabNumber: { type: DataTypes.STRING, references: { model: 'IusUser', key: 'tabNumber' } },
+          roleId: { type: DataTypes.INTEGER, references: { model: 'IusSpravRoles', key: 'id' } },
+     },
+     {
+          indexes: [
+               {
+                    unique: true,
+                    fields: ['tabNumber', 'roleId'],
+               },
+          ],
+     }
+)
 
 // Связь многие ко многим между IusUser и IusSpravRoles
 IusUser.belongsToMany(IusSpravRoles, {
-    through: IusUserRoles,
-    foreignKey: 'tabNumber', // Поле в промежуточной таблице, которое ссылается на IusUser
-    otherKey: 'roleId',      // Поле в промежуточной таблице, которое ссылается на IusSpravRoles
-});
+     through: IusUserRoles,
+     foreignKey: 'tabNumber', // Поле в промежуточной таблице, которое ссылается на IusUser
+     otherKey: 'roleId', // Поле в промежуточной таблице, которое ссылается на IusSpravRoles
+})
 
 IusSpravRoles.belongsToMany(IusUser, {
-    through: IusUserRoles,
-    foreignKey: 'roleId',    // Поле в промежуточной таблице, которое ссылается на IusSpravRoles
-    otherKey: 'tabNumber',   // Поле в промежуточной таблице, которое ссылается на IusUser
-});
+     through: IusUserRoles,
+     foreignKey: 'roleId', // Поле в промежуточной таблице, которое ссылается на IusSpravRoles
+     otherKey: 'tabNumber', // Поле в промежуточной таблице, которое ссылается на IusUser
+})
 
 IusUserRoles.belongsTo(IusSpravRoles, {
-    foreignKey: 'roleId', // Поле в промежуточной таблице, которое ссылается на IusSpravRoles
-    targetKey: 'id',      // Поле в IusSpravRoles, на которое ссылается roleId
-});
+     foreignKey: 'roleId', // Поле в промежуточной таблице, которое ссылается на IusSpravRoles
+     targetKey: 'id', // Поле в IusSpravRoles, на которое ссылается roleId
+})
 
 IusUserRoles.belongsTo(IusUser, {
-    foreignKey: 'tabNumber', // Поле в промежуточной таблице, которое ссылается на IusUser
-    targetKey: 'tabNumber',  // Поле в IusUser, на которое ссылается tabNumber
-});
+     foreignKey: 'tabNumber', // Поле в промежуточной таблице, которое ссылается на IusUser
+     targetKey: 'tabNumber', // Поле в IusUser, на которое ссылается tabNumber
+})
 
-
- 
 // Связь один к одному между Staff.tab_num и IusUser.tabNumber
-Staff.hasOne(IusUser, { foreignKey: 'tabNumber', sourceKey: 'tabNumber' });
-IusUser.belongsTo(Staff, { foreignKey: 'tabNumber', targetKey: 'tabNumber' });
+Staff.hasOne(IusUser, { foreignKey: 'tabNumber', sourceKey: 'tabNumber' })
+IusUser.belongsTo(Staff, { foreignKey: 'tabNumber', targetKey: 'tabNumber' })
 
-// Экспорт моделей  
+// Экспорт моделей
+
+const IusTransaction = sequelize.define(
+     'IusTransaction',
+     {
+          id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+          system: { type: DataTypes.STRING, allowNull: false },
+          roleCode: { type: DataTypes.STRING, allowNull: false }, // код роли из IusSpravRoles
+          transactionCode: { type: DataTypes.STRING, allowNull: false },
+          description: { type: DataTypes.TEXT, allowNull: true },
+     },
+     {
+          timestamps: true,
+          tableName: 'ius_transactions',
+     }
+)
+
+// Связь многие-ко-многим через промежуточную таблицу
+const IusTransactionRole = sequelize.define(
+     'IusTransactionRole',
+     {
+          id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+          roleId: { type: DataTypes.INTEGER, allowNull: false },
+          transactionId: { type: DataTypes.INTEGER, allowNull: false },
+     },
+     {
+          timestamps: true,
+          tableName: 'ius_transaction_roles',
+     }
+)
+
+// Ассоциации
+IusSpravRoles.belongsToMany(IusTransaction, {
+     through: IusTransactionRole,
+     foreignKey: 'roleId',
+     otherKey: 'transactionId',
+})
+IusTransaction.belongsToMany(IusSpravRoles, {
+     through: IusTransactionRole,
+     foreignKey: 'transactionId',
+     otherKey: 'roleId',
+})
 
 module.exports = {
-    IusSpravAdm,
-    IusSpravRoles,
-    IusUser,
-    IusUserRoles, // Экспортируем промежуточную таблицу
-    StopRole,
-};
-
+     IusSpravAdm,
+     IusSpravRoles,
+     IusUser,
+     IusUserRoles, // Экспортируем промежуточную таблицу
+     StopRole,
+     IusTransaction,
+     IusTransactionRole,
+}

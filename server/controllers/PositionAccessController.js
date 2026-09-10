@@ -90,11 +90,11 @@ class PositionAccessController {
      async getByDepartmentAndPosition(req, res, next) {
           try {
                const { departmentCode, dolgnostName } = req.query
-               if (!departmentCode || !dolgnostName) {
+               if (!departmentCode || !dolgnostName) { 
                     return next(ApiError.badRequest('Не указаны отдел или должность'))
                }
                // Находим отдел по коду
-               const department = await Department.findOne({ where: { code: departmentCode.split(' ')[0] } })
+               const department = await Department.findOne({ where: { code: departmentCode } })
                if (!department) return res.json([])
                // Находим должность по названию
                const dolgnost = await Dolgnost.findOne({ where: { dolgn: dolgnostName } })

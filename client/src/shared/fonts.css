@@ -1,0 +1,13 @@
+/* src/styles/fonts.css */
+@font-face {
+  font-family: 'HeliosCond';
+  src: url('/client/public/fonts/HeliosCond/HeliosCond_Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'HeliosCond-Bold';
+  src: url('/client/public/fonts/HeliosCond/helioscond_bold.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
